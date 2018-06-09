@@ -1,4 +1,4 @@
-print("Python SFGE")
+
 
 
 class Vector2f:

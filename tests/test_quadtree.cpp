@@ -35,9 +35,9 @@ SOFTWARE.
 
 
 
-struct Object
+struct SquareObject
 {
-	Object(b2Vec2 position, b2Vec2 extends, b2Vec2 speed)
+	SquareObject(b2Vec2 position, b2Vec2 extends, b2Vec2 speed)
 	{
 		this->position = position;
 		this->extends = extends;
@@ -69,8 +69,8 @@ struct Object
 
 struct Contact
 {
-	Object* o1;
-	Object* o2;
+	SquareObject* o1;
+	SquareObject* o2;
 };
 
 class QuadTree
@@ -122,7 +122,7 @@ public:
 	}
 
 	
-	int GetIndex(Object* rect)
+	int GetIndex(SquareObject* rect)
 	{
 		int index = -1;
 		double verticalMidpoint = m_Bounds.GetCenter().x;
@@ -159,7 +159,7 @@ public:
 		}
 		return index;
 	}
-	void Insert(Object* obj)
+	void Insert(SquareObject* obj)
 	{
 		if (nodes[0] != nullptr) 
 		{
@@ -285,7 +285,7 @@ private:
 	static const int CHILD_TREE_NMB = 4;
 	int m_NodeLevel = 0;
 	QuadTree* nodes[CHILD_TREE_NMB] = {nullptr};
-	std::list<Object*> m_Objects;
+	std::list<SquareObject*> m_Objects;
 	b2AABB m_Bounds;
 };
 
@@ -296,7 +296,7 @@ int main()
 
 	srand(time(NULL));
 
-	std::list<Object> objectsList;
+	std::list<SquareObject> objectsList;
 	//const int objNmb = 100;
 	const int objNmb = 1000;
 	for (int i = 0; i < objNmb; i++)
