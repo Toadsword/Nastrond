@@ -35,11 +35,12 @@ SOFTWARE.
 #include <future>
 
 #define MULTITHREAD
-#define OBJ_NMB 10000
+#define OBJ_NMB 5000
 #define SCREEN_SIZE 800
 #define VELOCITY_ITERATIONS 8
 #define POSITION_ITERATIONS 3
 #define PHYSICS_UPDATE_DELTATIME 0.02f
+#define PHYSICS_CORES 4
 
 struct SquareObject
 {
@@ -96,7 +97,8 @@ struct Contact
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(800, 800), "Multithread test");
-	b2World world(b2Vec2(0.0f, 9.81f));
+	b2ThreadPool tp(PHYSICS_CORES);
+	b2World world(b2Vec2(0.0f, 9.81f), &tp);
 	std::vector<SquareObject> objects(OBJ_NMB);
 
 	srand(time(nullptr));
