@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <engine/engine.h>
-#include <engine/scene.h>
+#include <engine/modules.h>
 
 int main()
 {
@@ -30,7 +30,7 @@ int main()
 	engine.Init(false, true);
 
 	auto sceneManager = engine.GetSceneManager();
-	sceneManager->SetCurrentScene(sceneManager->LoadSceneFromName("data/scenes/test_physics.scene"));
+	sceneManager.SetCurrentScene(sceneManager.LoadSceneFromName("data/scenes/test_physics.scene"));
 
 
 	engine.Start();

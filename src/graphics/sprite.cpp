@@ -69,7 +69,7 @@ bool Sprite::SpriteLayerComp(Sprite* s1, Sprite* s2)
 Sprite* Sprite::LoadSprite(Engine& engine, json& componentJson, GameObject* gameObject)
 {
 	auto graphicsManager = engine.GetGraphicsManager();
-	auto spriteManager = graphicsManager->GetSpriteManager();
+	auto spriteManager = graphicsManager.GetSpriteManager();
 
 
 	if (spriteManager != nullptr)

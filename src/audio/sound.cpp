@@ -122,7 +122,7 @@ void Sound::Update(float dt)
 Sound* Sound::LoadSound(Engine& engine, json & componentJson, GameObject* gameObject)
 {
 	auto audioManager = engine.GetAudioManager();
-	auto soundManager = audioManager->GetSoundManager();
+	auto soundManager = audioManager.GetSoundManager();
 	if (&soundManager != nullptr)
 	{
 		Sound* newSound = new Sound(gameObject);

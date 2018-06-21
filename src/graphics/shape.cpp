@@ -98,7 +98,7 @@ Shape* Shape::LoadShape(Engine& engine, json& componentJson, GameObject* gameObj
 		}
 		shape->SetOffset(offset);
 		auto graphicsManager = engine.GetGraphicsManager();
-		graphicsManager->GetShapeManager()->AddShape(shape);
+		graphicsManager.GetShapeManager()->AddShape(shape);
 	}
 	return shape;
 }

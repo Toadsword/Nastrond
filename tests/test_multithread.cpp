@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
-#include <physics/physics.h>
+#include <engine/modules.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 
@@ -156,19 +156,26 @@ int main()
 		if(physicsHandler.valid() && !world.IsLocked())
 		{
 			physicsHandler.get();
+			//Update objects
+			for (auto& obj : objects)
+			{
+				obj.Update();
+			}
 		}
 #else
 		if (physicsClock.getElapsedTime().asSeconds() > PHYSICS_UPDATE_DELTATIME)
 		{
 			world.Step(PHYSICS_UPDATE_DELTATIME, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
 			physicsDt = physicsClock.restart();
+			//Update objects
+			for (auto& obj : objects)
+			{
+				obj.Update();
+			}
 		}
+
 #endif
-		//Update objects
-		for (auto& obj : objects)
-		{
-			obj.Update();
-		}
+		
 #ifdef MULTITHREAD
 		if (physicsClock.getElapsedTime().asSeconds() > PHYSICS_UPDATE_DELTATIME && !world.IsLocked())
 		{

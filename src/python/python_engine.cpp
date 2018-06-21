@@ -26,6 +26,8 @@
 #include <input/input.h>
 #include <python/python_engine.h>
 
+#include <engine/modules.h>
+
 #include <engine/scene.h>
 #include <engine/game_object.h>
 #include <engine/component.h>
@@ -34,7 +36,6 @@
 #include <graphics/shape.h>
 #include <graphics/sprite.h>
 
-#include <physics/physics.h>
 #include <physics/body2d.h>
 #include <physics/collider.h>
 

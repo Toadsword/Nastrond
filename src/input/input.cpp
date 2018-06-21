@@ -32,7 +32,6 @@ namespace sfge
 {
 InputManager::InputManager(Engine & engine, bool enable): Module(engine,enable)
 {
-	engine = m_Engine;
 	enable = m_Enable;
 }
 

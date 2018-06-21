@@ -44,17 +44,21 @@ SOFTWARE.
 
 namespace sfge
 {
+Editor::Editor(Engine& engine, bool enable): Module(engine, enable), 
+	m_GraphicsManager(m_Engine.GetGraphicsManager()), 
+	m_SceneManager(m_Engine.GetSceneManager())
+{
+}
+
 /**
 * \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
 */
 void Editor::Init()
 {
-	m_GraphicsManager = m_Engine.GetGraphicsManager();
-	m_SceneManager = m_Engine.GetSceneManager();
 	if (m_Enable)
 	{
 		Log::GetInstance()->Msg("Enabling Editor");
-		ImGui::SFML::Init(*m_GraphicsManager->GetWindow(), true);
+		ImGui::SFML::Init(*m_GraphicsManager.GetWindow(), true);
 	}
 }
 void Editor::Update(sf::Time dt)
@@ -62,19 +66,19 @@ void Editor::Update(sf::Time dt)
 	if (m_Enable)
 	{
 
-		ImGui::SFML::Update(*m_GraphicsManager->GetWindow(), dt);
+		ImGui::SFML::Update(*m_GraphicsManager.GetWindow(), dt);
 		static GameObject* selectedGameObject = nullptr;
 		//GameObject window
 		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(150.0f, m_Engine.GetConfig()->screenResolution.y), ImGuiCond_FirstUseEver);
 		ImGui::Begin("GameObjects");
-		if (m_SceneManager->GetCurrentScene() != nullptr && !m_SceneManager->IsSwitching())
+		if (m_SceneManager.GetCurrentScene() != nullptr && !m_SceneManager.IsSwitching())
 		{  
 
 			static int selected = -1;
 			int n = 0;
 			
-			for (auto gameObject : m_SceneManager->GetCurrentScene()->GetGameObjects())
+			for (auto gameObject : m_SceneManager.GetCurrentScene()->GetGameObjects())
 			{
 
 				if (ImGui::Selectable(gameObject->GetName().c_str(), selected == n))
@@ -172,7 +176,7 @@ void Editor::Draw()
 {
 	if(m_Enable)
 	{
-		ImGui::SFML::Render(*m_GraphicsManager->GetWindow());
+		ImGui::SFML::Render(*m_GraphicsManager.GetWindow());
 	}
 }
 
@@ -185,7 +189,6 @@ void Editor::Destroy()
 {
 	if (m_Enable)
 	{
-		m_GraphicsManager = nullptr;
 		ImGui::Shutdown();
 	}
 }

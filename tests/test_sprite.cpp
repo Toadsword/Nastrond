@@ -29,6 +29,7 @@ SOFTWARE.
 #include <engine/transform.h>
 #include <utility/json_utility.h>
 #include <engine/log.h>
+#include <engine/modules.h>
 
 //Dependencies
 #include <SFML/Graphics.hpp>

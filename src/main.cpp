@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include <engine/engine.h>
 #include <engine/log.h>
+#include <engine/modules.h>
 
 
 int main()

@@ -67,8 +67,8 @@ public:
 protected:
 	sf::Vector2f offset = sf::Vector2f();
 	std::string filename;
-	unsigned int m_TextureId;
-	int layer;
+	unsigned int m_TextureId{};
+	int layer{};
 	sf::Sprite sprite;
 };
 

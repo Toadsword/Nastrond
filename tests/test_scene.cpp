@@ -21,7 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <engine/scene.h>
+
+#include <engine/modules.h>
 #include <utility/json_utility.h>
 
 int main()
@@ -30,7 +31,7 @@ int main()
 	engine.Init(false, true);
 
 	auto sceneManager = engine.GetSceneManager();
-	sceneManager->SetCurrentScene(sceneManager->LoadSceneFromName("data/scenes/test.scene"));
+	sceneManager.SetCurrentScene(sceneManager.LoadSceneFromName("data/scenes/test.scene"));
 
 
 	engine.Start();

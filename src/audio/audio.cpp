@@ -33,7 +33,6 @@ namespace sfge
 
 AudioManager::AudioManager(Engine& engine, bool enable) : Module(engine, enable)
 {
-	engine = m_Engine;
 	enable = m_Enable;
 }
 void AudioManager::Init()

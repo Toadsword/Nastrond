@@ -28,10 +28,13 @@ SOFTWARE.
 #include <engine/engine.h>
 namespace sfge
 {
+
+	class Engine;
+
 class Editor : public Module
 {
 public:
-	using Module::Module;
+	Editor(Engine& engine, bool enable);
 	/**
 	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
 	*/
@@ -51,8 +54,8 @@ public:
 	void Collect() override;
 	void Reset() override;
 protected:
-	GraphicsManager* m_GraphicsManager;
-	SceneManager* m_SceneManager;
+	GraphicsManager& m_GraphicsManager;
+	SceneManager& m_SceneManager;
 	
 
 

@@ -23,11 +23,10 @@ SOFTWARE.
 */
 #include <engine/engine.h>
 #include <engine/log.h>
-#include <python/python_engine.h>
+#include <engine/modules.h>
 #include <python/pycomponent.h>
 #include <engine/game_object.h>
 #include <utility/json_utility.h>
-#include <memory>
 #include <graphics/shape.h>
 
 int main()

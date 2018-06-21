@@ -28,6 +28,8 @@ SOFTWARE.
 #include <cmath>
 #include <iostream>
 
+#include <engine/modules.h>
+
 int factorial(int n)
 {
 	int res = 1;

@@ -28,11 +28,7 @@ SOFTWARE.
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <memory>
-#include <array>
-
 #include <engine/config.h>
-#include <utility/singleton.h>
-#include <thread>
 
 
 namespace sfge
@@ -90,19 +86,19 @@ public:
 	*/
 	void Collect();
 
-	~Engine();
+	~Engine() = default;
 	/**
 	* \brief A getter of the Configuration
 	* \return The Configuration struct got by the Engine
 	*/
 	std::shared_ptr<Configuration> GetConfig();
 	
-	GraphicsManager* GetGraphicsManager();
-	AudioManager* GetAudioManager();
-	SceneManager* GetSceneManager();
-	InputManager* GetInputManager();
-	PythonManager* GetPythonManager();
-	PhysicsManager* GetPhysicsManager();
+	GraphicsManager& GetGraphicsManager() const;
+	AudioManager& GetAudioManager() const;
+	SceneManager& GetSceneManager() const;
+	InputManager& GetInputManager() const;
+	PythonManager& GetPythonManager() const;
+	PhysicsManager& GetPhysicsManager() const;
 
 	bool running = false;
 protected:
@@ -110,13 +106,13 @@ protected:
 	std::shared_ptr<Configuration> m_Config = nullptr;
 
 	//module
-	GraphicsManager* m_GraphicsManager;
-	AudioManager* m_AudioManager;
-	SceneManager* m_SceneManager;
-	InputManager* m_InputManager;
-	PythonManager* m_PythonManager;
-	PhysicsManager* m_PhysicsManager;
-	Editor* m_Editor;
+	std::unique_ptr<GraphicsManager> m_GraphicsManager;
+	std::unique_ptr<AudioManager> m_AudioManager;
+	std::unique_ptr<SceneManager> m_SceneManager;
+	std::unique_ptr<InputManager> m_InputManager;
+	std::unique_ptr<PythonManager> m_PythonManager;
+	std::unique_ptr<PhysicsManager> m_PhysicsManager;
+	std::unique_ptr<Editor> m_Editor;
 };
 
 /**
@@ -127,7 +123,7 @@ class Module
 public:
 	Module(Engine& engine, bool enable);
 
-	virtual ~Module() {};
+	virtual ~Module() = default;
 	/**
 	* \brief Called to initialize the module
 	*/

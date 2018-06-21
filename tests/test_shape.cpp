@@ -26,6 +26,7 @@ SOFTWARE.
 #include <engine/log.h>
 #include <engine/game_object.h>
 #include <utility/json_utility.h>
+#include <engine/modules.h>
 
 int main()
 {
@@ -77,7 +78,7 @@ int main()
 		// clear the window with black color
 		window.clear(sf::Color::Black);
 
-		graphicsManager->GetShapeManager()->Draw(window);
+		graphicsManager.GetShapeManager()->Draw(window);
 
 		// end the current frame
 		window.display();

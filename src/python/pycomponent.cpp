@@ -90,7 +90,7 @@ PyComponent* PyComponent::LoadPythonScript(Engine& engine, json& componentJson, 
 	auto pythonManager = engine.GetPythonManager();
 	if(CheckJsonParameter(componentJson, "script_path", json::value_t::string))
 	{
-		unsigned int componentInstanceId = pythonManager->LoadPyComponentFile(componentJson["script_path"], gameObject);
+		unsigned int componentInstanceId = pythonManager.LoadPyComponentFile(componentJson["script_path"], gameObject);
 		if(componentInstanceId != 0U)
 		{
 			{
@@ -98,7 +98,7 @@ PyComponent* PyComponent::LoadPythonScript(Engine& engine, json& componentJson, 
 				oss << "PyComponent instance has id: " << componentInstanceId;
 				Log::GetInstance()->Msg(oss.str());
 			}
-			auto pyComponent = pythonManager->GetPyComponent(componentInstanceId);
+			auto pyComponent = pythonManager.GetPyComponent(componentInstanceId);
 			pyComponent->SetInstanceId(componentInstanceId);
 			
 			return pyComponent;

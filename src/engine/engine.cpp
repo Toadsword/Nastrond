@@ -27,8 +27,7 @@ SOFTWARE.
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <imgui-SFML.h>
-#include <imgui.h>
+
 
 #include <engine/engine.h>
 #include <engine/scene.h>
@@ -59,13 +58,13 @@ void Engine::Init(bool windowless, bool editor)
 		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
 	}
 
-	m_GraphicsManager = new GraphicsManager(*this, true, windowless);
-	m_AudioManager = new AudioManager(*this, true);
-	m_SceneManager = new SceneManager(*this, true);
-	m_InputManager = new InputManager(*this, true);
-	m_PythonManager = new PythonManager(*this, true);
-	m_PhysicsManager = new PhysicsManager(*this, true);
-	m_Editor = new Editor(*this, editor);
+	m_GraphicsManager = std::make_unique<GraphicsManager>(*this, true, windowless);
+	m_AudioManager = std::make_unique<AudioManager>(*this, true);
+	m_SceneManager = std::make_unique<SceneManager>(*this, true);
+	m_InputManager = std::make_unique<InputManager>(*this, true);
+	m_PythonManager = std::make_unique<PythonManager>(*this, true);
+	m_PhysicsManager = std::make_unique<PhysicsManager>(*this, true);
+	m_Editor = std::make_unique<Editor>(*this, editor);
 	
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
@@ -154,50 +153,40 @@ void Engine::Collect()
 	m_PhysicsManager->Collect();
 }
 
-Engine::~Engine()
-{
-	delete(m_GraphicsManager);
-	delete(m_AudioManager);
-	delete(m_SceneManager);
-	delete(m_InputManager);
-	delete(m_PythonManager);
-	delete(m_Editor);
-	delete(m_PhysicsManager);
-}
 
-std::shared_ptr<Configuration> Engine::GetConfig()
+	std::shared_ptr<Configuration> Engine::GetConfig()
 {
 	return m_Config;
 }
 
-GraphicsManager * Engine::GetGraphicsManager()
+GraphicsManager & Engine::GetGraphicsManager() const
 {
-	return m_GraphicsManager;
+	return *m_GraphicsManager;
 }
 
-AudioManager * Engine::GetAudioManager()
+AudioManager & Engine::GetAudioManager() const
 {
-	return m_AudioManager;
+	return *m_AudioManager;
 }
 
-SceneManager * Engine::GetSceneManager()
+SceneManager & Engine::GetSceneManager() const
 {
-	return m_SceneManager;
+	return *m_SceneManager;
 }
 
-InputManager * Engine::GetInputManager()
+InputManager & Engine::GetInputManager() const
 {
-	return m_InputManager;
+	return *m_InputManager;
 }
 
-PythonManager * Engine::GetPythonManager()
+PythonManager & Engine::GetPythonManager() const
 {
-	return m_PythonManager;
+	return *m_PythonManager;
 }
 
-PhysicsManager * Engine::GetPhysicsManager()
+PhysicsManager & Engine::GetPhysicsManager() const
 {
-	return m_PhysicsManager;
+	return *m_PhysicsManager;
 }
 
 
