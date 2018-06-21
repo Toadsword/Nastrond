@@ -1,5 +1,6 @@
 /*
 * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
+* Copyright (c) 2015, Justin Hoffman https://github.com/skitzoid
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -32,9 +33,154 @@
 #include "Box2D/Collision/b2TimeOfImpact.h"
 #include "Box2D/Common/b2Draw.h"
 #include "Box2D/Common/b2Timer.h"
+#include <Box2D/Common/b2Threading.h>
 #include <new>
 
-b2World::b2World(const b2Vec2& gravity)
+const int32 b2_initialNonStaticBodiesCapacity = 1024;
+const int32 b2_initialStaticBodiesCapacity = 16;
+
+class b2SolveTask : public b2Task
+{
+public:
+    b2SolveTask(b2ContactListener* listener, const b2TimeStep& timestep,
+        b2Vec2 gravity, bool allowSleep, b2SolveTask* next)
+    {
+        m_contactListener = listener;
+        m_timestep = &timestep;
+        m_gravity = gravity;
+        m_allowSleep = allowSleep;
+        m_next = next;
+        m_islandCount = 0;
+        m_bodyCount = 0;
+        m_contactCount = 0;
+        m_jointCount = 0;
+    }
+
+    void AddIsland(int32 bodyCount, int32 contactCount, int32 jointCount,
+        b2Body** bodies, b2Contact** contacts, b2Joint** joints,
+        b2Velocity* velocities, b2Position* positions)
+    {
+        m_islands[m_islandCount++] = b2Island(
+            bodyCount, contactCount, jointCount,
+            bodies, contacts, joints,
+            velocities, positions, m_contactListener);
+
+        m_bodyCount += bodyCount;
+        m_contactCount += contactCount;
+        m_jointCount += jointCount;
+
+        SetCost(b2GetIslandCost(m_bodyCount, m_contactCount, m_jointCount));
+    }
+
+    int32 GetBodyCount() const { return m_bodyCount; }
+
+	b2SolveTask* GetNext() { return m_next; }
+
+	b2Profile& GetProfile() { return m_profile; }
+
+private:
+
+	virtual void Execute(b2StackAllocator& allocator) /* override */
+	{
+        for (int32 islandIndex = 0; islandIndex < m_islandCount; ++islandIndex)
+        {
+            b2Island& island = m_islands[islandIndex];
+
+            // Set the allocator.
+            island.m_allocator = &allocator;
+
+            // Set the per-thread island indices.
+            for (int32 i = 0; i < island.m_bodyCount; ++i)
+            {
+                island.m_bodies[i]->SetIslandIndex(i);
+            }
+
+            island.Solve(&m_profile, *m_timestep, m_gravity, m_allowSleep);
+
+            // Unset the allocator.
+            island.m_allocator = NULL;
+        }
+	}
+
+	b2Island m_islands[b2_solveBatchTargetBodyCount];
+    int32 m_islandCount;
+    int32 m_bodyCount;
+    int32 m_contactCount;
+    int32 m_jointCount;
+    b2ContactListener* m_contactListener;
+	const b2TimeStep* m_timestep;
+	b2Vec2 m_gravity;
+	bool m_allowSleep;
+	b2SolveTask* m_next;
+	b2Profile m_profile;
+};
+
+class b2CollideTask : public b2RangedTask
+{
+public:
+	b2ContactManager* m_manager;
+	b2Contact** m_contacts;
+private:
+	virtual void Execute(b2StackAllocator&) /* override */
+	{
+		m_manager->Collide(m_contacts + m_beginIndex, m_endIndex - m_beginIndex);
+	}
+};
+
+class b2BroadphaseGenerateDefferedMovesTask : public b2RangedTask
+{
+public:
+	b2ContactManager* m_manager;
+	b2Body** m_bodies;
+private:
+	virtual void Execute(b2StackAllocator&) /* override */
+	{
+		m_manager->GenerateDeferredMoveProxies(m_bodies + m_beginIndex, m_endIndex - m_beginIndex);
+	}
+};
+
+class b2BroadphaseFindNewContactsTask : public b2RangedTask
+{
+public:
+	b2ContactManager* m_manager;
+private:
+	virtual void Execute(b2StackAllocator&) /* override */
+	{
+		m_manager->FindNewContacts(m_beginIndex, m_endIndex);
+	}
+};
+
+class b2ClearContactIslandFlagsTask : public b2RangedTask
+{
+public:
+	b2Contact** m_contacts;
+private:
+	virtual void Execute(b2StackAllocator&) /* override */
+	{
+		for (int32 i = m_beginIndex; i < m_endIndex; ++i)
+		{
+			m_contacts[i]->m_flags &= ~b2Contact::e_islandFlag;
+		}
+	}
+};
+
+class b2ClearBodyIslandFlagsTask : public b2RangedTask
+{
+public:
+	b2Body** m_bodies;
+private:
+	virtual void Execute(b2StackAllocator&) /* override */
+	{
+		for (int32 i = m_beginIndex; i < m_endIndex; ++i)
+		{
+			m_bodies[i]->m_flags &= ~b2Body::e_islandFlag;
+		}
+	}
+};
+
+b2World::b2World(const b2Vec2& gravity, b2ThreadPool* threadPool)
+: m_nonStaticBodies(b2_initialNonStaticBodiesCapacity)
+, m_staticBodies(b2_initialStaticBodiesCapacity)
 {
 	m_destructionListener = nullptr;
 	g_debugDraw = nullptr;
@@ -61,6 +207,19 @@ b2World::b2World(const b2Vec2& gravity)
 	m_contactManager.m_allocator = &m_blockAllocator;
 
 	memset(&m_profile, 0, sizeof(b2Profile));
+
+	if (threadPool && threadPool->GetThreadCount() > 0)
+	{
+		m_threadPool = threadPool;
+		
+		m_threadCount = threadPool->GetThreadCount() + 1;
+	}
+	else
+	{
+		m_threadPool = NULL;
+
+		m_threadCount = 1;
+	}
 }
 
 b2World::~b2World()
@@ -124,6 +283,18 @@ b2Body* b2World::CreateBody(const b2BodyDef* def)
 	}
 	m_bodyList = b;
 	++m_bodyCount;
+
+	// Add to bodies array.
+	if (def->type != b2_staticBody)
+	{
+		b->m_worldIndex = m_nonStaticBodies.GetCount();
+		m_nonStaticBodies.Push(b);
+	}
+	else
+	{
+		b->m_worldIndex = m_staticBodies.GetCount();
+		m_staticBodies.Push(b);
+	}
 
 	return b;
 }
@@ -202,6 +373,19 @@ void b2World::DestroyBody(b2Body* b)
 	if (b == m_bodyList)
 	{
 		m_bodyList = b->m_next;
+	}
+
+	// Remove from bodies array.
+	int32 index = b->m_worldIndex;
+	if (b->m_type != b2_staticBody)
+	{
+		m_nonStaticBodies.Peek()->m_worldIndex = index;
+		m_nonStaticBodies.RemoveAndSwap(index);
+	}
+	else
+	{
+		m_staticBodies.Peek()->m_worldIndex = index;
+		m_staticBodies.RemoveAndSwap(index);
 	}
 
 	--m_bodyCount;
@@ -391,7 +575,7 @@ void b2World::Solve(const b2TimeStep& step)
 
 	// Size the island for the worst case.
 	b2Island island(m_bodyCount,
-					m_contactManager.m_contactCount,
+					m_contactManager.GetContactCount(),
 					m_jointCount,
 					&m_stackAllocator,
 					m_contactManager.m_contactListener);
@@ -413,20 +597,16 @@ void b2World::Solve(const b2TimeStep& step)
 	// Build and simulate all awake islands.
 	int32 stackSize = m_bodyCount;
 	b2Body** stack = (b2Body**)m_stackAllocator.Allocate(stackSize * sizeof(b2Body*));
-	for (b2Body* seed = m_bodyList; seed; seed = seed->m_next)
+	for (int32 i = 0; i < m_nonStaticBodies.GetCount(); ++i)
 	{
+		b2Body* seed = m_nonStaticBodies.At(i);
+
 		if (seed->m_flags & b2Body::e_islandFlag)
 		{
 			continue;
 		}
 
 		if (seed->IsAwake() == false || seed->IsActive() == false)
-		{
-			continue;
-		}
-
-		// The seed can be dynamic or kinematic.
-		if (seed->GetType() == b2_staticBody)
 		{
 			continue;
 		}
@@ -534,10 +714,10 @@ void b2World::Solve(const b2TimeStep& step)
 		m_profile.solvePosition += profile.solvePosition;
 
 		// Post solve cleanup.
-		for (int32 i = 0; i < island.m_bodyCount; ++i)
+		for (int32 j = 0; j < island.m_bodyCount; ++j)
 		{
 			// Allow static bodies to participate in other islands.
-			b2Body* b = island.m_bodies[i];
+			b2Body* b = island.m_bodies[j];
 			if (b->GetType() == b2_staticBody)
 			{
 				b->m_flags &= ~b2Body::e_islandFlag;
@@ -550,15 +730,12 @@ void b2World::Solve(const b2TimeStep& step)
 	{
 		b2Timer timer;
 		// Synchronize fixtures, check for out of range bodies.
-		for (b2Body* b = m_bodyList; b; b = b->GetNext())
+		for (int32 i = 0; i < m_nonStaticBodies.GetCount(); ++i)
 		{
+			b2Body* b = m_nonStaticBodies.At(i);
+
 			// If a body was not in an island then it did not move.
 			if ((b->m_flags & b2Body::e_islandFlag) == 0)
-			{
-				continue;
-			}
-
-			if (b->GetType() == b2_staticBody)
 			{
 				continue;
 			}
@@ -566,10 +743,18 @@ void b2World::Solve(const b2TimeStep& step)
 			// Update fixtures (for broad-phase).
 			b->SynchronizeFixtures();
 		}
+		m_profile.broadphaseSyncFixtures += timer.GetMilliseconds();
 
-		// Look for new contacts.
-		m_contactManager.FindNewContacts();
-		m_profile.broadphase = timer.GetMilliseconds();
+		{
+			b2Timer timer2;
+			// Look for new contacts.
+			m_contactManager.FindNewContacts(0, m_contactManager.m_broadPhase.GetMoveCount());
+			m_profile.broadphaseFindContacts += timer2.GetMilliseconds();
+		}
+
+		float32 broadPhaseTime = timer.GetMilliseconds();
+		m_profile.broadphase += broadPhaseTime;
+		m_profile.solve -= broadPhaseTime;
 	}
 }
 
@@ -586,8 +771,10 @@ void b2World::SolveTOI(const b2TimeStep& step)
 			b->m_sweep.alpha0 = 0.0f;
 		}
 
-		for (b2Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
+		for (int32 i = 0; i < m_contactManager.m_contactsTOI.GetCount(); ++i)
 		{
+			b2Contact* c = m_contactManager.m_contactsTOI.At(i);
+
 			// Invalidate TOI
 			c->m_flags &= ~(b2Contact::e_toiFlag | b2Contact::e_islandFlag);
 			c->m_toiCount = 0;
@@ -602,8 +789,10 @@ void b2World::SolveTOI(const b2TimeStep& step)
 		b2Contact* minContact = nullptr;
 		float32 minAlpha = 1.0f;
 
-		for (b2Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
+		for (int32 i = 0; i < m_contactManager.m_contactsTOI.GetCount(); ++i)
 		{
+			b2Contact* c = m_contactManager.m_contactsTOI.At(i);
+
 			// Is this contact disabled?
 			if (c->IsEnabled() == false)
 			{
@@ -649,8 +838,8 @@ void b2World::SolveTOI(const b2TimeStep& step)
 					continue;
 				}
 
-				bool collideA = bA->IsBullet() || typeA != b2_dynamicBody;
-				bool collideB = bB->IsBullet() || typeB != b2_dynamicBody;
+				bool collideA = bA->IsBullet() || (typeA != b2_dynamicBody && !bA->GetPreferNoCCD());
+				bool collideB = bB->IsBullet() || (typeB != b2_dynamicBody && !bB->GetPreferNoCCD());
 
 				// Are these two non-bullet dynamic bodies?
 				if (collideA == false && collideB == false)
@@ -732,7 +921,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
 		bB->Advance(minAlpha);
 
 		// The TOI contact likely has some new contact points.
-		minContact->Update(m_contactManager.m_contactListener);
+		minContact->Update(m_contactManager.m_contactListener, true);
 		minContact->m_flags &= ~b2Contact::e_toiFlag;
 		++minContact->m_toiCount;
 
@@ -812,7 +1001,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
 					}
 
 					// Update the contact points
-					contact->Update(m_contactManager.m_contactListener);
+					contact->Update(m_contactManager.m_contactListener, true);
 
 					// Was the contact disabled by the user?
 					if (contact->IsEnabled() == false)
@@ -860,31 +1049,41 @@ void b2World::SolveTOI(const b2TimeStep& step)
 		subStep.positionIterations = 20;
 		subStep.velocityIterations = step.velocityIterations;
 		subStep.warmStarting = false;
-		island.SolveTOI(subStep, bA->m_islandIndex, bB->m_islandIndex);
+		island.SolveTOI(subStep, bA->GetIslandIndex(), bB->GetIslandIndex());
 
-		// Reset island flags and synchronize broad-phase proxies.
-		for (int32 i = 0; i < island.m_bodyCount; ++i)
 		{
-			b2Body* body = island.m_bodies[i];
-			body->m_flags &= ~b2Body::e_islandFlag;
+			b2Timer timer;
 
-			if (body->m_type != b2_dynamicBody)
+			// Synchronize fixtures, check for out of range bodies.
+			for (int32 i = 0; i < m_nonStaticBodies.GetCount(); ++i)
 			{
-				continue;
+				b2Body* b = m_nonStaticBodies.At(i);
+
+				// If a body was not in an island then it did not move.
+				if ((b->m_flags & b2Body::e_islandFlag) == 0)
+				{
+					continue;
+				}
+
+				// Update fixtures (for broad-phase).
+				b->SynchronizeFixtures();
 			}
 
-			body->SynchronizeFixtures();
+			m_profile.broadphaseSyncFixtures += timer.GetMilliseconds();
 
-			// Invalidate all contact TOIs on this displaced body.
-			for (b2ContactEdge* ce = body->m_contactList; ce; ce = ce->next)
 			{
-				ce->contact->m_flags &= ~(b2Contact::e_toiFlag | b2Contact::e_islandFlag);
+				b2Timer timer2;
+
+				// Look for new contacts.
+				m_contactManager.FindNewContacts(0, m_contactManager.m_broadPhase.GetMoveCount());
+
+				m_profile.broadphaseFindContacts += timer2.GetMilliseconds();
 			}
+
+			float32 broadPhaseTime = timer.GetMilliseconds();
+			m_profile.broadphase += broadPhaseTime;
+			m_profile.solve -= broadPhaseTime;
 		}
-
-		// Commit fixture proxy movements to the broad-phase so that new contacts are created.
-		// Also, some contacts can be destroyed.
-		m_contactManager.FindNewContacts();
 
 		if (m_subStepping)
 		{
@@ -894,15 +1093,417 @@ void b2World::SolveTOI(const b2TimeStep& step)
 	}
 }
 
+void b2World::SynchronizeFixturesMT()
+{
+	b2TaskGroup group(*m_threadPool);
+
+	b2BroadphaseGenerateDefferedMovesTask moveTasks[b2_maxThreads];
+
+	// Initialize tasks.
+	for (int32 i = 0; i < m_threadCount; ++i)
+	{
+		moveTasks[i].m_manager = &m_contactManager;
+		moveTasks[i].m_bodies = m_nonStaticBodies.Data();
+	}
+
+	// Submit tasks.
+	group.SubmitRangedTasks(moveTasks, m_threadCount, m_nonStaticBodies.GetCount(), m_stackAllocator);
+
+	// Wait for tasks to finish.
+	group.Wait(m_stackAllocator);
+
+	// Do work that couldn't be done in parallel.
+	m_contactManager.ConsumeDeferredMoveProxies();
+}
+
+void b2World::FindNewContactsMT()
+{
+	m_contactManager.m_deferCreates = true;
+
+	b2TaskGroup group(*m_threadPool);
+
+	b2BroadphaseFindNewContactsTask tasks[b2_maxThreads];
+
+	// Initialize tasks.
+	for (int32 i = 0; i < m_threadCount; ++i)
+	{
+		tasks[i].m_manager = &m_contactManager;
+	}
+
+	// Submit tasks.
+	group.SubmitRangedTasks(tasks, m_threadCount, m_contactManager.m_broadPhase.GetMoveCount(), m_stackAllocator);
+
+	// Wait for tasks to finish.
+	group.Wait(m_stackAllocator);
+
+	// Do work that couldn't be done in parallel.
+
+	m_contactManager.m_broadPhase.ResetMoveBuffer();
+
+	m_contactManager.ConsumeDeferredCreates();
+}
+
+void b2World::CollideMT()
+{
+	if (m_contactManager.GetContactCount() == 0)
+	{
+		return;
+	}
+
+	m_contactManager.m_deferDestroys = true;
+	m_contactManager.m_deferAwakenings = true;
+
+	b2TaskGroup group(*m_threadPool);
+
+	b2CollideTask contactsTasks[b2_maxThreads];
+	b2CollideTask toiContactsTasks[b2_maxThreads];
+
+	// Initialize tasks.
+	for (int32 i = 0; i < m_threadCount; ++i)
+	{
+		contactsTasks[i].m_manager = &m_contactManager;
+		contactsTasks[i].m_contacts = m_contactManager.m_contactsNonTOI.Data();
+
+		toiContactsTasks[i].m_manager = &m_contactManager;
+		toiContactsTasks[i].m_contacts = m_contactManager.m_contactsTOI.Data();
+	}
+
+	// Submit tasks for non-TOI contacts.
+	group.SubmitRangedTasks(contactsTasks, m_threadCount, m_contactManager.m_contactsNonTOI.GetCount(), m_stackAllocator);
+
+	// Submit tasks for TOI contacts.
+	group.SubmitRangedTasks(toiContactsTasks, m_threadCount, m_contactManager.m_contactsTOI.GetCount(), m_stackAllocator);
+
+	// Wait for tasks to finish.
+	group.Wait(m_stackAllocator);
+
+	// Do work that couldn't be done in parallel.
+
+	m_contactManager.ConsumeDeferredAwakes();
+
+	m_contactManager.ConsumeDeferredDestroys();
+}
+
+void b2World::SolveMT(const b2TimeStep& step)
+{
+	b2SolveTask* solveTaskList = NULL;
+	b2TaskGroup solveGroup(*m_threadPool);
+
+	int32 allBodiesCapacity = m_bodyCount + m_contactManager.GetContactCount() + m_jointCount;
+	int32 allContactsCapacity = m_contactManager.GetContactCount();
+	int32 allJointsCapacity = m_jointCount;
+
+	b2Body** allBodies = (b2Body**)m_stackAllocator.Allocate(allBodiesCapacity * sizeof(b2Body*));
+	b2Contact** allContacts = (b2Contact**)m_stackAllocator.Allocate(allContactsCapacity * sizeof(b2Contact*));
+	b2Joint** allJoints = (b2Joint**)m_stackAllocator.Allocate(allJointsCapacity * sizeof(b2Joint*));
+	b2Velocity* allVelocities = (b2Velocity*)m_stackAllocator.Allocate(allBodiesCapacity * sizeof(b2Velocity));
+	b2Position* allPositions = (b2Position*)m_stackAllocator.Allocate(allBodiesCapacity * sizeof(b2Position));
+	int32 allBodiesCount = 0;
+	int32 allContactsCount = 0;
+	int32 allJointsCount = 0;
+
+	b2Body** bodies = allBodies;
+	b2Contact** contacts = allContacts;
+	b2Joint** joints = allJoints;
+	b2Velocity* velocities = allVelocities;
+	b2Position* positions = allPositions;
+	int32 bodyCount = 0;
+	int32 contactCount = 0;
+	int32 jointCount = 0;
+
+	// Clear all the island flags.
+	ClearIslandFlagsMT();
+
+	b2Timer traversalTimer;
+
+	// Build and simulate all awake islands.
+	int32 stackSize = m_bodyCount;
+	b2Body** stack = (b2Body**)m_stackAllocator.Allocate(stackSize * sizeof(b2Body*));
+    b2SolveTask* currSolveTask = nullptr;
+	for (int32 i = 0; i < m_nonStaticBodies.GetCount(); ++i)
+	{
+		b2Body* seed = m_nonStaticBodies.At(i);
+
+		b2Assert(seed->GetType() != b2_staticBody);
+
+		if (seed->m_flags & b2Body::e_islandFlag)
+		{
+			continue;
+		}
+
+		if (seed->IsAwake() == false || seed->IsActive() == false)
+		{
+			continue;
+		}
+
+		// Reset stack.		
+		int32 stackCount = 0;
+		stack[stackCount++] = seed;
+		seed->m_flags |= b2Body::e_islandFlag;
+
+		// Perform a depth first search (DFS) on the constraint graph.
+		while (stackCount > 0)
+		{
+			// Grab the next body off the stack and add it to the island.
+			b2Body* b = stack[--stackCount];
+			b2Assert(b->IsActive() == true);
+			bodies[bodyCount++] = b;
+
+			// To keep islands as small as possible, we don't
+			// propagate islands across static bodies.
+			if (b->GetType() == b2_staticBody)
+			{
+				continue;
+			}
+
+			// Search all contacts connected to this body.
+			for (b2ContactEdge* ce = b->m_contactList; ce; ce = ce->next)
+			{
+				b2Contact* contact = ce->contact;
+
+				// Has this contact already been added to an island?
+				if (contact->m_flags & b2Contact::e_islandFlag)
+				{
+					continue;
+				}
+
+				// Is this contact solid and touching?
+				if (contact->IsEnabled() == false ||
+					contact->IsTouching() == false)
+				{
+					continue;
+				}
+
+				// Skip sensors.
+				bool sensorA = contact->m_fixtureA->m_isSensor;
+				bool sensorB = contact->m_fixtureB->m_isSensor;
+				if (sensorA || sensorB)
+				{
+					continue;
+				}
+
+				contacts[contactCount++] = contact;
+				contact->m_flags |= b2Contact::e_islandFlag;
+
+				b2Body* other = ce->other;
+
+				// Was the other body already added to this island?
+				if (other->m_flags & b2Body::e_islandFlag)
+				{
+					continue;
+				}
+
+				b2Assert(stackCount < stackSize);
+				stack[stackCount++] = other;
+				other->m_flags |= b2Body::e_islandFlag;
+			}
+
+			// Search all joints connect to this body.
+			for (b2JointEdge* je = b->m_jointList; je; je = je->next)
+			{
+				if (je->joint->m_islandFlag == true)
+				{
+					continue;
+				}
+
+				b2Body* other = je->other;
+
+				// Don't simulate joints connected to inactive bodies.
+				if (other->IsActive() == false)
+				{
+					continue;
+				}
+
+				joints[jointCount++] = je->joint;
+				je->joint->m_islandFlag = true;
+
+				if (other->m_flags & b2Body::e_islandFlag)
+				{
+					continue;
+				}
+
+				b2Assert(stackCount < stackSize);
+				stack[stackCount++] = other;
+				other->m_flags |= b2Body::e_islandFlag;
+			}
+		}
+
+		// Post island traversal cleanup.
+		for (int32 j = 0; j < bodyCount; ++j)
+		{
+			// Allow static bodies to participate in other islands.
+			b2Body* b = bodies[j];
+			if (b->GetType() == b2_staticBody)
+			{
+				b->m_flags &= ~b2Body::e_islandFlag;
+			}
+		}
+
+        if (currSolveTask == nullptr)
+        {
+            currSolveTask = (b2SolveTask*)m_blockAllocator.Allocate(sizeof(b2SolveTask));
+            new(currSolveTask)b2SolveTask(m_contactManager.m_contactListener,
+                step, m_gravity, m_allowSleep, solveTaskList);
+
+            solveTaskList = currSolveTask;
+        }
+
+        currSolveTask->AddIsland(bodyCount, contactCount, jointCount,
+            bodies, contacts, joints, velocities, positions);
+
+        bodies += bodyCount;
+        contacts += contactCount;
+        joints += jointCount;
+        velocities += bodyCount;
+        positions += bodyCount;
+
+        allBodiesCount += bodyCount;
+        allContactsCount += contactCount;
+        allJointsCount += jointCount;
+
+        bodyCount = 0;
+        contactCount = 0;
+        jointCount = 0;
+
+        b2Assert(allBodiesCount <= allBodiesCapacity);
+        b2Assert(allContactsCount <= allContactsCapacity);
+        b2Assert(allJointsCount <= allJointsCapacity);
+
+		if (currSolveTask->GetCost() >= b2_solveBatchTargetCost ||
+            currSolveTask->GetBodyCount() >= b2_solveBatchTargetBodyCount)
+		{
+			solveGroup.SubmitTask(currSolveTask);
+            currSolveTask = nullptr;
+		}
+	}
+
+	// Pick up stragglers.
+	if (currSolveTask != nullptr)
+	{
+        solveGroup.SubmitTask(currSolveTask);
+        currSolveTask = nullptr;
+	}
+
+	m_profile.solveTraversal += traversalTimer.GetMilliseconds();
+
+	// Wait for tasks to finish.
+	solveGroup.Wait(m_stackAllocator);
+
+	// Deallocate tasks.
+	while (solveTaskList)
+	{
+		b2SolveTask* task = solveTaskList;
+
+		// Save profile times.
+		m_profile.solveInit += task->GetProfile().solveInit;
+		m_profile.solveVelocity += task->GetProfile().solveVelocity;
+		m_profile.solvePosition += task->GetProfile().solvePosition;
+
+		solveTaskList = solveTaskList->GetNext();
+
+		// Free the task
+		task->~b2SolveTask();
+		m_blockAllocator.Free(task, sizeof(b2SolveTask));
+	}
+
+	// Free stack
+	m_stackAllocator.Free(stack);
+
+	// Free island memory.
+	m_stackAllocator.Free(allPositions);
+	m_stackAllocator.Free(allVelocities);
+	m_stackAllocator.Free(allJoints);
+	m_stackAllocator.Free(allContacts);
+	m_stackAllocator.Free(allBodies);
+
+	{
+		b2Timer timer;
+
+		// Synchronize fixtures, check for out of range bodies.
+		SynchronizeFixturesMT();
+
+		m_profile.broadphaseSyncFixtures += timer.GetMilliseconds();
+
+		{
+			b2Timer timer2;
+
+			// Look for new contacts.
+			FindNewContactsMT();
+
+			m_profile.broadphaseFindContacts += timer2.GetMilliseconds();
+		}
+
+		float32 broadPhaseTime = timer.GetMilliseconds();
+		m_profile.broadphase += broadPhaseTime;
+		m_profile.solve -= broadPhaseTime;
+	}
+}
+
+void b2World::ClearIslandFlagsMT()
+{
+	b2TaskGroup group(*m_threadPool);
+
+	b2ClearContactIslandFlagsTask contactsTasks[b2_maxThreads];
+	b2ClearContactIslandFlagsTask toiContactsTasks[b2_maxThreads];
+
+	b2ClearBodyIslandFlagsTask bodyTasks[b2_maxThreads];
+	b2ClearBodyIslandFlagsTask staticBodyTasks[b2_maxThreads];
+
+	// Initialize tasks.
+	for (int32 i = 0; i < m_threadCount; ++i)
+	{
+		contactsTasks[i].m_contacts = m_contactManager.m_contactsNonTOI.Data();
+
+		toiContactsTasks[i].m_contacts = m_contactManager.m_contactsTOI.Data();
+
+		bodyTasks[i].m_bodies = m_nonStaticBodies.Data();
+
+		staticBodyTasks[i].m_bodies = m_staticBodies.Data();
+	}
+
+	// Submit tasks for non-TOI contacts.
+	group.SubmitRangedTasks(contactsTasks, m_threadCount, m_contactManager.m_contactsNonTOI.GetCount(), m_stackAllocator);
+
+	// Submit tasks for TOI contacts.
+	group.SubmitRangedTasks(toiContactsTasks, m_threadCount, m_contactManager.m_contactsTOI.GetCount(), m_stackAllocator);
+
+	// Submit tasks for non-static bodies.
+	group.SubmitRangedTasks(bodyTasks, m_threadCount, m_nonStaticBodies.GetCount(), m_stackAllocator);
+
+	// Submit tasks for static bodies.
+	group.SubmitRangedTasks(staticBodyTasks, m_threadCount, m_staticBodies.GetCount(), m_stackAllocator);
+
+	for (b2Joint* j = m_jointList; j; j = j->m_next)
+	{
+		j->m_islandFlag = false;
+	}
+
+	// Wait for tasks to finish.
+	group.Wait(m_stackAllocator);
+}
+
 void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIterations)
 {
 	b2Timer stepTimer;
 
+	memset(&m_profile, 0, sizeof(m_profile));
+
 	// If new fixtures were added, we need to find the new contacts.
 	if (m_flags & e_newFixture)
 	{
-		m_contactManager.FindNewContacts();
+		b2Timer timer;
+		if (IsMultithreadedStepEnabled())
+		{
+			FindNewContactsMT();
+		}
+		else
+		{
+			m_contactManager.FindNewContacts(0, m_contactManager.m_broadPhase.GetMoveCount());
+		}
 		m_flags &= ~e_newFixture;
+		float32 elapsed = timer.GetMilliseconds();
+		m_profile.broadphase += elapsed;
+		m_profile.broadphaseFindContacts += elapsed;
 	}
 
 	m_flags |= e_locked;
@@ -927,16 +1528,31 @@ void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIteration
 	// Update contacts. This is where some contacts are destroyed.
 	{
 		b2Timer timer;
-		m_contactManager.Collide();
-		m_profile.collide = timer.GetMilliseconds();
+		if (IsMultithreadedStepEnabled())
+		{
+			CollideMT();
+		}
+		else
+		{
+			m_contactManager.Collide(m_contactManager.m_contactsNonTOI.Data(), m_contactManager.m_contactsNonTOI.GetCount());
+			m_contactManager.Collide(m_contactManager.m_contactsTOI.Data(), m_contactManager.m_contactsTOI.GetCount());
+		}
+		m_profile.collide += timer.GetMilliseconds();
 	}
 
 	// Integrate velocities, solve velocity constraints, and integrate positions.
 	if (m_stepComplete && step.dt > 0.0f)
 	{
 		b2Timer timer;
-		Solve(step);
-		m_profile.solve = timer.GetMilliseconds();
+		if (IsMultithreadedStepEnabled())
+		{
+			SolveMT(step);
+		}
+		else
+		{
+			Solve(step);
+		}
+		m_profile.solve += timer.GetMilliseconds();
 	}
 
 	// Handle TOI events.
@@ -944,7 +1560,7 @@ void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIteration
 	{
 		b2Timer timer;
 		SolveTOI(step);
-		m_profile.solveTOI = timer.GetMilliseconds();
+		m_profile.solveTOI += timer.GetMilliseconds();
 	}
 
 	if (step.dt > 0.0f)
@@ -1312,7 +1928,7 @@ void b2World::Dump()
 	int32 i = 0;
 	for (b2Body* b = m_bodyList; b; b = b->m_next)
 	{
-		b->m_islandIndex = i;
+		b->SetIslandIndex(i);
 		b->Dump();
 		++i;
 	}
