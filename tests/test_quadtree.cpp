@@ -110,7 +110,7 @@ public:
 	}
 	void Split()
 	{
-		b2Vec2 center = m_Bounds.GetCenter();
+		const b2Vec2 center = m_Bounds.GetCenter();
 		nodes[0] = new QuadTree(m_NodeLevel + 1, 
 			{center, m_Bounds.upperBound});
 		nodes[1] = new QuadTree(m_NodeLevel + 1, 
@@ -122,17 +122,17 @@ public:
 	}
 
 	
-	int GetIndex(Object* rect)
+	int GetIndex(Object* rect) const
 	{
 		int index = -1;
-		double verticalMidpoint = m_Bounds.GetCenter().x;
-		double horizontalMidpoint = m_Bounds.GetCenter().y;
+		const double verticalMidpoint = m_Bounds.GetCenter().x;
+		const double horizontalMidpoint = m_Bounds.GetCenter().y;
 
 		// Object can completely fit within the top quadrants
-		bool topQuadrant = 
+		const bool topQuadrant = 
 			(rect->aabb.lowerBound.y > horizontalMidpoint);
 		// Object can completely fit within the bottom quadrants
-		bool bottomQuadrant = 
+		const bool bottomQuadrant = 
 			(rect->aabb.upperBound.y < horizontalMidpoint);
 
 		// Object can completely fit within the left quadrants
@@ -163,7 +163,7 @@ public:
 	{
 		if (nodes[0] != nullptr) 
 		{
-			int index = GetIndex(obj);
+			const int index = GetIndex(obj);
 
 			if (index != -1) 
 			{
@@ -184,14 +184,14 @@ public:
 			auto objItr = m_Objects.begin();
 			while (objItr != m_Objects.end()) 
 			{
-				int index = GetIndex(*objItr);
+				const int index = GetIndex(*objItr);
 				if (index != -1) 
 				{
 					nodes[index]->Insert(*objItr);
 					objItr = m_Objects.erase(objItr);
 				}
 				else {
-					objItr++;
+					++objItr;
 				}
 			}
 		}
@@ -208,37 +208,37 @@ public:
 				while (objItr != m_Objects.end())
 				{
 					objSecondItr = objItr;
-					objSecondItr++;
+					++objSecondItr;
 					while (objSecondItr != m_Objects.end())
 					{
 						if ((*objItr)->aabb.Contains((*objSecondItr)->aabb))
 						{
 							contacts.push_back({ (*objItr), (*objSecondItr) }); //Create contact struct
 						}
-						objSecondItr++;
+						++objSecondItr;
 					}
-					objItr++;
+					++objItr;
 				}
 			}
 		}
 		else
 		{
 			//Add children contacts
-			for (int i = 0; i < CHILD_TREE_NMB; i++)
+			for (auto& node : nodes)
 			{
-				auto childContacts = nodes[i]->Retrieve();
+				auto childContacts = node->Retrieve();
 				contacts.insert(contacts.end(), childContacts.begin(), childContacts.end());
 			}
 			//Retrieve all parents objects
-			for (auto objItr = m_Objects.begin(); objItr != m_Objects.end(); objItr++)
+			for (auto& m_Object : m_Objects)
 			{
-				for (int i = 0; i < CHILD_TREE_NMB; i++)
+				for (auto& node : nodes)
 				{
-					for (auto childObjItr = nodes[i]->m_Objects.begin(); childObjItr != nodes[i]->m_Objects.end(); childObjItr++)
+					for (auto& childObjItr : node->m_Objects)
 					{
-						if ((*objItr)->aabb.Contains((*childObjItr)->aabb))
+						if (m_Object->aabb.Contains(childObjItr->aabb))
 						{
-							contacts.push_back({ (*objItr), (*childObjItr) }); //Create contact struct
+							contacts.push_back({m_Object, childObjItr}); //Create contact struct
 						}
 					}
 				}
@@ -251,11 +251,11 @@ public:
 	{
 		position = m_Bounds.GetCenter();
 		extends = m_Bounds.GetExtents();
-		for (int i = 0; i < CHILD_TREE_NMB; i++)
+		for (auto& node : nodes)
 		{
-			if (nodes[i] != nullptr)
+			if (node != nullptr)
 			{
-				nodes[i]->Update(dt);
+				node->Update(dt);
 			}
 		}
 	}
@@ -267,11 +267,11 @@ public:
 		rectangle.setOutlineThickness(1.0f);
 		rectangle.setOutlineColor(sf::Color::Blue);
 		window.draw(rectangle);
-		for (int i = 0; i < CHILD_TREE_NMB; i++)
+		for (auto& node : nodes)
 		{
-			if (nodes[i] != nullptr)
+			if (node != nullptr)
 			{
-				nodes[i]->Draw(window);
+				node->Draw(window);
 			}
 		}
 	}
@@ -294,7 +294,7 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(800, 800), "QuadTree test");
 	QuadTree quad(0, { b2Vec2(0,0), sfge::pixel2meter(sf::Vector2i(800,800)) });
 
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	std::list<Object> objectsList;
 	//const int objNmb = 100;
@@ -313,7 +313,7 @@ int main()
 	{
 		sf::Time dt = clock.restart();
 		// check all the window's events that were triggered since the last iteration of the loop
-		sf::Event event;
+		sf::Event event{};
 		while (window.pollEvent(event))
 		{
 			ImGui::SFML::ProcessEvent(event);
@@ -329,7 +329,7 @@ int main()
 		for (auto& obj : objectsList)
 		{
 			obj.Update(dt.asSeconds());
-			sf::Vector2f objPos = sfge::meter2pixel(obj.position);
+			const sf::Vector2f objPos = sfge::meter2pixel(obj.position);
 			if (objPos.x < 0.0f && obj.speed.x<0.0f)
 			{
 				obj.speed.x = -obj.speed.x;

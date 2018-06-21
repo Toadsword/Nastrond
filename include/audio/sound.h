@@ -22,13 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
+#ifndef SFGE_SOUND_H
+#define SFGE_SOUND_H
+
 #include <SFML/Audio.hpp>
 #include <engine/game_object.h>
 #include <engine/component.h>
 
-
-#ifndef SFGE_SOUND_H
-#define SFGE_SOUND_H
 namespace sfge
 {
 class SoundManager;
@@ -83,7 +84,7 @@ public:
 	/**
 	* \brief load a buffer from a json["path"] and ad it to the newSound
 	* \param componentJson The json using for load a sf::SoundBuffer when call LoadSoundBuffer from SoundBuffer class
-	* \param newSound The sound where sf::SoundBuffer was set
+	* \param sound The sound where sf::SoundBuffer was set
 	*/
 	void LoadSound(json& componentJson, Sound* sound);
 

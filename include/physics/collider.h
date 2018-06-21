@@ -49,9 +49,9 @@ public:
 	using Component::Component;
 	void Init() override;
 	void Update(float dt) override;
-	void OnColliderEnter(Collider* collider);
-	void OnColliderExit(Collider* collider);
-
+	void OnColliderEnter(Collider* collider) const;
+	void OnColliderExit(Collider* collider) const;
+	bool IsTrigger() const;
 	static Collider* LoadCollider(Engine& engine, GameObject* gameObject, json& componentJson);
 protected:
 	b2Fixture * m_Fixture = nullptr;

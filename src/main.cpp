@@ -31,7 +31,7 @@ int main()
 {
     sfge::Log::GetInstance()->Msg("SFGE 0.1 by SAE Institute Switzerland AG");
     sfge::Engine engine;
-	engine.Init();
+	engine.Init(false, true);
 	engine.Start();
 #ifdef WIN32
 	system("pause");

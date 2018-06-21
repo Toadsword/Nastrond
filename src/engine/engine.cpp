@@ -64,17 +64,16 @@ void Engine::Init(bool windowless, bool editor)
 	m_SceneManager = new SceneManager(*this, true);
 	m_InputManager = new InputManager(*this, true);
 	m_PythonManager = new PythonManager(*this, true);
-	m_Editor = new Editor(*this, editor);
 	m_PhysicsManager = new PhysicsManager(*this, true);
-	
+	m_Editor = new Editor(*this, editor);
 	
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
 	m_SceneManager->Init();
 	m_InputManager->Init();
 	m_PythonManager->Init();
-	m_Editor->Init();
 	m_PhysicsManager->Init();
+	m_Editor->Init();
 
 	m_Window = m_GraphicsManager->GetWindow();
 	running = true;
@@ -87,8 +86,8 @@ void Engine::Start()
 	sf::Clock clock;
 	while (running && m_Window != nullptr)
 	{
-		sf::Time dt = clock.restart();
-		sf::Event event;
+		const sf::Time dt = clock.restart();
+		sf::Event event{};
 		while (m_Window != nullptr && m_Window->pollEvent(event))
 		{
 			m_Editor->ProcessEvent(event);

@@ -22,41 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_BODY2D_H
-#define SFGE_BODY2D_G
+#ifndef SFGE_ASSET_H
+#define SFGE_ASSET_H
 
-#include <engine/log.h>
-#include <engine/component.h>
-#include <utility/json_utility.h>
+#include <uuid.h>
+#include <xxhash.hpp>
 
-#include <Box2D/Box2D.h>
-
-namespace sfge
+class Asset
 {
 
-class Body2d : public Component
-{
-public:
-	using Component::Component;
-	void Init() override;
-	void Update(float dt) override;
-
-	b2Body* GetBody();
-
-	void SetVelocity(b2Vec2 v);
-	b2Vec2 GetVelocity();
-
-	b2BodyType GetBodyType();
-
-	float GetMass();
-
-	void AddForce(b2Vec2 f);
-
-	static Body2d* LoadBody2d(Engine& engine, GameObject* gameObject, json& componentJson);
-protected:
-	b2Body * m_Body = nullptr;
 };
 
-}
-
 #endif
+

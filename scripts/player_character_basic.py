@@ -6,24 +6,29 @@ class PlayerCharacterBasic(Component):
     def init(self):
         self.speed = 1.0
         self.body = self.game_object.get_component(Component.Body)
+        self.foot = 0
 
     def update(self, dt):
-        d = b2Vec2(0.0,0.0)
+        horizontal_move = 0.0
+        jump_button = False
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Up):
-            d.y -= 1
-        if input_manager.keyboard.is_key_held(KeyboardManager.Key.Down):
-            d.y += 1
+            jump_button = True
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Left):
-            d.x -= 1
+            horizontal_move -= 1.0
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Right):
-            d.x += 1
+            horizontal_move += 1
         #d *= self.speed
         if self.body:
-            self.body.velocity = d
-
+            self.body.velocity = b2Vec2(horizontal_move, self.body.velocity.y)
+            if self.foot > 0 and jump_button:
+                self.body.add_force(b2Vec2(0,-100))
 
     def on_trigger_enter(self, collider):
-        pass
+        colliding_body = collider.game_object.get_component(Component.Body)
+        if collider.is_trigger() and colliding_body.body_type == Body2d.STATIC_BODY:
+            self.foot += 1
 
     def on_trigger_exit(self, collider):
-        pass
+        colliding_body = collider.game_object.get_component(Component.Body)
+        if collider.is_trigger() and colliding_body.body_type == Body2d.STATIC_BODY:
+            self.foot -= 1

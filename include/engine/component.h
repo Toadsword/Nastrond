@@ -59,8 +59,7 @@ public:
 	 * \param gameObject The parent GameObject
 	 */
 	Component(GameObject* gameObject);
-
-	virtual ~Component() { }
+	virtual ~Component() = default;
 	/**
 	 *
 	 * \brief Static method to laod a generic Component. It calls more concrete known component types
@@ -112,5 +111,7 @@ public:
 protected:
 	sf::Vector2f m_Offset = sf::Vector2f();
 };
+
+
 }
 #endif

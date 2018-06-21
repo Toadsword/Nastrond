@@ -61,6 +61,13 @@ b2Vec2 Body2d::GetVelocity()
 	return b2Vec2();
 }
 
+b2BodyType Body2d::GetBodyType()
+{
+	if (m_Body != nullptr)
+		return m_Body->GetType();
+	return b2_staticBody;
+}
+
 
 float Body2d::GetMass()
 {

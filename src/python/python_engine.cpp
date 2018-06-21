@@ -121,12 +121,21 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("set_scale", &Transform::SetScale);
 	
 	py::class_<Collider, Component> collider(m, "Collider");
-
+	collider
+		.def("is_trigger", &Collider::IsTrigger);
+	
 	py::class_<Body2d, Component> body(m, "Body");
 	body
 		.def_property("velocity", &Body2d::GetVelocity, &Body2d::SetVelocity)
 		.def("add_force", &Body2d::AddForce)
+		.def_property_readonly("body_type", &Body2d::GetBodyType)
 		.def_property_readonly("mass", &Body2d::GetMass);
+
+	py::enum_<b2BodyType>(body, "BodyType")
+		.value("STATIC_BODY", b2_staticBody)
+		.value("KINEMATIC_BODY", b2_kinematicBody)
+		.value("DYNAMIC_BODY", b2_dynamicBody)
+		.export_values();
 
 	py::class_<Sound, Component> sound(m, "Sound");
 	sound
@@ -225,16 +234,16 @@ void PythonManager::Collect()
 
 unsigned int PythonManager::LoadPyComponentFile(std::string script_path, GameObject* gameObject)
 {
-    auto folderLastIndex = script_path.find_last_of("/");
+    const auto folderLastIndex = script_path.find_last_of("/");
     std::string filename = script_path.substr(folderLastIndex+1, script_path.size());
-    auto filenameExtensionIndex = filename.find_last_of(".");
+	const std::string::size_type filenameExtensionIndex = filename.find_last_of(".");
 	std::string module_name = filename.substr(0,filenameExtensionIndex);
 	std::string class_name = module2class(module_name);
 	if(IsRegularFile(script_path))
 	{
 		if(pythonModuleIdMap.find(script_path) != pythonModuleIdMap.end())
 		{
-			unsigned int scriptId = pythonModuleIdMap[script_path];
+			const unsigned int scriptId = pythonModuleIdMap[script_path];
 			if(scriptId == 0U)
 			{
 				std::ostringstream oss;

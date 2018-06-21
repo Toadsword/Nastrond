@@ -44,7 +44,10 @@ Component::Component(GameObject* gameObject) :
 {
 }
 
-Component* Component::LoadComponent(Engine& engine, json& componentJson, GameObject* gameObject)
+	
+
+
+	Component* Component::LoadComponent(Engine& engine, json& componentJson, GameObject* gameObject)
 {
 	Component* component = nullptr;
 	std::string componentName = "";

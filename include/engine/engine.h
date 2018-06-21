@@ -32,7 +32,7 @@ SOFTWARE.
 
 #include <engine/config.h>
 #include <utility/singleton.h>
-
+#include <thread>
 
 
 namespace sfge
@@ -108,7 +108,7 @@ public:
 protected:
 	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
 	std::shared_ptr<Configuration> m_Config = nullptr;
-	
+
 	//module
 	GraphicsManager* m_GraphicsManager;
 	AudioManager* m_AudioManager;

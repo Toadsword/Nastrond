@@ -33,7 +33,7 @@ unsigned int SoundManager::LoadSoundBuffer(std::string filename)
 	//If already loaded
 	if (idsPathMap.find(filename) != idsPathMap.end())
 	{
-		unsigned int soundBufferId = idsPathMap[filename];
+		const unsigned int soundBufferId = idsPathMap[filename];
 
 		if (soundBufferMap.find(soundBufferId) != soundBufferMap.end())
 		{

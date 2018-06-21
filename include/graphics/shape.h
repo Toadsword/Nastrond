@@ -50,9 +50,9 @@ public:
 	Shape(GameObject* gameObject);
 	void Init() override;
 	void Update(float time) override;
-	void Draw(sf::RenderWindow& window);
+	void Draw(sf::RenderWindow& window) const;
 
-	void SetFillColor(sf::Color color);
+	void SetFillColor(sf::Color color) const;
 
 	static Shape* LoadShape(Engine& engine, json& componentJson, GameObject* gameObject);
 protected:
@@ -78,6 +78,16 @@ public:
 protected:
 	sf::Vector2f m_Size;
 
+};
+
+class Polygon : public Shape
+{
+public:
+	Polygon(GameObject* gameObject, std::list<sf::Vector2f>& points);
+	void Update(float time) override;
+	static Polygon* LoadPolygon(json& componentJson, GameObject* gameObject);
+protected:
+	
 };
 
 class ShapeManager

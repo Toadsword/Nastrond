@@ -27,7 +27,7 @@
 #include <SFML/System/Vector2.hpp>
 
 //Externals includes
-#include "json.hpp"
+#include "../../externals/utilities/json.hpp"
 using json = nlohmann::json;
 
 namespace sfge

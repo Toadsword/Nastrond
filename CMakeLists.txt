@@ -78,13 +78,6 @@ include_directories(${BOX2D_DIR}/Box2D/)
 LIST(APPEND SFGE_LIBRARIES
 	Box2D)
 
-#JSON
-set(JSON_DIR ${EXTERNAL_DIR}/json/)
-add_subdirectory(${JSON_DIR})
-include_directories(${JSON_DIR}/src/)
-LIST(APPEND SFGE_LIBRARIES
-	nlohmann_json)
-
 #PYTHON
 #IF(NOT WIN32)
 #	add_definitions(-Wall -Wextra -pedantic -std=c++11)
@@ -115,15 +108,20 @@ include_directories(${PYBIND11_DIR})
 LIST(APPEND SFGE_LIBRARIES
   pybind11::embed)
 
+#MISCELLANEOUS UTILITIES
+set(UTILITIES_DIR ${EXTERNAL_DIR}/utilities/)
+add_subdirectory(${UTILITIES_DIR})
+include_directories(${UTILITIES_DIR})
+  
 #SFGE_COMMON
 if(NOT WIN32 AND NOT APPLE)
-LIST(APPEND SFGE_LIBRARIES
-  stdc++fs)
+	LIST(APPEND SFGE_LIBRARIES
+		stdc++fs)
 ENDIF()
 add_library(SFGE_COMMON STATIC ${SFGE_SRC})
 include_directories(include/)
 target_link_libraries(SFGE_COMMON PUBLIC ${SFGE_LIBRARIES})
-
+set_property(TARGET SFGE_COMMON PROPERTY CXX_STANDARD 17)
 #SFGE_TEST
 SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )
@@ -142,3 +140,6 @@ add_executable(SFGE src/main.cpp)
 MESSAGE("SFGE_COMMON: " ${SFGE_COMMON})
 
 target_link_libraries(SFGE PUBLIC SFGE_COMMON)
+
+file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
+file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)

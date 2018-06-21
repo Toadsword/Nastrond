@@ -48,7 +48,7 @@ void Shape::Update(float time)
 	}
 }
 
-void Shape::Draw(sf::RenderWindow& window)
+void Shape::Draw(sf::RenderWindow& window) const
 {
 	if(m_Shape != nullptr)
 	{
@@ -56,7 +56,7 @@ void Shape::Draw(sf::RenderWindow& window)
 	}
 }
 
-void Shape::SetFillColor(sf::Color color)
+void Shape::SetFillColor(sf::Color color) const
 {
 	if (m_Shape != nullptr)
 	{
@@ -68,12 +68,11 @@ void Shape::SetFillColor(sf::Color color)
 Shape* Shape::LoadShape(Engine& engine, json& componentJson, GameObject* gameObject)
 {
 	Shape* shape = nullptr;
-	sf::Vector2f offset;
-	
+
 
 	if(CheckJsonNumber(componentJson, "shape_type"))
 	{
-		ShapeType shapeType = (ShapeType)componentJson["shape_type"];
+		const auto shapeType = static_cast<ShapeType>(componentJson["shape_type"]);
 		switch(shapeType)
 		{
 		case ShapeType::CIRCLE:
@@ -82,10 +81,14 @@ Shape* Shape::LoadShape(Engine& engine, json& componentJson, GameObject* gameObj
 		case ShapeType::RECTANGLE:
 			shape = Rectangle::LoadRectangle(componentJson, gameObject);
 			break;
-
+		case ShapeType::POLYGON:
+			shape = Polygon::LoadPolygon(componentJson, gameObject);
+			break;
+		default: 
+			break;
 		}
 	}
-	offset = GetVectorFromJson(componentJson, "offset");
+	const sf::Vector2f offset = GetVectorFromJson(componentJson, "offset");
 		
 	
 	if(shape != nullptr)
@@ -150,9 +153,7 @@ void Rectangle::Update(float time)
 
 Rectangle* Rectangle::LoadRectangle(json& componentJson, GameObject* gameObject)
 {
-
-	sf::Vector2f size;
-	size = GetVectorFromJson(componentJson, "size");
+	const sf::Vector2f size = GetVectorFromJson(componentJson, "size");
 	{
 		std::ostringstream oss;
 		oss << "Loading Rectangle with size: " << size.x << ", " << size.y;
@@ -181,7 +182,7 @@ void ShapeManager::Reset()
 {
 	for (auto shape : m_Shapes)
 	{
-		delete(shape);
+		delete shape;
 	}
 	m_Shapes.clear();
 }
@@ -195,5 +196,18 @@ void ShapeManager::AddShape(Shape* shape)
 	m_Shapes.push_back(shape);
 }
 
+
+Polygon::Polygon(GameObject * gameObject, std::list<sf::Vector2f>& points): Shape(gameObject)
+{
+}
+
+	void Polygon::Update(float time)
+{
+}
+
+Polygon * Polygon::LoadPolygon(json & componentJson, GameObject * gameObject)
+{
+	return nullptr;
+}
 
 }
