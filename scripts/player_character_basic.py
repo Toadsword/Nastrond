@@ -3,10 +3,11 @@ from SFGE import *
 
 class PlayerCharacterBasic(Component):
 
-    def init(self):
-        self.speed = 1.0
-        self.body = self.game_object.get_component(Component.Body)
+    def __init__(self, game_object: GameObject, name):
+        Component.__init__(game_object, name)
         self.foot = 0
+        self.body = self.game_object.get_component(Component.Body)
+        self.speed = 1.0
 
     def update(self, dt):
         horizontal_move = 0.0
@@ -17,7 +18,7 @@ class PlayerCharacterBasic(Component):
             horizontal_move -= 1.0
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Right):
             horizontal_move += 1
-        #d *= self.speed
+        # d *= self.speed
         if self.body:
             self.body.velocity = b2Vec2(horizontal_move, self.body.velocity.y)
             if self.foot > 0 and jump_button:
