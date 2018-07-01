@@ -48,7 +48,7 @@ endif(WIN32)
 set(SFML_DIR ${EXTERNAL_DIR}/SFML)
 set(SFML_BUILD_EXAMPLES FALSE)
 add_subdirectory(${SFML_DIR})
-include_directories(${SFML_DIR}/include)
+include_directories(${SFML_DIR}/include ${SFML_DIR}/src)
 LIST(APPEND SFGE_LIBRARIES
 	sfml-system
 	sfml-window

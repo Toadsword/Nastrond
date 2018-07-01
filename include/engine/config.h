@@ -49,6 +49,7 @@ struct Configuration
 	 * \brief The limited framerate
 	 */
 	unsigned int maxFramerate = 60;
+	float fixedDeltaTime = 0.2f;
 	/**
 	 * \brief The list of Scene that can be loaded by the SceneManager
 	 */

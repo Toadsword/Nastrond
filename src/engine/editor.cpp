@@ -30,8 +30,6 @@ SOFTWARE.
 #include <engine/log.h>
 
 #include <engine/scene.h>
-#include <engine/game_object.h>
-#include <engine/component.h>
 #include <engine/transform.h>
 
 #include <graphics/graphics.h>
@@ -46,7 +44,8 @@ namespace sfge
 {
 Editor::Editor(Engine& engine, bool enable): Module(engine, enable), 
 	m_GraphicsManager(m_Engine.GetGraphicsManager()), 
-	m_SceneManager(m_Engine.GetSceneManager())
+	m_SceneManager(m_Engine.GetSceneManager()),
+	m_EntityManager(m_Engine.GetEntityManager())
 {
 }
 

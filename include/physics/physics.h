@@ -91,8 +91,8 @@ private:
 	const int32 m_PositionIterations = 3;
 	ContactListener* m_ContactListener = nullptr;
 
-	std::list<Body2d*> m_Bodies;
-	std::list<Collider*> m_Colliders;
+	std::vector<Body2d> m_Bodies;
+	std::vector<Collider*> m_Colliders;
 
 };
 

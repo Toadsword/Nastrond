@@ -29,5 +29,6 @@
 
 
 #define PATH_LIMIT 4096
+#define MAX_ENTITY_NMB 100
 
 #endif //SFGE_GLOBALS_H

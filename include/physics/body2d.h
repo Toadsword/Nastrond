@@ -26,7 +26,6 @@ SOFTWARE.
 #define SFGE_BODY2D_G
 
 #include <engine/log.h>
-#include <engine/component.h>
 #include <utility/json_utility.h>
 
 #include <Box2D/Box2D.h>
@@ -34,12 +33,9 @@ SOFTWARE.
 namespace sfge
 {
 
-class Body2d : public Component
+class Body2d 
 {
 public:
-	using Component::Component;
-	void Init() override;
-	void Update(float dt) override;
 
 	b2Body* GetBody();
 
@@ -52,7 +48,6 @@ public:
 
 	void AddForce(b2Vec2 f);
 
-	static Body2d* LoadBody2d(Engine& engine, GameObject* gameObject, json& componentJson);
 protected:
 	b2Body * m_Body = nullptr;
 };

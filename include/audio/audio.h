@@ -26,7 +26,6 @@ SOFTWARE.
 #define SFGE_AUDIO_H
 
 #include <engine/engine.h>
-#include <engine/component.h>
 #include <SFML/Audio.hpp>
 #include <map>
 #include <string>
@@ -52,7 +51,7 @@ public:
 	* \param musicId the id key of the music
 	*/
 	std::shared_ptr<sf::Music> GetMusic(unsigned int musicId);
-	~MusicManager();
+	~MusicManager() = default;
 protected:
 	std::map< std::string , unsigned int> musicPathId;
 	std::map<unsigned int, std::shared_ptr<sf::Music>> musicMap;
@@ -84,8 +83,8 @@ public:
 	/**
 	* \brief delete the AudioManager
 	*/
-	SoundManager* GetSoundManager();
-	MusicManager* GetMusicManager();
+	SoundManager& GetSoundManager();
+	MusicManager& GetMusicManager();
 	void Destroy() override;
 	void Reset() override;
 	void Collect() override;

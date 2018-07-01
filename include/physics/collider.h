@@ -26,7 +26,6 @@ SOFTWARE.
 #ifndef SFGE_COLLIDER_H
 #define SFGE_COLLIDER_H
 
-#include <engine/component.h>
 #include <utility/json_utility.h>
 
 #include <Box2D/Box2D.h>
@@ -43,16 +42,10 @@ enum class ColliderType
 	LINE
 };
 
-class Collider : public Component
+class Collider 
 {
 public:
-	using Component::Component;
-	void Init() override;
-	void Update(float dt) override;
-	void OnColliderEnter(Collider* collider) const;
-	void OnColliderExit(Collider* collider) const;
 	bool IsTrigger() const;
-	static Collider* LoadCollider(Engine& engine, GameObject* gameObject, json& componentJson);
 protected:
 	b2Fixture * m_Fixture = nullptr;
 };

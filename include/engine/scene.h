@@ -31,6 +31,7 @@
 
 #include <engine/engine.h>
 #include <utility/json_utility.h>
+#include "transform.h"
 
 namespace sfge
 {
@@ -83,7 +84,7 @@ public:
 private:
 	std::shared_ptr<Scene> m_PreviousScene = nullptr;
 	std::shared_ptr<Scene> m_CurrentScene = nullptr;
-	//std::list<std::shared_ptr<Scene>> m_Scenes;
+	std::unique_ptr<Transform2dManager> m_TransformManager = nullptr;
 
 	bool m_Switching = false;
 };

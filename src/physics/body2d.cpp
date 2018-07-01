@@ -24,20 +24,11 @@ SOFTWARE.
 
 #include <physics/body2d.h>
 #include <physics/physics.h>
-#include <engine/game_object.h>
 #include <engine/transform.h>
 
 namespace sfge
 {
 
-void Body2d::Init()
-{
-}
-
-void Body2d::Update(float dt)
-{
-	m_GameObject->GetTransform()->SetPosition(meter2pixel(m_Body->GetPosition()));
-}
 
 b2Body * Body2d::GetBody()
 {
@@ -88,42 +79,6 @@ void Body2d::AddForce(b2Vec2 f)
 
 
 
-Body2d * Body2d::LoadBody2d(Engine & engine, GameObject * gameObject, json& componentJson)
-{
-	auto physicsManager = engine.GetPhysicsManager();
-	if (physicsManager.GetWorld() == nullptr)
-	{
-		return nullptr;
-	}
-	b2World* world = physicsManager.GetWorld();
-
-	Body2d* bodyComponent = new Body2d(gameObject);
-
-	b2BodyDef bodyDef;
-	bodyDef.userData = bodyComponent;
-	bodyDef.type = b2BodyType::b2_dynamicBody;
-	if (CheckJsonNumber(componentJson, "body_type"))
-	{
-		bodyDef.type = componentJson["body_type"];
-	}
-	bodyDef.position = pixel2meter(gameObject->GetTransform()->GetPosition());
-	if (CheckJsonParameter(componentJson, "offset", json::value_t::array))
-	{
-		if (componentJson["offset"].size() == 2)
-		{
-			bodyDef.position += pixel2meter(sf::Vector2f(componentJson["offset"]["x"], componentJson["offset"]["y"]));
-		}
-	}
-	if (CheckJsonNumber(componentJson, "gravity_scale"))
-	{
-		bodyDef.gravityScale = componentJson["gravity_scale"];
-	}
-
-	b2Body* body = world->CreateBody(&bodyDef);
-	bodyComponent->m_Body = body;
-	physicsManager.m_Bodies.push_back(bodyComponent);
-	return bodyComponent;
-}
 
 }
 

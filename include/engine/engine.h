@@ -46,6 +46,7 @@ class SceneManager;
 class SpriteManager;
 class TextureManager;
 class PhysicsManager;
+class EntityManager;
 class Editor;
 
 enum class EngineModule
@@ -99,6 +100,7 @@ public:
 	InputManager& GetInputManager() const;
 	PythonManager& GetPythonManager() const;
 	PhysicsManager& GetPhysicsManager() const;
+	EntityManager& GetEntityManager() const;
 
 	bool running = false;
 protected:
@@ -113,6 +115,7 @@ protected:
 	std::unique_ptr<PythonManager> m_PythonManager;
 	std::unique_ptr<PhysicsManager> m_PhysicsManager;
 	std::unique_ptr<Editor> m_Editor;
+	std::unique_ptr<EntityManager> m_EntityManager;
 };
 
 /**
@@ -133,6 +136,10 @@ public:
 	* \param dt The delta time since last frame
 	*/
 	virtual void Update(sf::Time dt) = 0;
+	/**
+	 * \brief Called directly after the physics finished his job
+	 */
+	virtual void FixedUpdate() {}
 	/**
 	* \brief Used instead of the destructor to delete all heap created structure and finalize
 	*/

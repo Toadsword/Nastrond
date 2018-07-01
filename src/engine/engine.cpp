@@ -65,7 +65,8 @@ void Engine::Init(bool windowless, bool editor)
 	m_PythonManager = std::make_unique<PythonManager>(*this, true);
 	m_PhysicsManager = std::make_unique<PhysicsManager>(*this, true);
 	m_Editor = std::make_unique<Editor>(*this, editor);
-	
+	m_EntityManager = std::make_unique<EntityManager>();
+
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
 	m_SceneManager->Init();
@@ -82,10 +83,11 @@ void Engine::Init(bool windowless, bool editor)
 
 void Engine::Start()
 {
-	sf::Clock clock;
+	sf::Clock updateClock;
+	sf::Clock fixedUpdateClock;
 	while (running && m_Window != nullptr)
 	{
-		const sf::Time dt = clock.restart();
+		const sf::Time dt = updateClock.restart();
 		sf::Event event{};
 		while (m_Window != nullptr && m_Window->pollEvent(event))
 		{
@@ -101,8 +103,15 @@ void Engine::Start()
 		{
 			continue;
 		}
-		m_PhysicsManager->Update(dt);
+		
 		m_InputManager->Update(dt);
+		if (fixedUpdateClock.getElapsedTime().asSeconds() < m_Config->fixedDeltaTime)
+		{
+			m_PhysicsManager->Update(dt);
+			fixedUpdateClock.restart();
+			m_PythonManager->FixedUpdate();
+			m_SceneManager->FixedUpdate();
+		}
 		m_PythonManager->Update(dt);
 
 		m_SceneManager->Update(dt);

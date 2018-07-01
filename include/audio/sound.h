@@ -27,8 +27,8 @@ SOFTWARE.
 #define SFGE_SOUND_H
 
 #include <SFML/Audio.hpp>
-#include <engine/game_object.h>
-#include <engine/component.h>
+#include <map>
+#include <utility/json_utility.h>
 
 namespace sfge
 {
@@ -37,29 +37,18 @@ class SoundManager;
 /**
 * \brief Sound class child is a Component
 */
-class Sound : public Component
+class Sound
 {
 protected:
 	sf::Sound* m_Sound = nullptr;
 public:
-	Sound(GameObject* gameObject);
+	Sound();
 	~Sound();
 	/**
 	* \brief initialize the Sound class
 	*/
-	void Init() override;
-	/**
-	* \brief Update the audioManager, called only in play mode
-	* \ param dt The delta time since last frame
-	*/
-	void Update(float dt) override;
-	/**
-	* \brief create a sf::Sound, call LoadSound of SoundManager class and return the created sound
-	* \param engine The engine using for create a dynamic_pointer_cast of audio_manager
-	* \param componentJson The json using when call LoadSound of SoundManager class
-	* \param gameObject The GameObject which the sound is attached
-	*/
-	static Sound* LoadSound(Engine& engine, json& componentJson, GameObject* gameObject);
+	void Init();
+
 	void SetBuffer(sf::SoundBuffer* buffer);
 	void Play();
 	void Stop();
@@ -96,7 +85,7 @@ protected:
 	/**
 	* \brief The list where the sounds of LoadSound fuction of SoundManager was placed
 	*/
-	std::list<Sound*> m_Sounds;
+	std::vector<Sound> m_Sounds;
 	std::map<std::string, unsigned int> idsPathMap;
 	std::map<unsigned int, unsigned int> idsRefCountMap;
 	std::map<unsigned int, sf::SoundBuffer*> soundBufferMap;

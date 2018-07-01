@@ -25,16 +25,20 @@ SOFTWARE.
 #include <cstdio>      /* printf, scanf, puts, NULL */
 #include <cstdlib>     /* srand, rand */
 #include <ctime>       /* time */
-#include <vector>
+#include <functional>
 #include <queue>
+#include <ctpl_stl.h>
 
 #include <physics/physics.h>
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include "engine/modules.h"
+
 
 #define GAMEOBJECTS_NMB 100000
 #define WINDOW_SIZE_X 800
@@ -48,11 +52,13 @@ SOFTWARE.
 #define PHYSICS_UPDATE_DELTATIME 0.02f
 
 #define DT_AVG_NMB 60
+#define THREAD_POOL_NMB 4
 
 //#define USE_B2
 //#define OOP
 //#define COMP
 #define ECS
+#define THREAD_ECS
 
 #ifdef USE_B2
 static b2World world(b2Vec2(0.0f, 0.0f));
@@ -61,20 +67,26 @@ static b2World world(b2Vec2(0.0f, 0.0f));
 
 #ifdef ECS
 
+#ifdef THREAD_ECS
+ctpl::thread_pool threadPool(THREAD_POOL_NMB);
+#endif
+
 namespace ECS
 {
 	enum class Component
 	{
 		COMPONENT_NONE = 0,
-		COMPONENT_RECTSHAPE = 1 << 0,
+		COMPONENT_RECTANGLE = 1 << 0,
 		COMPONENT_TRANSFORM = 1 << 1,
 #ifdef USE_B2
 		COMPONENT_BODY2D    = 1 << 2
 #endif
 	};
+	
 	struct Transform 
 	{
 		sf::Vector2f position = sf::Vector2f();
+		sf::Vector2f size = sf::Vector2f();
 #ifndef USE_B2
 		sf::Vector2f velocity = sf::Vector2f();
 #endif
@@ -82,12 +94,18 @@ namespace ECS
 	struct World
 	{
 		unsigned int mask[GAMEOBJECTS_NMB]{static_cast<unsigned int>(Component::COMPONENT_NONE)};
-
-		sf::RectangleShape rectShapes[GAMEOBJECTS_NMB];
+		
+		//sf::RectangleShape rectangles[GAMEOBJECTS_NMB];
+		sf::VertexArray rectVertexArrays;
 		Transform transforms[GAMEOBJECTS_NMB];
 #ifdef USE_B2
 		b2Body bodies[GAMEOBJECTS_NMB];
 #endif
+		World()
+		{
+			rectVertexArrays.setPrimitiveType(sf::Quads);
+			rectVertexArrays.resize(GAMEOBJECTS_NMB << 2);
+		}
 		unsigned int CreateEntity()
 		{
 			unsigned entity;
@@ -98,22 +116,25 @@ namespace ECS
 					return entity;
 				}
 			}
+			return GAMEOBJECTS_NMB;
 		}
 		void CreateRectObject(unsigned int entity)
 		{
-			mask[entity] = static_cast<unsigned>(Component::COMPONENT_RECTSHAPE) | 
+			mask[entity] = static_cast<unsigned>(Component::COMPONENT_RECTANGLE) | 
 				static_cast<unsigned>(Component::COMPONENT_TRANSFORM);
-			Transform& transform = transforms[entity];
-			sf::RectangleShape& rectShape = rectShapes[entity];
+			auto& transform = transforms[entity];
+			//auto& rectangle = rectangles[entity];
 
 			transform.position = sf::Vector2f(rand() % WINDOW_SIZE_X, rand() % WINDOW_SIZE_Y);
-			sf::Vector2f size = sf::Vector2f(
+			transform.size = sf::Vector2f(
 				GAMEOBJECT_SIZE + (rand() % (GAMEOBJECT_MARGIN * 2)) - GAMEOBJECT_MARGIN,
 				GAMEOBJECT_SIZE + (rand() % (GAMEOBJECT_MARGIN * 2)) - GAMEOBJECT_MARGIN);
-			rectShape.setPosition(transforms[entity].position);
-			rectShape.setSize(size);
-			rectShape.setOrigin(size / 2.0f);
-			rectShape.setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
+			
+			sf::Color rectColor = (sf::Color(rand() % 256, rand() % 256, rand() % 256));
+			for(int i = 0; i < 4; i++)
+			{
+				rectVertexArrays[entity*4 + i].color = rectColor;
+			}
 #ifdef USE_B2
 			b2BodyDef bodyDef;
 			bodyDef.position = sfge::pixel2meter(position);
@@ -145,43 +166,59 @@ namespace ECS
 
 		void Update(float dt)
 		{
-			for(int i = 0; i < GAMEOBJECTS_NMB; i++)
+#ifdef THREAD_ECS
+			std::future<void> joinFutures[THREAD_POOL_NMB];
+			for(int threadIndex = 0; threadIndex<THREAD_POOL_NMB;threadIndex++)
 			{
-				if ((mask[i] & static_cast<unsigned int>(Component::COMPONENT_TRANSFORM)) == static_cast<unsigned int>(Component::COMPONENT_TRANSFORM) and 
-					(mask[i] & static_cast<unsigned int>(Component::COMPONENT_RECTSHAPE)) == static_cast<unsigned int>(Component::COMPONENT_RECTSHAPE))
-				{
-					auto& transform = transforms[i];
-					transform.position = transform.velocity * dt + transform.position;
-					if (transform.position.x < 0 and transform.velocity.x < 0)
-					{
-						transform.velocity.x = -transform.velocity.x;
-					}
-					if (transform.position.x > WINDOW_SIZE_X and transform.velocity.x > 0)
-					{
-						transform.velocity.x = -transform.velocity.x;
-					}
-					if (transform.position.y < 0 and transform.velocity.y < 0)
-					{
-						transform.velocity.y = -transform.velocity.y;
-					}
-					if (transform.position.y > WINDOW_SIZE_Y and transform.velocity.y > 0)
-					{
-						transform.velocity.y = -transform.velocity.y;
-					}
-					rectShapes[i].setPosition(transform.position);
-				}
+				int start = (threadIndex + 1)*GAMEOBJECTS_NMB / (THREAD_POOL_NMB + 1);
+				int end = (threadIndex + 2)*GAMEOBJECTS_NMB / (THREAD_POOL_NMB + 1)-1;
+				auto worldUpdateFunction = std::bind(&World::UpdateRange, this, dt, start, end);
+				joinFutures[threadIndex] = threadPool.push(worldUpdateFunction);
 			}
+			UpdateRange(dt, 0, GAMEOBJECTS_NMB / (THREAD_POOL_NMB + 1) - 1);
+			for(int i = 0; i<THREAD_POOL_NMB;i++)
+			{
+				joinFutures[i].get();
+			}
+#else
+			UpdateRange(dt, 0, GAMEOBJECTS_NMB);
+#endif
 		}
 		void Draw(sf::RenderWindow& window)
 		{
-			for(int i = 0; i < GAMEOBJECTS_NMB; i++)
+			window.draw(rectVertexArrays);
+		}
+	private:
+		void UpdateRange(float dt, int start, int end)
+		{
+			for (int i = start; i < end; i++)
 			{
-				if((mask[i] & static_cast<unsigned int>(Component::COMPONENT_RECTSHAPE)) == static_cast<unsigned int>(Component::COMPONENT_RECTSHAPE))
+				if ((mask[i] & static_cast<unsigned int>(Component::COMPONENT_TRANSFORM)) == static_cast<unsigned int>(Component::COMPONENT_TRANSFORM))
 				{
-					window.draw(rectShapes[i]);
+					auto& transform = transforms[i];
+					transform.position = transform.velocity * dt + transform.position;
+					if ((transform.position.x < 0 and transform.velocity.x < 0) or 
+						(transform.position.x > WINDOW_SIZE_X and transform.velocity.x > 0))
+					{
+						transform.velocity.x = -transform.velocity.x;
+					}
+					
+					if ((transform.position.y < 0 and transform.velocity.y < 0) or
+						(transform.position.y > WINDOW_SIZE_Y and transform.velocity.y > 0))
+					{
+						transform.velocity.y = -transform.velocity.y;
+					}
+					rectVertexArrays[i * 4].position = transform.position - transform.size / 2.0f;
+					rectVertexArrays[i * 4 + 1].position = sf::Vector2f(transform.position.x + transform.size.x / 2.0f, 
+																  transform.position.y - transform.size.y/2.0f);
+					rectVertexArrays[i * 4 + 2].position = transform.position + transform.size / 2.0f;
+					rectVertexArrays[i * 4 + 3].position = sf::Vector2f(transform.position.x - transform.size.x / 2.0f, 
+																  transform.position.y + transform.size.y / 2.0f);
+					//rectangles[i].setPosition(transform.position);
 				}
 			}
 		}
+
 	};
 
 	
@@ -296,11 +333,15 @@ namespace OOP
 #endif
 int main()
 {
-    std::deque<sf::Int64> deltaTimes;
+	sf::Clock profilingClock;
+	profilingClock.restart();
+	sf::Time loadingTime;
+    std::deque<sf::Int64> physicsDeltaTimes;
+	std::deque<sf::Int64> graphicsDeltaTimes;
     sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE_X, WINDOW_SIZE_Y), "ECS test");
-
+	
 #ifdef OOP
-    GameObject* gameObjects = new GameObject[GAMEOBJECTS_NMB];
+    auto* gameObjects = new GameObject[GAMEOBJECTS_NMB];
 #endif
 #ifdef ECS
 	auto world = std::make_unique<World>();
@@ -310,14 +351,13 @@ int main()
 		world->CreateRectObject(entity);
 	}
 #endif
-
+	loadingTime = profilingClock.getElapsedTime();
 
     srand(time(nullptr));
     ImGui::SFML::Init(window);
     sf::Clock clock;
 	sf::Clock physicsClock;
 	sf::Time physicsDt;
-	sf::Clock profilingClock;
 	sf::Time updateProfileTime;
 	sf::Time graphicsProfileTime;
     while (window.isOpen())
@@ -352,10 +392,10 @@ int main()
 			world->Update(physicsDt.asSeconds());
 #endif
 			updateProfileTime = profilingClock.getElapsedTime();
-			deltaTimes.push_back(updateProfileTime.asMicroseconds());
-			if (deltaTimes.size() > DT_AVG_NMB)
+			physicsDeltaTimes.push_back(updateProfileTime.asMicroseconds());
+			if (physicsDeltaTimes.size() > DT_AVG_NMB)
 			{
-				deltaTimes.pop_front();
+				physicsDeltaTimes.pop_front();
 			}
 		}
 
@@ -365,27 +405,46 @@ int main()
         {
             std::ostringstream oss;
             oss << "FPS: " << 1.0f / dt.asSeconds()<<"\n";
-            sf::Int64 high_fps_dt = -1;
-			sf::Int64 low_fps_dt = -1;
-            for(auto dt_value : deltaTimes)
+            sf::Int64 phyiscs_high_dt = -1;
+			sf::Int64 physics_low_dt = -1;
+            for(auto dt_value : physicsDeltaTimes)
             {
-                if(high_fps_dt < 0.0f or dt_value < high_fps_dt)
+                if(phyiscs_high_dt < 0.0f or dt_value < phyiscs_high_dt)
                 {
-                    high_fps_dt = dt_value;
+                    phyiscs_high_dt = dt_value;
                 }
-                if(low_fps_dt < 0.0f or dt_value > low_fps_dt)
+                if(physics_low_dt < 0.0f or dt_value > physics_low_dt)
                 {
-                    low_fps_dt = dt_value;
+                    physics_low_dt = dt_value;
                 }
             }
+			sf::Int64 graphics_high_dt = -1;
+			sf::Int64 graphics_low_dt = -1;
+			for (auto dt_value : graphicsDeltaTimes)
+			{
+				if (graphics_high_dt < 0.0f or dt_value < graphics_high_dt)
+				{
+					graphics_high_dt = dt_value;
+				}
+				if (graphics_low_dt < 0.0f or dt_value > graphics_low_dt)
+				{
+					graphics_low_dt = dt_value;
+				}
+			}
 			oss << "UPDATE:  " << updateProfileTime.asMicroseconds() << "\n";
+			oss << "LOWEST:  " << physics_low_dt << "\n";
+			oss << "HIGHEST: " << phyiscs_high_dt << "\n\n";
 
-			oss << "LOWEST:  " << low_fps_dt << "\n";
-			oss << "HIGHEST: " << high_fps_dt << "\n";
+			oss << "GRAPHICS:" << graphicsProfileTime.asMicroseconds() << "\n";
+			oss << "LOWEST  :" << graphics_low_dt << "\n";
+			oss << "HIGHEST :" << graphics_high_dt << "\n\n";
+
+			oss << "LOADING :" << loadingTime.asSeconds() << "\n";
             ImGui::Text(oss.str().c_str());
         }
 
         ImGui::End();
+		profilingClock.restart();
         window.clear(sf::Color::Black);
 #ifdef OOP
         //Show the game objects
@@ -401,6 +460,12 @@ int main()
         ImGui::SFML::Render(window);
 
         window.display();
+		graphicsProfileTime = profilingClock.getElapsedTime();
+		graphicsDeltaTimes.push_back(graphicsProfileTime.asMicroseconds());
+		if(graphicsDeltaTimes.size() > DT_AVG_NMB)
+		{
+			graphicsDeltaTimes.pop_front();
+		}
     }
 #ifdef OOP
 	delete[] gameObjects;

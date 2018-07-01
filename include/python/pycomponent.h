@@ -25,37 +25,43 @@
 #ifndef SFGE_PYCOMPONENT_H_
 #define SFGE_PYCOMPONENT_H_
 
-#include <engine/component.h>
+#include <engine/entity.h>
+
 #include <utility/python_utility.h>
 //STL
 #include <memory>
 
 namespace sfge
 {
+	class Collider;
 
-/**
+	/**
  * \brief Python abstraction of Component
  */
-class PyComponent : public Component
+class PyComponent
 {
 public:
-	using Component::Component;
+	PyComponent();
 	~PyComponent();
 
-	void Init() override;
-	void Update(float dt) override;
-	static PyComponent* LoadPythonScript(Engine& engine, json& componentJson, GameObject* gameObject);
+	void Init();
+	void Update(float dt);
+	void FixedUpdate();
 
-	void OnCollisionEnter(Collider* collider) override;
-	void OnTriggerEnter(Collider * collider) override;
-	void OnCollisionExit(Collider* collider) override;
-	void OnTriggerExit(Collider * collider) override;
+	void OnCollisionEnter(Collider* collider);
+	void OnTriggerEnter(Collider * collider);
+	void OnCollisionExit(Collider* collider);
+	void OnTriggerExit(Collider * collider);
+
+	Entity GetEntity();
+
 
 	unsigned int GetInstanceId() const;
 	void SetInstanceId(unsigned int instanceId = 0U);
 
 private:
 	unsigned int instanceId = 0U;
+	Entity entity;
 };
 
 }

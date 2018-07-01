@@ -26,6 +26,8 @@ SOFTWARE.
 #define SFGE_EDITOR_H
 
 #include <engine/engine.h>
+#include "entity.h"
+
 namespace sfge
 {
 
@@ -56,6 +58,7 @@ public:
 protected:
 	GraphicsManager& m_GraphicsManager;
 	SceneManager& m_SceneManager;
+	EntityManager& m_EntityManager;
 	
 
 

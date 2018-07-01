@@ -44,14 +44,14 @@ void AudioManager::Update(sf::Time dt)
 
 };
 
-SoundManager*  AudioManager::GetSoundManager()
+SoundManager&  AudioManager::GetSoundManager()
 {
-	return &m_SoundManager;
+	return m_SoundManager;
 }
 
-MusicManager*  AudioManager::GetMusicManager()
+MusicManager&  AudioManager::GetMusicManager()
 {
-	return &m_MusicManager;
+	return m_MusicManager;
 }
 void AudioManager::Reset()
 {
@@ -125,9 +125,6 @@ std::shared_ptr<sf::Music> MusicManager::GetMusic(unsigned int musicId)
 	return nullptr;
 }
 
-MusicManager::~MusicManager()
-{
-}
 
 
 

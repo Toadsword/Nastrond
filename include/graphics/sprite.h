@@ -29,8 +29,8 @@ SOFTWARE.
 #include <map>
 #include <string>
 //Engine
-#include <engine/component.h>
 #include <engine/engine.h>
+#include <utility/json_utility.h>
 //Dependencies
 #include <SFML/Graphics.hpp>
 
@@ -40,21 +40,12 @@ class GraphicsManager;
 /**
 * \brief Sprite component used in the GameObject
 */
-class Sprite : public Component, Offsetable
+class Sprite 
 {
 public:
-	using Component::Component;
-	void Init() override;
-	/**
-	* \brief Update the Component
-	* \param dt Delta time since last frame
-	*/
-	void Update(float dt) override;
+	void Init();
 	
 	void Draw(sf::RenderWindow& window);
-
-
-	static Sprite* LoadSprite(Engine& engine, json& componentJson, GameObject* gameObject);
 
 
 	void SetTexture(sf::Texture* newTexture);
@@ -67,8 +58,8 @@ public:
 protected:
 	sf::Vector2f offset = sf::Vector2f();
 	std::string filename;
-	unsigned int m_TextureId{};
-	int layer{};
+	unsigned int m_TextureId = 0U;
+	int layer = 0;
 	sf::Sprite sprite;
 };
 

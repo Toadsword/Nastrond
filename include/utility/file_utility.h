@@ -34,6 +34,7 @@ namespace fs = std::experimental::filesystem;
 
 namespace sfge
 {
+
 	bool FileExists(std::string& filename);
     bool IsRegularFile(std::string& filename);
 }

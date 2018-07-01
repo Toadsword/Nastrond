@@ -26,7 +26,6 @@ SOFTWARE.
 #define SFGE_SHAPE_H_
 
 #include <engine/engine.h>
-#include <engine/component.h>
 #include <utility/json_utility.h>
 
 //Externals
@@ -44,27 +43,20 @@ enum class ShapeType
 	CONVEX,
 };
 
-class Shape : public Component, public Offsetable
+class Shape : public Offsetable
 {
 public:
-	Shape(GameObject* gameObject);
-	void Init() override;
-	void Update(float time) override;
 	void Draw(sf::RenderWindow& window) const;
 
 	void SetFillColor(sf::Color color) const;
-
-	static Shape* LoadShape(Engine& engine, json& componentJson, GameObject* gameObject);
 protected:
-	std::shared_ptr<sf::Shape> m_Shape = nullptr;
+	sf::Shape& m_Shape;
 };
 
 class Circle : public Shape
 {
 public:
-	Circle(GameObject* gameObject,  float radius);
-	void Update(float dt) override;
-	static Circle* LoadCircle(json& componentJson, GameObject* gameObject);
+	Circle(float radius);
 protected:
 	float m_Radius;
 };
@@ -72,9 +64,7 @@ protected:
 class Rectangle : public Shape
 {
 public:
-	Rectangle(GameObject* gameObject, sf::Vector2f size);
-	void Update(float time) override;
-	static Rectangle* LoadRectangle(json& componentJson, GameObject* gameObject);
+	Rectangle(sf::Vector2f size);
 protected:
 	sf::Vector2f m_Size;
 
@@ -83,9 +73,7 @@ protected:
 class Polygon : public Shape
 {
 public:
-	Polygon(GameObject* gameObject, std::list<sf::Vector2f>& points);
-	void Update(float time) override;
-	static Polygon* LoadPolygon(json& componentJson, GameObject* gameObject);
+	Polygon(std::list<sf::Vector2f>& points);
 protected:
 	
 };
@@ -101,7 +89,7 @@ public:
 	void Reset();
 	void Reload();
 protected:
-	std::list<Shape*> m_Shapes;
+	std::vector<Shape> m_Shapes;
 	GraphicsManager& m_GraphicsManager;
 };
 

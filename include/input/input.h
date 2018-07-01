@@ -32,8 +32,29 @@ SOFTWARE.
 
 namespace sfge
 {
-class KeyboardManager;
-class MouseManager;
+
+struct KeyPressedStatus { bool previousKeyPressed; bool keyPressed; };
+
+class KeyboardManager
+{
+public:
+	void Update(sf::Time dt);
+	bool IsKeyHeld(sf::Keyboard::Key key) const;
+	bool IsKeyDown(sf::Keyboard::Key key) const;
+	bool IsKeyUp(sf::Keyboard::Key key) const;
+
+protected:
+
+
+private:
+	KeyPressedStatus keyPressedStatusArray[sf::Keyboard::Key::KeyCount] = {};
+};
+
+class MouseManager
+{
+public:
+	sf::Vector2i GetLocalPosition(sf::Window& window) const;
+};
 /**
 * \brief Handles Input like the Keyboard, the Joystick or the Mouse
 */
@@ -57,38 +78,18 @@ public:
 	void Reset() override;
 	void Collect() override;
 
-	KeyboardManager* GetKeyboardManager();
-	MouseManager* GetMouseManager();
+	KeyboardManager& GetKeyboardManager();
+	MouseManager& GetMouseManager();
 
 private:
 
 protected:
-	KeyboardManager* m_KeyboardManager = nullptr;
-	MouseManager* m_MouseManager = nullptr;
+	KeyboardManager m_KeyboardManager;
+	MouseManager m_MouseManager;
 };
 
-struct KeyPressedStatus { bool previousKeyPressed; bool keyPressed; };
 
-class KeyboardManager
-{
-public:
-	void Update(sf::Time dt);
-	bool IsKeyHeld(sf::Keyboard::Key key);
-	bool IsKeyDown(sf::Keyboard::Key key);
-	bool IsKeyUp(sf::Keyboard::Key key);
 
-protected:
-	
-
-private:
-	KeyPressedStatus keyPressedStatusArray[sf::Keyboard::Key::KeyCount] ={};
-};
-
-class MouseManager
-{
-public:
-	sf::Vector2i localPosition(sf::Window& window);
-};
 
 }
 #endif

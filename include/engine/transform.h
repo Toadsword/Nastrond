@@ -8,33 +8,27 @@
 #ifndef SFGE_TRANSFORM_H_
 #define SFGE_TRANSFORM_H_
 
-#include <engine/component.h>
+#include <engine/entity.h>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vector3.hpp>
 
 namespace sfge
 {
 
 
-class Transform : public Component
+struct Transform2d
 {
-public:
-	using Component::Component;
-	~Transform();
-	static Transform* LoadTransform(json& componentJson, GameObject* gameObject);
-	void Init() override;
-	void Update(float dt) override;
-
-	const float GetEulerAngle();
-	void SetEulerAngle(float eulerAngle);
-	const sf::Vector2f GetPosition();
-	void SetPosition(sf::Vector2f position);
-	const sf::Vector2f GetScale();
-	void SetScale(sf::Vector2f scale);
-
-private:
-	sf::Vector2f m_Position = sf::Vector2f(0.0f,0.0f);
+	sf::Vector2f m_Position = sf::Vector2f();
 	sf::Vector2f m_Scale = sf::Vector2f(1.0f,1.0f);
 	float m_EulerAngle = 0.0f;
 
+};
+
+class Transform2dManager
+{
+	Transform2d& GetTransform(Entity entity);
+private:
+	std::vector<Transform2d> m_Transforms;
 };
 
 }

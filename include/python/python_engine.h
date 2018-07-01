@@ -71,12 +71,18 @@ public:
 	 */
 	PyComponent* GetPyComponent(unsigned int scriptInstanceId);
 private:
+	/**
+	 * \brief Load all the python scripts at initialization or reset
+	 */
+	void LoadScripts();
+
 	std::map<std::string, unsigned int> pythonModuleIdMap;
 	std::map<unsigned int, py::object> pythonModuleObjectMap;
 	unsigned int incrementalScriptId = 1U;
 
 	std::map<unsigned int, py::object> pythonInstanceMap;
 	unsigned int incrementalInstanceId = 1U;
+	std::vector<PyComponent*> pyComponents;
 
 };
 

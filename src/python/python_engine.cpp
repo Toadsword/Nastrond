@@ -93,17 +93,16 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("get_component", &GameObject::GetPyComponentFromType, py::return_value_policy::reference)
 		.def("get_components", &GameObject::GetComponentsFromType, py::return_value_policy::reference);
 
-	py::class_<Component, PyComponent> component(m, "Component");
+	py::class_<PyComponent> component(m, "Component");
 	component
 		.def(py::init<GameObject*>(), py::return_value_policy::reference)
-		.def("init", &Component::Init)
-		.def("update", &Component::Update)
-		.def_property_readonly("game_object", &Component::GetGameObject, py::return_value_policy::reference)
-		.def_property_readonly("name", &Component::GetName, py::return_value_policy::reference)
-		.def("on_trigger_enter", &Component::OnTriggerEnter)
-		.def("on_collision_enter", &Component::OnCollisionEnter)
-		.def("on_trigger_exit", &Component::OnTriggerExit)
-		.def("on_collision_exit", &Component::OnCollisionExit);
+		.def("init", &PyComponent::Init)
+		.def("update", &PyComponent::Update)
+		.def_property_readonly("entity", &PyComponent::GetEntity)
+		.def("on_trigger_enter", &PyComponent::OnTriggerEnter)
+		.def("on_collision_enter", &PyComponent::OnCollisionEnter)
+		.def("on_trigger_exit", &PyComponent::OnTriggerExit)
+		.def("on_collision_exit", &PyComponent::OnCollisionExit);
 
 	py::enum_<ComponentType>(component, "ComponentType")
 		.value("PyComponent", ComponentType::PYCOMPONENT)
@@ -209,6 +208,8 @@ void PythonManager::Init()
 	sfgeModule.attr("engine")=  py::cast(&m_Engine);
 	sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager());
 	sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager());
+
+
 }
 
 void PythonManager::Update(sf::Time)
@@ -232,6 +233,10 @@ void PythonManager::Collect()
 {
 }
 
+void PythonManager::LoadScripts()
+{
+	
+}
 
 unsigned int PythonManager::LoadPyComponentFile(std::string script_path, GameObject* gameObject)
 {

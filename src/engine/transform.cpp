@@ -123,4 +123,9 @@ Transform::~Transform()
 
 }
 
+Transform & TransformManager::GetTransform(Entity entity)
+{
+	// TODO: insert return statement here
+}
+
 }
