@@ -75,7 +75,7 @@ public:
 	void Update(sf::Time dt) override;
 	void Destroy() override;
 
-	void Reset() override;
+	void Clear() override;
 	void Collect() override;
 
 	KeyboardManager& GetKeyboardManager();

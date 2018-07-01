@@ -85,7 +85,7 @@ public:
 	SoundManager& GetSoundManager();
 	MusicManager& GetMusicManager();
 	void Destroy() override;
-	void Reset() override;
+	void Clear() override;
 	void Collect() override;
 };
 }

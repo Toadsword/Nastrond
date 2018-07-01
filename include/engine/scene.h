@@ -76,14 +76,13 @@ public:
 
 	void SetCurrentScene(std::shared_ptr<Scene> scene);
 
-	void Reset() override;
+	void Clear() override;
 	void Collect() override;
 	bool IsSwitching();
 	std::shared_ptr<Scene> GetCurrentScene();
 private:
 	std::shared_ptr<Scene> m_PreviousScene = nullptr;
 	std::shared_ptr<Scene> m_CurrentScene = nullptr;
-	std::unique_ptr<Transform2dManager> m_TransformManager = nullptr;
 
 	bool m_Switching = false;
 };

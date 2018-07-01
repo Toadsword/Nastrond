@@ -71,7 +71,7 @@ void PhysicsManager::Destroy()
 	m_Colliders.clear();
 }
 
-void PhysicsManager::Reset()
+void PhysicsManager::Clear()
 {
 	Destroy();
 	Init();

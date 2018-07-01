@@ -205,7 +205,7 @@ void PythonManager::Destroy()
 	py::finalize_interpreter();
 }
 
-void PythonManager::Reset()
+void PythonManager::Clear()
 {
 	pythonInstanceMap.clear();
 }

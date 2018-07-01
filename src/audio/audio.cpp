@@ -53,7 +53,7 @@ MusicManager&  AudioManager::GetMusicManager()
 {
 	return m_MusicManager;
 }
-void AudioManager::Reset()
+void AudioManager::Clear()
 {
 	m_SoundManager.Reset();
 }
@@ -64,7 +64,7 @@ void AudioManager::Collect()
 }
 void AudioManager::Destroy()
 {
-	Reset();
+	Clear();
 	Collect();
 }
 

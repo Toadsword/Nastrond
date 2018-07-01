@@ -59,7 +59,7 @@ void InputManager::Destroy()
 {
 }
 
-void InputManager::Reset()
+void InputManager::Clear()
 {
 }
 

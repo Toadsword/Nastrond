@@ -56,7 +56,7 @@ public:
 	*/
 	void Destroy() override;
 
-	void Reset() override;
+	void Clear() override;
 	
 	void Collect() override;
 

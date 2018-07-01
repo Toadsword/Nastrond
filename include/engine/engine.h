@@ -48,6 +48,7 @@ class TextureManager;
 class PhysicsManager;
 class EntityManager;
 class Editor;
+class Transform2dManager;
 
 enum class EngineModule
 {
@@ -81,7 +82,7 @@ public:
 	 * \brief Destroy all the modules
 	 */
 	void Destroy();
-	void Reset();
+	void Clear();
 	/**
 	* \brief Reload is used after loading a new scene
 	*/
@@ -101,7 +102,7 @@ public:
 	PythonManager& GetPythonManager() const;
 	PhysicsManager& GetPhysicsManager() const;
 	EntityManager& GetEntityManager() const;
-
+	Transform2dManager& GetTransform2dManager() const;
 	bool running = false;
 protected:
 	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
@@ -116,6 +117,7 @@ protected:
 	std::unique_ptr<PhysicsManager> m_PhysicsManager;
 	std::unique_ptr<Editor> m_Editor;
 	std::unique_ptr<EntityManager> m_EntityManager;
+	std::unique_ptr<Transform2dManager> m_TransformManager = nullptr;
 };
 
 /**
@@ -143,11 +145,11 @@ public:
 	/**
 	* \brief Used instead of the destructor to delete all heap created structure and finalize
 	*/
-	virtual void Destroy() = 0;
+	virtual void Destroy();
 	/**
 	* \brief Called before we load a scene
 	*/
-	virtual void Reset() = 0;
+	virtual void Clear() = 0;
 	/**
 	* \brief Called after we load a scene
 	*/

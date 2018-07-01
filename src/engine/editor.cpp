@@ -121,7 +121,7 @@ void Editor::Collect()
 {
 }
 
-void Editor::Reset()
+void Editor::Clear()
 {
 }
 

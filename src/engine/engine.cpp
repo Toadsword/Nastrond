@@ -37,7 +37,7 @@ SOFTWARE.
 #include <engine/config.h>
 #include <audio/audio.h>
 #include <engine/editor.h>
-#include <graphics/sprite.h>
+#include <engine/transform.h>
 #include <physics/physics.h>
 #include <engine/log.h>
 
@@ -66,6 +66,7 @@ void Engine::Init(bool windowless, bool editor)
 	m_PhysicsManager = std::make_unique<PhysicsManager>(*this, true);
 	m_Editor = std::make_unique<Editor>(*this, editor);
 	m_EntityManager = std::make_unique<EntityManager>();
+	m_TransformManager = std::make_unique<Transform2dManager>();
 
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
@@ -140,15 +141,15 @@ void Engine::Destroy()
 	m_Window = nullptr;
 }
 
-void Engine::Reset()
+void Engine::Clear()
 {
-	m_GraphicsManager->Reset();
-	m_AudioManager->Reset();
-	m_SceneManager->Reset();
-	m_InputManager->Reset();
-	m_PythonManager->Reset();
-	m_Editor->Reset();
-	m_PhysicsManager->Reset();
+	m_GraphicsManager->Clear();
+	m_AudioManager->Clear();
+	m_SceneManager->Clear();
+	m_InputManager->Clear();
+	m_PythonManager->Clear();
+	m_Editor->Clear();
+	m_PhysicsManager->Clear();
 }
 
 void Engine::Collect()
@@ -163,7 +164,7 @@ void Engine::Collect()
 }
 
 
-	std::shared_ptr<Configuration> Engine::GetConfig()
+std::shared_ptr<Configuration> Engine::GetConfig()
 {
 	return m_Config;
 }
@@ -203,12 +204,23 @@ EntityManager& Engine::GetEntityManager() const
 	return  *m_EntityManager;
 }
 
-
-	Module::Module(Engine& engine, bool enable=true) :
-		m_Engine(engine)
+Transform2dManager& Engine::GetTransform2dManager() const
 {
-	m_Enable = enable;
+	return *m_TransformManager;
+}
 
+
+Module::Module(Engine& engine, bool enable=true) :
+	m_Engine(engine)
+{
+m_Enable = enable;
+
+}
+
+void Module::Destroy()
+{
+	Clear();
+	Collect();
 }
 
 void Module::SetEnable(bool enable)

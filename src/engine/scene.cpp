@@ -116,7 +116,7 @@ void SceneManager::SetCurrentScene(std::shared_ptr<Scene> scene)
 	m_CurrentScene = scene;
 }
 
-void SceneManager::Reset()
+void SceneManager::Clear()
 {
 	m_PreviousScene = m_CurrentScene;
 }
@@ -142,7 +142,7 @@ std::shared_ptr<Scene> SceneManager::GetCurrentScene()
 
 void SceneManager::Destroy()
 {
-	Reset();
+	Clear();
 	m_CurrentScene = nullptr;
 	Collect();
 }
@@ -150,7 +150,7 @@ void SceneManager::Destroy()
 void SceneManager::LoadScene(std::string sceneName)
 {
 	sf::Clock loadingClock;
-	m_Engine.Reset();
+	m_Engine.Clear();
 	SetCurrentScene(LoadSceneFromName(sceneName));
 	m_Switching = true;
 	{

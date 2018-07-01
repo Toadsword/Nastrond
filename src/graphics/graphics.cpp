@@ -130,13 +130,13 @@ void checkVersion()
 
 void GraphicsManager::Destroy()
 {
-	Reset();
+	Clear();
 	Collect();
 	m_Window = nullptr;
 	ImGui::SFML::Shutdown();
 }
 
-void GraphicsManager::Reset()
+void GraphicsManager::Clear()
 {
 	m_TextureManager.Reset();
 	m_SpriteManager.Reset();
