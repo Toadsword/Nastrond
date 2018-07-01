@@ -22,27 +22,15 @@
  SOFTWARE.
  */
 
-#include <engine/log.h>
-#include <input/input.h>
 #include <python/python_engine.h>
-
 #include <engine/modules.h>
+#include <engine/log.h>
 
-#include <engine/scene.h>
-#include <engine/game_object.h>
-#include <engine/component.h>
-#include <engine/transform.h>
 #include <python/pycomponent.h>
-#include <graphics/shape.h>
-#include <graphics/sprite.h>
-
-#include <physics/body2d.h>
-#include <physics/collider.h>
 
 #include <utility/file_utility.h>
 #include <utility/time_utility.h>
 
-#include <audio/audio.h>
 
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
@@ -84,18 +72,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Scene> scene(m, "Scene");
 
-	py::class_<GameObject, std::shared_ptr<GameObject>> game_object(m, "GameObject");
-	game_object
-		.def(py::init<>())
-		.def_property_readonly("transform", &GameObject::GetTransform, py::return_value_policy::reference)
-		.def_property_readonly("name", &GameObject::GetName, py::return_value_policy::reference)
-		.def("get_component", &GameObject::GetComponentFromType, py::return_value_policy::reference)
-		.def("get_component", &GameObject::GetPyComponentFromType, py::return_value_policy::reference)
-		.def("get_components", &GameObject::GetComponentsFromType, py::return_value_policy::reference);
 
 	py::class_<PyComponent> component(m, "Component");
 	component
-		.def(py::init<GameObject*>(), py::return_value_policy::reference)
+		.def(py::init<>(), py::return_value_policy::reference)
 		.def("init", &PyComponent::Init)
 		.def("update", &PyComponent::Update)
 		.def_property_readonly("entity", &PyComponent::GetEntity)
@@ -104,27 +84,27 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("on_trigger_exit", &PyComponent::OnTriggerExit)
 		.def("on_collision_exit", &PyComponent::OnCollisionExit);
 
-	py::enum_<ComponentType>(component, "ComponentType")
+	/*py::enum_<ComponentType>(component, "ComponentType")
 		.value("PyComponent", ComponentType::PYCOMPONENT)
 		.value("Shape", ComponentType::SHAPE)
 		.value("Body", ComponentType::BODY2D)
 		.value("Sprite", ComponentType::SPRITE)
-		.export_values();
+		.export_values();*/
 
-	py::class_<Transform, Component> transform(m, "Transform");
-	transform
-		.def("get_euler_angle", &Transform::GetEulerAngle)
+	py::class_<Transform2d> transform(m, "Transform");
+	/*transform
+		.def_property("euler_angle", Transform2d::m_EulerAngle)
 		.def("set_euler_angle", &Transform::SetEulerAngle)
 		.def("get_position", &Transform::GetPosition)
 		.def("set_position", &Transform::SetPosition)
 		.def("get_scale", &Transform::GetScale)
-		.def("set_scale", &Transform::SetScale);
+		.def("set_scale", &Transform::SetScale);*/
 	
-	py::class_<Collider, Component> collider(m, "Collider");
+	py::class_<Collider> collider(m, "Collider");
 	collider
 		.def("is_trigger", &Collider::IsTrigger);
 	
-	py::class_<Body2d, Component> body(m, "Body");
+	py::class_<Body2d> body(m, "Body");
 	body
 		.def_property("velocity", &Body2d::GetVelocity, &Body2d::SetVelocity)
 		.def("add_force", &Body2d::AddForce)
@@ -137,12 +117,12 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("DYNAMIC_BODY", b2_dynamicBody)
 		.export_values();
 
-	py::class_<Sound, Component> sound(m, "Sound");
+	py::class_<Sound> sound(m, "Sound");
 	sound
 		.def("play", &Sound::Play)
 		.def("stop", &Sound::Stop);
 	
-	py::class_<Shape, Component> shape(m, "Shape");
+	py::class_<Shape> shape(m, "Shape");
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);
 	//Utility
@@ -237,7 +217,7 @@ void PythonManager::LoadScripts()
 {
 	
 }
-
+/*
 unsigned int PythonManager::LoadPyComponentFile(std::string script_path, GameObject* gameObject)
 {
     const auto folderLastIndex = script_path.find_last_of("/");
@@ -323,6 +303,7 @@ unsigned int PythonManager::LoadPyComponentFile(std::string script_path, GameObj
 
 	return 0U;
 }
+*/
 
 PyComponent* PythonManager::GetPyComponent(unsigned int instanceId)
 {

@@ -29,7 +29,6 @@ SOFTWARE.
 #include <SFML/Audio.hpp>
 #include <map>
 #include <string>
-#include "utility/json_utility.h"
 #include <audio/sound.h>
 
 namespace sfge

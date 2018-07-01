@@ -27,7 +27,6 @@ SOFTWARE.
 #include <engine/log.h>
 #include <engine/modules.h>
 
-
 int main()
 {
     sfge::Log::GetInstance()->Msg("SFGE 0.1 by SAE Institute Switzerland AG");

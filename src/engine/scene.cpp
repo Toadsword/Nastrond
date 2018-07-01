@@ -23,10 +23,9 @@
  */
 
 //SFGE includes
-#include <engine/game_object.h>
 #include <engine/scene.h>
 #include <engine/log.h>
-
+#include <utility/json_utility.h>
 // for convenience
 
 
@@ -61,12 +60,12 @@ std::shared_ptr<Scene> SceneManager::LoadSceneFromName(std::string sceneName)
 	
 	if(sceneJsonPtr != nullptr)
 	{
-		return LoadSceneFromJson(*sceneJsonPtr);
+		return nullptr;//LoadSceneFromJson(*sceneJsonPtr);
 	}
 	return nullptr;
 	
 }
-
+/*
 std::shared_ptr<Scene> SceneManager::LoadSceneFromJson(json& sceneJson)
 {
 	std::shared_ptr<Scene> scene = std::make_shared<Scene>(this);
@@ -85,14 +84,7 @@ std::shared_ptr<Scene> SceneManager::LoadSceneFromJson(json& sceneJson)
 	}
 	if (CheckJsonParameter(sceneJson, "game_objects", json::value_t::array))
 	{
-		for (json gameObjectJson : sceneJson["game_objects"])
-		{
-			GameObject* gameObject = GameObject::LoadGameObject(m_Engine, gameObjectJson);
-			if (gameObject != nullptr)
-			{
-				scene->m_GameObjects.push_back(gameObject);
-			}
-		}
+		
 	}
 	else
 	{
@@ -102,7 +94,7 @@ std::shared_ptr<Scene> SceneManager::LoadSceneFromJson(json& sceneJson)
 	}
 	//m_Scenes.push_back(scene);
 	return scene;
-}
+}*/
 
 void SceneManager::SetCurrentScene(std::string sceneName)
 {
@@ -177,22 +169,11 @@ Scene::Scene(SceneManager * sceneManager)
 
 void Scene::Update(sf::Time dt)
 {
-	for(auto gameObject : m_GameObjects)
-	{
-		gameObject->Update(dt);
-	}
+	
 }
 
 Scene::~Scene()
 {
-	while(!m_GameObjects.empty())
-	{
-		delete(m_GameObjects.front());
-		m_GameObjects.pop_front();
-	}
-}
-std::list<GameObject*>& Scene::GetGameObjects()
-{
-	return m_GameObjects;
+	
 }
 }

@@ -26,8 +26,7 @@ SOFTWARE.
 #define SFGE_SHAPE_H_
 
 #include <engine/engine.h>
-#include <utility/json_utility.h>
-
+#include <list>
 //Externals
 #include <SFML/Graphics.hpp>
 
@@ -43,14 +42,13 @@ enum class ShapeType
 	CONVEX,
 };
 
-class Shape : public Offsetable
+class Shape 
 {
 public:
 	void Draw(sf::RenderWindow& window) const;
 
 	void SetFillColor(sf::Color color) const;
 protected:
-	sf::Shape& m_Shape;
 };
 
 class Circle : public Shape
@@ -83,7 +81,6 @@ class ShapeManager
 
 public:
 	ShapeManager(GraphicsManager& graphicsManager);
-	void AddShape(Shape* shape);
 	void Draw(sf::RenderWindow& window);
 
 	void Reset();

@@ -30,7 +30,6 @@ SOFTWARE.
 #include <string>
 //Engine
 #include <engine/engine.h>
-#include <utility/json_utility.h>
 //Dependencies
 #include <SFML/Graphics.hpp>
 
@@ -72,7 +71,6 @@ public:
 	SpriteManager(GraphicsManager& graphicsManager);
 	void Update(sf::Time dt);
 	void Draw(sf::RenderWindow& window);
-	void LoadSprite(json& componentJson, Sprite* sprite);
 
 	void Reset();
 	void Collect();

@@ -26,8 +26,6 @@ SOFTWARE.
 #ifndef SFGE_COLLIDER_H
 #define SFGE_COLLIDER_H
 
-#include <utility/json_utility.h>
-
 #include <Box2D/Box2D.h>
 
 

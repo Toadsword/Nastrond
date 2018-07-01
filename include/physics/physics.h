@@ -29,12 +29,12 @@ SOFTWARE.
 #include <SFML/System/Time.hpp>
 
 #include <engine/engine.h>
-#include <engine/component.h>
+#include <physics/collider.h>
+#include <physics/body2d.h>
 
 namespace sfge
 {
 	
-class Body2d;
 
 float pixel2meter(float pixel);
 float pixel2meter(int pixel);
@@ -59,7 +59,7 @@ class PhysicsManager : public Module
 public:
 	using Module::Module;
 
-	~PhysicsManager();
+	~PhysicsManager() = default;
 	/**
 	 * \brief Initialize the Physics Manager, but do not create a b2World
 	 */
@@ -68,7 +68,7 @@ public:
 	/**
 	* \brief Get The World
 	*/
-	b2World* GetWorld();
+	b2World* GetWorld() const;
 	/**
 	 * \brief Called each frame to update the b2World if not in editor mode
 	 * @param dt Delta time since last frame
@@ -92,7 +92,7 @@ private:
 	ContactListener* m_ContactListener = nullptr;
 
 	std::vector<Body2d> m_Bodies;
-	std::vector<Collider*> m_Colliders;
+	std::vector<Collider> m_Colliders;
 
 };
 

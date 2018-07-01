@@ -28,7 +28,6 @@ SOFTWARE.
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <memory>
-#include <engine/config.h>
 
 
 namespace sfge
@@ -37,6 +36,7 @@ namespace sfge
 /**
 * Prototypes declarations
 */
+class Configuration;
 class Module;
 class GraphicsManager;
 class AudioManager;

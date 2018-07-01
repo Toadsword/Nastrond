@@ -25,6 +25,7 @@ SOFTWARE.
 #include <audio/audio.h>
 #include <engine/log.h>
 #include <utility/file_utility.h>
+#include <sstream>
 
 namespace sfge
 {
@@ -99,7 +100,7 @@ sf::SoundBuffer* SoundManager::GetSoundBuffer(unsigned int sound_buffer_id)
 
 }
 
-sfge::Sound::Sound(GameObject * gameObject) : Component(gameObject)
+sfge::Sound::Sound()
 {
 	m_Sound = new sf::Sound();
 }
@@ -115,22 +116,6 @@ sfge::Sound::~Sound()
 void Sound::Init()
 {
 }
-void Sound::Update(float dt)
-{
-
-}
-Sound* Sound::LoadSound(Engine& engine, json & componentJson, GameObject* gameObject)
-{
-	auto audioManager = engine.GetAudioManager();
-	auto soundManager = audioManager.GetSoundManager();
-	if (&soundManager != nullptr)
-	{
-		Sound* newSound = new Sound(gameObject);
-		soundManager->LoadSound(componentJson, newSound);
-		return newSound;
-	}
-	return nullptr;
-}
 void Sound::SetBuffer(sf::SoundBuffer* buffer)
 {
 	m_Sound->setBuffer(*buffer);
@@ -139,46 +124,6 @@ SoundManager::SoundManager()
 {
 
 }
-void SoundManager::LoadSound(json & componentJson, Sound* newSound)
-{
-	if (newSound == nullptr)
-	{
-		sfge::Log::GetInstance()->Error("Sound Component arg is null");
-		return;
-	}
-	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
-	{
-		std::string path = componentJson["path"].get<std::string>();
-		if (FileExists(path))
-		{
-			unsigned int soundBufferId = LoadSoundBuffer(path);
-			if (soundBufferId != 0U)
-			{
-
-				sf::SoundBuffer* buffer = GetSoundBuffer(soundBufferId);
-				newSound->SetBuffer(buffer);
-			}
-			else
-			{
-				std::ostringstream oss;
-				oss << "Could not find SoundBuffer for:" << path;
-				Log::GetInstance()->Error(oss.str());
-			}
-		}
-		else
-		{
-			std::ostringstream oss;
-			oss << "SoundBuffer file " << path << " does not exist";
-			Log::GetInstance()->Error(oss.str());
-		}
-	}
-	else
-	{
-		Log::GetInstance()->Error("[Error] No Path for Sound");
-	}
-	m_Sounds.push_back(newSound);
-}
-
 void SoundManager::Reset()
 {
 	for (auto idRefCountPair : idsRefCountMap)
@@ -205,7 +150,6 @@ void SoundManager::Collect()
 	}
 	for (auto sound : m_Sounds)
 	{
-		delete(sound);
 	}
 	m_Sounds.clear();
 }
@@ -225,7 +169,6 @@ SoundManager::~SoundManager()
 {
 	for (auto sound : m_Sounds)
 	{
-		delete(sound);
 	}
 	for (auto soundBuffer : soundBufferMap)
 	{

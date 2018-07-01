@@ -30,13 +30,12 @@
 #include <list>
 
 #include <engine/engine.h>
-#include <utility/json_utility.h>
+//#include <utility/json_utility.h>
 #include "transform.h"
 
 namespace sfge
 {
 
-class GameObject;
 class Scene;
 
 /**
@@ -71,7 +70,7 @@ public:
 	* \param sceneName the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
-	std::shared_ptr<Scene> LoadSceneFromJson(json& sceneJson);
+	//std::shared_ptr<Scene> LoadSceneFromJson(json& sceneJson);
 
 	void SetCurrentScene(std::string sceneName);
 
@@ -107,10 +106,8 @@ public:
 	*/
 	~Scene();
 
-	std::list<GameObject*>& GetGameObjects();
 protected:
 	std::string name;
-	std::list<GameObject*> m_GameObjects;
 	SceneManager* m_SceneManager;
 	friend class SceneManager;
 };

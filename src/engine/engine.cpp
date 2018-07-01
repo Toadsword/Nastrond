@@ -198,8 +198,13 @@ PhysicsManager & Engine::GetPhysicsManager() const
 	return *m_PhysicsManager;
 }
 
+EntityManager& Engine::GetEntityManager() const
+{
+	return  *m_EntityManager;
+}
 
-Module::Module(Engine& engine, bool enable=true) :
+
+	Module::Module(Engine& engine, bool enable=true) :
 		m_Engine(engine)
 {
 	m_Enable = enable;

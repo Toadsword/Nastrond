@@ -23,17 +23,13 @@ SOFTWARE.
 */
 
 #include <physics/physics.h>
-#include <physics/collider.h>
-#include <physics/body2d.h>
 
+#include <engine/config.h>
 namespace sfge
 {
 
 const float PhysicsManager::pixelPerMeter = 100.0f;
 
-PhysicsManager::~PhysicsManager()
-{
-}
 
 void PhysicsManager::Init()
 {
@@ -52,7 +48,7 @@ void PhysicsManager::Update(sf::Time dt)
 	}
 }
 
-b2World * PhysicsManager::GetWorld()
+b2World * PhysicsManager::GetWorld() const
 {
 	return m_World;
 }
@@ -71,16 +67,7 @@ void PhysicsManager::Destroy()
 		m_ContactListener = nullptr;
 	}
 
-	for (Body2d* body : m_Bodies)
-	{
-		delete(body);
-	}
 	m_Bodies.clear();
-
-	for (Collider* collider : m_Colliders)
-	{
-		delete(collider);
-	}
 	m_Colliders.clear();
 }
 
@@ -112,11 +99,9 @@ void ContactListener::BeginContact(b2Contact* contact)
 		secondCollider = static_cast<Collider*>(colliderUserData);
 	}
 
-	if (firstCollider and secondCollider)
+	if (firstCollider && secondCollider)
 	{
-		Log::GetInstance()->Msg("CONTACT ENTER");
-		firstCollider->OnColliderEnter(secondCollider);
-		secondCollider->OnColliderEnter(firstCollider);
+		//TODO Call python manager with correct entity
 	}
 
 }
@@ -140,12 +125,9 @@ void ContactListener::EndContact(b2Contact* contact)
 		secondCollider = static_cast<Collider*>(colliderUserData);
 	}
 
-	if (firstCollider and secondCollider)
+	if (firstCollider && secondCollider)
 	{
-
-		Log::GetInstance()->Msg("CONTACT EXIT");
-		firstCollider->OnColliderExit(secondCollider);
-		secondCollider->OnColliderExit(firstCollider);
+		//TODO call python with correct entity
 	}
 
 }

@@ -23,9 +23,7 @@ SOFTWARE.
 */
 
 #include <graphics/graphics.h>
-#include <graphics/sprite.h>
-#include <graphics/texture.h>
-#include <graphics/shape.h>
+
 #include <engine/log.h>
 #include <engine/config.h>
 
@@ -39,9 +37,8 @@ SOFTWARE.
 namespace sfge
 {
 GraphicsManager::GraphicsManager(Engine& engine, bool enable, bool windowless) :
-		Module(engine, enable), m_Windowless(windowless)
+		Module(engine, enable), m_Windowless(windowless), m_SpriteManager(*this), m_ShapeManager(*this)
 {
-	
 }
 void GraphicsManager::Init()
 {
@@ -61,10 +58,7 @@ void GraphicsManager::Init()
 			CheckVersion();
 		}
 	}
-	//Init Texture and Sprite Manager
-	m_TextureManager = std::make_shared<TextureManager>();
-	m_SpriteManager = std::make_shared<SpriteManager>(*this);
-	m_ShapeManager = std::make_shared<ShapeManager>(*this);
+
 }
 
 void GraphicsManager::Update(sf::Time dt)
@@ -73,10 +67,10 @@ void GraphicsManager::Update(sf::Time dt)
 	{
 		m_Window->clear();
 
-		m_SpriteManager->Update(dt);
-		m_SpriteManager->Draw(*m_Window);
+		m_SpriteManager.Update(dt);
+		m_SpriteManager.Draw(*m_Window);
 
-		m_ShapeManager->Draw(*m_Window);
+		m_ShapeManager.Draw(*m_Window);
 	}
 }
 
@@ -104,17 +98,17 @@ std::shared_ptr<sf::RenderWindow> GraphicsManager::GetWindow()
 	return m_Window;
 }
 
-std::shared_ptr<SpriteManager> GraphicsManager::GetSpriteManager()
+SpriteManager& GraphicsManager::GetSpriteManager()
 {
 	return m_SpriteManager;
 }
 
-std::shared_ptr<TextureManager> GraphicsManager::GetTextureManager()
+TextureManager& GraphicsManager::GetTextureManager()
 {
 	return m_TextureManager;
 }
 
-std::shared_ptr<ShapeManager> GraphicsManager::GetShapeManager()
+ShapeManager& GraphicsManager::GetShapeManager()
 {
 	return m_ShapeManager;
 }
@@ -144,15 +138,15 @@ void GraphicsManager::Destroy()
 
 void GraphicsManager::Reset()
 {
-	m_TextureManager->Reset();
-	m_SpriteManager->Reset();
+	m_TextureManager.Reset();
+	m_SpriteManager.Reset();
 }
 
 void GraphicsManager::Collect()
 {
 
-	m_TextureManager->Collect();
-	m_SpriteManager->Collect();
+	m_TextureManager.Collect();
+	m_SpriteManager.Collect();
 }
 
 }

@@ -27,10 +27,12 @@
 #include <python/python_engine.h>
 #include <engine/log.h>
 #include <physics/collider.h>
-
+#include <sstream>
 namespace sfge
 {
-
+PyComponent::PyComponent()
+{
+}
 void PyComponent::Init()
 {
 	Log::GetInstance()->Msg("Init PyComponent from C++");
@@ -38,7 +40,7 @@ void PyComponent::Init()
 	{
 		PYBIND11_OVERLOAD_PURE_NAME(
 			void,
-			Component,
+			PyComponent,
 			"init",
 			Init,
 
@@ -63,7 +65,7 @@ void PyComponent::Update(float dt)
 	{
 		PYBIND11_OVERLOAD_PURE_NAME(
 			void,
-			Component,
+			PyComponent,
 			"update",
 			Update,
 			dt
@@ -78,50 +80,14 @@ void PyComponent::Update(float dt)
 }
 
 
-PyComponent::~PyComponent()
-{
-	Log::GetInstance()->Msg("Destroying PyComponent");
 
-}
-
-
-PyComponent* PyComponent::LoadPythonScript(Engine& engine, json& componentJson, GameObject* gameObject)
-{
-	auto pythonManager = engine.GetPythonManager();
-	if(CheckJsonParameter(componentJson, "script_path", json::value_t::string))
-	{
-		unsigned int componentInstanceId = pythonManager.LoadPyComponentFile(componentJson["script_path"], gameObject);
-		if(componentInstanceId != 0U)
-		{
-			{
-				std::ostringstream oss;
-				oss << "PyComponent instance has id: " << componentInstanceId;
-				Log::GetInstance()->Msg(oss.str());
-			}
-			auto pyComponent = pythonManager.GetPyComponent(componentInstanceId);
-			pyComponent->SetInstanceId(componentInstanceId);
-			
-			return pyComponent;
-
-		}
-		else
-		{
-			Log::GetInstance()->Error("Loaded python script has no script ID");
-		}
-	}
-	else
-	{
-		Log::GetInstance()->Error("No script path given for the PyComponent");
-	}
-	return nullptr;
-}
 void PyComponent::OnCollisionEnter(Collider * collider)
 {
 	try
 	{
 		PYBIND11_OVERLOAD_PURE_NAME(
 			void,
-			Component,
+			PyComponent,
 			"on_collision_enter",
 			OnCollisionEnter,
 			collider
@@ -140,7 +106,7 @@ void PyComponent::OnTriggerEnter(Collider * collider)
 	{
 		PYBIND11_OVERLOAD_PURE_NAME(
 			void,
-			Component,
+			PyComponent,
 			"on_trigger_enter",
 			OnTriggerEnter,
 			collider
@@ -159,7 +125,7 @@ void PyComponent::OnCollisionExit(Collider * collider)
 	{
 		PYBIND11_OVERLOAD_PURE_NAME(
 			void,
-			Component,
+			PyComponent,
 			"on_collision_exit",
 			OnCollisionExit,
 			collider
@@ -178,7 +144,7 @@ void PyComponent::OnTriggerExit(Collider * collider)
 	{
 		PYBIND11_OVERLOAD_PURE_NAME(
 			void,
-			Component,
+			PyComponent,
 			"on_trigger_exit",
 			OnTriggerExit,
 			collider
@@ -190,6 +156,10 @@ void PyComponent::OnTriggerExit(Collider * collider)
 		oss << "Python error on PyComponent OnTriggerExit\n" << e.what();
 		Log::GetInstance()->Error(oss.str());
 	}
+}
+Entity PyComponent::GetEntity()
+{
+	return Entity();
 }
 unsigned int PyComponent::GetInstanceId() const
 {

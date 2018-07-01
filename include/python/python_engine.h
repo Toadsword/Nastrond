@@ -25,8 +25,8 @@
 #ifndef SFGE_PYENGINE_H
 #define SFGE_PYENGINE_H
 
+#include <map>
 #include <engine/engine.h>
-#include <engine/component.h>
 #include <utility/python_utility.h>
 #include <pybind11/functional.h>
 
@@ -57,13 +57,7 @@ public:
 
 	void Collect() override;
 	void Reset() override;
-	/**
-	 * \brief Load a python script and return a python object of it
-	 * \param script_name
-	 * \param gameObject
-	 * \return scriptInstanceId The id of the loaded instance
-	 */
-	unsigned int LoadPyComponentFile(std::string script_path, GameObject* gameObject);
+
 	/**
 	 * \brief Get a python component object
 	 * \param scriptId

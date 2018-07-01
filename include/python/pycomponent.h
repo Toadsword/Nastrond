@@ -42,7 +42,7 @@ class PyComponent
 {
 public:
 	PyComponent();
-	~PyComponent();
+	~PyComponent() = default;
 
 	void Init();
 	void Update(float dt);
@@ -61,7 +61,7 @@ public:
 
 private:
 	unsigned int instanceId = 0U;
-	Entity entity;
+	Entity entity = 0U;
 };
 
 }

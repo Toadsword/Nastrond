@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include <SFML/Audio.hpp>
 #include <map>
-#include <utility/json_utility.h>
 
 namespace sfge
 {
@@ -70,12 +69,6 @@ public:
 	*/
 	sf::SoundBuffer* GetSoundBuffer(unsigned int sound_buffer_id);
 
-	/**
-	* \brief load a buffer from a json["path"] and ad it to the newSound
-	* \param componentJson The json using for load a sf::SoundBuffer when call LoadSoundBuffer from SoundBuffer class
-	* \param sound The sound where sf::SoundBuffer was set
-	*/
-	void LoadSound(json& componentJson, Sound* sound);
 
 	void Reset();
 

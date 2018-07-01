@@ -25,11 +25,12 @@ SOFTWARE.
 #ifndef SFGE_GRAPHICS_H
 #define SFGE_GRAPHICS_H
 #include <engine/engine.h>
+#include <graphics/shape.h>
+#include <graphics/texture.h>
+#include <graphics/sprite.h>
 
 namespace sfge
 {
-class TextureManager;
-class ShapeManager;
 
 /**
 * \brief The Graphics Manager
@@ -68,9 +69,9 @@ public:
 	* \return The SFML window
 	*/
 	std::shared_ptr<sf::RenderWindow> GetWindow();
-	std::shared_ptr<ShapeManager> GetShapeManager();
-	std::shared_ptr<SpriteManager> GetSpriteManager();
-	std::shared_ptr<TextureManager> GetTextureManager();
+	ShapeManager& GetShapeManager();
+	SpriteManager& GetSpriteManager();
+	TextureManager& GetTextureManager();
 
 protected:
 	bool m_Windowless = false;
@@ -78,9 +79,9 @@ protected:
 	* \brief Write to log the OpenGL version
 	*/
 	void CheckVersion();
-	std::shared_ptr<TextureManager> m_TextureManager = nullptr;
-	std::shared_ptr<SpriteManager> m_SpriteManager = nullptr;
-	std::shared_ptr<ShapeManager> m_ShapeManager = nullptr;
+	TextureManager m_TextureManager;
+	SpriteManager m_SpriteManager;
+	ShapeManager m_ShapeManager;
 	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
 };
 

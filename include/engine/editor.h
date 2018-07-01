@@ -26,7 +26,7 @@ SOFTWARE.
 #define SFGE_EDITOR_H
 
 #include <engine/engine.h>
-#include "entity.h"
+#include <engine/entity.h>
 
 namespace sfge
 {

@@ -28,19 +28,18 @@ SOFTWARE.
 #include <utility/file_utility.h>
 
 #include <engine/log.h>
+
+#include <engine/config.h>
 #include <engine/transform.h>
 
 namespace sfge
 {
-void Sprite::Update(float dt)
-{
-}
 void Sprite::Draw(sf::RenderWindow& window)
 {
 	sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width, sprite.getLocalBounds().height) / 2.0f);
-	sprite.setPosition(m_GameObject->GetTransform()->GetPosition()+m_Offset);
+	/*sprite.setPosition(m_GameObject->GetTransform()->GetPosition()+m_Offset);
 	sprite.setScale(m_GameObject->GetTransform()->GetScale());
-	sprite.setRotation(m_GameObject->GetTransform()->GetEulerAngle());
+	sprite.setRotation(m_GameObject->GetTransform()->GetEulerAngle());*/
 	
 	window.draw(sprite);
 }
@@ -66,24 +65,6 @@ bool Sprite::SpriteLayerComp(Sprite* s1, Sprite* s2)
 	return s1->layer>s2->layer;
 }
 
-Sprite* Sprite::LoadSprite(Engine& engine, json& componentJson, GameObject* gameObject)
-{
-	auto graphicsManager = engine.GetGraphicsManager();
-	auto spriteManager = graphicsManager.GetSpriteManager();
-
-
-	if (spriteManager != nullptr)
-	{
-		auto newSprite = new Sprite(gameObject);
-		spriteManager->LoadSprite(componentJson, newSprite);
-		return newSprite;
-	}
-	else
-	{
-		sfge::Log::GetInstance()->Error("SPRITE MANAGER IS NULL");
-	}
-	return nullptr;
-}
 SpriteManager::SpriteManager(GraphicsManager& graphicsManager): m_GraphicsManager(graphicsManager)
 {
 }
@@ -100,7 +81,7 @@ void SpriteManager::Draw(sf::RenderWindow& window)
 		sprite->Draw(window);
 	}
 }
-
+/*
 void SpriteManager::LoadSprite(json& componentJson, Sprite* newSprite)
 {
 	if (newSprite == nullptr)
@@ -142,7 +123,7 @@ void SpriteManager::LoadSprite(json& componentJson, Sprite* newSprite)
 	}
 	m_Sprites.push_back(newSprite);
 }
-
+*/
 void SpriteManager::Reset()
 {
 	for (auto sprite : m_Sprites)
