@@ -29,4 +29,23 @@ bool IsRegularFile(std::string& filename)
     return S_ISREG(pathStat.st_mode);
 #endif
 }
+bool IsDirectory(std::string & filename)
+{
+#ifdef WIN32
+	fs::path p = filename;
+	return fs::is_directory(p);
+#endif
+	return false;
+}
+void IterateDirectory(std::string & dirname, std::function<void(std::string)> func)
+{
+	if (IsDirectory(dirname))
+	{
+		for (auto& p : fs::directory_iterator(dirname))
+		{
+			func(p.path().generic_string());
+		}
+	}
+}
+
 }

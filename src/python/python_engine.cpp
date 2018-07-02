@@ -189,7 +189,6 @@ void PythonManager::Init()
 	sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager());
 	sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager());
 
-
 }
 
 void PythonManager::Update(sf::Time)
@@ -213,9 +212,23 @@ void PythonManager::Collect()
 {
 }
 
-void PythonManager::LoadScripts()
+void PythonManager::LoadScripts(std::string dirname)
 {
-	
+	using std::placeholders::_1;
+	std::function<void(std::string)> checkFunc = std::bind(&PythonManager::CheckEntry, this, _1);
+	IterateDirectory(dirname, checkFunc);
+}
+void PythonManager::CheckEntry(std::string entry)
+{
+	if(IsRegularFile(entry))
+	{
+		
+	}
+
+	if(IsDirectory(entry))
+	{
+		LoadScripts(entry);
+	}
 }
 /*
 unsigned int PythonManager::LoadPyComponentFile(std::string script_path, GameObject* gameObject)

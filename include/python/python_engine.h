@@ -68,7 +68,8 @@ private:
 	/**
 	 * \brief Load all the python scripts at initialization or reset
 	 */
-	void LoadScripts();
+	void LoadScripts(std::string dirname);
+	void CheckEntry(std::string entry);
 
 	std::map<std::string, unsigned int> pythonModuleIdMap;
 	std::map<unsigned int, py::object> pythonModuleObjectMap;
