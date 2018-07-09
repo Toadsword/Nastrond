@@ -26,7 +26,7 @@ SOFTWARE.
 #define SFGE_SPRITE_H
 
 //STL
-#include <map>
+#include <list>
 #include <string>
 //Engine
 #include <engine/engine.h>

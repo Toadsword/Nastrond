@@ -21,6 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#include <cmath>
+#include <iostream>
+#include <cstdlib>     /* srand, rand */
+#include <ctime>       /* time */
+#include <future>
+#include <sstream>
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
@@ -28,11 +34,7 @@ SOFTWARE.
 #include <imgui-SFML.h>
 #include <imgui.h>
 
-#include <cmath>
-#include <iostream>
-#include <cstdlib>     /* srand, rand */
-#include <ctime>       /* time */
-#include <future>
+
 
 #define MULTITHREAD
 #define OBJ_NMB 5000

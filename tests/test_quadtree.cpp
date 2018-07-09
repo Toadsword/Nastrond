@@ -22,16 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <list>
+#include <cstdlib>     /* srand, rand */
+#include <ctime>       /* time */
+#include <sstream>
+
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
 #include <physics/physics.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 
-#include <list>
-#include <cstdio>      /* printf, scanf, puts, NULL */
-#include <cstdlib>     /* srand, rand */
-#include <ctime>       /* time */
 
 
 
