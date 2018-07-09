@@ -48,6 +48,7 @@ namespace sfge
 
 void Engine::Init(bool windowless, bool editor)
 {
+	m_ThreadPool.resize(THREAD_NMB);
 	m_Config = std::move(Configuration::LoadConfig());
 	if (m_Config == nullptr)
 	{
@@ -58,15 +59,15 @@ void Engine::Init(bool windowless, bool editor)
 		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
 	}
 
-	m_GraphicsManager = std::make_unique<GraphicsManager>(*this, true, windowless);
-	m_AudioManager = std::make_unique<AudioManager>(*this, true);
-	m_SceneManager = std::make_unique<SceneManager>(*this, true);
-	m_InputManager = std::make_unique<InputManager>(*this, true);
-	m_PythonManager = std::make_unique<PythonManager>(*this, true);
-	m_PhysicsManager = std::make_unique<PhysicsManager>(*this, true);
-	m_Editor = std::make_unique<Editor>(*this, editor);
-	m_EntityManager = std::make_unique<EntityManager>();
-	m_TransformManager = std::make_unique<Transform2dManager>();
+	m_GraphicsManager = std::make_shared<GraphicsManager>(*this, true, windowless);
+	m_AudioManager = std::make_shared<AudioManager>(*this, true);
+	m_SceneManager = std::make_shared<SceneManager>(*this, true);
+	m_InputManager = std::make_shared<InputManager>(*this, true);
+	m_PythonManager = std::make_shared<PythonManager>(*this, true);
+	m_PhysicsManager = std::make_shared<PhysicsManager>(*this, true);
+	m_Editor = std::make_shared<Editor>(*this, editor);
+	m_EntityManager = std::make_shared<EntityManager>();
+	m_TransformManager = std::make_shared<Transform2dManager>();
 
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
@@ -138,7 +139,6 @@ void Engine::Destroy()
 	m_PythonManager->Destroy();
 	m_Editor->Destroy();
 	m_PhysicsManager->Destroy();
-	m_Window = nullptr;
 }
 
 void Engine::Clear()

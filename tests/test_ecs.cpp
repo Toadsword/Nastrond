@@ -4,21 +4,21 @@ MIT License
 Copyright (c) 2017 SAE Institute Switzerland AG
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software&&associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
+copies of the Software,&&to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The above copyright notice&&this permission notice shall be included in all
+copies || substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+FITNESS FOR A PARTICULAR PURPOSE&&NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS || COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES || OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT || OTHERWISE, ARISING FROM,
+OUT OF || IN CONNECTION WITH THE SOFTWARE || THE USE || OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
@@ -27,6 +27,8 @@ SOFTWARE.
 #include <ctime>       /* time */
 #include <functional>
 #include <queue>
+#include <sstream>
+
 #include <ctpl_stl.h>
 
 #include <physics/physics.h>
@@ -197,14 +199,14 @@ namespace ECS
 				{
 					auto& transform = transforms[i];
 					transform.position = transform.velocity * dt + transform.position;
-					if ((transform.position.x < 0 and transform.velocity.x < 0) or 
-						(transform.position.x > WINDOW_SIZE_X and transform.velocity.x > 0))
+					if ((transform.position.x < 0&&transform.velocity.x < 0) || 
+						(transform.position.x > WINDOW_SIZE_X&&transform.velocity.x > 0))
 					{
 						transform.velocity.x = -transform.velocity.x;
 					}
 					
-					if ((transform.position.y < 0 and transform.velocity.y < 0) or
-						(transform.position.y > WINDOW_SIZE_Y and transform.velocity.y > 0))
+					if ((transform.position.y < 0&&transform.velocity.y < 0) ||
+						(transform.position.y > WINDOW_SIZE_Y&&transform.velocity.y > 0))
 					{
 						transform.velocity.y = -transform.velocity.y;
 					}
@@ -275,37 +277,37 @@ namespace OOP
 
 			const b2Vec2 bodyVelocity = body->GetLinearVelocity();
 			
-			if (position.x < 0 and bodyVelocity.x < 0)
+			if (position.x < 0&&bodyVelocity.x < 0)
 			{
 				body->SetLinearVelocity(b2Vec2(-bodyVelocity.x, bodyVelocity.y));
 			}
-			if (position.x > WINDOW_SIZE_X and bodyVelocity.x > 0)
+			if (position.x > WINDOW_SIZE_X&&bodyVelocity.x > 0)
 			{
 				body->SetLinearVelocity(b2Vec2(-bodyVelocity.x, bodyVelocity.y));
 			}
-			if (position.y < 0 and bodyVelocity.y < 0)
+			if (position.y < 0&&bodyVelocity.y < 0)
 			{
 				body->SetLinearVelocity(b2Vec2(bodyVelocity.x, -bodyVelocity.y));
 			}
-			if (position.y > WINDOW_SIZE_Y and body->GetLinearVelocity().y > 0)
+			if (position.y > WINDOW_SIZE_Y&&body->GetLinearVelocity().y > 0)
 			{
 				body->SetLinearVelocity(b2Vec2(bodyVelocity.x, -bodyVelocity.y));
 			}
 #else
 			position = velocity * dt + position;
-			if (position.x < 0 and velocity.x < 0)
+			if (position.x < 0&&velocity.x < 0)
 			{
 				velocity.x = -velocity.x;
 			}
-			if (position.x > WINDOW_SIZE_X and velocity.x > 0)
+			if (position.x > WINDOW_SIZE_X&&velocity.x > 0)
 			{
 				velocity.x = -velocity.x;
 			}
-			if (position.y < 0 and velocity.y < 0)
+			if (position.y < 0&&velocity.y < 0)
 			{
 				velocity.y = -velocity.y;
 			}
-			if (position.y > WINDOW_SIZE_Y and velocity.y > 0)
+			if (position.y > WINDOW_SIZE_Y&&velocity.y > 0)
 			{
 				velocity.y = -velocity.y;
 			}
@@ -409,11 +411,11 @@ int main()
 			sf::Int64 physics_low_dt = -1;
             for(auto dt_value : physicsDeltaTimes)
             {
-                if(phyiscs_high_dt < 0.0f or dt_value < phyiscs_high_dt)
+                if(phyiscs_high_dt < 0.0f || dt_value < phyiscs_high_dt)
                 {
                     phyiscs_high_dt = dt_value;
                 }
-                if(physics_low_dt < 0.0f or dt_value > physics_low_dt)
+                if(physics_low_dt < 0.0f || dt_value > physics_low_dt)
                 {
                     physics_low_dt = dt_value;
                 }
@@ -422,11 +424,11 @@ int main()
 			sf::Int64 graphics_low_dt = -1;
 			for (auto dt_value : graphicsDeltaTimes)
 			{
-				if (graphics_high_dt < 0.0f or dt_value < graphics_high_dt)
+				if (graphics_high_dt < 0.0f || dt_value < graphics_high_dt)
 				{
 					graphics_high_dt = dt_value;
 				}
-				if (graphics_low_dt < 0.0f or dt_value > graphics_low_dt)
+				if (graphics_low_dt < 0.0f || dt_value > graphics_low_dt)
 				{
 					graphics_low_dt = dt_value;
 				}

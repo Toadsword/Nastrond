@@ -93,9 +93,15 @@ struct Contact
 	SquareObject* o2;
 };
 
+void f1()
+{}
+
+void f2()
+{}
 
 int main()
 {
+
 	sf::RenderWindow window(sf::VideoMode(800, 800), "Multithread test");
 	b2ThreadPool tp(PHYSICS_CORES);
 	b2World world(b2Vec2(0.0f, 9.81f), &tp);

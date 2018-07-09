@@ -28,6 +28,7 @@ SOFTWARE.
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <memory>
+#include <ctpl_stl.h>
 
 
 namespace sfge
@@ -95,6 +96,9 @@ public:
 	*/
 	std::shared_ptr<Configuration> GetConfig();
 	
+	template<typename F, typename... Rest>
+	auto push(F && f, Rest&&... rest)->std::future<decltype(f(0, rest...))>;
+
 	GraphicsManager& GetGraphicsManager() const;
 	AudioManager& GetAudioManager() const;
 	SceneManager& GetSceneManager() const;
@@ -105,19 +109,21 @@ public:
 	Transform2dManager& GetTransform2dManager() const;
 	bool running = false;
 protected:
-	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
+	ctpl::thread_pool m_ThreadPool;
+	std::shared_ptr<sf::RenderWindow> m_Window;
 	std::shared_ptr<Configuration> m_Config = nullptr;
 
 	//module
-	std::unique_ptr<GraphicsManager> m_GraphicsManager;
-	std::unique_ptr<AudioManager> m_AudioManager;
-	std::unique_ptr<SceneManager> m_SceneManager;
-	std::unique_ptr<InputManager> m_InputManager;
-	std::unique_ptr<PythonManager> m_PythonManager;
-	std::unique_ptr<PhysicsManager> m_PhysicsManager;
-	std::unique_ptr<Editor> m_Editor;
-	std::unique_ptr<EntityManager> m_EntityManager;
-	std::unique_ptr<Transform2dManager> m_TransformManager = nullptr;
+	std::shared_ptr<GraphicsManager> m_GraphicsManager = nullptr;
+	std::shared_ptr<AudioManager> m_AudioManager = nullptr;
+	std::shared_ptr<SceneManager> m_SceneManager = nullptr;
+	std::shared_ptr<InputManager> m_InputManager = nullptr;
+	std::shared_ptr<PythonManager> m_PythonManager = nullptr;
+	std::shared_ptr<PhysicsManager> m_PhysicsManager = nullptr;
+	std::shared_ptr<Editor> m_Editor = nullptr;
+	std::shared_ptr<EntityManager> m_EntityManager = nullptr;
+	std::shared_ptr<Transform2dManager> m_TransformManager = nullptr;
+
 };
 
 /**

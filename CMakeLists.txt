@@ -132,6 +132,7 @@ foreach(test_file ${TEST_FILES} )
     add_executable(${test_name} ${SFGE_TEST_DIR}/${test_relative_path})
     # Make sure YourLib is linked to each app
     target_link_libraries(${test_name} PUBLIC SFGE_COMMON)
+	set_property(TARGET ${test_name} PROPERTY CXX_STANDARD 17)
 endforeach()
 
 #SFGE
@@ -140,6 +141,7 @@ add_executable(SFGE src/main.cpp)
 MESSAGE("SFGE_COMMON: " ${SFGE_COMMON})
 
 target_link_libraries(SFGE PUBLIC SFGE_COMMON)
+set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
 
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
