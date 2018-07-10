@@ -27,11 +27,5 @@ SOFTWARE.
 namespace sfge
 {
 
-bool Collider::IsTrigger() const
-{
-	if (m_Fixture != nullptr)
-		return m_Fixture->IsSensor();
-	return false;
-}
 
 }

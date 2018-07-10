@@ -26,7 +26,7 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/log.h>
 #include <engine/modules.h>
-
+#include <utility/json_utility.h>
 
 int main()
 {

@@ -26,14 +26,17 @@ SOFTWARE.
 #define SFGE_ENTITY_H
 
 #include <vector>
+#include <engine/module.h>
 
 namespace sfge
 {
 typedef unsigned Entity;
-
-class EntityManager
+typedef int EntityMask;
+class EntityManager : Module
 {
-
+public:
+	using Module::Module;
+	EntityMask GetMask(Entity entity);
 private:
 	std::vector<int> m_MaskArray;
 };

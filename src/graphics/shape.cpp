@@ -65,17 +65,12 @@ ShapeManager::ShapeManager(GraphicsManager& graphicsManager):
 
 void ShapeManager::Draw(sf::RenderWindow& window)
 {
-	for(auto shape : m_Shapes)
-	{
-	}
+	
 }
 
-void ShapeManager::Reset()
+void ShapeManager::Clear()
 {
-	for (auto shape : m_Shapes)
-	{
-	}
-	m_Shapes.clear();
+	
 }
 
 void ShapeManager::Reload()

@@ -22,51 +22,58 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_EDITOR_H
-#define SFGE_EDITOR_H
+#ifndef SFGE_MODULE_H
+#define SFGE_MODULE_H
 
-#include <engine/module.h>
-#include <engine/entity.h>
-#include "physics/body2d.h"
+#include <engine/engine.h>
+#include <SFML/System/Time.hpp>
 
 namespace sfge
 {
 
-class Engine;
-
-class Editor : public Module
+/**
+* \brief Module are classes used by the Engine to init and update features
+*/
+class Module
 {
 public:
-	Editor(Engine& engine);
-	/**
-	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
-	*/
-	void Init() override;
-	/**
-	* \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed
-	* \param dt Delta time since last frame
-	*/
-	void Update(sf::Time dt) override;
-	void ProcessEvent(sf::Event& event);
-	void Draw();
-	/**
-	* \brief Finalize and delete everything created in the SceneManager
-	*/
-	void Destroy() override;
+	Module(Engine& engine);
 
-	void Collect() override;
-	void Clear() override;
+	virtual ~Module() = default;
+	/**
+	* \brief Called to initialize the module
+	*/
+	virtual void Init() {}
+	/**
+	* \brief Called every frame to update the module
+	* \param dt The delta time since last frame
+	*/
+	virtual void Update(sf::Time dt) {}
+	/**
+	* \brief Called directly after the physics finished his job
+	*/
+	virtual void FixedUpdate() {}
+	/**
+	* \brief Used instead of the destructor to delete all heap created structure and finalize
+	*/
+	virtual void Destroy();
+	/**
+	* \brief Called before we load a scene
+	*/
+	virtual void Clear() {}
+	/**
+	* \brief Called after we load a scene
+	*/
+	virtual void Collect() {}
+
+	void SetEnable(bool enable);
+	bool GetEnable() const;
+
+	
+
 protected:
-	std::weak_ptr<sf::RenderWindow> m_Window;
-	std::weak_ptr<SceneManager> m_SceneManager;
-	std::weak_ptr<EntityManager> m_EntityManager;
-	std::weak_ptr<Transform2dManager> m_TransformManager;
-	std::weak_ptr<Body2dManager> m_BodyManager;
-
-	bool m_IsImguiInit = false;
-
-
-
+	bool m_Enable = true;
+	Engine& m_Engine;
 };
 }
 

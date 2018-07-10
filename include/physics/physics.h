@@ -28,7 +28,7 @@ SOFTWARE.
 #include <Box2D/Box2D.h>
 #include <SFML/System/Time.hpp>
 
-#include <engine/engine.h>
+#include <engine/module.h>
 #include <physics/collider.h>
 #include <physics/body2d.h>
 
@@ -85,14 +85,11 @@ public:
 	const static float pixelPerMeter;
 private:
 	friend class Body2d;
-	friend class Collider;
 	b2World* m_World = nullptr;
 	const int32 m_VelocityIterations = 8;  
 	const int32 m_PositionIterations = 3;
 	ContactListener* m_ContactListener = nullptr;
 
-	std::vector<Body2d> m_Bodies;
-	std::vector<Collider> m_Colliders;
 
 };
 

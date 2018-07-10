@@ -25,7 +25,8 @@ SOFTWARE.
 #ifndef SFGE_SHAPE_H_
 #define SFGE_SHAPE_H_
 
-#include <engine/engine.h>
+#include <engine/module.h>
+#include <engine/component.h>
 #include <list>
 //Externals
 #include <SFML/Graphics.hpp>
@@ -76,17 +77,16 @@ protected:
 	
 };
 
-class ShapeManager
+class ShapeManager : ComponentManager<Shape>
 {
 
 public:
 	ShapeManager(GraphicsManager& graphicsManager);
 	void Draw(sf::RenderWindow& window);
 
-	void Reset();
+	void Clear();
 	void Reload();
 protected:
-	std::vector<Shape> m_Shapes;
 	GraphicsManager& m_GraphicsManager;
 };
 

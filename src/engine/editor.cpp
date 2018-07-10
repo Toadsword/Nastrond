@@ -43,8 +43,8 @@ SOFTWARE.
 
 namespace sfge
 {
-Editor::Editor(Engine& engine, bool enable): Module(engine, enable), 
-	m_GraphicsManager(m_Engine.GetGraphicsManager()), 
+Editor::Editor(Engine& engine): Module(engine), 
+	m_Window(m_Engine.GetGraphicsManager()->GetWindow()), 
 	m_SceneManager(m_Engine.GetSceneManager()),
 	m_EntityManager(m_Engine.GetEntityManager())
 {
@@ -58,29 +58,34 @@ void Editor::Init()
 	if (m_Enable)
 	{
 		Log::GetInstance()->Msg("Enabling Editor");
-		ImGui::SFML::Init(*m_GraphicsManager.GetWindow(), true);
+		if(const auto window = m_Window.lock())
+		{
+			ImGui::SFML::Init(*window, true);
+			m_IsImguiInit = true;
+		}
 	}
 }
 void Editor::Update(sf::Time dt)
 {
 	if (m_Enable)
 	{
+		if (const auto window = m_Window.lock())
+		{
+			ImGui::SFML::Update(*window, dt);
 
-		ImGui::SFML::Update(*m_GraphicsManager.GetWindow(), dt);
-		
-		//GameObject window
-		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(150.0f, m_Engine.GetConfig()->screenResolution.y), ImGuiCond_FirstUseEver);
-		ImGui::Begin("GameObjects");
-		
-		ImGui::End();
-		//Component inspector window
-		ImGui::SetNextWindowPos(ImVec2(m_Engine.GetConfig()->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(150.0f, m_Engine.GetConfig()->screenResolution.y), ImGuiCond_FirstUseEver);
-		ImGui::Begin("Inspector");
-		
-		ImGui::End();
+			//GameObject window
+			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(150.0f, m_Engine.GetConfig()->screenResolution.y), ImGuiCond_FirstUseEver);
+			ImGui::Begin("GameObjects");
 
+			ImGui::End();
+			//Component inspector window
+			ImGui::SetNextWindowPos(ImVec2(m_Engine.GetConfig()->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(150.0f, m_Engine.GetConfig()->screenResolution.y), ImGuiCond_FirstUseEver);
+			ImGui::Begin("Inspector");
+
+			ImGui::End();
+		}
 		
 	}
 }
@@ -98,9 +103,12 @@ void Editor::ProcessEvent(sf::Event& event)
 
 void Editor::Draw()
 {
-	if(m_Enable)
+	if (m_Enable)
 	{
-		ImGui::SFML::Render(*m_GraphicsManager.GetWindow());
+		if (const auto window = m_Window.lock())
+		{
+			ImGui::SFML::Render(*window);
+		}
 	}
 }
 

@@ -29,56 +29,5 @@ SOFTWARE.
 namespace sfge
 {
 
-
-b2Body * Body2d::GetBody()
-{
-	return m_Body;
-}
-
-void Body2d::SetVelocity(b2Vec2 v)
-{
-	if (m_Body != nullptr)
-	{
-		m_Body->SetLinearVelocity(v);
-	}
-}
-
-b2Vec2 Body2d::GetVelocity()
-{
-	if (m_Body != nullptr)
-	{
-		return m_Body->GetLinearVelocity();
-	}
-	return b2Vec2();
-}
-
-b2BodyType Body2d::GetBodyType()
-{
-	if (m_Body != nullptr)
-		return m_Body->GetType();
-	return b2_staticBody;
-}
-
-
-float Body2d::GetMass()
-{
-	if (m_Body != nullptr)
-	{
-		return m_Body->GetMass();
-	}
-	return 0.0f;
-}
-
-void Body2d::AddForce(b2Vec2 f)
-{
-	if (m_Body != nullptr)
-	{
-		m_Body->ApplyForce(f, m_Body->GetPosition(), true);
-	}
-}
-
-
-
-
 }
 

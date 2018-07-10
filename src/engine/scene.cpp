@@ -162,9 +162,9 @@ void SceneManager::LoadScene(std::string sceneName)
 }
 
 
-Scene::Scene(SceneManager * sceneManager) 
+Scene::Scene(std::shared_ptr<SceneManager> sceneManager) 
 {
-	m_SceneManager = sceneManager;
+	m_SceneManagerPtr = sceneManager;
 }
 
 void Scene::Update(sf::Time dt)

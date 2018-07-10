@@ -35,10 +35,12 @@ namespace fs = std::experimental::filesystem;
 
 namespace sfge
 {	
+
 bool FileExists(std::string& filename);
 bool IsRegularFile(std::string& filename);
 bool IsDirectory(std::string& filename);
 void IterateDirectory(std::string& dirname, std::function<void(std::string)>);
+
 }
 
 #endif

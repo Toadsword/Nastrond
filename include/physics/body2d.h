@@ -27,27 +27,19 @@ SOFTWARE.
 
 
 #include <Box2D/Box2D.h>
+#include <engine/component.h>
 
 namespace sfge
 {
 
-class Body2d 
+class Body2dManager : ComponentManager<b2Body*>, Module
 {
-public:
+	using Module::Module;
 
-	b2Body* GetBody();
-
-	void SetVelocity(b2Vec2 v);
-	b2Vec2 GetVelocity();
-
-	b2BodyType GetBodyType();
-
-	float GetMass();
-
-	void AddForce(b2Vec2 f);
-
-protected:
-	b2Body * m_Body = nullptr;
+	void FixedUpdate() override;
+private:
+	std::weak_ptr<EntityManager> m_EntityManagerPtr;
+	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
 };
 
 }

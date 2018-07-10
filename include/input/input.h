@@ -25,7 +25,9 @@ SOFTWARE.
 #ifndef SFGE_INPUT_H
 #define SFGE_INPUT_H
 
-#include <engine/engine.h>
+#include <array>
+
+#include <engine/module.h>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/System/Time.hpp>
@@ -47,7 +49,7 @@ protected:
 
 
 private:
-	KeyPressedStatus keyPressedStatusArray[sf::Keyboard::Key::KeyCount] = {};
+	std::array<KeyPressedStatus, sf::Keyboard::Key::KeyCount> keyPressedStatusArray= {};
 };
 
 class MouseManager
@@ -63,7 +65,6 @@ class InputManager : public Module
 public:
 	using Module::Module;
 
-	InputManager(Engine& engine, bool enable = true);
 	/**
 	 * \brief Initialize the Input Manager
 	 */
@@ -80,8 +81,6 @@ public:
 
 	KeyboardManager& GetKeyboardManager();
 	MouseManager& GetMouseManager();
-
-private:
 
 protected:
 	KeyboardManager m_KeyboardManager;

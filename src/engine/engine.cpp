@@ -30,6 +30,7 @@ SOFTWARE.
 
 
 #include <engine/engine.h>
+#include <engine/globals.h>
 #include <engine/scene.h>
 #include <graphics/graphics.h>
 #include <input/input.h>
@@ -45,7 +46,18 @@ SOFTWARE.
 namespace sfge
 {
 
-
+Engine::Engine()
+{
+	m_GraphicsManager = std::make_shared<GraphicsManager>(*this);
+	m_AudioManager = std::make_shared<AudioManager>(*this);
+	m_SceneManager = std::make_shared<SceneManager>(*this);
+	m_InputManager = std::make_shared<InputManager>(*this);
+	m_PythonManager = std::make_shared<PythonEngine>(*this);
+	m_PhysicsManager = std::make_shared<PhysicsManager>(*this);
+	m_Editor = std::make_shared<Editor>(*this);
+	m_EntityManager = std::make_shared<EntityManager>(*this);
+	m_TransformManager = std::make_shared<Transform2dManager>(*this);
+}
 void Engine::Init(bool windowless, bool editor)
 {
 	m_ThreadPool.resize(THREAD_NMB);
@@ -59,15 +71,7 @@ void Engine::Init(bool windowless, bool editor)
 		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
 	}
 
-	m_GraphicsManager = std::make_shared<GraphicsManager>(*this, true, windowless);
-	m_AudioManager = std::make_shared<AudioManager>(*this, true);
-	m_SceneManager = std::make_shared<SceneManager>(*this, true);
-	m_InputManager = std::make_shared<InputManager>(*this, true);
-	m_PythonManager = std::make_shared<PythonManager>(*this, true);
-	m_PhysicsManager = std::make_shared<PhysicsManager>(*this, true);
-	m_Editor = std::make_shared<Editor>(*this, editor);
-	m_EntityManager = std::make_shared<EntityManager>();
-	m_TransformManager = std::make_shared<Transform2dManager>();
+	
 
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
@@ -164,73 +168,52 @@ void Engine::Collect()
 }
 
 
-std::shared_ptr<Configuration> Engine::GetConfig()
+std::shared_ptr<Configuration> Engine::GetConfig() const
 {
 	return m_Config;
 }
 
-GraphicsManager & Engine::GetGraphicsManager() const
+std::shared_ptr<GraphicsManager> Engine::GetGraphicsManager() const
 {
-	return *m_GraphicsManager;
+	return m_GraphicsManager;
 }
 
-AudioManager & Engine::GetAudioManager() const
+std::shared_ptr<AudioManager> Engine::GetAudioManager() const
 {
-	return *m_AudioManager;
+	return m_AudioManager;
 }
 
-SceneManager & Engine::GetSceneManager() const
+std::shared_ptr<SceneManager> Engine::GetSceneManager() const
 {
-	return *m_SceneManager;
+	return m_SceneManager;
 }
 
-InputManager & Engine::GetInputManager() const
+std::shared_ptr<InputManager> Engine::GetInputManager() const
 {
-	return *m_InputManager;
+	return m_InputManager;
 }
 
-PythonManager & Engine::GetPythonManager() const
+std::shared_ptr<PythonEngine> Engine::GetPythonManager() const
 {
-	return *m_PythonManager;
+	return m_PythonManager;
 }
 
-PhysicsManager & Engine::GetPhysicsManager() const
+std::shared_ptr<PhysicsManager> Engine::GetPhysicsManager() const
 {
-	return *m_PhysicsManager;
+	return m_PhysicsManager;
 }
 
-EntityManager& Engine::GetEntityManager() const
+std::shared_ptr<EntityManager> Engine::GetEntityManager() const
 {
-	return  *m_EntityManager;
+	return m_EntityManager;
 }
 
-Transform2dManager& Engine::GetTransform2dManager() const
+std::shared_ptr<Transform2dManager> Engine::GetTransform2dManager() const
 {
-	return *m_TransformManager;
+	return m_TransformManager;
 }
 
 
-Module::Module(Engine& engine, bool enable=true) :
-	m_Engine(engine)
-{
-m_Enable = enable;
-
-}
-
-void Module::Destroy()
-{
-	Clear();
-	Collect();
-}
-
-void Module::SetEnable(bool enable)
-{
-}
-
-bool Module::GetEnable()
-{
-	return false;
-}
 
 
 }

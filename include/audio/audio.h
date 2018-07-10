@@ -25,7 +25,7 @@ SOFTWARE.
 #ifndef SFGE_AUDIO_H
 #define SFGE_AUDIO_H
 
-#include <engine/engine.h>
+#include <engine/module.h>
 #include <SFML/Audio.hpp>
 #include <map>
 #include <string>
@@ -64,12 +64,6 @@ protected:
 	MusicManager m_MusicManager;
 public:
 	using Module::Module;
-	/**
-	* \brief construct the AudioManager
-	* \param engine use for init the module
-	* \param enable use for ImGui
-	*/
-	AudioManager(Engine& engine, bool enable = true);
 	/**
 	* \brief Initialize SoundManager class, SoundBuffer class and MusicManager class
 	*/

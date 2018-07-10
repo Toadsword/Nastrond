@@ -79,10 +79,20 @@ void PyComponent::Update(float dt)
 	}
 }
 
+	void PyComponent::FixedUpdate(float fixedDeltaTime)
+	{
+		PYBIND11_OVERLOAD_PURE_NAME(
+			void,
+			PyComponent,
+			"fixed_update",
+			FixedUpdate,
+			fixedDeltaTime
+		);
+	}
 
-
-void PyComponent::OnCollisionEnter(Collider * collider)
-{
+	/*
+	void PyComponent::OnCollisionEnter(b2Contact * collider) const
+	{
 	try
 	{
 		PYBIND11_OVERLOAD_PURE_NAME(
@@ -100,7 +110,7 @@ void PyComponent::OnCollisionEnter(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerEnter(Collider * collider)
+void PyComponent::OnTriggerEnter(b2Contact * collider)
 {
 	try
 	{
@@ -119,7 +129,7 @@ void PyComponent::OnTriggerEnter(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnCollisionExit(Collider * collider)
+void PyComponent::OnCollisionExit(b2Contact * collider)
 {
 	try
 	{
@@ -138,7 +148,7 @@ void PyComponent::OnCollisionExit(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerExit(Collider * collider)
+void PyComponent::OnTriggerExit(b2Contact * collider)
 {
 	try
 	{
@@ -157,17 +167,18 @@ void PyComponent::OnTriggerExit(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
+	*/
 Entity PyComponent::GetEntity()
 {
-	return Entity();
+	return m_Entity;
 }
 unsigned int PyComponent::GetInstanceId() const
 {
-	return instanceId;
+	return m_InstanceId;
 }
 
 void PyComponent::SetInstanceId(unsigned int instanceId)
 {
-	this->instanceId = instanceId;
+	m_InstanceId = instanceId;
 }
 }

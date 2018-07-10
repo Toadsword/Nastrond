@@ -26,7 +26,7 @@
 #define SFGE_PYENGINE_H
 
 #include <map>
-#include <engine/engine.h>
+#include <engine/module.h>
 #include <utility/python_utility.h>
 #include <pybind11/functional.h>
 
@@ -36,10 +36,10 @@ class PyComponent;
 /**
 * \brief Manage the python interpreter
 */
-class PythonManager : public Module
+class PythonEngine : public Module
 {
 public:
-	using Module::Module;
+	PythonEngine(Engine& engine);
 	/**
 	* \brief Initialize the python interpreter
 	*/

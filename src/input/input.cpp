@@ -30,10 +30,6 @@ SOFTWARE.
 
 namespace sfge
 {
-InputManager::InputManager(Engine & engine, bool enable): Module(engine,enable)
-{
-	enable = m_Enable;
-}
 
 
 KeyboardManager& InputManager::GetKeyboardManager()

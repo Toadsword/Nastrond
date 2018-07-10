@@ -25,6 +25,7 @@ SOFTWARE.
 #ifndef SFGE_MODULES_H
 #define SFGE_MODULES_H
 
+#include <engine/module.h>
 #include <engine/editor.h>
 #include <graphics/graphics.h>
 #include <physics/physics.h>

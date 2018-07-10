@@ -22,52 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_EDITOR_H
-#define SFGE_EDITOR_H
 
-#include <engine/module.h>
+#ifndef SFGE_COMPONENT_H
+#define SFGE_COMPONENT_H
+
+#include <engine/globals.h>
+#include <vector>
 #include <engine/entity.h>
-#include "physics/body2d.h"
 
 namespace sfge
 {
 
-class Engine;
+enum class ComponentType
+{
+	TRANSFORM = 1 << 0,
+	SPRITE = 1 << 1,
+	SHAPE = 1 << 2,
+	BODY2D = 1 << 3,
+	COLLIDER = 1 << 4,
+	PYCOMPONENT = 1 << 5
+};
 
-class Editor : public Module
+template<class T>
+class ComponentManager
 {
 public:
-	Editor(Engine& engine);
-	/**
-	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
-	*/
-	void Init() override;
-	/**
-	* \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed
-	* \param dt Delta time since last frame
-	*/
-	void Update(sf::Time dt) override;
-	void ProcessEvent(sf::Event& event);
-	void Draw();
-	/**
-	* \brief Finalize and delete everything created in the SceneManager
-	*/
-	void Destroy() override;
+	ComponentManager();
 
-	void Collect() override;
-	void Clear() override;
+	T & GetComponent(Entity entity);
+
+	std::vector<T>& GetComponents();
+
 protected:
-	std::weak_ptr<sf::RenderWindow> m_Window;
-	std::weak_ptr<SceneManager> m_SceneManager;
-	std::weak_ptr<EntityManager> m_EntityManager;
-	std::weak_ptr<Transform2dManager> m_TransformManager;
-	std::weak_ptr<Body2dManager> m_BodyManager;
-
-	bool m_IsImguiInit = false;
-
-
-
+	std::vector<T> m_Components;
 };
-}
 
+	
+}
 #endif

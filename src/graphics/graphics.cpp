@@ -36,8 +36,8 @@ SOFTWARE.
 
 namespace sfge
 {
-GraphicsManager::GraphicsManager(Engine& engine, bool enable, bool windowless) :
-		Module(engine, enable), m_Windowless(windowless), m_SpriteManager(*this), m_ShapeManager(*this)
+GraphicsManager::GraphicsManager(Engine& engine) :
+		Module(engine), m_SpriteManager(*this), m_ShapeManager(*this)
 {
 }
 void GraphicsManager::Init()

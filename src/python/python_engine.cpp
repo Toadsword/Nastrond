@@ -79,10 +79,12 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("init", &PyComponent::Init)
 		.def("update", &PyComponent::Update)
 		.def_property_readonly("entity", &PyComponent::GetEntity)
+	/*
 		.def("on_trigger_enter", &PyComponent::OnTriggerEnter)
 		.def("on_collision_enter", &PyComponent::OnCollisionEnter)
 		.def("on_trigger_exit", &PyComponent::OnTriggerExit)
-		.def("on_collision_exit", &PyComponent::OnCollisionExit);
+		.def("on_collision_exit", &PyComponent::OnCollisionExit)
+	*/;
 
 	/*py::enum_<ComponentType>(component, "ComponentType")
 		.value("PyComponent", ComponentType::PYCOMPONENT)
@@ -92,31 +94,35 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.export_values();*/
 
 	py::class_<Transform2d> transform(m, "Transform");
-	/*transform
-		.def_property("euler_angle", Transform2d::m_EulerAngle)
+	transform
+		.def_readwrite("euler_angle", &Transform2d::EulerAngle)
+		.def_readwrite("position", &Transform2d::Position)
+		.def_readwrite("scale", &Transform2d::Scale);
+	/*
 		.def("set_euler_angle", &Transform::SetEulerAngle)
 		.def("get_position", &Transform::GetPosition)
 		.def("set_position", &Transform::SetPosition)
 		.def("get_scale", &Transform::GetScale)
 		.def("set_scale", &Transform::SetScale);*/
 	
-	py::class_<Collider> collider(m, "Collider");
+	/*py::class_<Collider> collider(m, "Collider");
 	collider
 		.def("is_trigger", &Collider::IsTrigger);
-	
-	py::class_<Body2d> body(m, "Body");
+	*/
+	/*
+	py::class_<b2Body> body(m, "Body");
 	body
-		.def_property("velocity", &Body2d::GetVelocity, &Body2d::SetVelocity)
-		.def("add_force", &Body2d::AddForce)
-		.def_property_readonly("body_type", &Body2d::GetBodyType)
-		.def_property_readonly("mass", &Body2d::GetMass);
-
+		.def_property("velocity", &b2Body::GetLinearVelocity, &b2Body::SetLinearVelocity)
+		.def("apply_force", &b2Body::ApplyForce)
+		.def_property_readonly("body_type", &b2Body::GetType)
+		.def_property_readonly("mass", &b2Body::GetMass);
+		
 	py::enum_<b2BodyType>(body, "BodyType")
 		.value("STATIC_BODY", b2_staticBody)
 		.value("KINEMATIC_BODY", b2_kinematicBody)
 		.value("DYNAMIC_BODY", b2_dynamicBody)
 		.export_values();
-
+		*/
 	py::class_<Sound> sound(m, "Sound");
 	sound
 		.def("play", &Sound::Play)
@@ -179,7 +185,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 
 
-void PythonManager::Init()
+void PythonEngine::Init()
 {
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
 	py::initialize_interpreter();
@@ -192,12 +198,12 @@ void PythonManager::Init()
 }
 
 
-void PythonManager::Update(sf::Time)
+void PythonEngine::Update(sf::Time)
 {
 }
 
 
-void PythonManager::Destroy()
+void PythonEngine::Destroy()
 {
 	pythonInstanceMap.clear();
 	pythonModuleObjectMap.clear();
@@ -205,21 +211,21 @@ void PythonManager::Destroy()
 	py::finalize_interpreter();
 }
 
-void PythonManager::Clear()
+void PythonEngine::Clear()
 {
 	pythonInstanceMap.clear();
 }
-void PythonManager::Collect()
+void PythonEngine::Collect()
 {
 }
 
-void PythonManager::LoadScripts(std::string dirname)
+void PythonEngine::LoadScripts(std::string dirname)
 {
 	using std::placeholders::_1;
-	std::function<void(std::string)> checkFunc = std::bind(&PythonManager::CheckEntry, this, _1);
+	std::function<void(std::string)> checkFunc = std::bind(&PythonEngine::CheckEntry, this, _1);
 	IterateDirectory(dirname, checkFunc);
 }
-void PythonManager::CheckEntry(std::string entry)
+void PythonEngine::CheckEntry(std::string entry)
 {
 	if(IsRegularFile(entry))
 	{
@@ -232,7 +238,7 @@ void PythonManager::CheckEntry(std::string entry)
 	}
 }
 /*
-unsigned int PythonManager::LoadPyComponentFile(std::string script_path, GameObject* gameObject)
+unsigned int PythonEngine::LoadPyComponentFile(std::string script_path, GameObject* gameObject)
 {
     const auto folderLastIndex = script_path.find_last_of("/");
     std::string filename = script_path.substr(folderLastIndex+1, script_path.size());
@@ -319,7 +325,7 @@ unsigned int PythonManager::LoadPyComponentFile(std::string script_path, GameObj
 }
 */
 
-PyComponent* PythonManager::GetPyComponent(unsigned int instanceId)
+PyComponent* PythonEngine::GetPyComponent(unsigned int instanceId)
 {
 	if(pythonInstanceMap.find(instanceId) != pythonInstanceMap.end())
 	{

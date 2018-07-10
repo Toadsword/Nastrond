@@ -67,8 +67,6 @@ void PhysicsManager::Destroy()
 		m_ContactListener = nullptr;
 	}
 
-	m_Bodies.clear();
-	m_Colliders.clear();
 }
 
 void PhysicsManager::Clear()
@@ -83,7 +81,7 @@ void PhysicsManager::Collect()
 
 void ContactListener::BeginContact(b2Contact* contact) 
 {
-	Collider* firstCollider = nullptr;
+	/*Collider* firstCollider = nullptr;
 	Collider* secondCollider = nullptr;
 
 	void* colliderUserData = contact->GetFixtureA()->GetUserData();
@@ -103,12 +101,12 @@ void ContactListener::BeginContact(b2Contact* contact)
 	{
 		//TODO Call python manager with correct entity
 	}
-
+	*/
 }
 
 void ContactListener::EndContact(b2Contact* contact)
 {
-
+	/*
 	Collider* firstCollider = nullptr;
 	Collider* secondCollider = nullptr;
 
@@ -129,7 +127,7 @@ void ContactListener::EndContact(b2Contact* contact)
 	{
 		//TODO call python with correct entity
 	}
-
+	*/
 }
 
 

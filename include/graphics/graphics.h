@@ -24,7 +24,8 @@ SOFTWARE.
 
 #ifndef SFGE_GRAPHICS_H
 #define SFGE_GRAPHICS_H
-#include <engine/engine.h>
+
+#include <engine/module.h>
 #include <graphics/shape.h>
 #include <graphics/texture.h>
 #include <graphics/sprite.h>
@@ -38,7 +39,7 @@ namespace sfge
 class GraphicsManager : public Module
 {
 public:
-	GraphicsManager(Engine& engine, bool enable, bool windowless);
+	GraphicsManager(Engine& engine);
 	/**
 		* \brief Initialize the Graphics Manager
 		*/

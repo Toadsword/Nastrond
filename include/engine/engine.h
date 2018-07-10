@@ -37,11 +37,11 @@ namespace sfge
 /**
 * Prototypes declarations
 */
-class Configuration;
+struct Configuration;
 class Module;
 class GraphicsManager;
 class AudioManager;
-class PythonManager;
+class PythonEngine;
 class InputManager;
 class SceneManager;
 class SpriteManager;
@@ -69,7 +69,7 @@ enum class EngineModule
 class Engine
 {
 public:
-
+	Engine();
 	/**
 	* \brief Initialize all the modules of the Game Engine, reading the config file too
 	*/
@@ -94,19 +94,19 @@ public:
 	* \brief A getter of the Configuration
 	* \return The Configuration struct got by the Engine
 	*/
-	std::shared_ptr<Configuration> GetConfig();
+	std::shared_ptr<Configuration> GetConfig() const;
 	
 	template<typename F, typename... Rest>
 	auto push(F && f, Rest&&... rest)->std::future<decltype(f(0, rest...))>;
 
-	GraphicsManager& GetGraphicsManager() const;
-	AudioManager& GetAudioManager() const;
-	SceneManager& GetSceneManager() const;
-	InputManager& GetInputManager() const;
-	PythonManager& GetPythonManager() const;
-	PhysicsManager& GetPhysicsManager() const;
-	EntityManager& GetEntityManager() const;
-	Transform2dManager& GetTransform2dManager() const;
+	std::shared_ptr<GraphicsManager> GetGraphicsManager() const;
+	std::shared_ptr<AudioManager> GetAudioManager() const;
+	std::shared_ptr<SceneManager> GetSceneManager() const;
+	std::shared_ptr<InputManager> GetInputManager() const;
+	std::shared_ptr<PythonEngine> GetPythonManager() const;
+	std::shared_ptr<PhysicsManager> GetPhysicsManager() const;
+	std::shared_ptr<EntityManager> GetEntityManager() const;
+	std::shared_ptr<Transform2dManager> GetTransform2dManager() const;
 	bool running = false;
 protected:
 	ctpl::thread_pool m_ThreadPool;
@@ -118,7 +118,7 @@ protected:
 	std::shared_ptr<AudioManager> m_AudioManager = nullptr;
 	std::shared_ptr<SceneManager> m_SceneManager = nullptr;
 	std::shared_ptr<InputManager> m_InputManager = nullptr;
-	std::shared_ptr<PythonManager> m_PythonManager = nullptr;
+	std::shared_ptr<PythonEngine> m_PythonManager = nullptr;
 	std::shared_ptr<PhysicsManager> m_PhysicsManager = nullptr;
 	std::shared_ptr<Editor> m_Editor = nullptr;
 	std::shared_ptr<EntityManager> m_EntityManager = nullptr;
@@ -126,48 +126,6 @@ protected:
 
 };
 
-/**
-* \brief Module are classes used by the Engine to init and update features
-*/
-class Module
-{
-public:
-	Module(Engine& engine, bool enable);
-
-	virtual ~Module() = default;
-	/**
-	* \brief Called to initialize the module
-	*/
-	virtual void Init() = 0;
-	/**
-	* \brief Called every frame to update the module
-	* \param dt The delta time since last frame
-	*/
-	virtual void Update(sf::Time dt) = 0;
-	/**
-	 * \brief Called directly after the physics finished his job
-	 */
-	virtual void FixedUpdate() {}
-	/**
-	* \brief Used instead of the destructor to delete all heap created structure and finalize
-	*/
-	virtual void Destroy();
-	/**
-	* \brief Called before we load a scene
-	*/
-	virtual void Clear() = 0;
-	/**
-	* \brief Called after we load a scene
-	*/
-	virtual void Collect() = 0;
-
-	void SetEnable(bool enable);
-	bool GetEnable();
-
-protected:
-	bool m_Enable = true;
-	Engine& m_Engine;
-};
 
 }
 

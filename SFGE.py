@@ -112,24 +112,6 @@ class Transform(Component):
     def __init__(self, game_object):
         pass
 
-    def get_euler_angle(self):
-        pass
-
-    def set_euler_angle(self, euler_angle: float):
-       pass
-
-    def get_position(self):
-        pass
-
-    def set_position(self, position: Vector2f):
-        pass
-
-    def get_scale(self):
-        pass
-
-    def set_scale(self, scale: Vector2f):
-        pass
-
 
 class Collider(Component):
 

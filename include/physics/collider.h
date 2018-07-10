@@ -32,21 +32,6 @@ SOFTWARE.
 namespace sfge
 {
 
-enum class ColliderType
-{
-	NONE,
-	CIRCLE,
-	RECTANGLE,
-	LINE
-};
-
-class Collider 
-{
-public:
-	bool IsTrigger() const;
-protected:
-	b2Fixture * m_Fixture = nullptr;
-};
 }
 
 #endif

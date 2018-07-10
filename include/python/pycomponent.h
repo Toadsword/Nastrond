@@ -46,13 +46,13 @@ public:
 
 	void Init();
 	void Update(float dt);
-	void FixedUpdate();
-
-	void OnCollisionEnter(Collider* collider);
+	void FixedUpdate(float fixedDeltaTime);
+	/*
+	void OnCollisionEnter(Collider* collider) const;
 	void OnTriggerEnter(Collider * collider);
 	void OnCollisionExit(Collider* collider);
 	void OnTriggerExit(Collider * collider);
-
+	*/
 	Entity GetEntity();
 
 
@@ -60,8 +60,8 @@ public:
 	void SetInstanceId(unsigned int instanceId = 0U);
 
 private:
-	unsigned int instanceId = 0U;
-	Entity entity = 0U;
+	unsigned int m_InstanceId = 0U;
+	Entity m_Entity = 0U;
 };
 
 }

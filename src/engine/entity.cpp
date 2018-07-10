@@ -26,5 +26,8 @@ SOFTWARE.
 
 namespace sfge
 {
-	
+	EntityMask EntityManager::GetMask(Entity entity)
+	{
+		return m_MaskArray[entity];
+	}
 }

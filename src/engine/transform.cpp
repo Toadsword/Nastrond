@@ -6,16 +6,14 @@
  */
 
 #include <engine/transform.h>
-#include <utility/file_utility.h>
-#include <utility/json_utility.h>
-#include <engine/log.h>
-//STL
-#include <memory>
-//Externals
-#include <SFML/System.hpp>
 
 namespace sfge
 {
 
+	Transform2dManager::Transform2dManager(Engine& engine) :
+	Module(engine)
+	{
+		
+	}
 
 }

@@ -27,11 +27,9 @@
 #define SFGE_SCENE_H
 
 
-#include <list>
-
-#include <engine/engine.h>
+#include <engine/module.h>
 //#include <utility/json_utility.h>
-#include "transform.h"
+#include <engine/transform.h>
 
 namespace sfge
 {
@@ -81,6 +79,9 @@ public:
 	bool IsSwitching();
 	std::shared_ptr<Scene> GetCurrentScene();
 private:
+	std::weak_ptr<EntityManager> m_EntityManagerPtr;
+	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
+
 	std::shared_ptr<Scene> m_PreviousScene = nullptr;
 	std::shared_ptr<Scene> m_CurrentScene = nullptr;
 
@@ -94,7 +95,7 @@ private:
 class Scene
 {
 public:
-	Scene(SceneManager* sceneManager);
+	Scene(std::shared_ptr<SceneManager> sceneManager);
 	/**
 	* \brief Update the Scene, mostly updating the GameObjects and doing the transition when needed
 	* \param dt Delta time since last frame
@@ -106,8 +107,8 @@ public:
 	~Scene();
 
 protected:
-	std::string name;
-	SceneManager* m_SceneManager;
+	std::string m_Name;
+	std::weak_ptr<SceneManager> m_SceneManagerPtr;
 	friend class SceneManager;
 };
 }
