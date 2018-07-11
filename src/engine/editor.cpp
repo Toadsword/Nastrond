@@ -43,11 +43,15 @@ SOFTWARE.
 
 namespace sfge
 {
-Editor::Editor(Engine& engine): Module(engine), 
-	m_Window(m_Engine.GetGraphicsManager()->GetWindow()), 
+Editor::Editor(Engine& engine): Module(engine),
+	m_GraphicsManager(m_Engine.GetGraphicsManager()), 
 	m_SceneManager(m_Engine.GetSceneManager()),
 	m_EntityManager(m_Engine.GetEntityManager())
 {
+	if(auto graphicsManager = m_GraphicsManager.lock())
+	{
+		m_Window = graphicsManager->GetWindow();
+	}
 }
 
 /**

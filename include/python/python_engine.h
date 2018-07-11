@@ -29,6 +29,7 @@
 #include <engine/module.h>
 #include <utility/python_utility.h>
 #include <pybind11/functional.h>
+#include "engine/component.h"
 
 namespace sfge
 {
@@ -36,7 +37,7 @@ class PyComponent;
 /**
 * \brief Manage the python interpreter
 */
-class PythonEngine : public Module
+class PythonEngine : public Module, LayerComponentManager<PyComponent*>
 {
 public:
 	PythonEngine(Engine& engine);
@@ -71,13 +72,13 @@ private:
 	void LoadScripts(std::string dirname);
 	void CheckEntry(std::string entry);
 
-	std::map<std::string, unsigned int> pythonModuleIdMap;
-	std::map<unsigned int, py::object> pythonModuleObjectMap;
-	unsigned int incrementalScriptId = 1U;
+	std::map<std::string, unsigned int> m_PythonModuleIdMap;
+	std::map<unsigned int, py::object> m_PythonModuleObjectMap;
+	unsigned int m_IncrementalScriptId = 1U;
 
-	std::map<unsigned int, py::object> pythonInstanceMap;
-	unsigned int incrementalInstanceId = 1U;
-	std::vector<PyComponent*> pyComponents;
+	std::map<unsigned int, py::object> m_PythonInstanceMap;
+	unsigned int m_IncrementalInstanceId = 1U;
+	std::vector<PyComponent*> m_PyComponents;
 
 };
 

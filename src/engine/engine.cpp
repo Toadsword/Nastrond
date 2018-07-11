@@ -173,42 +173,42 @@ std::shared_ptr<Configuration> Engine::GetConfig() const
 	return m_Config;
 }
 
-std::shared_ptr<GraphicsManager> Engine::GetGraphicsManager() const
+std::weak_ptr<GraphicsManager> Engine::GetGraphicsManager() const
 {
-	return m_GraphicsManager;
+	return std::weak_ptr<GraphicsManager>(m_GraphicsManager);
 }
 
-std::shared_ptr<AudioManager> Engine::GetAudioManager() const
+std::weak_ptr<AudioManager> Engine::GetAudioManager() const
 {
-	return m_AudioManager;
+	return std::weak_ptr<AudioManager>(m_AudioManager);
 }
 
-std::shared_ptr<SceneManager> Engine::GetSceneManager() const
+std::weak_ptr<SceneManager> Engine::GetSceneManager() const
 {
 	return m_SceneManager;
 }
 
-std::shared_ptr<InputManager> Engine::GetInputManager() const
+std::weak_ptr<InputManager> Engine::GetInputManager() const
 {
 	return m_InputManager;
 }
 
-std::shared_ptr<PythonEngine> Engine::GetPythonManager() const
+std::weak_ptr<PythonEngine> Engine::GetPythonManager() const
 {
 	return m_PythonManager;
 }
 
-std::shared_ptr<PhysicsManager> Engine::GetPhysicsManager() const
+std::weak_ptr<PhysicsManager> Engine::GetPhysicsManager() const
 {
 	return m_PhysicsManager;
 }
 
-std::shared_ptr<EntityManager> Engine::GetEntityManager() const
+std::weak_ptr<EntityManager> Engine::GetEntityManager() const
 {
 	return m_EntityManager;
 }
 
-std::shared_ptr<Transform2dManager> Engine::GetTransform2dManager() const
+std::weak_ptr<Transform2dManager> Engine::GetTransform2dManager() const
 {
 	return m_TransformManager;
 }

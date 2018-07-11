@@ -58,6 +58,7 @@ public:
 	void Clear() override;
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
+	std::weak_ptr<GraphicsManager> m_GraphicsManager;
 	std::weak_ptr<SceneManager> m_SceneManager;
 	std::weak_ptr<EntityManager> m_EntityManager;
 	std::weak_ptr<Transform2dManager> m_TransformManager;

@@ -42,10 +42,6 @@ void SceneManager::Init()
 
 void SceneManager::Update(sf::Time dt)
 {
-	if(m_CurrentScene != nullptr)
-	{
-		m_CurrentScene->Update(dt);
-	}
 	
 }
 
@@ -162,18 +158,9 @@ void SceneManager::LoadScene(std::string sceneName)
 }
 
 
-Scene::Scene(std::shared_ptr<SceneManager> sceneManager) 
+Scene::Scene(const std::shared_ptr<SceneManager> sceneManager) 
 {
 	m_SceneManagerPtr = sceneManager;
 }
 
-void Scene::Update(sf::Time dt)
-{
-	
-}
-
-Scene::~Scene()
-{
-	
-}
 }

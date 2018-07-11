@@ -27,6 +27,8 @@ struct Transform2d
 class Transform2dManager : 
 	ComponentManager<Transform2d>, Module
 {
+	bool CreateComponent() override;
+	bool DestroyComponent() override;
 public:
 	Transform2dManager(Engine& engine);
 };

@@ -26,8 +26,11 @@ SOFTWARE.
 #ifndef SFGE_COMPONENT_H
 #define SFGE_COMPONENT_H
 
-#include <engine/globals.h>
+#include <queue>
 #include <vector>
+#include <list>
+
+#include <engine/globals.h>
 #include <engine/entity.h>
 
 namespace sfge
@@ -40,23 +43,73 @@ enum class ComponentType
 	SHAPE = 1 << 2,
 	BODY2D = 1 << 3,
 	COLLIDER = 1 << 4,
-	PYCOMPONENT = 1 << 5
+	SOUND = 1 << 5,
+	PYCOMPONENT = 1 << 6
 };
 
 template<class T>
 class ComponentManager
 {
 public:
-	ComponentManager();
+	ComponentManager() = default;
 
-	T & GetComponent(Entity entity);
+	virtual ~ComponentManager()
+	{
+		m_Components.clear();
+	};
 
-	std::vector<T>& GetComponents();
+	T & GetComponent(Entity entity)
+	{
+		return m_Components[entity];
+	}
+
+	std::vector<T>& GetComponents()
+	{
+		return m_Components;
+	}
+
+	virtual bool CreateComponent() = 0;
+	virtual bool DestroyComponent() = 0;
 
 protected:
-	std::vector<T> m_Components;
+	std::vector<T> m_Components{INIT_ENTITY_NMB};
 };
 
-	
+
+class LayerComponent
+{
+public:
+	void SetLayer(int layer);
+	int GetLayer() const;
+	static bool LayerCompare(LayerComponent* s1, LayerComponent* s2);
+protected:
+	int m_Layer = 0;
+};
+
+template<class T>
+class LayerComponentManager
+{
+
+};
+
+template<>
+class LayerComponentManager<LayerComponent>
+{
+public:
+
+	virtual ~LayerComponentManager()
+	{
+		while (!m_LayerComponents.empty())
+		{
+			m_LayerComponents.pop();
+		}
+	};
+	virtual void FillQueue() = 0;
+protected:
+	std::priority_queue<
+		LayerComponent*, 
+	std::deque<LayerComponent*>, 
+	std::function<bool(LayerComponent*, LayerComponent*)>> m_LayerComponents{LayerComponent::LayerCompare};
+};
 }
 #endif

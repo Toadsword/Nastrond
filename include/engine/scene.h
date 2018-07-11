@@ -43,6 +43,7 @@ class SceneManager : public Module
 {
 public:
 	using Module::Module;
+	~SceneManager() = default;
 	/**
 	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
 	*/
@@ -96,15 +97,10 @@ class Scene
 {
 public:
 	Scene(std::shared_ptr<SceneManager> sceneManager);
-	/**
-	* \brief Update the Scene, mostly updating the GameObjects and doing the transition when needed
-	* \param dt Delta time since last frame
-	*/
-	void Update(sf::Time dt);
-	/**
-	* \brief Destroy all the GameObjects of the scene
-	*/
-	~Scene();
+
+	~Scene() = default;
+
+
 
 protected:
 	std::string m_Name;
@@ -112,4 +108,5 @@ protected:
 	friend class SceneManager;
 };
 }
+
 #endif

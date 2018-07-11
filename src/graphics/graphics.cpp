@@ -67,7 +67,7 @@ void GraphicsManager::Update(sf::Time dt)
 	{
 		m_Window->clear();
 
-		m_SpriteManager.Update(dt);
+		m_SpriteManager.Update();
 		m_SpriteManager.Draw(*m_Window);
 
 		m_ShapeManager.Draw(*m_Window);

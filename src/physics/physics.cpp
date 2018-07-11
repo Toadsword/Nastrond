@@ -81,53 +81,13 @@ void PhysicsManager::Collect()
 
 void ContactListener::BeginContact(b2Contact* contact) 
 {
-	/*Collider* firstCollider = nullptr;
-	Collider* secondCollider = nullptr;
-
-	void* colliderUserData = contact->GetFixtureA()->GetUserData();
-	if (colliderUserData)
-	{
-		firstCollider = static_cast<Collider*>(colliderUserData);
-	}
-
+	//TODO pack b2Contact data and entity
 	
-	colliderUserData = contact->GetFixtureB()->GetUserData();
-	if (colliderUserData)
-	{
-		secondCollider = static_cast<Collider*>(colliderUserData);
-	}
-
-	if (firstCollider && secondCollider)
-	{
-		//TODO Call python manager with correct entity
-	}
-	*/
 }
 
 void ContactListener::EndContact(b2Contact* contact)
 {
-	/*
-	Collider* firstCollider = nullptr;
-	Collider* secondCollider = nullptr;
-
-	void* colliderUserData = contact->GetFixtureA()->GetUserData();
-	if (colliderUserData)
-	{
-		firstCollider = static_cast<Collider*>(colliderUserData);
-	}
-
-
-	colliderUserData = contact->GetFixtureB()->GetUserData();
-	if (colliderUserData)
-	{
-		secondCollider = static_cast<Collider*>(colliderUserData);
-	}
-
-	if (firstCollider && secondCollider)
-	{
-		//TODO call python with correct entity
-	}
-	*/
+	//TODO pack b2Contact data and entity
 }
 
 

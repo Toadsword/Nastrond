@@ -51,34 +51,26 @@ void Sprite::SetTextureId(unsigned int textureId)
 {
 	m_TextureId = textureId;
 }
-void Sprite::SetLayer(int layer)
-{
-	
-}
 
 void Sprite::Init()
 {
 }
 
-bool Sprite::SpriteLayerComp(Sprite* s1, Sprite* s2)
-{
-	return s1->layer>s2->layer;
-}
+
 
 SpriteManager::SpriteManager(GraphicsManager& graphicsManager): m_GraphicsManager(graphicsManager)
 {
 }
 
-void SpriteManager::Update(sf::Time dt)
+void SpriteManager::Update()
 {
-	m_Sprites.sort(Sprite::SpriteLayerComp);
 }
 
 void SpriteManager::Draw(sf::RenderWindow& window)
 {
-	for (auto sprite : m_Sprites)
+	for (auto& sprite : m_Components)
 	{
-		sprite->Draw(window);
+		sprite.Draw(window);
 	}
 }
 /*
@@ -126,21 +118,20 @@ void SpriteManager::LoadSprite(json& componentJson, Sprite* newSprite)
 */
 void SpriteManager::Reset()
 {
-	for (auto sprite : m_Sprites)
-	{
-		delete(sprite);
-	}
-	m_Sprites.clear();
+
 }
 
 void SpriteManager::Collect()
 {
 }
 
+bool SpriteManager::CreateComponent()
+{
+	return false;
+}
 
-
-
-
-
-
+bool SpriteManager::DestroyComponent()
+{
+	return false;
+}
 }

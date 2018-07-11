@@ -21,6 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <sstream>
+
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 #include <python/python_engine.h>
 #include <engine/modules.h>
@@ -32,8 +36,7 @@
 #include <utility/time_utility.h>
 
 
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
+
 
 
 
@@ -185,16 +188,34 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 
 
+PythonEngine::PythonEngine(Engine & engine) :
+	Module(engine)
+{
+}
+
 void PythonEngine::Init()
 {
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
 	py::initialize_interpreter();
 	//Adding refecrence to c++ engine modules
+
 	py::module sfgeModule = py::module::import("SFGE");
 	sfgeModule.attr("engine")=  py::cast(&m_Engine);
-	sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager());
-	sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager());
 
+	try
+	{
+		if(const auto sceneManager = m_Engine.GetSceneManager().lock())
+		{
+			sfgeModule.attr("scene_manager") = py::cast(sceneManager, py::return_value_policy::reference);
+		}
+		sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager(), py::return_value_policy::automatic_reference);
+	}
+	catch(py::error_already_set& e)
+	{
+		std::ostringstream oss;
+		oss << "[PYTHON ERROR]: " << e.what();
+		Log::GetInstance()->Error(oss.str());
+	}
 }
 
 
@@ -205,15 +226,15 @@ void PythonEngine::Update(sf::Time)
 
 void PythonEngine::Destroy()
 {
-	pythonInstanceMap.clear();
-	pythonModuleObjectMap.clear();
+	m_PythonInstanceMap.clear();
+	m_PythonModuleObjectMap.clear();
 	Log::GetInstance()->Msg("Finalize the python embed interpretor");
 	py::finalize_interpreter();
 }
 
 void PythonEngine::Clear()
 {
-	pythonInstanceMap.clear();
+	m_PythonInstanceMap.clear();
 }
 void PythonEngine::Collect()
 {
@@ -327,9 +348,9 @@ unsigned int PythonEngine::LoadPyComponentFile(std::string script_path, GameObje
 
 PyComponent* PythonEngine::GetPyComponent(unsigned int instanceId)
 {
-	if(pythonInstanceMap.find(instanceId) != pythonInstanceMap.end())
+	if(m_PythonInstanceMap.find(instanceId) != m_PythonInstanceMap.end())
 	{
-		return pythonInstanceMap[instanceId].cast<PyComponent*>();
+		return m_PythonInstanceMap[instanceId].cast<PyComponent*>();
 	}
 	return nullptr;
 }

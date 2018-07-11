@@ -25,11 +25,14 @@
 #ifndef SFGE_PYCOMPONENT_H_
 #define SFGE_PYCOMPONENT_H_
 
+
+#include <memory>
+
 #include <engine/entity.h>
 
 #include <utility/python_utility.h>
 //STL
-#include <memory>
+#include <engine/component.h>
 
 namespace sfge
 {
@@ -38,7 +41,7 @@ namespace sfge
 	/**
  * \brief Python abstraction of Component
  */
-class PyComponent
+class PyComponent : LayerComponent
 {
 public:
 	PyComponent();

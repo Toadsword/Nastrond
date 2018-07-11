@@ -27,22 +27,20 @@ SOFTWARE.
 namespace sfge
 {
 
-template <class T>
-ComponentManager<T>::ComponentManager()
+bool LayerComponent::LayerCompare(LayerComponent* s1, LayerComponent* s2)
 {
-	m_Components = std::vector<T>(INIT_ENTITY_NMB);
+	
+	return s1->GetLayer() > s2->GetLayer();
 }
 
-template <class T>
-T& ComponentManager<T>::GetComponent(Entity entity)
+
+	void LayerComponent::SetLayer(int layer)
 {
-	return m_Components[entity];
+	m_Layer = layer;
 }
 
-template <class T>
-std::vector<T>& ComponentManager<T>::GetComponents()
+int LayerComponent::GetLayer() const
 {
-	return m_Components;
+	return m_Layer;
 }
-
 }

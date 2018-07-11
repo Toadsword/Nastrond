@@ -37,10 +37,14 @@ class Body2dManager : ComponentManager<b2Body*>, Module
 	using Module::Module;
 
 	void FixedUpdate() override;
+
+
 private:
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
 };
+
+
 
 }
 

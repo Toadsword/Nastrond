@@ -86,6 +86,9 @@ public:
 
 	void Clear();
 	void Reload();
+
+	bool CreateComponent() override;
+	bool DestroyComponent() override;
 protected:
 	GraphicsManager& m_GraphicsManager;
 };

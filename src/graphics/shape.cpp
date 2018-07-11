@@ -77,6 +77,16 @@ void ShapeManager::Reload()
 {
 }
 
+bool ShapeManager::CreateComponent()
+{
+	return false;
+}
+
+bool ShapeManager::DestroyComponent()
+{
+	return false;
+}
+
 
 Polygon::Polygon(std::list<sf::Vector2f>& points)
 {

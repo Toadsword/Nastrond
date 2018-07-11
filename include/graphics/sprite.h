@@ -26,12 +26,13 @@ SOFTWARE.
 #define SFGE_SPRITE_H
 
 //STL
-#include <list>
 #include <string>
-//Engine
-#include <engine/engine.h>
+#include <queue>
 //Dependencies
 #include <SFML/Graphics.hpp>
+//Engine
+#include <engine/component.h>
+#include <engine/transform.h>
 
 namespace sfge
 {
@@ -39,7 +40,8 @@ class GraphicsManager;
 /**
 * \brief Sprite component used in the GameObject
 */
-class Sprite 
+class Sprite:
+	LayerComponent
 {
 public:
 	void Init();
@@ -51,32 +53,34 @@ public:
 
 	void SetTextureId(unsigned int textureId);
 
-	void SetLayer(int layer);
 
-	static bool SpriteLayerComp(Sprite* s1, Sprite* s2);
+	
 protected:
 	sf::Vector2f offset = sf::Vector2f();
 	std::string filename;
 	unsigned int m_TextureId = 0U;
-	int layer = 0;
 	sf::Sprite sprite;
 };
 
 /**
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
-class SpriteManager 
+class SpriteManager : ComponentManager<Sprite>, LayerComponentManager<Sprite>
 {
 public:
 	SpriteManager(GraphicsManager& graphicsManager);
-	void Update(sf::Time dt);
+	void Update();
 	void Draw(sf::RenderWindow& window);
 
 	void Reset();
 	void Collect();
+
+	bool CreateComponent() override;
+	bool DestroyComponent() override;
+
 protected:
-	std::list<Sprite*> m_Sprites;
 	GraphicsManager& m_GraphicsManager;
+	std::weak_ptr<Transform2dManager> m_TransformManager;
 };
 
 
