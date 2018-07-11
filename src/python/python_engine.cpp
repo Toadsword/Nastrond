@@ -202,20 +202,11 @@ void PythonEngine::Init()
 	py::module sfgeModule = py::module::import("SFGE");
 	sfgeModule.attr("engine")=  py::cast(&m_Engine);
 
-	try
-	{
-		if(const auto sceneManager = m_Engine.GetSceneManager().lock())
-		{
-			sfgeModule.attr("scene_manager") = py::cast(sceneManager, py::return_value_policy::reference);
-		}
-		sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager(), py::return_value_policy::automatic_reference);
-	}
-	catch(py::error_already_set& e)
-	{
-		std::ostringstream oss;
-		oss << "[PYTHON ERROR]: " << e.what();
-		Log::GetInstance()->Error(oss.str());
-	}
+	
+	sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager().get(), py::return_value_policy::reference);
+	sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager().get(), py::return_value_policy::reference);
+		
+	
 }
 
 

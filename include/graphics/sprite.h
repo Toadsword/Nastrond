@@ -65,7 +65,7 @@ protected:
 /**
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
-class SpriteManager : ComponentManager<Sprite>, LayerComponentManager<Sprite>
+class SpriteManager : public ComponentManager<Sprite>, public LayerComponentManager<Sprite>
 {
 public:
 	SpriteManager(GraphicsManager& graphicsManager);

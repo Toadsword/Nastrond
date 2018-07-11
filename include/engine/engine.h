@@ -99,14 +99,14 @@ public:
 	template<typename F, typename... Rest>
 	auto push(F && f, Rest&&... rest)->std::future<decltype(f(0, rest...))>;
 
-	std::weak_ptr<GraphicsManager> GetGraphicsManager() const;
-	std::weak_ptr<AudioManager> GetAudioManager() const;
-	std::weak_ptr<SceneManager> GetSceneManager() const;
-	std::weak_ptr<InputManager> GetInputManager() const;
-	std::weak_ptr<PythonEngine> GetPythonManager() const;
-	std::weak_ptr<PhysicsManager> GetPhysicsManager() const;
-	std::weak_ptr<EntityManager> GetEntityManager() const;
-	std::weak_ptr<Transform2dManager> GetTransform2dManager() const;
+	std::shared_ptr<GraphicsManager> GetGraphicsManager() const;
+	std::shared_ptr<AudioManager> GetAudioManager() const;
+	std::shared_ptr<SceneManager> GetSceneManager() const;
+	std::shared_ptr<InputManager> GetInputManager() const;
+	std::shared_ptr<PythonEngine> GetPythonManager() const;
+	std::shared_ptr<PhysicsManager> GetPhysicsManager() const;
+	std::shared_ptr<EntityManager> GetEntityManager() const;
+	std::shared_ptr<Transform2dManager> GetTransform2dManager() const;
 	bool running = false;
 protected:
 	ctpl::thread_pool m_ThreadPool;

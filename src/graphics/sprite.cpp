@@ -118,11 +118,11 @@ void SpriteManager::LoadSprite(json& componentJson, Sprite* newSprite)
 */
 void SpriteManager::Reset()
 {
-
 }
 
 void SpriteManager::Collect()
 {
+	
 }
 
 bool SpriteManager::CreateComponent()
