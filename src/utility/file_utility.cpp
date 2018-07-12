@@ -43,6 +43,9 @@ void IterateDirectory(std::string & dirname, std::function<void(std::string)> fu
 	{
 		for (auto& p : fs::directory_iterator(dirname))
 		{
+			{
+				
+			}
 			func(p.path().generic_string());
 		}
 	}

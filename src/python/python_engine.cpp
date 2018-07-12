@@ -206,7 +206,7 @@ void PythonEngine::Init()
 	sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager().get(), py::return_value_policy::reference);
 	sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager().get(), py::return_value_policy::reference);
 		
-	
+	LoadScripts();
 }
 
 
@@ -227,66 +227,109 @@ void PythonEngine::Clear()
 {
 	m_PythonInstanceMap.clear();
 }
-void PythonEngine::Collect()
-{
-}
 
-void PythonEngine::LoadScripts(std::string dirname)
+ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 {
-	using std::placeholders::_1;
-	std::function<void(std::string)> checkFunc = std::bind(&PythonEngine::CheckEntry, this, _1);
-	IterateDirectory(dirname, checkFunc);
-}
-void PythonEngine::CheckEntry(std::string entry)
-{
-	if(IsRegularFile(entry))
+	const auto folderLastIndex = moduleFilename.find_last_of('/');
+	std::string filename = moduleFilename.substr(folderLastIndex + 1, moduleFilename.size());
+	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	std::string moduleName = filename.substr(0, filenameExtensionIndex);
+	std::string extension = filename.substr(filenameExtensionIndex);
+	std::string className = module2class(moduleName);
+	if (IsRegularFile(moduleFilename) && extension == ".py")
 	{
-		
-	}
-
-	if(IsDirectory(entry))
-	{
-		LoadScripts(entry);
-	}
-}
-/*
-unsigned int PythonEngine::LoadPyComponentFile(std::string script_path, GameObject* gameObject)
-{
-    const auto folderLastIndex = script_path.find_last_of("/");
-    std::string filename = script_path.substr(folderLastIndex+1, script_path.size());
-	const std::string::size_type filenameExtensionIndex = filename.find_last_of(".");
-	std::string module_name = filename.substr(0,filenameExtensionIndex);
-	std::string class_name = module2class(module_name);
-	if(IsRegularFile(script_path))
-	{
-		if(pythonModuleIdMap.find(script_path) != pythonModuleIdMap.end())
+		if (m_PythonModuleIdMap.find(moduleFilename) != m_PythonModuleIdMap.end())
 		{
-			const unsigned int scriptId = pythonModuleIdMap[script_path];
-			if(scriptId == 0U)
+			const ModuleId moduleId = m_PythonModuleIdMap[moduleFilename];
+			if (moduleId == 0U)
 			{
 				std::ostringstream oss;
-				oss << "Python script: " << script_path << " has id 0";
+				oss << "Python script: " << moduleFilename << " has id 0";
+				Log::GetInstance()->Error(oss.str());
+				return 0U;
+			}
+			return moduleId;
+		}
+		else
+		{
+			try
+			{
+
+				{
+					std::ostringstream oss;
+					oss << "Loading module: " << moduleName << " with Component: " << className;
+					Log::GetInstance()->Msg(oss.str());
+				}
+				py::object globals = py::globals();
+
+				m_PythonModuleObjectMap[m_IncrementalModuleId] = import(moduleName, moduleFilename, globals);
+				m_PythonModuleIdMap[moduleFilename] = m_IncrementalModuleId;
+				m_PyComponentClassNameMap[m_IncrementalModuleId] = className;
+			}
+			catch (const std::runtime_error& e)
+			{
+				std::stringstream oss;
+				oss << "[PYTHON ERROR] on script file: " << moduleFilename << "\n" << e.what();
+				Log::GetInstance()->Error(oss.str());
+				return 0U;
+			}
+			m_IncrementalModuleId++;
+			return m_IncrementalModuleId - 1;
+		}
+	}
+	return 0U;
+}
+
+
+InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId)
+{
+	std::string className;
+	if(m_PyComponentClassNameMap.find(moduleId) != m_PyComponentClassNameMap.end())
+	{
+		try
+		{
+			m_PythonInstanceMap[m_IncrementalInstanceId] = m_PythonModuleObjectMap[m_IncrementalModuleId].attr(className.c_str())();
+			m_IncrementalInstanceId++;
+			return m_IncrementalInstanceId - 1;
+		}
+		catch(std::runtime_error& e)
+		{
+			std::stringstream oss;
+			oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what();
+			Log::GetInstance()->Error(oss.str());
+		}
+	}
+	return 0U;
+	/*
+	{
+		if (m_PythonModuleIdMap.find(scriptFilename) != m_PythonModuleIdMap.end())
+		{
+			const ModuleId moduleId = m_PythonModuleIdMap[scriptFilename];
+			if (moduleId == 0U)
+			{
+				std::ostringstream oss;
+				oss << "Python script: " << scriptFilename << " has id 0";
 				Log::GetInstance()->Error(oss.str());
 				return 0U;
 			}
 			{
 				{
 					std::ostringstream oss;
-					oss << "Loaded Python script: " << script_path << " has id: " << scriptId;
+					oss << "Loaded Python script: " << scriptFilename << " has id: " << moduleId;
 					Log::GetInstance()->Msg(oss.str());
 				}
 				try
 				{
-					pythonInstanceMap[incrementalInstanceId] = pythonModuleObjectMap[scriptId]
-						.attr(class_name.c_str())(gameObject);
-					
-					incrementalInstanceId++;
-					return incrementalInstanceId-1;
+					m_PythonInstanceMap[m_IncrementalInstanceId] = m_PythonModuleObjectMap[moduleId]
+						.attr(className.c_str())();
+
+					m_IncrementalInstanceId++;
+					return m_IncrementalInstanceId - 1;
 				}
-				catch(const std::runtime_error& e)
+				catch (const std::runtime_error& e)
 				{
 					std::stringstream oss;
-					oss << "Python error on script file: "<<script_path<<"\n"<<e.what();
+					oss << "Python error on script file: " << scriptFilename << "\n" << e.what();
 					Log::GetInstance()->Error(oss.str());
 				}
 			}
@@ -299,29 +342,30 @@ unsigned int PythonEngine::LoadPyComponentFile(std::string script_path, GameObje
 
 				{
 					std::ostringstream oss;
-					oss << "Loading module: "<<module_name<<" with Component: "<<class_name;
+					oss << "Loading module: " << moduleName << " with Component: " << className;
 					Log::GetInstance()->Msg(oss.str());
 				}
-				py::object globals  = py::globals();
+				py::object globals = py::globals();
 
-				pythonModuleObjectMap[incrementalScriptId] = import(module_name, script_path, globals);
-				pythonModuleIdMap[script_path] = incrementalScriptId;
-				for (auto& moduleObj : pythonModuleObjectMap)
+				m_PythonModuleObjectMap[m_IncrementalModuleId] = import(moduleName, scriptFilename, globals);
+				m_PythonModuleIdMap[scriptFilename] = m_IncrementalModuleId;
+				//Adding all the other module
+				for (auto& moduleObjPair : m_PythonModuleObjectMap)
 				{
-					moduleObj.second.attr(class_name.c_str()) = pythonModuleObjectMap[incrementalScriptId]
-						.attr(class_name.c_str());
+					moduleObjPair.second.attr(className.c_str()) = m_PythonModuleObjectMap[m_IncrementalModuleId]
+						.attr(className.c_str());
 				}
-				pythonInstanceMap[incrementalInstanceId] = pythonModuleObjectMap[incrementalScriptId].attr(class_name.c_str())(gameObject);
+				
 
 
-				incrementalScriptId++;
-				incrementalInstanceId++;
-				return incrementalInstanceId-1;
+				
+				m_IncrementalInstanceId++;
+				return m_IncrementalInstanceId - 1;
 			}
-			catch(const std::runtime_error& e)
+			catch (const std::runtime_error& e)
 			{
 				std::stringstream oss;
-				oss << "Python error on script file: "<<script_path<<"\n"<<e.what();
+				oss << "Python error on script file: " << scriptFilename << "\n" << e.what();
 				Log::GetInstance()->Error(oss.str());
 			}
 		}
@@ -329,15 +373,73 @@ unsigned int PythonEngine::LoadPyComponentFile(std::string script_path, GameObje
 	else
 	{
 		std::stringstream oss;
-		oss << "Python error on script file: "<<script_path<<" is not a file!\n";
+		oss << "Python error on script file: " << scriptFilename << " is not a file!\n";
 		Log::GetInstance()->Error(oss.str());
 	}
 
 	return 0U;
+	*/
 }
-*/
+void PythonEngine::Collect()
+{
+}
 
-PyComponent* PythonEngine::GetPyComponent(unsigned int instanceId)
+void PythonEngine::LoadScripts(std::string dirname)
+{
+	std::function<void(std::string)> LoadAllPyModules;
+ 	LoadAllPyModules = [&LoadAllPyModules, this](std::string entry)
+	{
+		if (IsRegularFile(entry))
+		{
+			
+			if(LoadPyModule(entry))
+			{
+				std::ostringstream oss;
+				oss << "Loading script: " << entry << "\n";
+				Log::GetInstance()->Msg(oss.str());
+			}
+		}
+
+		if (IsDirectory(entry))
+		{
+			{
+				std::ostringstream oss;
+				oss << "Opening folder: " << entry << "\n";
+				Log::GetInstance()->Msg(oss.str());
+			}
+			IterateDirectory(entry, LoadAllPyModules);
+		}
+	};
+	IterateDirectory(dirname, LoadAllPyModules);
+	//Spread the class name in all the scripts
+	for(auto& pyModuleObjPair : m_PythonModuleObjectMap)
+	{
+		auto pyModuleId = pyModuleObjPair.first;
+		auto pyModuleObj = pyModuleObjPair.second;
+		for(auto& importedClassNamePair : m_PyComponentClassNameMap)
+		{
+			auto importedModuleId = importedClassNamePair.first;
+			auto importedClassName = importedClassNamePair.second;
+			if(importedModuleId != pyModuleId)
+			{
+				try
+				{
+					pyModuleObj.attr(importedClassName.c_str()) = m_PythonModuleObjectMap[importedModuleId]
+						.attr(importedClassName.c_str());
+				}
+				catch(std::runtime_error& e)
+				{
+					std::ostringstream oss;
+					oss << "[PYTHON ERROR] Could not import class: " << importedClassName << " into module: " << pyModuleId;
+					Log::GetInstance()->Error(oss.str());
+				}
+			}
+		}
+	}
+}
+
+
+PyComponent* PythonEngine::GetPyComponent(InstanceId instanceId)
 {
 	if(m_PythonInstanceMap.find(instanceId) != m_PythonInstanceMap.end())
 	{

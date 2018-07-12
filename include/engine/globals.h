@@ -40,4 +40,6 @@ enum ThreadJobRole
 	WORKING3
 };
 
+typedef unsigned Id;
+
 #endif //SFGE_GLOBALS_H

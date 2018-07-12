@@ -34,6 +34,10 @@
 namespace sfge
 {
 class PyComponent;
+
+typedef unsigned ModuleId;
+typedef unsigned InstanceId;
+
 /**
 * \brief Manage the python interpreter
 */
@@ -59,25 +63,29 @@ public:
 	void Collect() override;
 	void Clear() override;
 
+	ModuleId LoadPyModule(std::string& moduleFilename);
+
+	InstanceId LoadPyComponent(ModuleId moduleId);
+
 	/**
 	 * \brief Get a python component object
 	 * \param scriptId
 	 * \return pyComponent PyComponent pointer that interacts with the python
 	 */
-	PyComponent* GetPyComponent(unsigned int scriptInstanceId);
+	PyComponent* GetPyComponent(InstanceId scriptInstanceId);
 private:
 	/**
 	 * \brief Load all the python scripts at initialization or reset
 	 */
-	void LoadScripts(std::string dirname);
-	void CheckEntry(std::string entry);
+	void LoadScripts(std::string dirname = "scripts/");
 
-	std::map<std::string, unsigned int> m_PythonModuleIdMap;
-	std::map<unsigned int, py::object> m_PythonModuleObjectMap;
-	unsigned int m_IncrementalScriptId = 1U;
+	std::map<std::string, ModuleId> m_PythonModuleIdMap;
+	std::map<ModuleId, py::object> m_PythonModuleObjectMap;
+	std::map<ModuleId, std::string> m_PyComponentClassNameMap;
+	Id m_IncrementalModuleId = 1U;
 
-	std::map<unsigned int, py::object> m_PythonInstanceMap;
-	unsigned int m_IncrementalInstanceId = 1U;
+	std::map<Id, py::object> m_PythonInstanceMap;
+	Id m_IncrementalInstanceId = 1U;
 	std::vector<PyComponent*> m_PyComponents;
 
 };
