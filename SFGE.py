@@ -72,25 +72,6 @@ class SceneManager(Module):
 
 class Engine:
     def __init__(self):
-        self.modules = []
-
-
-class GameObject:
-    """Typical GameObject of the Scene, contains a list of Components that can get using the different getter functions"""
-    def __init__(self):
-        self.name = ""
-        self.transform = Transform()
-
-    def get_component(self, componentType):
-        """Get the first component of type given as arg"""
-        pass
-
-    def get_component(self, pycomponentType):
-        """Get the first component of type given as arg"""
-        pass
-
-    def get_components(self, componentType):
-        """Get the list of components of type given as arg"""
         pass
 
 
@@ -98,44 +79,24 @@ class Component:
     Sprite = 0
     Shape = 0
     Body = 0
-
-    def __init__(self, game_object: GameObject, name):
-        self.game_object = game_object
-        self.name = name
+    Collider = 0
+    Sound = 0
+    def __init__(self):
+        pass
 
     def update(self, dt):
+        pass
+
+    def fixed_update(self, dt):
         pass
 
 
 class Transform(Component):
     """Mandatory Component attached to the GameObject containing all the geometric important data of the GameObject"""
-    def __init__(self, game_object):
-        pass
-
-
-class Collider(Component):
-
-    def is_trigger(self):
-        return False
-
-
-class Body2d(Component):
-    STATIC_BODY = 0
-    KINEMATIC_BODY = 0
-    DYNAMIC_BODY = 0
-
     def __init__(self):
-        self.mass = 0.0
-        self.velocity = b2Vec2()
-        self.body_type = 0
-
-    def add_force(self, f):
         pass
 
 
-class Shape(Component):
-    def set_fill_color(self, color):
-        pass
 
 
 class KeyboardManager:

@@ -26,10 +26,11 @@
 #define SFGE_PYENGINE_H
 
 #include <map>
+#include <pybind11/functional.h>
+
 #include <engine/module.h>
 #include <utility/python_utility.h>
-#include <pybind11/functional.h>
-#include "engine/component.h"
+#include <engine/component.h>
 
 namespace sfge
 {

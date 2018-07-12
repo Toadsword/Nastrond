@@ -33,7 +33,9 @@ const float PhysicsManager::pixelPerMeter = 100.0f;
 
 void PhysicsManager::Init()
 {
-	b2Vec2 gravity = m_Engine.GetConfig()->gravity;
+	b2Vec2 gravity = b2Vec2();
+	if(const auto configPtr = m_Engine.GetConfig().lock())
+		gravity = configPtr->gravity;
 	m_World = new b2World(gravity);
 	m_ContactListener = new ContactListener();
 	m_World->SetContactListener(m_ContactListener);

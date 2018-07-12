@@ -3,8 +3,8 @@ from SFGE import *
 
 class PlayerCharacterBasic(Component):
 
-    def __init__(self, game_object: GameObject, name):
-        Component.__init__(game_object, name)
+    def __init__(self):
+        Component.__init__(self)
         self.foot = 0
         self.body = self.game_object.get_component(Component.Body)
         self.speed = 1.0

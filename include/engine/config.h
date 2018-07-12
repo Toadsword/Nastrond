@@ -24,21 +24,27 @@ SOFTWARE.
 
 #ifndef SFGE_CONFIG_H
 #define SFGE_CONFIG_H
-//Externals include
-#include <SFML/System/Vector2.hpp>
-#include <Box2D/Box2D.h>
+
 //STL includes
 #include <list>
 #include <memory>
 
+//Externals include
+#include <SFML/System/Vector2.hpp>
+#include <Box2D/Box2D.h>
+#include <utility/json_utility.h>
 
 namespace sfge
 {
+
+
+
 /**
 * \brief Used by the Engine to get a Configuration.
 */
 struct Configuration
 {
+	bool devMode = true;
 	/**
 	 * \brief The screen resolution used for the editor
 	 */
@@ -57,7 +63,8 @@ struct Configuration
 	/**
 	* \brief Used to load the overall Configuration of the GameEngine at start
 	*/
-	static std::unique_ptr<Configuration> LoadConfig(std::string configFilename = "data/config.json");
+	static std::unique_ptr<Configuration> LoadConfig(std::string configFilename);
+	static std::unique_ptr<Configuration> LoadConfig(json& configJson);
 };
 }
 #endif // !CONFIG_H

@@ -42,21 +42,24 @@ GraphicsManager::GraphicsManager(Engine& engine) :
 }
 void GraphicsManager::Init()
 {
-	auto config = m_Engine.GetConfig();
-	if (config == nullptr)
+	if (const auto configPtr = m_Engine.GetConfig().lock())
+	{
+		if (!m_Windowless)
+		{
+			m_Window = std::make_shared<sf::RenderWindow>(
+				sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
+				"SFGE 0.1");
+			if (configPtr->maxFramerate)
+			{
+				m_Window->setFramerateLimit(configPtr->maxFramerate);
+				CheckVersion();
+			}
+		}
+	}
+	else
 	{
 		Log::GetInstance()->Error("[Error] Config is null from Graphics Manager");
-	}
-	if (!m_Windowless && config != nullptr)
-	{
-		m_Window = std::make_shared<sf::RenderWindow>(
-			sf::VideoMode(config->screenResolution.x, config->screenResolution.y),
-			"SFGE 0.1");
-		if (config->maxFramerate)
-		{
-			m_Window->setFramerateLimit(config->maxFramerate);
-			CheckVersion();
-		}
+		
 	}
 
 }

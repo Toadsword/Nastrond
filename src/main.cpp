@@ -25,13 +25,12 @@ SOFTWARE.
 
 #include <engine/engine.h>
 #include <engine/log.h>
-#include <engine/modules.h>
 
 int main()
 {
     sfge::Log::GetInstance()->Msg("SFGE 0.1 by SAE Institute Switzerland AG");
     sfge::Engine engine;
-	engine.Init(false, true);
+	engine.Init();
 	engine.Start();
 #ifdef WIN32
 	system("pause");

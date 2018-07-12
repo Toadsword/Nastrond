@@ -21,14 +21,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#ifndef SFGE_JSON_UTILIY_H
-#define SFGE_JSON_UTILIY_H
+#ifndef SFGE_JSON_UTILITY_H
+#define SFGE_JSON_UTILITY_H
 
-#include <SFML/System/Vector2.hpp>
-
-//Externals includes
+ //Externals includes
 #include <json.hpp>
 using json = nlohmann::json;
+#include <SFML/System/Vector2.hpp>
+
+
 
 namespace sfge
 {

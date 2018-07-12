@@ -34,6 +34,7 @@
 namespace sfge
 {
 
+
 class Scene;
 
 /**

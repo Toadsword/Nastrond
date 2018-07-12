@@ -25,7 +25,6 @@ SOFTWARE.
 #include <engine/log.h>
 #include <engine/modules.h>
 #include <python/pycomponent.h>
-#include <engine/game_object.h>
 #include <utility/json_utility.h>
 #include <graphics/shape.h>
 

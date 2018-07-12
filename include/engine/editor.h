@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <engine/module.h>
 #include <engine/entity.h>
-#include "physics/body2d.h"
+#include <physics/body2d.h>
 
 namespace sfge
 {

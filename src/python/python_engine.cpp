@@ -27,9 +27,12 @@
 #include <pybind11/stl.h>
 
 #include <python/python_engine.h>
-#include <engine/modules.h>
 #include <engine/log.h>
-
+#include <engine/scene.h>
+#include <input/input.h>
+#include <audio/audio.h>
+#include <graphics/shape.h>
+#include <physics/physics.h>
 #include <python/pycomponent.h>
 
 #include <utility/file_utility.h>
@@ -202,9 +205,10 @@ void PythonEngine::Init()
 	py::module sfgeModule = py::module::import("SFGE");
 	sfgeModule.attr("engine")=  py::cast(&m_Engine);
 
-	
-	sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager().get(), py::return_value_policy::reference);
-	sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager().get(), py::return_value_policy::reference);
+	if(auto sceneManagerPtr = m_Engine.GetSceneManager().lock())
+		sfgeModule.attr("scene_manager") = py::cast(sceneManagerPtr.get(), py::return_value_policy::reference);
+	if(auto inputManagerPtr = m_Engine.GetInputManager().lock())
+		sfgeModule.attr("input_manager") = py::cast(inputManagerPtr.get(), py::return_value_policy::reference);
 		
 	LoadScripts();
 }

@@ -25,11 +25,14 @@ SOFTWARE.
 #ifndef SFGE_ENGINE_H
 #define SFGE_ENGINE_H
 
-#include <SFML/Graphics/RenderWindow.hpp>
+
 
 #include <memory>
 #include <ctpl_stl.h>
 
+#include <SFML/Graphics/RenderWindow.hpp>
+
+#include <utility/json_utility.h>
 
 namespace sfge
 {
@@ -37,7 +40,7 @@ namespace sfge
 /**
 * Prototypes declarations
 */
-struct Configuration;
+	struct Configuration;
 class Module;
 class GraphicsManager;
 class AudioManager;
@@ -73,7 +76,8 @@ public:
 	/**
 	* \brief Initialize all the modules of the Game Engine, reading the config file too
 	*/
-	void Init(bool windowless=false, bool editor=false);
+	void Init(std::string configFilename="data/config.json");
+	void Init(json& configJson);
 	/**
 	* \brief Starting the Game Engine after the Init()
 	*/
@@ -94,24 +98,25 @@ public:
 	* \brief A getter of the Configuration
 	* \return The Configuration struct got by the Engine
 	*/
-	std::shared_ptr<Configuration> GetConfig() const;
+	std::weak_ptr<Configuration> GetConfig() const;
 	
 	template<typename F, typename... Rest>
 	auto push(F && f, Rest&&... rest)->std::future<decltype(f(0, rest...))>;
 
-	std::shared_ptr<GraphicsManager> GetGraphicsManager() const;
-	std::shared_ptr<AudioManager> GetAudioManager() const;
-	std::shared_ptr<SceneManager> GetSceneManager() const;
-	std::shared_ptr<InputManager> GetInputManager() const;
-	std::shared_ptr<PythonEngine> GetPythonManager() const;
-	std::shared_ptr<PhysicsManager> GetPhysicsManager() const;
-	std::shared_ptr<EntityManager> GetEntityManager() const;
-	std::shared_ptr<Transform2dManager> GetTransform2dManager() const;
+	std::weak_ptr<GraphicsManager> GetGraphicsManager() const;
+	std::weak_ptr<AudioManager> GetAudioManager() const;
+	std::weak_ptr<SceneManager> GetSceneManager() const;
+	std::weak_ptr<InputManager> GetInputManager() const;
+	std::weak_ptr<PythonEngine> GetPythonManager() const;
+	std::weak_ptr<PhysicsManager> GetPhysicsManager() const;
+	std::weak_ptr<EntityManager> GetEntityManager() const;
+	std::weak_ptr<Transform2dManager> GetTransform2dManager() const;
 	bool running = false;
 protected:
 	ctpl::thread_pool m_ThreadPool;
 	std::shared_ptr<sf::RenderWindow> m_Window;
 	std::shared_ptr<Configuration> m_Config = nullptr;
+
 
 	//module
 	std::shared_ptr<GraphicsManager> m_GraphicsManager = nullptr;

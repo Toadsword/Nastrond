@@ -73,19 +73,21 @@ void Editor::Update(sf::Time dt)
 {
 	if (m_Enable)
 	{
-		if (const auto window = m_Window.lock())
+		const auto windowPtr = m_Window.lock();
+		const auto configPtr = m_Engine.GetConfig().lock();
+		if (windowPtr and configPtr)
 		{
-			ImGui::SFML::Update(*window, dt);
+			ImGui::SFML::Update(*windowPtr, dt);
 
 			//GameObject window
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowSize(ImVec2(150.0f, m_Engine.GetConfig()->screenResolution.y), ImGuiCond_FirstUseEver);
-			ImGui::Begin("GameObjects");
+			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
+			ImGui::Begin("Entities");
 
 			ImGui::End();
 			//Component inspector window
-			ImGui::SetNextWindowPos(ImVec2(m_Engine.GetConfig()->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowSize(ImVec2(150.0f, m_Engine.GetConfig()->screenResolution.y), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowPos(ImVec2(configPtr->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Inspector");
 
 			ImGui::End();

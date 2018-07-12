@@ -27,12 +27,10 @@ SOFTWARE.
 //SFGE includes
 #include <engine/config.h>
 #include <engine/log.h>
-#include <utility/json_utility.h>
 
 
 namespace sfge
 {
-
 std::unique_ptr<Configuration> Configuration::LoadConfig(std::string configFilename)
 {
 	{
@@ -40,7 +38,7 @@ std::unique_ptr<Configuration> Configuration::LoadConfig(std::string configFilen
 		oss << "Creating Configuration from " << configFilename;
 		Log::GetInstance()->Msg(oss.str());
 	}
-	
+
 	auto jsonConfigPtr = LoadJson(configFilename);
 	if (jsonConfigPtr == nullptr)
 	{
@@ -49,24 +47,29 @@ std::unique_ptr<Configuration> Configuration::LoadConfig(std::string configFilen
 		Log::GetInstance()->Error(oss.str());
 		return nullptr;
 	}
-	json jsonConfig = *jsonConfigPtr;
+	return LoadConfig(*jsonConfigPtr);
+}
+std::unique_ptr<Configuration> Configuration::LoadConfig(json& configJson)
+{
+
 	auto newConfig = std::make_unique<Configuration>();
 	newConfig->screenResolution = sf::Vector2i(
-		jsonConfig["screenResolution"]["x"],
-		jsonConfig["screenResolution"]["y"]);
-	if (CheckJsonExists(jsonConfig, "gravity"))
+		configJson["screenResolution"]["x"],
+		configJson["screenResolution"]["y"]);
+	if (CheckJsonExists(configJson, "gravity"))
 	{
 		newConfig->gravity = b2Vec2(
-			jsonConfig["gravity"]["x"],
-			jsonConfig["gravity"]["y"]
+			configJson["gravity"]["x"],
+			configJson["gravity"]["y"]
 		);
 	}
-	newConfig->maxFramerate = jsonConfig["maxFramerate"];
-	for(const std::string& scene : jsonConfig["scenesList"])
+	newConfig->maxFramerate = configJson["maxFramerate"];
+	for(const std::string& scene : configJson["scenesList"])
 	{
 		newConfig->scenesList.push_back(scene);
 	}
-
+	if(CheckJsonExists(configJson, "devMode"))
+		newConfig->devMode = configJson["devMode"];
 	return newConfig;
 }
 
