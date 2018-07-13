@@ -44,7 +44,7 @@ namespace sfge
 class PyComponent : LayerComponent
 {
 public:
-	PyComponent();
+	PyComponent(Entity entity);
 	~PyComponent() = default;
 
 	void Init();
@@ -57,7 +57,6 @@ public:
 	void OnTriggerExit(Collider * collider);
 	*/
 	Entity GetEntity();
-
 
 	unsigned int GetInstanceId() const;
 	void SetInstanceId(unsigned int instanceId = 0U);

@@ -66,14 +66,14 @@ public:
 
 	ModuleId LoadPyModule(std::string& moduleFilename);
 
-	InstanceId LoadPyComponent(ModuleId moduleId);
+	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
 
 	/**
 	 * \brief Get a python component object
-	 * \param scriptId
-	 * \return pyComponent PyComponent pointer that interacts with the python
+	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
+	 * \return pyComponent PyComponent pointer that interacts with the python script
 	 */
-	PyComponent* GetPyComponent(InstanceId scriptInstanceId);
+	PyComponent* GetPyComponent(InstanceId instanceId);
 private:
 	/**
 	 * \brief Load all the python scripts at initialization or reset

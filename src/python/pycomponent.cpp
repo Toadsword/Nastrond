@@ -30,8 +30,9 @@
 #include <sstream>
 namespace sfge
 {
-PyComponent::PyComponent()
+PyComponent::PyComponent(Entity entity)
 {
+	m_Entity = entity;
 }
 void PyComponent::Init()
 {

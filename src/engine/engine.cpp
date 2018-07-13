@@ -135,10 +135,7 @@ void Engine::Start()
 		m_SceneManager->Update(dt);
 
 		m_Editor->Update(dt);
-		if (m_SceneManager->IsSwitching())
-		{
-			Collect();
-		}
+
 		m_GraphicsManager->Update(dt);
 		m_Editor->Draw();
 		m_GraphicsManager->Display();
@@ -183,47 +180,47 @@ void Engine::Collect()
 
 std::weak_ptr<Configuration> Engine::GetConfig() const
 {
-	return m_Config;
+	return std::weak_ptr<Configuration>(m_Config);
 }
 
 std::weak_ptr<GraphicsManager> Engine::GetGraphicsManager() const
 {
-	return m_GraphicsManager;
+	return std::weak_ptr<GraphicsManager>(m_GraphicsManager);
 }
 
 std::weak_ptr<AudioManager> Engine::GetAudioManager() const
 {
-	return m_AudioManager;
+	return std::weak_ptr<AudioManager>(m_AudioManager);
 }
 
 std::weak_ptr<SceneManager> Engine::GetSceneManager() const
 {
-	return m_SceneManager;
+	return std::weak_ptr<SceneManager>(m_SceneManager);
 }
 
 std::weak_ptr<InputManager> Engine::GetInputManager() const
 {
-	return m_InputManager;
+	return std::weak_ptr<InputManager>(m_InputManager);
 }
 
 std::weak_ptr<PythonEngine> Engine::GetPythonManager() const
 {
-	return m_PythonManager;
+	return std::weak_ptr<PythonEngine>(m_PythonManager);
 }
 
 std::weak_ptr<PhysicsManager> Engine::GetPhysicsManager() const
 {
-	return m_PhysicsManager;
+	return std::weak_ptr<PhysicsManager>(m_PhysicsManager);
 }
 
 std::weak_ptr<EntityManager> Engine::GetEntityManager() const
 {
-	return m_EntityManager;
+	return std::weak_ptr<EntityManager>(m_EntityManager);
 }
 
 std::weak_ptr<Transform2dManager> Engine::GetTransform2dManager() const
 {
-	return m_TransformManager;
+	return std::weak_ptr<Transform2dManager>(m_TransformManager);
 }
 
 

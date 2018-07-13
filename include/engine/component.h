@@ -36,7 +36,7 @@ SOFTWARE.
 namespace sfge
 {
 
-enum class ComponentType
+enum ComponentType
 {
 	TRANSFORM = 1 << 0,
 	SPRITE = 1 << 1,

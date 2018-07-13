@@ -38,8 +38,6 @@ class SoundManager;
 */
 class Sound
 {
-protected:
-	sf::Sound* m_Sound = nullptr;
 public:
 	Sound();
 	~Sound();
@@ -51,6 +49,9 @@ public:
 	void SetBuffer(sf::SoundBuffer* buffer);
 	void Play();
 	void Stop();
+
+protected:
+	sf::Sound* m_Sound = nullptr;
 };
 
 class SoundManager

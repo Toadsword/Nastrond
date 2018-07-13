@@ -25,8 +25,8 @@ SOFTWARE.
 #ifndef SFGE_MODULE_H
 #define SFGE_MODULE_H
 
-#include <engine/engine.h>
 #include <SFML/System/Time.hpp>
+#include <engine/engine.h>
 
 namespace sfge
 {

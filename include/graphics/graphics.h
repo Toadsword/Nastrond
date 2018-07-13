@@ -79,7 +79,7 @@ protected:
 	/**
 	* \brief Write to log the OpenGL version
 	*/
-	void CheckVersion();
+	void CheckVersion() const;
 	TextureManager m_TextureManager;
 	SpriteManager m_SpriteManager;
 	ShapeManager m_ShapeManager;

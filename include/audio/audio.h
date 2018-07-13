@@ -25,16 +25,18 @@ SOFTWARE.
 #ifndef SFGE_AUDIO_H
 #define SFGE_AUDIO_H
 
-#include <engine/module.h>
-#include <SFML/Audio.hpp>
 #include <map>
 #include <string>
+#include <memory>
+#include <string>
+
+#include <SFML/Audio.hpp>
+
+#include <engine/module.h>
 #include <audio/sound.h>
 
 namespace sfge
 {
-
-
 
 class MusicManager 
 {

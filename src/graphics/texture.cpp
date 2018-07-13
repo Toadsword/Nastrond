@@ -22,60 +22,124 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <graphics/texture.h>
-#include <engine/log.h>
-#include <utility/file_utility.h>
 
 //STL
 #include <sstream>
 #include <list>
+#include <set>
+
+#include <graphics/texture.h>
+#include <engine/log.h>
+#include <engine/config.h>
+#include <utility/file_utility.h>
+
 
 
 namespace sfge
 {
 
-unsigned int TextureManager::LoadTexture(std::string filename)
+static std::set<std::string> imgExtensionSet
 {
+	".png",
+	".jpg",
+	".jpeg",
+	".bmp",
+	".tga",
+	".gif",
+	".psd",
+	".hdr",
+	".pic"
+};
+
+TextureManager::TextureManager(Engine& engine) : Module(engine)
+{
+}
+
+void TextureManager::Init()
+{
+	if(auto config = m_Engine.GetConfig().lock())
 	{
-		std::ostringstream oss;
-		oss << "Loading texture " << filename;
-		Log::GetInstance()->Msg(oss.str());
-	}
-	if (nameIdsMap.find(filename) != nameIdsMap.end())
-	{
-		auto textureId = nameIdsMap[filename];
-		//Check if the texture was destroyed
-		auto checkTexture = texturesMap.find(textureId);
-		if (checkTexture != texturesMap.end())
+		if(config->devMode)
 		{
-			auto textureId = nameIdsMap[filename];
-			idsRefCountMap[textureId]++;
+			LoadTextures(config->dataDirname);
+		}
+	}
+}
+
+void TextureManager::LoadTextures(std::string dataDirname)
+{
+	std::function<void(std::string)> LoadAllTextures;
+	LoadAllTextures = [&LoadAllTextures, this](std::string entry)
+	{
+		if (IsRegularFile(entry))
+		{
+			const TextureId newTextureId = LoadTexture(entry);
+			if (newTextureId)
+			{
+				std::ostringstream oss;
+				oss << "Loading texture: " << entry << "\n";
+				Log::GetInstance()->Msg(oss.str());
+			}
+		}
+
+		if (IsDirectory(entry))
+		{
+			{
+				std::ostringstream oss;
+				oss << "Opening folder: " << entry << "\n";
+				Log::GetInstance()->Msg(oss.str());
+			}
+			IterateDirectory(entry, LoadAllTextures);
+		}
+	};
+	IterateDirectory(dataDirname, LoadAllTextures);
+}
+
+TextureId TextureManager::LoadTexture(std::string filename)
+{
+	const auto folderLastIndex = filename.find_last_of('/');
+	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	const std::string extension = filename.substr(filenameExtensionIndex);
+	if(imgExtensionSet.find(extension) == imgExtensionSet.end())
+	{
+		return 0U;
+	}
+	//Check extension first
+	
+	if (m_NameIdsMap.find(filename) != m_NameIdsMap.end())
+	{
+		auto textureId = m_NameIdsMap[filename];
+		//Check if the texture was destroyed
+		const auto checkTexture = m_TexturesMap.find(textureId);
+		if (checkTexture != m_TexturesMap.end())
+		{
+			m_IdsRefCountMap[textureId]++;
 			return textureId;
 		}
 		else
 		{
-			sf::Texture* texture = new sf::Texture();
+			auto* texture = new sf::Texture();
 			if (!texture->loadFromFile(filename))
 				return 0U;
-			incrementId++;
-			nameIdsMap[filename] = incrementId;
-			idsRefCountMap[incrementId] = 1U;
-			texturesMap[incrementId] = texture;
-			return incrementId;
+			m_IncrementId++;
+			m_NameIdsMap[filename] = m_IncrementId;
+			m_IdsRefCountMap[m_IncrementId] = 1U;
+			m_TexturesMap[m_IncrementId] = texture;
+			return m_IncrementId;
 		}
 	}
 	else
 	{
 		if (FileExists(filename))
 		{
-			incrementId++;
+			m_IncrementId++;
 			auto texture = new sf::Texture();
 			if (!texture->loadFromFile(filename))
 				return 0U;
-			nameIdsMap[filename] = incrementId;
-			idsRefCountMap[incrementId] = 1U;
-			texturesMap[incrementId] = texture;
-			return incrementId;
+			m_NameIdsMap[filename] = m_IncrementId;
+			m_IdsRefCountMap[m_IncrementId] = 1U;
+			m_TexturesMap[m_IncrementId] = texture;
+			return m_IncrementId;
 		}
 	}
 	return 0U;
@@ -88,35 +152,37 @@ unsigned int TextureManager::LoadTexture(std::string filename)
 
 sf::Texture* TextureManager::GetTexture(unsigned int text_id)
 {
-	if (texturesMap.find(text_id) != texturesMap.end())
+	if (m_TexturesMap.find(text_id) != m_TexturesMap.end())
 	{
-		return texturesMap[text_id];
+		return m_TexturesMap[text_id];
 	}
 	return nullptr;
 }
 
-void TextureManager::Reset()
+void TextureManager::Clear()
 {
-	for (auto idRefCountPair : idsRefCountMap)
+	for (auto idRefCountPair : m_IdsRefCountMap)
 	{
-		idsRefCountMap[idRefCountPair.first] = 0U;
+		m_IdsRefCountMap[idRefCountPair.first] = 0U;
 	}
 }
 
 void TextureManager::Collect()
 {
-	std::list<unsigned int> unusedTextureIds;
-	for (auto idRefCountPair : idsRefCountMap)
+	std::list<TextureId> unusedTextureIds;
+	for (auto idRefCountPair : m_IdsRefCountMap)
 	{
-		if (idRefCountPair.second == 0U)
+		auto textureId = idRefCountPair.first;
+		auto refCount = idRefCountPair.second;
+		if (refCount == 0U)
 		{
-			unusedTextureIds.push_back(idRefCountPair.first);
+			unusedTextureIds.push_back(textureId);
 		}
 	}
 	for (auto unusedTextureId : unusedTextureIds)
 	{
-		delete(texturesMap[unusedTextureId]);
-		texturesMap.erase(unusedTextureId);
+		delete(m_TexturesMap[unusedTextureId]);
+		m_TexturesMap.erase(unusedTextureId);
 	}
 }
 

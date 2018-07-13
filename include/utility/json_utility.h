@@ -24,9 +24,12 @@
 #ifndef SFGE_JSON_UTILITY_H
 #define SFGE_JSON_UTILITY_H
 
+#include <string>
+#include <memory>
  //Externals includes
 #include <json.hpp>
 using json = nlohmann::json;
+
 #include <SFML/System/Vector2.hpp>
 
 

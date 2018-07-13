@@ -26,6 +26,8 @@
 #include <engine/scene.h>
 #include <engine/log.h>
 #include <utility/json_utility.h>
+#include <engine/editor.h>
+
 // for convenience
 
 
@@ -45,110 +47,84 @@ void SceneManager::Update(sf::Time dt)
 	
 }
 
-std::shared_ptr<Scene> SceneManager::LoadSceneFromName(std::string sceneName)
+void SceneManager::LoadSceneFromPath(const std::string& scenePath)
 {
 	{
 		std::ostringstream oss;
-		oss << "Loading scene from: " << sceneName;
+		oss << "Loading scene from: " << scenePath;
 		Log::GetInstance()->Msg(oss.str());
 	}
-	auto sceneJsonPtr = LoadJson(sceneName);
+	const auto sceneJsonPtr = LoadJson(scenePath);
 	
 	if(sceneJsonPtr != nullptr)
 	{
-		return nullptr;//LoadSceneFromJson(*sceneJsonPtr);
+		auto sceneInfo = std::make_unique<editor::SceneInfo>();
+		sceneInfo->path = scenePath;
+		LoadSceneFromJson(*sceneJsonPtr, std::move(sceneInfo));
 	}
-	return nullptr;
 	
 }
-/*
-std::shared_ptr<Scene> SceneManager::LoadSceneFromJson(json& sceneJson)
+
+void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo) const
 {
-	std::shared_ptr<Scene> scene = std::make_shared<Scene>(this);
+	if(!sceneInfo)
+		sceneInfo = std::make_unique<editor::SceneInfo>();
 	if (CheckJsonParameter(sceneJson, "name", json::value_t::string))
 	{
-		scene->name = sceneJson["name"].get<std::string>();
+		sceneInfo->name = sceneJson["name"].get<std::string>();
 	}
 	else
 	{
-		scene->name = "NewScene";
+		sceneInfo->name = "NewScene";
 	}
 	{
 		std::ostringstream oss;
-		oss << "Loading scene: " << scene->name;
+		oss << "Loading scene: " << sceneInfo->name;
 		Log::GetInstance()->Msg(oss.str());
 	}
-	if (CheckJsonParameter(sceneJson, "game_objects", json::value_t::array))
+	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
-		
+		for(auto& componentJson : sceneJson["entities"])
+		{
+			if(CheckJsonExists(componentJson, "type"))
+			{
+				const ComponentType componentType = componentJson["type"];
+				switch(componentType)
+				{
+				case TRANSFORM:
+					break;
+				case SHAPE:
+					break;
+				case BODY2D:
+					break;
+				case SPRITE:
+					break;
+				case COLLIDER:
+					break;
+				default: 
+					break;
+				}
+			}
+		}
 	}
 	else
 	{
 		std::ostringstream oss;
-		oss << "No GameObjects in " << scene->name;
+		oss << "No Entities in " << sceneInfo->name;
 		Log::GetInstance()->Error(oss.str());
 	}
 	//m_Scenes.push_back(scene);
-	return scene;
-}*/
-
-void SceneManager::SetCurrentScene(std::string sceneName)
-{
-	auto loadedScene = LoadSceneFromName(sceneName);
-	if(loadedScene != nullptr)
-	{
-		SetCurrentScene(loadedScene);
-	}
-	else
-	{
-		std::ostringstream oss;
-		oss <<"Error while loading scene: "<<sceneName;
-		Log::GetInstance()->Error(oss.str());
-	}
-}
-
-void SceneManager::SetCurrentScene(std::shared_ptr<Scene> scene)
-{
-	m_CurrentScene = scene;
-}
-
-void SceneManager::Clear()
-{
-	m_PreviousScene = m_CurrentScene;
-}
-
-void SceneManager::Collect()
-{
 	
-	m_PreviousScene = nullptr;
-	m_Switching = false;
-}
-
-bool SceneManager::IsSwitching()
-{
-	return m_Switching;
-}
-
-std::shared_ptr<Scene> SceneManager::GetCurrentScene()
-{
-	return m_CurrentScene;
 }
 
 
 
-void SceneManager::Destroy()
-{
-	Clear();
-	m_CurrentScene = nullptr;
-	Collect();
-}
 
 void SceneManager::LoadScene(std::string sceneName)
 {
 	sf::Clock loadingClock;
 	m_Engine.Clear();
-	SetCurrentScene(LoadSceneFromName(sceneName));
-	m_Switching = true;
+	LoadSceneFromPath(sceneName);
 	{
 		sf::Time loadingTime = loadingClock.getElapsedTime();
 		std::ostringstream oss;
@@ -158,9 +134,5 @@ void SceneManager::LoadScene(std::string sceneName)
 }
 
 
-Scene::Scene(const std::shared_ptr<SceneManager> sceneManager) 
-{
-	m_SceneManagerPtr = sceneManager;
-}
 
 }

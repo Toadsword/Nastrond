@@ -37,13 +37,14 @@ SOFTWARE.
 namespace sfge
 {
 GraphicsManager::GraphicsManager(Engine& engine) :
-		Module(engine), m_SpriteManager(*this), m_ShapeManager(*this)
+		Module(engine), m_SpriteManager(*this), m_ShapeManager(*this), m_TextureManager(m_Engine)
 {
 }
 void GraphicsManager::Init()
 {
 	if (const auto configPtr = m_Engine.GetConfig().lock())
 	{
+
 		if (!m_Windowless)
 		{
 			m_Window = std::make_shared<sf::RenderWindow>(
@@ -61,6 +62,7 @@ void GraphicsManager::Init()
 		Log::GetInstance()->Error("[Error] Config is null from Graphics Manager");
 		
 	}
+	m_TextureManager.Init();
 
 }
 
@@ -116,7 +118,7 @@ ShapeManager& GraphicsManager::GetShapeManager()
 	return m_ShapeManager;
 }
 
-void GraphicsManager::CheckVersion()
+void GraphicsManager::CheckVersion() const
 {
 	sf::ContextSettings settings = m_Window->getSettings();
 	std::stringstream log_message;
@@ -135,13 +137,14 @@ void GraphicsManager::Destroy()
 {
 	Clear();
 	Collect();
+
 	m_Window = nullptr;
 	ImGui::SFML::Shutdown();
 }
 
 void GraphicsManager::Clear()
 {
-	m_TextureManager.Reset();
+	m_TextureManager.Clear();
 	m_SpriteManager.Reset();
 }
 

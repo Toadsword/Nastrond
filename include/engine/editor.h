@@ -32,7 +32,6 @@ SOFTWARE.
 namespace sfge
 {
 
-class Engine;
 
 class Editor : public Module
 {
@@ -47,7 +46,7 @@ public:
 	* \param dt Delta time since last frame
 	*/
 	void Update(sf::Time dt) override;
-	void ProcessEvent(sf::Event& event);
+	void ProcessEvent(sf::Event& event) const;
 	void Draw();
 	/**
 	* \brief Finalize and delete everything created in the SceneManager
@@ -65,10 +64,25 @@ protected:
 	std::weak_ptr<Body2dManager> m_BodyManager;
 
 	bool m_IsImguiInit = false;
-
-
-
 };
+
+//Editor components
+namespace editor
+{
+struct NamableEditorComponent
+{
+	std::string name = "";
+};
+
+struct PathEditorComponent
+{
+	std::string path = "";
+};
+
+struct SceneInfo : NamableEditorComponent, PathEditorComponent
+{
+};
+}
 }
 
 #endif

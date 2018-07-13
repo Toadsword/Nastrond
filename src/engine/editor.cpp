@@ -22,36 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+
 #include <engine/editor.h>
-
+#include <engine/engine.h>
 #include <engine/log.h>
-
 #include <engine/config.h>
 #include <engine/scene.h>
-#include <engine/transform.h>
-
 #include <graphics/graphics.h>
-#include <graphics/sprite.h>
-
-#include <physics/physics.h>
-
-#include <physics/body2d.h>
 
 
 namespace sfge
 {
+
 Editor::Editor(Engine& engine): Module(engine),
 	m_GraphicsManager(m_Engine.GetGraphicsManager()), 
 	m_SceneManager(m_Engine.GetSceneManager()),
 	m_EntityManager(m_Engine.GetEntityManager())
 {
-	if(auto graphicsManager = m_GraphicsManager.lock())
-	{
-		m_Window = graphicsManager->GetWindow();
-	}
+	
 }
 
 /**
@@ -61,11 +54,19 @@ void Editor::Init()
 {
 	if (m_Enable)
 	{
+		if (auto graphicsManager = m_GraphicsManager.lock())
+		{
+			m_Window = graphicsManager->GetWindow();
+		}
 		Log::GetInstance()->Msg("Enabling Editor");
 		if(const auto window = m_Window.lock())
 		{
 			ImGui::SFML::Init(*window, true);
 			m_IsImguiInit = true;
+		}
+		else
+		{
+			Log::GetInstance()->Msg("Could not enable Editor");
 		}
 	}
 }
@@ -83,13 +84,13 @@ void Editor::Update(sf::Time dt)
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Entities");
-
+			//TODO ADD THE ENTITES ON THE WINDOW
 			ImGui::End();
 			//Component inspector window
 			ImGui::SetNextWindowPos(ImVec2(configPtr->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Inspector");
-
+			//TODO ADD THE SELECTED ENTITY COMPONENTS ON THE WINDOW
 			ImGui::End();
 		}
 		
@@ -97,9 +98,9 @@ void Editor::Update(sf::Time dt)
 }
 /**
 * \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed
-* \param dt Delta time since last frame
+* \param event SFML event used by ImGUI for mouse click and others
 */
-void Editor::ProcessEvent(sf::Event& event)
+void Editor::ProcessEvent(sf::Event& event) const
 {
 	if (m_Enable)
 	{
@@ -139,4 +140,5 @@ void Editor::Clear()
 {
 }
 
+	
 }

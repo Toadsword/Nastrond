@@ -26,16 +26,20 @@
 #ifndef SFGE_SCENE_H
 #define SFGE_SCENE_H
 
+#include <memory>
+#include <string>
 
 #include <engine/module.h>
-//#include <utility/json_utility.h>
+#include <utility/json_utility.h>
 #include <engine/transform.h>
 
 namespace sfge
 {
 
-
-class Scene;
+namespace editor
+{
+struct SceneInfo;
+}
 
 /**
 * \brief The Scene Manager do the transition between two scenes, read from the Engine Configuration the scenes build list
@@ -57,56 +61,25 @@ public:
 	/**
 	* \brief Finalize and delete everything created in the SceneManager
 	*/
-	void Destroy() override;
 	void LoadScene(std::string sceneName);
 	/**
 	* \brief Load a Scene and create all its GameObject
-	* \param sceneName the scene path given by the configuration
+	* \param scenePath the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
-	std::shared_ptr<Scene> LoadSceneFromName(std::string sceneName);
+	void LoadSceneFromPath(const std::string& scenePath);
 	/**
 	* \brief Load a Scene and create all its GameObject
 	* \param sceneName the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
-	//std::shared_ptr<Scene> LoadSceneFromJson(json& sceneJson);
-
-	void SetCurrentScene(std::string sceneName);
-
-	void SetCurrentScene(std::shared_ptr<Scene> scene);
-
-	void Clear() override;
-	void Collect() override;
-	bool IsSwitching();
-	std::shared_ptr<Scene> GetCurrentScene();
+	void LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo = nullptr) const;
 private:
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
 
-	std::shared_ptr<Scene> m_PreviousScene = nullptr;
-	std::shared_ptr<Scene> m_CurrentScene = nullptr;
 
 	bool m_Switching = false;
-};
-
-/**
-* \brief The Scene includes GameObjects that are loaded from a JSON file
-*
-*/
-class Scene
-{
-public:
-	Scene(std::shared_ptr<SceneManager> sceneManager);
-
-	~Scene() = default;
-
-
-
-protected:
-	std::string m_Name;
-	std::weak_ptr<SceneManager> m_SceneManagerPtr;
-	friend class SceneManager;
 };
 }
 

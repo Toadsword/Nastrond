@@ -34,15 +34,26 @@ SOFTWARE.
 //Externals
 #include <SFML/Graphics.hpp>
 
+
+#include <engine/module.h>
+
 namespace sfge
 {
+class GraphicsManager;
+
+typedef unsigned TextureId;
 /**
 * \brief The Texture Manager is the cache of all the textures used for sprites or other objects
 *
 */
-class TextureManager
+class TextureManager : public Module
 {
 public:
+	TextureManager(Engine& engine);
+	/**
+	 * \brief Load all the textures in the data in Shipping mode
+	 */
+	void Init() override;
 
 	/**
 	* \brief load the texture from the disk or the texture cache
@@ -57,16 +68,18 @@ public:
 	*/
 	sf::Texture* GetTexture(unsigned int text_id);
 	
-	void Reset();
+	void Clear() override;
 
-	void Collect();
+	void Collect() override;
+
 
 private:
+	void LoadTextures(std::string dataDirname);
 
-	std::map<std::string, unsigned int> nameIdsMap;
-	std::map<unsigned int, unsigned int> idsRefCountMap;
-	std::map<unsigned int, sf::Texture*> texturesMap;
-	unsigned int incrementId = 0;
+	std::map<std::string, TextureId> m_NameIdsMap;
+	std::map<TextureId, unsigned int> m_IdsRefCountMap;
+	std::map<TextureId, sf::Texture*> m_TexturesMap;
+	TextureId m_IncrementId = 0U;
 
 };
 }

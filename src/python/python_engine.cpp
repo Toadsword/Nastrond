@@ -76,12 +76,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Right", sf::Keyboard::Right)
 		.export_values();
 
-	py::class_<Scene> scene(m, "Scene");
 
 
 	py::class_<PyComponent> component(m, "Component");
 	component
-		.def(py::init<>(), py::return_value_policy::reference)
+		.def(py::init<Entity>(), py::return_value_policy::reference)
 		.def("init", &PyComponent::Init)
 		.def("update", &PyComponent::Update)
 		.def_property_readonly("entity", &PyComponent::GetEntity)
@@ -285,14 +284,27 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 }
 
 
-InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId)
+InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 {
 	std::string className;
 	if(m_PyComponentClassNameMap.find(moduleId) != m_PyComponentClassNameMap.end())
 	{
 		try
 		{
-			m_PythonInstanceMap[m_IncrementalInstanceId] = m_PythonModuleObjectMap[m_IncrementalModuleId].attr(className.c_str())();
+			m_PythonInstanceMap[m_IncrementalInstanceId] = m_PythonModuleObjectMap[m_IncrementalModuleId].attr(className.c_str())(entity);
+			//Adding the important components
+
+			if (auto entityManager = m_Engine.GetEntityManager().lock())
+			{
+				//First the transform
+				if ((entityManager->GetMask(entity)  & TRANSFORM) == TRANSFORM)
+				{
+					if (auto transformManager = m_Engine.GetTransform2dManager().lock())
+					{
+						m_PythonInstanceMap[m_IncrementalInstanceId].attr("transform") = transformManager->GetComponent(entity);
+					}
+				}
+			}
 			m_IncrementalInstanceId++;
 			return m_IncrementalInstanceId - 1;
 		}

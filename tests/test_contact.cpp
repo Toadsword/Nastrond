@@ -23,14 +23,14 @@ SOFTWARE.
 */
 
 #include <engine/engine.h>
-#include <engine/modules.h>
+#include <engine/scene.h>
 
 int main()
 {
 	sfge::Engine engine;
-	engine.Init(false, true);
-
-	engine.GetSceneManager().SetCurrentScene("data/scenes/test_contact.scene");
+	engine.Init();
+	if(auto sceneManager = engine.GetSceneManager().lock())
+		sceneManager->SetCurrentScene("data/scenes/test_contact.scene");
 
 	engine.Start();
 #if WIN32

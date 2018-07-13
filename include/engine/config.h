@@ -32,6 +32,7 @@ SOFTWARE.
 //Externals include
 #include <SFML/System/Vector2.hpp>
 #include <Box2D/Box2D.h>
+//Engine include
 #include <utility/json_utility.h>
 
 namespace sfge
@@ -42,9 +43,11 @@ namespace sfge
 /**
 * \brief Used by the Engine to get a Configuration.
 */
-struct Configuration
+struct Configuration 
 {
 	bool devMode = true;
+	bool editor = true;
+	bool windowLess = false;
 	/**
 	 * \brief The screen resolution used for the editor
 	 */
@@ -60,6 +63,10 @@ struct Configuration
 	 * \brief The list of Scene that can be loaded by the SceneManager
 	 */
 	std::list<std::string> scenesList;
+
+	std::string scriptsDirname = "scripts/";
+	std::string dataDirname = "data/";
+
 	/**
 	* \brief Used to load the overall Configuration of the GameEngine at start
 	*/

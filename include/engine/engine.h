@@ -28,9 +28,10 @@ SOFTWARE.
 
 
 #include <memory>
+#include <string>
 #include <ctpl_stl.h>
 
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics.hpp>
 
 #include <utility/json_utility.h>
 
@@ -40,15 +41,13 @@ namespace sfge
 /**
 * Prototypes declarations
 */
-	struct Configuration;
+struct Configuration;
 class Module;
 class GraphicsManager;
 class AudioManager;
 class PythonEngine;
 class InputManager;
 class SceneManager;
-class SpriteManager;
-class TextureManager;
 class PhysicsManager;
 class EntityManager;
 class Editor;

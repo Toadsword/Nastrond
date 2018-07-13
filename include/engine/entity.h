@@ -32,7 +32,7 @@ namespace sfge
 {
 typedef unsigned Entity;
 typedef int EntityMask;
-class EntityManager : Module
+class EntityManager : public Module
 {
 public:
 	using Module::Module;

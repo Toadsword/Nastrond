@@ -1,7 +1,7 @@
 
 {
   "name": "ContactTestScene",
-  "game_objects": [
+  "entities": [
       {
           "name": "Body1",
           "components": [
@@ -34,8 +34,7 @@
               {
                   "type": 4,
                   "script_path": "scripts/contact_test.py"
-              }
-              ,
+              },
               {
                   "type": 4,
                   "script_path": "scripts/player_character_basic.py"

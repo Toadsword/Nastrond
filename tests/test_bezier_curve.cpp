@@ -28,7 +28,6 @@ SOFTWARE.
 #include <cmath>
 #include <iostream>
 
-#include <engine/modules.h>
 
 int factorial(int n)
 {
@@ -122,7 +121,7 @@ private:
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Bezier Curve test");
-	BezierCurve b(1);
+	BezierCurve b(4);
 
 	while (window.isOpen())
 	{

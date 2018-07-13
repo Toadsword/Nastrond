@@ -81,8 +81,8 @@ class Component:
     Body = 0
     Collider = 0
     Sound = 0
-    def __init__(self):
-        pass
+    def __init__(self, entity):
+        self.entity = entity
 
     def update(self, dt):
         pass
