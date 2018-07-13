@@ -27,6 +27,8 @@
 #include <engine/log.h>
 #include <utility/json_utility.h>
 #include <engine/editor.h>
+#include <engine/config.h>
+#include <utility/file_utility.h>
 
 // for convenience
 
@@ -37,17 +39,52 @@ namespace sfge
 
 void SceneManager::Init()
 {
-	
+	if(auto config = m_Engine.GetConfig().lock())
+	{
+		SearchScenes(config->dataDirname);
+	}
+	else
+	{
+		Log::GetInstance()->Error("No config in SceneManager Init");
+	}
 }
 
-
-
-void SceneManager::Update(sf::Time dt)
+void SceneManager::SearchScenes(std::string& dataDirname)
 {
-	
+	std::function<void(std::string)> SearchAllScenes;
+	SearchAllScenes = [&SearchAllScenes, this](std::string entry)
+	{
+		
+		if (IsRegularFile(entry))
+		{
+			const auto folderLastIndex = entry.find_last_of('/');
+			const std::string::size_type filenameExtensionIndex = entry.find_last_of('.');
+			const std::string extension = entry.substr(filenameExtensionIndex);
+			if(extension == ".scene")
+			{
+				const auto sceneJsonPtr = LoadJson(entry);
+				if(sceneJsonPtr && CheckJsonExists(*sceneJsonPtr, "name"))
+				{
+					m_ScenePathMap.insert(std::pair<std::string, std::string>((*sceneJsonPtr)["name"],entry));
+				}
+			}
+		}
+
+		if (IsDirectory(entry))
+		{
+			{
+				std::ostringstream oss;
+				oss << "Opening folder: " << entry << "\n";
+				Log::GetInstance()->Msg(oss.str());
+			}
+			IterateDirectory(entry, SearchAllScenes);
+		}
+	};
+	IterateDirectory(dataDirname, SearchAllScenes);
 }
 
-void SceneManager::LoadSceneFromPath(const std::string& scenePath)
+
+void SceneManager::LoadSceneFromPath(const std::string& scenePath) const
 {
 	{
 		std::ostringstream oss;
@@ -62,8 +99,11 @@ void SceneManager::LoadSceneFromPath(const std::string& scenePath)
 		sceneInfo->path = scenePath;
 		LoadSceneFromJson(*sceneJsonPtr, std::move(sceneInfo));
 	}
+
 	
 }
+
+
 
 void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo) const
 {
@@ -84,25 +124,42 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
-		for(auto& componentJson : sceneJson["entities"])
+		for(auto& entityJson : sceneJson["entities"])
 		{
-			if(CheckJsonExists(componentJson, "type"))
+			Entity entity = INVALID_ENTITY;
+			if(auto entityManager = m_EntityManagerPtr.lock())
 			{
-				const ComponentType componentType = componentJson["type"];
-				switch(componentType)
+				entity = entityManager->CreateEntity();
+			}
+			else
+			{
+				Log::GetInstance()->Error("[Error] Cannot create entity");
+				continue;
+			}
+			if (entity == INVALID_ENTITY && 
+				CheckJsonExists(entityJson, "components"))
+			{
+				for (auto& componentJson : entityJson["components"])
 				{
-				case TRANSFORM:
-					break;
-				case SHAPE:
-					break;
-				case BODY2D:
-					break;
-				case SPRITE:
-					break;
-				case COLLIDER:
-					break;
-				default: 
-					break;
+					if (CheckJsonExists(componentJson, "type"))
+					{
+						const ComponentType componentType = componentJson["type"];
+						switch (componentType)
+						{
+						case TRANSFORM:
+							break;
+						case SHAPE:
+							break;
+						case BODY2D:
+							break;
+						case SPRITE:
+							break;
+						case COLLIDER:
+							break;
+						default:
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -113,23 +170,48 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		oss << "No Entities in " << sceneInfo->name;
 		Log::GetInstance()->Error(oss.str());
 	}
-	//m_Scenes.push_back(scene);
+	if(auto editor = m_Engine.GetEditor().lock())
+	{
+		editor->SetCurrentScene(std::move(sceneInfo));
+	}
 	
 }
 
-
-
-
-void SceneManager::LoadScene(std::string sceneName)
+std::list<std::string> SceneManager::GetAllScenes()
 {
-	sf::Clock loadingClock;
-	m_Engine.Clear();
-	LoadSceneFromPath(sceneName);
+	std::list<std::string> scenes;
+	std::for_each(m_ScenePathMap.begin(),m_ScenePathMap.end(), [&](const std::pair<const std::string, std::string>& ref) {
+		scenes.push_back(ref.first);
+	});
+	return scenes;
+}
+
+
+void SceneManager::LoadSceneFromName(const std::string& sceneName)
+{
+	if (m_ScenePathMap.find(sceneName) != m_ScenePathMap.end())
 	{
-		sf::Time loadingTime = loadingClock.getElapsedTime();
+
+		sf::Clock loadingClock;
+		m_Engine.Clear();
+		LoadSceneFromPath(m_ScenePathMap[sceneName]);
+		{
+			sf::Time loadingTime = loadingClock.getElapsedTime();
+			std::ostringstream oss;
+			oss << "Scene Loading Time: " << loadingTime.asSeconds();
+			Log::GetInstance()->Msg(oss.str());
+		}
+	}
+	else
+	{
 		std::ostringstream oss;
-		oss << "Scene Loading Time: " << loadingTime.asSeconds();
-		Log::GetInstance()->Msg(oss.str());
+		oss << "[ERROR] No scene is named: " << sceneName <<"\n";
+		oss << "Here are the list of scenes:\n";
+		for(auto& sceneNamePair : m_ScenePathMap)
+		{
+			oss << "- " << sceneNamePair.first << "\n";
+		}
+		Log::GetInstance()->Error(oss.str());
 	}
 }
 

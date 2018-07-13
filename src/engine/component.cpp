@@ -34,7 +34,7 @@ bool LayerComponent::LayerCompare(LayerComponent* s1, LayerComponent* s2)
 }
 
 
-	void LayerComponent::SetLayer(int layer)
+void LayerComponent::SetLayer(int layer)
 {
 	m_Layer = layer;
 }

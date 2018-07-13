@@ -49,37 +49,37 @@ class SceneManager : public Module
 public:
 	using Module::Module;
 	~SceneManager() = default;
-	/**
-	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
-	*/
 	void Init() override;
-	/**
-	* \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed
-	* \param dt Delta time since last frame
-	*/
-	void Update(sf::Time dt) override;
+
+	void SearchScenes(std::string& dataDirname);
 	/**
 	* \brief Finalize and delete everything created in the SceneManager
 	*/
-	void LoadScene(std::string sceneName);
+	void LoadSceneFromName(const std::string& sceneName);
 	/**
 	* \brief Load a Scene and create all its GameObject
 	* \param scenePath the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
-	void LoadSceneFromPath(const std::string& scenePath);
+	void LoadSceneFromPath(const std::string& scenePath) const;
 	/**
 	* \brief Load a Scene and create all its GameObject
 	* \param sceneName the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
 	void LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo = nullptr) const;
+	/**
+	 * \brief Return a list of all the scenes available in the data folder, pretty useful for python and the editor
+	 * \return the list of scenes in the data folder
+	 */
+	std::list<std::string> GetAllScenes();
 private:
+
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
 
+	std::map<std::string, std::string> m_ScenePathMap;
 
-	bool m_Switching = false;
 };
 }
 

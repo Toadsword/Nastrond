@@ -30,7 +30,7 @@ int main()
 	sfge::Engine engine;
 	engine.Init();
 	if(auto sceneManager = engine.GetSceneManager().lock())
-		sceneManager->SetCurrentScene("data/scenes/test_contact.scene");
+		sceneManager->LoadSceneFromName("ContactTestScene");
 
 	engine.Start();
 #if WIN32

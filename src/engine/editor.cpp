@@ -29,6 +29,7 @@ SOFTWARE.
 
 
 #include <engine/editor.h>
+#include <engine/globals.h>
 #include <engine/engine.h>
 #include <engine/log.h>
 #include <engine/config.h>
@@ -140,5 +141,15 @@ void Editor::Clear()
 {
 }
 
-	
+void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
+{
+	m_CurrentScene = std::move(sceneInfo);
+	if(auto window = m_Window.lock())
+	{
+		std::ostringstream oss;
+		oss << "SFGE " << SFGE_VERSION << " - " << m_CurrentScene->name;
+		window->setTitle(oss.str());
+	}
+
+}
 }

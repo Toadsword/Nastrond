@@ -56,7 +56,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<SceneManager> sceneManager(m, "SceneManager");
 	sceneManager
-		.def("load_scene", &SceneManager::LoadScene);
+		.def("load_scene", &SceneManager::LoadSceneFromName)
+		.def("get_scenes", &SceneManager::GetAllScenes);
 
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager

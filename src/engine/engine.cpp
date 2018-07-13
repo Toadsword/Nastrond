@@ -223,7 +223,8 @@ std::weak_ptr<Transform2dManager> Engine::GetTransform2dManager() const
 	return std::weak_ptr<Transform2dManager>(m_TransformManager);
 }
 
-
-
-
+std::weak_ptr<Editor> Engine::GetEditor() const
+{
+	return std::weak_ptr<Editor>(m_Editor);
+}
 }

@@ -33,6 +33,24 @@ namespace sfge
 {
 
 
+//Editor components
+namespace editor
+{
+struct NamableEditorComponent
+{
+	std::string name = "";
+};
+
+struct PathEditorComponent
+{
+	std::string path = "";
+};
+
+struct SceneInfo : NamableEditorComponent, PathEditorComponent
+{
+};
+}
+
 class Editor : public Module
 {
 public:
@@ -55,6 +73,8 @@ public:
 
 	void Collect() override;
 	void Clear() override;
+
+	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
 	std::weak_ptr<GraphicsManager> m_GraphicsManager;
@@ -63,26 +83,10 @@ protected:
 	std::weak_ptr<Transform2dManager> m_TransformManager;
 	std::weak_ptr<Body2dManager> m_BodyManager;
 
+	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;
 };
 
-//Editor components
-namespace editor
-{
-struct NamableEditorComponent
-{
-	std::string name = "";
-};
-
-struct PathEditorComponent
-{
-	std::string path = "";
-};
-
-struct SceneInfo : NamableEditorComponent, PathEditorComponent
-{
-};
-}
 }
 
 #endif

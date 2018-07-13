@@ -60,7 +60,7 @@ public:
 
 	T & GetComponent(Entity entity)
 	{
-		return m_Components[entity];
+		return m_Components[entity-1];
 	}
 
 	std::vector<T>& GetComponents()

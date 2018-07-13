@@ -110,6 +110,7 @@ public:
 	std::weak_ptr<PhysicsManager> GetPhysicsManager() const;
 	std::weak_ptr<EntityManager> GetEntityManager() const;
 	std::weak_ptr<Transform2dManager> GetTransform2dManager() const;
+	std::weak_ptr<Editor> GetEditor() const;
 	bool running = false;
 protected:
 	ctpl::thread_pool m_ThreadPool;

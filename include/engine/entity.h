@@ -27,16 +27,26 @@ SOFTWARE.
 
 #include <vector>
 #include <engine/module.h>
+#include <engine/component.h>
 
 namespace sfge
 {
+/**
+ * \brief Entity index number, starting from 1U
+ */
+
 typedef unsigned Entity;
+const Entity INVALID_ENTITY = 0U;
+
 typedef int EntityMask;
 class EntityManager : public Module
 {
 public:
 	using Module::Module;
 	EntityMask GetMask(Entity entity);
+	Entity CreateEntity();
+	void AddComponent(ComponentType componentType);
+	void RemoveComponent(ComponentType componentType);
 private:
 	std::vector<int> m_MaskArray;
 };
