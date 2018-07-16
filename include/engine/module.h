@@ -66,6 +66,8 @@ public:
 	*/
 	virtual void Collect() {}
 
+	Engine& GetEngine() const;
+
 	void SetEnable(bool enable);
 	bool GetEnable() const;
 

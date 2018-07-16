@@ -38,6 +38,11 @@ void Module::Destroy()
 	Collect();
 }
 
+Engine& Module::GetEngine() const
+{
+	return m_Engine;
+}
+
 void Module::SetEnable(bool enable)
 {
 	m_Enable = enable;

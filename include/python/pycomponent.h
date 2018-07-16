@@ -56,6 +56,9 @@ public:
 	void OnCollisionExit(Collider* collider);
 	void OnTriggerExit(Collider * collider);
 	*/
+
+	py::object GetComponent(ComponentType componentType);
+
 	Entity GetEntity();
 
 	unsigned int GetInstanceId() const;
@@ -69,4 +72,4 @@ private:
 }
 
 
-#endif /* INCLUDE_PYTHON_PYCOMPONENT_H_ */
+#endif 

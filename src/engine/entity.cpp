@@ -26,21 +26,27 @@ SOFTWARE.
 
 namespace sfge
 {
+
+EntityManager::EntityManager(Engine& engine) : Module(engine)
+{
+	MaskArray = std::vector<EntityMask>(INIT_ENTITY_NMB, 0U);
+}
+
 EntityMask EntityManager::GetMask(Entity entity)
 {
-	return m_MaskArray[entity-1];
+	return MaskArray[entity-1];
 }
 
 Entity EntityManager::CreateEntity()
 {
-	for (Entity entity = 1U; entity <= m_MaskArray.size(); entity++)
+	for (Entity entity = 1U; entity <= MaskArray.size(); entity++)
 	{
-		if(m_MaskArray[entity-1] == 0U)
+		if(MaskArray[entity-1] == 0U)
 		{
 			return entity;
 		}
 	}
 	return INVALID_ENTITY;
-
 }
+
 }

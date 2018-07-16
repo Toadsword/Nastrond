@@ -9,18 +9,26 @@
 
 namespace sfge
 {
-bool Transform2dManager::CreateComponent()
+
+void Transform2dManager::CreateComponent(json& componentJson, Entity entity)
 {
-	return false;
-}
-bool Transform2dManager::DestroyComponent()
-{
-	return false;
-}
-Transform2dManager::Transform2dManager(Engine& engine) :
-	Module(engine)
-{
-	
+
+	Log::GetInstance()->Msg("Create component Transform");
+	auto& transform = GetComponent(entity);
+	if (CheckJsonExists(componentJson, "position"))
+		transform.Position = GetVectorFromJson(componentJson, "position");
+	if (CheckJsonExists(componentJson, "scale"))
+		transform.Scale = GetVectorFromJson(componentJson, "scale");
+	if (CheckJsonExists(componentJson, "angle") && CheckJsonNumber(componentJson, "angle"))
+		transform.EulerAngle = componentJson["angle"];
 }
 
+void Transform2dManager::DestroyComponent(Entity entity)
+{
+}
+
+TransformRequiredComponent::TransformRequiredComponent(Transform2d& transform) : 
+	m_Transform(transform)
+{
+}
 }

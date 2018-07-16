@@ -222,7 +222,6 @@ void PythonEngine::Update(sf::Time)
 void PythonEngine::Destroy()
 {
 	m_PythonInstanceMap.clear();
-	m_PythonModuleObjectMap.clear();
 	Log::GetInstance()->Msg("Finalize the python embed interpretor");
 	py::finalize_interpreter();
 }
@@ -238,8 +237,8 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 	std::string filename = moduleFilename.substr(folderLastIndex + 1, moduleFilename.size());
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
 	std::string moduleName = filename.substr(0, filenameExtensionIndex);
-	std::string extension = filename.substr(filenameExtensionIndex);
-	std::string className = module2class(moduleName);
+	const std::string extension = filename.substr(filenameExtensionIndex);
+	const std::string className = module2class(moduleName);
 	if (IsRegularFile(moduleFilename) && extension == ".py")
 	{
 		if (m_PythonModuleIdMap.find(moduleFilename) != m_PythonModuleIdMap.end())
@@ -250,7 +249,6 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 				std::ostringstream oss;
 				oss << "Python script: " << moduleFilename << " has id 0";
 				Log::GetInstance()->Error(oss.str());
-				return 0U;
 			}
 			return moduleId;
 		}
@@ -259,16 +257,18 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 			try
 			{
 
-				{
-					std::ostringstream oss;
-					oss << "Loading module: " << moduleName << " with Component: " << className;
-					Log::GetInstance()->Msg(oss.str());
-				}
+				
 				py::object globals = py::globals();
 
-				m_PythonModuleObjectMap[m_IncrementalModuleId] = import(moduleName, moduleFilename, globals);
+				globals[moduleName.c_str()] = import(moduleName, moduleFilename, globals);
+				m_PyModuleNameMap[m_IncrementalModuleId] = moduleName;
 				m_PythonModuleIdMap[moduleFilename] = m_IncrementalModuleId;
 				m_PyComponentClassNameMap[m_IncrementalModuleId] = className;
+				{
+					std::ostringstream oss;
+					oss << "Loading module: " << moduleName << " with Component: " << className << ",\n";
+					Log::GetInstance()->Msg(oss.str());
+				}
 			}
 			catch (const std::runtime_error& e)
 			{
@@ -287,12 +287,15 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 
 InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 {
-	std::string className;
+	std::string className = m_PyComponentClassNameMap[moduleId];
 	if(m_PyComponentClassNameMap.find(moduleId) != m_PyComponentClassNameMap.end())
 	{
+		
 		try
 		{
-			m_PythonInstanceMap[m_IncrementalInstanceId] = m_PythonModuleObjectMap[m_IncrementalModuleId].attr(className.c_str())(entity);
+			auto moduleObj = py::globals()[m_PyModuleNameMap[moduleId].c_str()];
+			m_PythonInstanceMap[m_IncrementalInstanceId] = 
+				moduleObj.attr(className.c_str())(entity);
 			//Adding the important components
 
 			if (auto entityManager = m_Engine.GetEntityManager().lock())
@@ -429,10 +432,10 @@ void PythonEngine::LoadScripts(std::string dirname)
 	};
 	IterateDirectory(dirname, LoadAllPyModules);
 	//Spread the class name in all the scripts
-	for(auto& pyModuleObjPair : m_PythonModuleObjectMap)
+	for(auto& pyModuleObjPair : m_PyModuleNameMap)
 	{
-		auto pyModuleId = pyModuleObjPair.first;
-		auto pyModuleObj = pyModuleObjPair.second;
+		const auto pyModuleId = pyModuleObjPair.first;
+		auto pyModuleName = pyModuleObjPair.second;
 		for(auto& importedClassNamePair : m_PyComponentClassNameMap)
 		{
 			auto importedModuleId = importedClassNamePair.first;
@@ -441,8 +444,9 @@ void PythonEngine::LoadScripts(std::string dirname)
 			{
 				try
 				{
-					pyModuleObj.attr(importedClassName.c_str()) = m_PythonModuleObjectMap[importedModuleId]
-						.attr(importedClassName.c_str());
+					auto moduleObj = py::globals()[pyModuleName.c_str()];
+					auto importedModuleObj = py::globals()[m_PyModuleNameMap[importedModuleId].c_str()];
+					moduleObj.attr(importedClassName.c_str()) = importedModuleObj.attr(importedClassName.c_str());
 				}
 				catch(std::runtime_error& e)
 				{

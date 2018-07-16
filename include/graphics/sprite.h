@@ -41,9 +41,13 @@ class GraphicsManager;
 * \brief Sprite component used in the GameObject
 */
 class Sprite:
-	LayerComponent
+	public LayerComponent, public TransformRequiredComponent, public Offsetable
 {
 public:
+
+
+	Sprite(Transform2d& transform, const sf::Vector2f& offset);
+
 	void Init();
 	
 	void Draw(sf::RenderWindow& window);
@@ -51,12 +55,11 @@ public:
 
 	void SetTexture(sf::Texture* newTexture);
 
-	void SetTextureId(unsigned int textureId);
+	void SetTextureId(TextureId textureId);
 
 
 	
 protected:
-	sf::Vector2f offset = sf::Vector2f();
 	std::string filename;
 	unsigned int m_TextureId = 0U;
 	sf::Sprite sprite;
@@ -65,18 +68,19 @@ protected:
 /**
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
-class SpriteManager : public ComponentManager<Sprite>, public LayerComponentManager<Sprite>
+class SpriteManager : public ComponentManager<std::unique_ptr<Sprite>>, 
+	public LayerComponentManager<Sprite>, public Module
 {
 public:
-	SpriteManager(GraphicsManager& graphicsManager);
-	void Update();
+	SpriteManager(Engine& engine, GraphicsManager& graphicsManager);
+	void Update(sf::Time dt) override;
 	void Draw(sf::RenderWindow& window);
 
 	void Reset();
 	void Collect();
 
-	bool CreateComponent() override;
-	bool DestroyComponent() override;
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
 
 protected:
 	GraphicsManager& m_GraphicsManager;

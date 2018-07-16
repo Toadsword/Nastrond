@@ -37,12 +37,14 @@ namespace sfge
 class PyComponent;
 
 typedef unsigned ModuleId;
+#define INVALID_MODULE 0U
 typedef unsigned InstanceId;
+#define INVALID_INSTANCE 0U
 
 /**
 * \brief Manage the python interpreter
 */
-class PythonEngine : public Module, LayerComponentManager<PyComponent*>
+class PythonEngine : public Module, public LayerComponentManager<PyComponent*>
 {
 public:
 	PythonEngine(Engine& engine);
@@ -81,13 +83,13 @@ private:
 	void LoadScripts(std::string dirname = "scripts/");
 
 	std::map<std::string, ModuleId> m_PythonModuleIdMap;
-	std::map<ModuleId, py::object> m_PythonModuleObjectMap;
 	std::map<ModuleId, std::string> m_PyComponentClassNameMap;
+	std::map<ModuleId, std::string> m_PyModuleNameMap;
 	Id m_IncrementalModuleId = 1U;
 
 	std::map<Id, py::object> m_PythonInstanceMap;
 	Id m_IncrementalInstanceId = 1U;
-	std::vector<PyComponent*> m_PyComponents;
+	std::vector<PyComponent*> m_PyComponents{};
 
 };
 

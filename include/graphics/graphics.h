@@ -62,7 +62,6 @@ public:
 	void Collect() override;
 
 
-
 	void DrawLine(sf::Vector2f from, sf::Vector2f to, sf::Color color=sf::Color::Red);
 
 	/**

@@ -49,7 +49,7 @@ class PythonEngine;
 class InputManager;
 class SceneManager;
 class PhysicsManager;
-class EntityManager;
+struct EntityManager;
 class Editor;
 class Transform2dManager;
 
@@ -77,6 +77,7 @@ public:
 	*/
 	void Init(std::string configFilename="data/config.json");
 	void Init(json& configJson);
+	void Init(std::unique_ptr<Configuration> config);
 	/**
 	* \brief Starting the Game Engine after the Init()
 	*/
@@ -85,12 +86,12 @@ public:
 	/**
 	 * \brief Destroy all the modules
 	 */
-	void Destroy();
-	void Clear();
+	void Destroy() const;
+	void Clear() const;
 	/**
 	* \brief Reload is used after loading a new scene
 	*/
-	void Collect();
+	void Collect() const;
 
 	~Engine() = default;
 	/**
@@ -98,9 +99,6 @@ public:
 	* \return The Configuration struct got by the Engine
 	*/
 	std::weak_ptr<Configuration> GetConfig() const;
-	
-	template<typename F, typename... Rest>
-	auto push(F && f, Rest&&... rest)->std::future<decltype(f(0, rest...))>;
 
 	std::weak_ptr<GraphicsManager> GetGraphicsManager() const;
 	std::weak_ptr<AudioManager> GetAudioManager() const;
@@ -113,6 +111,7 @@ public:
 	std::weak_ptr<Editor> GetEditor() const;
 	bool running = false;
 protected:
+	void InitModules();
 	ctpl::thread_pool m_ThreadPool;
 	std::shared_ptr<sf::RenderWindow> m_Window;
 	std::shared_ptr<Configuration> m_Config = nullptr;

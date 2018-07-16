@@ -27,13 +27,20 @@ struct Transform2d
 class Transform2dManager : 
 	public ComponentManager<Transform2d>, public Module
 {
-	using Module::Module;
-	bool CreateComponent() override;
-	bool DestroyComponent() override;
 public:
-	Transform2dManager(Engine& engine);
+	using Module::Module;
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
+
 };
 
+class TransformRequiredComponent
+{
+public:
+	TransformRequiredComponent(Transform2d& transform);
+protected:
+	Transform2d & m_Transform;
+};
 }
 
 #endif /* INCLUDE_ENGINE_TRANSFORM_H_ */

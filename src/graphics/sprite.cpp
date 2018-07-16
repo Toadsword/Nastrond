@@ -47,9 +47,15 @@ void Sprite::SetTexture(sf::Texture* newTexture)
 {
 	sprite.setTexture(*newTexture);
 }
-void Sprite::SetTextureId(unsigned int textureId)
+void Sprite::SetTextureId(TextureId textureId)
 {
 	m_TextureId = textureId;
+}
+
+Sprite::Sprite(Transform2d& transform, const sf::Vector2f& offset)
+	: TransformRequiredComponent(transform),
+	Offsetable(offset)
+{
 }
 
 void Sprite::Init()
@@ -58,19 +64,24 @@ void Sprite::Init()
 
 
 
-SpriteManager::SpriteManager(GraphicsManager& graphicsManager): m_GraphicsManager(graphicsManager)
+SpriteManager::SpriteManager(Engine& engine, GraphicsManager& graphicsManager) : 
+	Module(engine), m_GraphicsManager(graphicsManager)
 {
+	m_TransformManager = m_GraphicsManager.GetEngine().GetTransform2dManager();
 }
 
-void SpriteManager::Update()
+void SpriteManager::Update(sf::Time dt)
 {
+
 }
+
 
 void SpriteManager::Draw(sf::RenderWindow& window)
 {
 	for (auto& sprite : m_Components)
 	{
-		sprite.Draw(window);
+		if(sprite)
+			sprite->Draw(window);
 	}
 }
 /*
@@ -125,13 +136,12 @@ void SpriteManager::Collect()
 	
 }
 
-bool SpriteManager::CreateComponent()
+void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 {
-	return false;
 }
 
-bool SpriteManager::DestroyComponent()
+void SpriteManager::DestroyComponent(Entity entity)
 {
-	return false;
 }
+
 }

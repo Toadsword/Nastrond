@@ -43,6 +43,7 @@ py::object import(const std::string& module, const std::string& path, py::object
 	locals["file_path"] = py::cast(path);
 
 	/*
+	 *
 	 * "import imp\n"
 		"new_module = imp.load_module(module_name, open(path), path, ('py', 'U', imp.PY_SOURCE))\n",
 	 */
@@ -53,6 +54,7 @@ py::object import(const std::string& module, const std::string& path, py::object
 		"spec.loader.exec_module(module)\n",
 		globals,
 		locals);
+
 	return locals["module"];
 }
 

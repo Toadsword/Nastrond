@@ -29,6 +29,10 @@
 #include <engine/editor.h>
 #include <engine/config.h>
 #include <utility/file_utility.h>
+#include <engine/entity.h>
+#include <graphics/graphics.h>
+#include <python/python_engine.h>
+
 
 // for convenience
 
@@ -39,6 +43,7 @@ namespace sfge
 
 void SceneManager::Init()
 {
+	m_EntityManagerPtr = m_Engine.GetEntityManager();
 	if(auto config = m_Engine.GetConfig().lock())
 	{
 		SearchScenes(config->dataDirname);
@@ -99,6 +104,10 @@ void SceneManager::LoadSceneFromPath(const std::string& scenePath) const
 		sceneInfo->path = scenePath;
 		LoadSceneFromJson(*sceneJsonPtr, std::move(sceneInfo));
 	}
+	else
+	{
+		Log::GetInstance()->Error("Invalid JSON format for scene");
+	}
 
 	
 }
@@ -124,44 +133,73 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
-		for(auto& entityJson : sceneJson["entities"])
+		if (auto entityManager = m_EntityManagerPtr.lock())
 		{
-			Entity entity = INVALID_ENTITY;
-			if(auto entityManager = m_EntityManagerPtr.lock())
+			for(auto& entityJson : sceneJson["entities"])
 			{
+				Entity entity = INVALID_ENTITY;
 				entity = entityManager->CreateEntity();
-			}
-			else
-			{
-				Log::GetInstance()->Error("[Error] Cannot create entity");
-				continue;
-			}
-			if (entity == INVALID_ENTITY && 
-				CheckJsonExists(entityJson, "components"))
-			{
-				for (auto& componentJson : entityJson["components"])
+				
+				if (entity != INVALID_ENTITY && 
+					CheckJsonExists(entityJson, "components"))
 				{
-					if (CheckJsonExists(componentJson, "type"))
+					for (auto& componentJson : entityJson["components"])
 					{
-						const ComponentType componentType = componentJson["type"];
-						switch (componentType)
+						if (CheckJsonExists(componentJson, "type"))
 						{
-						case TRANSFORM:
-							break;
-						case SHAPE:
-							break;
-						case BODY2D:
-							break;
-						case SPRITE:
-							break;
-						case COLLIDER:
-							break;
-						default:
-							break;
+							const ComponentType componentType = componentJson["type"];
+							switch (componentType)
+							{
+							case TRANSFORM:
+								if(auto transformManager = m_Engine.GetTransform2dManager().lock())
+								{
+									transformManager->CreateComponent(componentJson, entity);
+									entityManager->MaskArray[entity] = entityManager->MaskArray[entity] | TRANSFORM;
+								}
+								break;
+							case SHAPE:
+								if(const auto graphicsManager = m_Engine.GetGraphicsManager().lock())
+								{
+									auto shapeManager = graphicsManager->GetShapeManager();
+									shapeManager.CreateComponent(componentJson, entity);
+									entityManager->MaskArray[entity] = entityManager->MaskArray[entity] | SHAPE;
+								}
+								break;
+							case BODY2D:
+								break;
+							case SPRITE:
+								break;
+							case COLLIDER:
+								break;
+							case PYCOMPONENT:
+								if (auto pythonEngine = m_Engine.GetPythonManager().lock())
+								{
+									if (CheckJsonExists(componentJson, "script_path"))
+									{
+										std::string path = componentJson["script_path"];
+										const ModuleId moduleId = pythonEngine->LoadPyModule(path);
+										if(moduleId != INVALID_MODULE)
+											const InstanceId instanceId = pythonEngine->LoadPyComponent(moduleId, entity);
+									}
+								}
+								break;
+							default:
+								break;
+							}
 						}
 					}
 				}
+				else
+				{
+					std::ostringstream oss;
+					oss << "[Error] No components attached in the JSON entity: " << entity << "with json content: " << entityJson;
+					Log::GetInstance()->Error(oss.str());
+				}
 			}
+		}
+		else
+		{
+			Log::GetInstance()->Error("[Error] Cannot create entity, EntityManager cannot be lock");
 		}
 	}
 	else

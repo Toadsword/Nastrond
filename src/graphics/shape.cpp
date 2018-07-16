@@ -30,67 +30,126 @@ SOFTWARE.
 
 namespace sfge
 {
-
-
-void Shape::Draw(sf::RenderWindow& window) const
-{
-}
-
-void Shape::SetFillColor(sf::Color color) const
+Shape::Shape(Transform2d & transform, const sf::Vector2f offset) : 
+	Offsetable(offset), TransformRequiredComponent(transform)
 {
 	
 }
 
+Shape::~Shape()
+{
+	m_Shape = nullptr;
+}
 
-Circle::Circle(float radius)
-		
+void Shape::Draw(sf::RenderWindow& window) const
+{
+	if (m_Shape != nullptr)
+	{
+		window.draw(*m_Shape);
+	}
+}
+
+void Shape::SetFillColor(sf::Color color) const
+{
+	if (m_Shape)
+		m_Shape->setFillColor(color);
+}
+
+Circle::Circle(Transform2d& transform, sf::Vector2f offset, float radius) : Shape(transform, offset)
 {
 	m_Radius = radius;
+	m_Shape = std::make_unique<sf::CircleShape>(m_Radius);
+	m_Shape->setPosition(transform.Position + offset);
 }
 
-
-
-Rectangle::Rectangle(sf::Vector2f size)
+Rectangle::Rectangle(Transform2d& transform, sf::Vector2f offset, sf::Vector2f size) : Shape(transform, offset)
 {
+
 	m_Size = size;
+	m_Shape = std::make_unique<sf::RectangleShape>(m_Size);
+	m_Shape->setPosition(transform.Position + offset);
 }
 
 
-ShapeManager::ShapeManager(GraphicsManager& graphicsManager):
-		m_GraphicsManager(graphicsManager)
+Polygon::Polygon(Transform2d& transform, sf::Vector2f offset, std::list<sf::Vector2f>& points) : Shape(transform, offset)
 {
+	//TODO Add the possibility for polygon
+}
 
+ShapeManager::ShapeManager(Engine& engine):
+		Module(engine)
+{
+	m_TransformManager = m_Engine.GetTransform2dManager();
+	m_EntityManager = m_Engine.GetEntityManager();
 }
 
 
 void ShapeManager::Draw(sf::RenderWindow& window)
 {
-	
+
+	if (auto entityManager = m_Engine.GetEntityManager().lock())
+	{
+		for(int i = 0; i < m_Components.size(); i++)
+		{
+			if(m_Components[i] and 
+				(entityManager->MaskArray[i] & SHAPE) == SHAPE)
+			{
+				m_Components[i]->Draw(window);
+			}
+		}
+	}
 }
 
 void ShapeManager::Clear()
 {
-	
+	m_Components = std::vector<std::shared_ptr<Shape>>{ INIT_ENTITY_NMB };
 }
 
-void ShapeManager::Reload()
+
+void ShapeManager::CreateComponent(json& componentJson, Entity entity)
+{
+	Log::GetInstance()->Msg("Create component Shape");
+	if (auto transformManager = m_TransformManager.lock())
+	{
+		if (CheckJsonNumber(componentJson, "shape_type"))
+		{
+			const ShapeType shapeType = componentJson["shape_type"];
+			switch (shapeType)
+			{
+			case ShapeType::CIRCLE:
+			{
+				sf::Vector2f offset;
+				if (CheckJsonExists(componentJson, "offset"))
+				{
+					offset = GetVectorFromJson(componentJson, "offset");
+				}
+				float radius = 10.0f;
+				if (CheckJsonNumber(componentJson, "radius"))
+				{
+					radius = componentJson["radius"];
+				}
+
+				m_Components[entity - 1] = std::make_unique<Circle>(
+					transformManager->GetComponent(entity),
+					offset,
+					radius); 
+			}
+				break;
+			case ShapeType::RECTANGLE:
+				break;
+			default:
+				Log::GetInstance()->Error("Invalid shape type in ShapeManager Component Creation");
+				break;
+			}
+		}
+	}
+}
+
+void ShapeManager::DestroyComponent(Entity entity)
 {
 }
 
-bool ShapeManager::CreateComponent()
-{
-	return false;
-}
 
-bool ShapeManager::DestroyComponent()
-{
-	return false;
-}
-
-
-Polygon::Polygon(std::list<sf::Vector2f>& points)
-{
-}
 
 
 }

@@ -2,8 +2,9 @@ from SFGE import *
 
 
 class ContactTest(Component):
-    def init(self):
-        self.shape = self.game_object.get_component(Component.Shape)
+    def __init__(self, entity):
+        Component.__init__(self, entity)
+        self.shape = self.get_component(Component.Shape)
         self.contact_nmb = 0
 
     def update(self, dt):

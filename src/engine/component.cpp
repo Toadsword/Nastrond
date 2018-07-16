@@ -34,6 +34,8 @@ bool LayerComponent::LayerCompare(LayerComponent* s1, LayerComponent* s2)
 }
 
 
+
+
 void LayerComponent::SetLayer(int layer)
 {
 	m_Layer = layer;
@@ -42,5 +44,19 @@ void LayerComponent::SetLayer(int layer)
 int LayerComponent::GetLayer() const
 {
 	return m_Layer;
+}
+
+Offsetable::Offsetable(sf::Vector2f offset) : m_Offset(offset)
+{
+}
+
+sf::Vector2f Offsetable::GetOffset() const
+{
+	return m_Offset;
+}
+
+void Offsetable::SetOffset(sf::Vector2f offset)
+{
+	m_Offset = offset;
 }
 }

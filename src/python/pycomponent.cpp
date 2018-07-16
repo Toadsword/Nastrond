@@ -91,6 +91,26 @@ void PyComponent::Update(float dt)
 		);
 	}
 
+	py::object PyComponent::GetComponent(ComponentType componentType)
+	{
+		switch (componentType)
+		{
+		case BODY2D:
+			break;
+		case COLLIDER:
+			break;
+		case SHAPE:
+			break;
+		case SPRITE:
+			break;
+		case SOUND:
+			break;
+		default: 
+			return py::none();
+		}
+		return py::none();
+	}
+
 	/*
 	void PyComponent::OnCollisionEnter(b2Contact * collider) const
 	{

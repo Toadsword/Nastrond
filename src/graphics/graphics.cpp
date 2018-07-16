@@ -37,7 +37,8 @@ SOFTWARE.
 namespace sfge
 {
 GraphicsManager::GraphicsManager(Engine& engine) :
-		Module(engine), m_SpriteManager(*this), m_ShapeManager(*this), m_TextureManager(m_Engine)
+		Module(engine), m_SpriteManager(engine, *this), 
+		m_ShapeManager(engine), m_TextureManager(engine)
 {
 }
 void GraphicsManager::Init()
@@ -72,7 +73,8 @@ void GraphicsManager::Update(sf::Time dt)
 	{
 		m_Window->clear();
 
-		m_SpriteManager.Update();
+		m_SpriteManager.Update(dt);
+		m_ShapeManager.Update(dt);
 		m_SpriteManager.Draw(*m_Window);
 
 		m_ShapeManager.Draw(*m_Window);

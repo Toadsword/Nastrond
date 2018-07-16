@@ -28,9 +28,9 @@ SOFTWARE.
 
 #include <queue>
 #include <vector>
-#include <list>
 
 #include <engine/globals.h>
+#include <engine/log.h>
 #include <engine/entity.h>
 
 namespace sfge
@@ -60,6 +60,10 @@ public:
 
 	T & GetComponent(Entity entity)
 	{
+		if(entity == INVALID_ENTITY)
+		{
+			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
+		}
 		return m_Components[entity-1];
 	}
 
@@ -68,8 +72,8 @@ public:
 		return m_Components;
 	}
 
-	virtual bool CreateComponent() = 0;
-	virtual bool DestroyComponent() = 0;
+	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
+	virtual void DestroyComponent(Entity entity) = 0;
 
 protected:
 	std::vector<T> m_Components{INIT_ENTITY_NMB};
@@ -111,5 +115,17 @@ protected:
 	std::deque<LayerComponent*>, 
 	std::function<bool(LayerComponent*, LayerComponent*)>> m_LayerComponents{LayerComponent::LayerCompare};
 };
+
+class Offsetable
+{
+public:
+	virtual ~Offsetable() = default;
+	Offsetable(sf::Vector2f offset);
+	sf::Vector2f GetOffset() const;
+	virtual void SetOffset(sf::Vector2f offset);
+protected:
+	sf::Vector2f m_Offset;
+};
+
 }
 #endif

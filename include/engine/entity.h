@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <vector>
 #include <engine/module.h>
-#include <engine/component.h>
+#include <engine/globals.h>
 
 namespace sfge
 {
@@ -39,16 +39,13 @@ typedef unsigned Entity;
 const Entity INVALID_ENTITY = 0U;
 
 typedef int EntityMask;
-class EntityManager : public Module
+struct EntityManager : Module
 {
-public:
-	using Module::Module;
+	EntityManager(Engine& engine);
 	EntityMask GetMask(Entity entity);
 	Entity CreateEntity();
-	void AddComponent(ComponentType componentType);
-	void RemoveComponent(ComponentType componentType);
-private:
-	std::vector<int> m_MaskArray;
+
+	std::vector<EntityMask> MaskArray;
 };
 }
 

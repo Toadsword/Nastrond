@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <engine/module.h>
 #include <engine/component.h>
-#include <list>
+#include <engine/transform.h>
 //Externals
 #include <SFML/Graphics.hpp>
 
@@ -43,19 +43,22 @@ enum class ShapeType
 	CONVEX,
 };
 
-class Shape 
+class Shape : public Offsetable, public TransformRequiredComponent
 {
 public:
+	Shape(Transform2d& transform, sf::Vector2f offset);
+	virtual ~Shape();
 	void Draw(sf::RenderWindow& window) const;
-
 	void SetFillColor(sf::Color color) const;
 protected:
+	std::unique_ptr<sf::Shape> m_Shape = nullptr;
 };
 
 class Circle : public Shape
 {
 public:
-	Circle(float radius);
+	Circle(Transform2d& transform, sf::Vector2f offset, float radius);
+
 protected:
 	float m_Radius;
 };
@@ -63,7 +66,7 @@ protected:
 class Rectangle : public Shape
 {
 public:
-	Rectangle(sf::Vector2f size);
+	Rectangle(Transform2d& transform, sf::Vector2f offset, sf::Vector2f size);
 protected:
 	sf::Vector2f m_Size;
 
@@ -72,25 +75,26 @@ protected:
 class Polygon : public Shape
 {
 public:
-	Polygon(std::list<sf::Vector2f>& points);
+	Polygon(Transform2d& transform, sf::Vector2f offset, std::list<sf::Vector2f>& points);
 protected:
 	
 };
 
-class ShapeManager : ComponentManager<Shape>
+class ShapeManager : 
+	public ComponentManager<std::shared_ptr<Shape>>, public Module
 {
 
 public:
-	ShapeManager(GraphicsManager& graphicsManager);
+	ShapeManager(Engine& engine);
 	void Draw(sf::RenderWindow& window);
 
-	void Clear();
-	void Reload();
+	void Clear() override;
 
-	bool CreateComponent() override;
-	bool DestroyComponent() override;
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
 protected:
-	GraphicsManager& m_GraphicsManager;
+	std::weak_ptr<Transform2dManager> m_TransformManager;
+	std::weak_ptr<EntityManager> m_EntityManager;
 };
 
 }

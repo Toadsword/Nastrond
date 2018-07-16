@@ -63,15 +63,23 @@ void Engine::Init(std::string configFilename)
 {
 	const auto configJsonPtr = LoadJson(configFilename);
 	if (configJsonPtr)
-		return Init(*configJsonPtr);
+		Init(*configJsonPtr);
 }
-
-
-
 
 void Engine::Init(json& configJson)
 {
-	m_Config = std::move(Configuration::LoadConfig(configJson));
+	m_Config = Configuration::LoadConfig(configJson);
+	InitModules();
+}
+
+void Engine::Init(std::unique_ptr<Configuration> config)
+{
+	m_Config = std::move(config);
+	InitModules();
+}
+
+void Engine::InitModules()
+{
 	if (m_Config == nullptr)
 	{
 		Log::GetInstance()->Error("[Error] Game Engine Configuration");
@@ -81,9 +89,9 @@ void Engine::Init(json& configJson)
 		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
 	}
 	m_ThreadPool.resize(THREAD_NMB);
-	
 
-	
+
+
 
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
@@ -95,8 +103,6 @@ void Engine::Init(json& configJson)
 
 	m_Window = m_GraphicsManager->GetWindow();
 	running = true;
-
-
 }
 
 void Engine::Start()
@@ -143,7 +149,7 @@ void Engine::Start()
 	Destroy();
 }
 
-void Engine::Destroy()
+void Engine::Destroy() const
 {
 	m_GraphicsManager->Destroy();
 	m_AudioManager->Destroy();
@@ -155,7 +161,7 @@ void Engine::Destroy()
 	m_PythonManager->Destroy();
 }
 
-void Engine::Clear()
+void Engine::Clear() const
 {
 	m_GraphicsManager->Clear();
 	m_AudioManager->Clear();
@@ -166,7 +172,7 @@ void Engine::Clear()
 	m_PhysicsManager->Clear();
 }
 
-void Engine::Collect()
+void Engine::Collect() const
 {
 	m_GraphicsManager->Collect();
 	m_AudioManager->Collect();
@@ -227,4 +233,5 @@ std::weak_ptr<Editor> Engine::GetEditor() const
 {
 	return std::weak_ptr<Editor>(m_Editor);
 }
+
 }

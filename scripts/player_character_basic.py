@@ -3,10 +3,10 @@ from SFGE import *
 
 class PlayerCharacterBasic(Component):
 
-    def __init__(self):
-        Component.__init__(self)
+    def __init__(self, entity):
+        Component.__init__(self, entity)
         self.foot = 0
-        self.body = self.game_object.get_component(Component.Body)
+        self.body = self.get_component(Component.Body)
         self.speed = 1.0
 
     def update(self, dt):
