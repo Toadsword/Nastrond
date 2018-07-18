@@ -55,6 +55,14 @@ void Shape::SetFillColor(sf::Color color) const
 		m_Shape->setFillColor(color);
 }
 
+void Shape::Update(sf::Time dt) const
+{
+	if(m_Shape)
+	{
+		m_Shape->setPosition(m_Transform.Position + m_Offset);
+	}
+}
+
 Circle::Circle(Transform2d& transform, sf::Vector2f offset, float radius) : Shape(transform, offset)
 {
 	m_Radius = radius;
@@ -91,10 +99,23 @@ void ShapeManager::Draw(sf::RenderWindow& window)
 	{
 		for(int i = 0; i < m_Components.size(); i++)
 		{
-			if(m_Components[i] and 
-				(entityManager->MaskArray[i] & SHAPE) == SHAPE)
+			if(m_Components[i] and entityManager->HasComponent(i + 1, SHAPE))
 			{
 				m_Components[i]->Draw(window);
+			}
+		}
+	}
+}
+
+void ShapeManager::Update(sf::Time dt)
+{
+	if (auto entityManager = m_Engine.GetEntityManager().lock())
+	{
+		for (int i = 0; i < m_Components.size(); i++)
+		{
+			if (m_Components[i] and entityManager->HasComponent(i+1, SHAPE))
+			{
+				m_Components[i]->Update(dt);
 			}
 		}
 	}
@@ -129,7 +150,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 					radius = componentJson["radius"];
 				}
 
-				m_Components[entity - 1] = std::make_unique<Circle>(
+				m_Components[entity - 1] = std::make_shared<Circle>(
 					transformManager->GetComponent(entity),
 					offset,
 					radius); 
@@ -142,6 +163,17 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 				break;
 			}
 		}
+		else
+		{
+			std::ostringstream oss;
+			oss << "[Error] No shape_type defined in json:  "<<componentJson;
+			Log::GetInstance()->Error(oss.str());
+		}
+	}
+	else
+	{
+
+		Log::GetInstance()->Error("[Error] No reference to TransformManager in ShapeManager");
 	}
 }
 

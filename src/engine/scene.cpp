@@ -154,15 +154,19 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 								if(auto transformManager = m_Engine.GetTransform2dManager().lock())
 								{
 									transformManager->CreateComponent(componentJson, entity);
-									entityManager->MaskArray[entity] = entityManager->MaskArray[entity] | TRANSFORM;
+									entityManager->AddComponentType(entity, TRANSFORM);
 								}
 								break;
 							case SHAPE:
 								if(const auto graphicsManager = m_Engine.GetGraphicsManager().lock())
 								{
-									auto shapeManager = graphicsManager->GetShapeManager();
+									auto& shapeManager = graphicsManager->GetShapeManager();
 									shapeManager.CreateComponent(componentJson, entity);
-									entityManager->MaskArray[entity] = entityManager->MaskArray[entity] | SHAPE;
+									entityManager->AddComponentType(entity, SHAPE);
+								}
+								else
+								{
+									Log::GetInstance()->Error("[Error] Could not get ptr to GraphicsManager in Scene loading");
 								}
 								break;
 							case BODY2D:
@@ -186,6 +190,12 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 							default:
 								break;
 							}
+						}
+						else
+						{
+							std::ostringstream oss;
+							oss << "[Error] No type specified for component with json content: " << componentJson;
+							Log::GetInstance()->Error(oss.str());
 						}
 					}
 				}

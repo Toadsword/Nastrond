@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <engine/entity.h>
+#include <engine/globals.h>
 
 namespace sfge
 {
@@ -49,4 +50,18 @@ Entity EntityManager::CreateEntity()
 	return INVALID_ENTITY;
 }
 
+bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
+{
+	return (MaskArray[entity - 1] & componentType) == componentType;
+}
+
+void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
+{
+
+	MaskArray[entity - 1] = MaskArray[entity - 1] | componentType;
+}
+
+void EntityManager::RemoveComponentType(Entity entity, ComponentType componentType)
+{
+}
 }

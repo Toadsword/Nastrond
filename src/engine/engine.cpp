@@ -48,6 +48,9 @@ namespace sfge
 
 Engine::Engine()
 {
+
+	m_EntityManager = std::make_shared<EntityManager>(*this);
+	m_TransformManager = std::make_shared<Transform2dManager>(*this);
 	m_GraphicsManager = std::make_shared<GraphicsManager>(*this);
 	m_AudioManager = std::make_shared<AudioManager>(*this);
 	m_SceneManager = std::make_shared<SceneManager>(*this);
@@ -55,8 +58,6 @@ Engine::Engine()
 	m_PythonManager = std::make_shared<PythonEngine>(*this);
 	m_PhysicsManager = std::make_shared<PhysicsManager>(*this);
 	m_Editor = std::make_shared<Editor>(*this);
-	m_EntityManager = std::make_shared<EntityManager>(*this);
-	m_TransformManager = std::make_shared<Transform2dManager>(*this);
 }
 
 void Engine::Init(std::string configFilename)
@@ -113,7 +114,8 @@ void Engine::Start()
 	{
 		const sf::Time dt = updateClock.restart();
 		sf::Event event{};
-		while (m_Window != nullptr && m_Window->pollEvent(event))
+		while (m_Window != nullptr && 
+			m_Window->pollEvent(event))
 		{
 			m_Editor->ProcessEvent(event);
 			if (event.type == sf::Event::Closed)

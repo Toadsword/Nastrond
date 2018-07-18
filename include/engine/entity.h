@@ -27,10 +27,11 @@ SOFTWARE.
 
 #include <vector>
 #include <engine/module.h>
-#include <engine/globals.h>
 
 namespace sfge
 {
+
+enum ComponentType;
 /**
  * \brief Entity index number, starting from 1U
  */
@@ -44,6 +45,9 @@ struct EntityManager : Module
 	EntityManager(Engine& engine);
 	EntityMask GetMask(Entity entity);
 	Entity CreateEntity();
+	bool HasComponent(Entity entity, ComponentType componentType);
+	void AddComponentType(Entity entity, ComponentType componentType);
+	void RemoveComponentType(Entity entity, ComponentType componentType);
 
 	std::vector<EntityMask> MaskArray;
 };
