@@ -25,6 +25,8 @@ SOFTWARE.
 #ifndef SFGE_SHAPE_H_
 #define SFGE_SHAPE_H_
 
+#include <list>
+
 #include <engine/module.h>
 #include <engine/component.h>
 #include <engine/transform.h>

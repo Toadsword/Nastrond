@@ -2,9 +2,10 @@
 #include <cstdint>
 #include <array>
 #include <type_traits>
-#include <cstdint>
 #include <vector>
 #include <string>
+#include <cstdio>
+#include <cstring>
 
 /*
 xxHash - Extremely Fast Hash algorithm

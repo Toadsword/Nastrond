@@ -28,6 +28,7 @@
 
 #include <memory>
 #include <string>
+#include <list>
 
 #include <engine/module.h>
 #include <utility/json_utility.h>
