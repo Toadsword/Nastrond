@@ -48,7 +48,7 @@ enum class ShapeType
 class Shape : public Offsetable, public TransformRequiredComponent
 {
 public:
-	Shape(Transform2d& transform, sf::Vector2f offset);
+	Shape(Transform2d* transform, sf::Vector2f offset);
 	virtual ~Shape();
 	void Draw(sf::RenderWindow& window) const;
 	void SetFillColor(sf::Color color) const;
@@ -60,7 +60,7 @@ protected:
 class Circle : public Shape
 {
 public:
-	Circle(Transform2d& transform, sf::Vector2f offset, float radius);
+	Circle(Transform2d* transform, sf::Vector2f offset, float radius);
 
 protected:
 	float m_Radius;
@@ -69,7 +69,7 @@ protected:
 class Rectangle : public Shape
 {
 public:
-	Rectangle(Transform2d& transform, sf::Vector2f offset, sf::Vector2f size);
+	Rectangle(Transform2d* transform, sf::Vector2f offset, sf::Vector2f size);
 protected:
 	sf::Vector2f m_Size;
 
@@ -78,7 +78,7 @@ protected:
 class Polygon : public Shape
 {
 public:
-	Polygon(Transform2d& transform, sf::Vector2f offset, std::list<sf::Vector2f>& points);
+	Polygon(Transform2d* transform, sf::Vector2f offset, std::list<sf::Vector2f>& points);
 protected:
 	
 };

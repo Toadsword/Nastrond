@@ -45,8 +45,8 @@ class Sprite:
 {
 public:
 
-
-	Sprite(Transform2d& transform, const sf::Vector2f& offset);
+	Sprite();
+	Sprite(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
 	
@@ -68,7 +68,7 @@ protected:
 /**
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
-class SpriteManager : public ComponentManager<std::unique_ptr<Sprite>>, 
+class SpriteManager : public ComponentManager<Sprite>, 
 	public LayerComponentManager<Sprite>, public Module
 {
 public:
@@ -84,7 +84,8 @@ public:
 
 protected:
 	GraphicsManager& m_GraphicsManager;
-	std::weak_ptr<Transform2dManager> m_TransformManager;
+	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
+	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 };
 
 

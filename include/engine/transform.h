@@ -37,9 +37,9 @@ public:
 class TransformRequiredComponent
 {
 public:
-	TransformRequiredComponent(Transform2d& transform);
+	TransformRequiredComponent(Transform2d* transform);
 protected:
-	Transform2d & m_Transform;
+	Transform2d * m_Transform = nullptr;
 };
 }
 

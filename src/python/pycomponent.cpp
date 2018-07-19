@@ -102,7 +102,7 @@ void PyComponent::Update(float dt)
 			case BODY2D:
 				if(auto physicsManager = m_PythonEngine->GetEngine().GetPhysicsManager().lock())
 				{
-					auto* body = physicsManager->GetBodyManager().GetComponent(m_Entity);
+					auto& body = physicsManager->GetBodyManager().GetComponent(m_Entity);
 					return py::cast(body, py::return_value_policy::reference);
 				}
 				break;

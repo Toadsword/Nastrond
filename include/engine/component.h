@@ -51,7 +51,10 @@ template<class T>
 class ComponentManager
 {
 public:
-	ComponentManager() = default;
+	ComponentManager()
+	{
+		m_Components = std::vector<T>{ INIT_ENTITY_NMB };
+	};
 
 	virtual ~ComponentManager()
 	{
@@ -76,7 +79,7 @@ public:
 	virtual void DestroyComponent(Entity entity) = 0;
 
 protected:
-	std::vector<T> m_Components{INIT_ENTITY_NMB};
+	std::vector<T> m_Components;
 };
 
 
@@ -124,7 +127,7 @@ public:
 	sf::Vector2f GetOffset() const;
 	virtual void SetOffset(sf::Vector2f offset);
 protected:
-	sf::Vector2f m_Offset;
+	sf::Vector2f m_Offset = sf::Vector2f();
 };
 
 }

@@ -28,13 +28,25 @@ SOFTWARE.
 
 #include <Box2D/Box2D.h>
 #include <engine/component.h>
+#include <engine/transform.h>
 
 namespace sfge
 {
 
-class Body2dManager : public ComponentManager<b2Body*>, public Module
+class Body2d: public TransformRequiredComponent, public Offsetable
 {
-	using Module::Module;
+public:
+	Body2d();
+	Body2d(Transform2d* transform, sf::Vector2f offset);
+private:
+	b2Body * m_Body = nullptr;
+};
+
+class Body2dManager : public ComponentManager<Body2d>, public Module
+{
+public:
+	Body2dManager(Engine& engine);
+	void Init() override;
 	void FixedUpdate() override;
 
 	void CreateComponent(json& componentJson, Entity entity) override;
@@ -43,6 +55,7 @@ class Body2dManager : public ComponentManager<b2Body*>, public Module
 private:
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
+	std::weak_ptr<b2World> m_WorldPtr;
 };
 
 

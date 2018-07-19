@@ -52,9 +52,13 @@ void Sprite::SetTextureId(TextureId textureId)
 	m_TextureId = textureId;
 }
 
-Sprite::Sprite(Transform2d& transform, const sf::Vector2f& offset)
-	: TransformRequiredComponent(transform),
-	Offsetable(offset)
+Sprite::Sprite() : 
+	TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+{
+}
+
+Sprite::Sprite(Transform2d* transform, sf::Vector2f offset)
+	: TransformRequiredComponent(transform), Offsetable(offset)
 {
 }
 
@@ -67,7 +71,8 @@ void Sprite::Init()
 SpriteManager::SpriteManager(Engine& engine, GraphicsManager& graphicsManager) : 
 	Module(engine), m_GraphicsManager(graphicsManager)
 {
-	m_TransformManager = m_GraphicsManager.GetEngine().GetTransform2dManager();
+	m_TransformManagerPtr = m_GraphicsManager.GetEngine().GetTransform2dManager();
+	m_EntityManagerPtr = m_GraphicsManager.GetEngine().GetEntityManager();
 }
 
 void SpriteManager::Update(sf::Time dt)
@@ -78,10 +83,13 @@ void SpriteManager::Update(sf::Time dt)
 
 void SpriteManager::Draw(sf::RenderWindow& window)
 {
-	for (auto& sprite : m_Components)
+	if (auto entityManager = m_EntityManagerPtr.lock())
 	{
-		if(sprite)
-			sprite->Draw(window);
+		for (int i = 0; i<m_Components.size();i++)
+		{
+			if(entityManager->HasComponent(i+1,SPRITE))
+				m_Components[i].Draw(window);
+		}
 	}
 }
 /*

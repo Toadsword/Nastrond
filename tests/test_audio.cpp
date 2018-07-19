@@ -25,7 +25,7 @@ SOFTWARE.
 #include <SFML/Graphics.hpp>
 #include <engine/engine.h>
 #include <engine/log.h>
-#include <engine/modules.h>
+#include <input/input.h>
 #include <utility/json_utility.h>
 
 int main()
@@ -34,7 +34,7 @@ int main()
 
 	//SOUND TEST !!!
 	sfge::Engine engine;
-	engine.Init(true);
+	engine.Init();
 
 	json gameObjectJson1;
 	json objectJson1;

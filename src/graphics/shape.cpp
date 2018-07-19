@@ -30,7 +30,7 @@ SOFTWARE.
 
 namespace sfge
 {
-Shape::Shape(Transform2d & transform, const sf::Vector2f offset) : 
+Shape::Shape(Transform2d * transform, const sf::Vector2f offset) : 
 	Offsetable(offset), TransformRequiredComponent(transform)
 {
 	
@@ -57,31 +57,33 @@ void Shape::SetFillColor(sf::Color color) const
 
 void Shape::Update(sf::Time dt) const
 {
-	if(m_Shape)
+	if(m_Shape and m_Transform)
 	{
-		m_Shape->setPosition(m_Transform.Position + m_Offset);
+		m_Shape->setPosition(m_Transform->Position + m_Offset);
 	}
 }
 
-Circle::Circle(Transform2d& transform, sf::Vector2f offset, float radius) : Shape(transform, offset)
+Circle::Circle(Transform2d* transform, sf::Vector2f offset, float radius) : Shape(transform, offset)
 {
 	m_Radius = radius;
 	m_Shape = std::make_unique<sf::CircleShape>(m_Radius);
 	m_Shape->setOrigin(radius, radius);
-	m_Shape->setPosition(transform.Position + offset);
+	if(transform)
+	m_Shape->setPosition(transform->Position + offset);
 }
 
-Rectangle::Rectangle(Transform2d& transform, sf::Vector2f offset, sf::Vector2f size) : Shape(transform, offset)
+Rectangle::Rectangle(Transform2d* transform, sf::Vector2f offset, sf::Vector2f size) : Shape(transform, offset)
 {
 
 	m_Size = size;
 	m_Shape = std::make_unique<sf::RectangleShape>(m_Size);
-	m_Shape->setOrigin(size/2.0f),
-	m_Shape->setPosition(transform.Position + offset);
+	m_Shape->setOrigin(size / 2.0f);
+	if(transform)
+		m_Shape->setPosition(transform->Position + offset);
 }
 
 
-Polygon::Polygon(Transform2d& transform, sf::Vector2f offset, std::list<sf::Vector2f>& points) : Shape(transform, offset)
+Polygon::Polygon(Transform2d* transform, sf::Vector2f offset, std::list<sf::Vector2f>& points) : Shape(transform, offset)
 {
 	//TODO Add the possibility for polygon
 }
@@ -153,7 +155,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 				}
 
 				m_Components[entity - 1] = std::make_shared<Circle>(
-					transformManager->GetComponent(entity),
+					&transformManager->GetComponent(entity),
 					offset,
 					radius); 
 			}
@@ -172,7 +174,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 				}
 
 				m_Components[entity - 1] = std::make_shared<Rectangle>(
-					transformManager->GetComponent(entity),
+					&transformManager->GetComponent(entity),
 					offset,
 					size);
 				}

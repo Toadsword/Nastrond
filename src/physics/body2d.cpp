@@ -28,7 +28,30 @@ SOFTWARE.
 
 namespace sfge
 {
-void Body2dManager::FixedUpdate()
+Body2d::Body2d() : TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+{
+}
+
+Body2d::Body2d(Transform2d * transform, sf::Vector2f offset) : 
+	TransformRequiredComponent(transform), Offsetable(offset)
+{
+}
+
+Body2dManager::Body2dManager(Engine& engine) : 
+	Module(engine)
+{
+	m_Components = std::vector<Body2d>(INIT_ENTITY_NMB, { nullptr, sf::Vector2f() });
+	m_EntityManagerPtr = m_Engine.GetEntityManager();
+	m_TransformManagerPtr = m_Engine.GetTransform2dManager();
+}
+
+void Body2dManager::Init()
+{
+	if (const auto physicsManager = m_Engine.GetPhysicsManager().lock())
+		m_WorldPtr = physicsManager->GetWorld();
+}
+
+	void Body2dManager::FixedUpdate()
 {
 }
 

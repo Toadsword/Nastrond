@@ -27,7 +27,7 @@ void Transform2dManager::DestroyComponent(Entity entity)
 {
 }
 
-TransformRequiredComponent::TransformRequiredComponent(Transform2d& transform) : 
+TransformRequiredComponent::TransformRequiredComponent(Transform2d* transform) : 
 	m_Transform(transform)
 {
 }

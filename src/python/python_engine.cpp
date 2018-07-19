@@ -111,7 +111,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	collider
 		.def("is_trigger", &Collider::IsTrigger);
 	*/
-	
+	py::class_<Body2d> body2d(m, "Body2d");
+
 	py::class_<b2Body,std::unique_ptr<b2Body, py::nodelete>> body(m, "Body");
 	body
 		.def_property("velocity", &b2Body::GetLinearVelocity, &b2Body::SetLinearVelocity)
@@ -448,7 +449,7 @@ void PythonEngine::LoadScripts(std::string dirname)
 				catch(std::runtime_error& e)
 				{
 					std::ostringstream oss;
-					oss << "[PYTHON ERROR] Could not import class: " << importedClassName << " into module: " << pyModuleId;
+					oss << "[PYTHON ERROR] Could not import class: " << importedClassName << " into module: " << pyModuleId << " with error: " << e.what();
 					Log::GetInstance()->Error(oss.str());
 				}
 			}

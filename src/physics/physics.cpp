@@ -36,10 +36,11 @@ void PhysicsManager::Init()
 	b2Vec2 gravity = b2Vec2();
 	if(const auto configPtr = m_Engine.GetConfig().lock())
 		gravity = configPtr->gravity;
-	m_World = new b2World(gravity);
-	m_ContactListener = new ContactListener();
-	m_World->SetContactListener(m_ContactListener);
+	m_World = std::make_shared<b2World>(gravity);
+	m_ContactListener = std::make_unique<ContactListener>();
+	m_World->SetContactListener(m_ContactListener.get());
 
+	m_BodyManager.Init();
 }
 
 void PhysicsManager::Update(sf::Time dt)
@@ -50,7 +51,7 @@ void PhysicsManager::Update(sf::Time dt)
 	}
 }
 
-b2World * PhysicsManager::GetWorld() const
+std::weak_ptr<b2World> PhysicsManager::GetWorld() const
 {
 	return m_World;
 }
@@ -60,12 +61,10 @@ void PhysicsManager::Destroy()
 {
 	if (m_World)
 	{
-		delete(m_World);
 		m_World = nullptr;
 	}
 	if(m_ContactListener)
 	{
-		delete(m_ContactListener);
 		m_ContactListener = nullptr;
 	}
 

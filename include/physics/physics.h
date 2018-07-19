@@ -68,7 +68,7 @@ public:
 	/**
 	* \brief Get The World
 	*/
-	b2World* GetWorld() const;
+	std::weak_ptr<b2World> GetWorld() const;
 	/**
 	 * \brief Called each frame to update the b2World if not in editor mode
 	 * @param dt Delta time since last frame
@@ -91,10 +91,10 @@ public:
 	const static float pixelPerMeter;
 private:
 	friend class Body2d;
-	b2World* m_World = nullptr;
+	std::shared_ptr<b2World> m_World = nullptr;
 	const int32 m_VelocityIterations = 8;  
 	const int32 m_PositionIterations = 3;
-	ContactListener* m_ContactListener = nullptr;
+	std::unique_ptr<ContactListener> m_ContactListener = nullptr;
 	Body2dManager m_BodyManager{m_Engine};
 	ColliderManager m_ColliderManager{m_BodyManager};
 
