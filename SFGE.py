@@ -79,9 +79,9 @@ class Component:
     Sprite = 0
     Shape = 0
     Body = 0
-    Collider = 0
     Sound = 0
-    def __init__(self, entity):
+    def __init__(self, python_engine, entity):
+        self.python_engine = python_engine
         self.entity = entity
 
     def update(self, dt):

@@ -40,6 +40,7 @@ public:
 	Module(Engine& engine);
 
 	virtual ~Module() = default;
+	Module& operator=(const Module&) = delete;
 	/**
 	* \brief Called to initialize the module
 	*/

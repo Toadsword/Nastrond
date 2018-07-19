@@ -2,8 +2,8 @@ from SFGE import *
 
 
 class ContactTest(Component):
-    def __init__(self, entity):
-        Component.__init__(self, entity)
+    def __init__(self, python_engine, entity):
+        Component.__init__(self, python_engine, entity)
         self.shape = self.get_component(Component.Shape)
         self.contact_nmb = 0
 

@@ -26,13 +26,29 @@ SOFTWARE.
 #ifndef SFGE_COLLIDER_H
 #define SFGE_COLLIDER_H
 
+#include <engine/entity.h>
 #include <Box2D/Box2D.h>
+#include <physics/body2d.h>
 
 
 namespace sfge
 {
 
+struct ColliderData
+{
+	Entity entity = INVALID_ENTITY;
+	b2Fixture* fixture = nullptr;
+};
 
+class ColliderManager
+{
+public:
+	ColliderManager(Body2dManager& bodyManager);
+	void CreateComponent(json& componentJson, Entity entity);
+private:
+	Body2dManager& m_BodyManager;
+	std::vector<ColliderData> m_ColliderDatas;
+};
 
 }
 

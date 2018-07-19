@@ -67,6 +67,7 @@ Circle::Circle(Transform2d& transform, sf::Vector2f offset, float radius) : Shap
 {
 	m_Radius = radius;
 	m_Shape = std::make_unique<sf::CircleShape>(m_Radius);
+	m_Shape->setOrigin(radius, radius);
 	m_Shape->setPosition(transform.Position + offset);
 }
 
@@ -75,6 +76,7 @@ Rectangle::Rectangle(Transform2d& transform, sf::Vector2f offset, sf::Vector2f s
 
 	m_Size = size;
 	m_Shape = std::make_unique<sf::RectangleShape>(m_Size);
+	m_Shape->setOrigin(size/2.0f),
 	m_Shape->setPosition(transform.Position + offset);
 }
 
@@ -157,6 +159,23 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			}
 				break;
 			case ShapeType::RECTANGLE:
+				{
+				sf::Vector2f offset;
+				if (CheckJsonExists(componentJson, "offset"))
+				{
+					offset = GetVectorFromJson(componentJson, "offset");
+				}
+				sf::Vector2f size = sf::Vector2f();
+				if (CheckJsonExists(componentJson, "size"))
+				{
+					size = GetVectorFromJson(componentJson, "size");
+				}
+
+				m_Components[entity - 1] = std::make_shared<Rectangle>(
+					transformManager->GetComponent(entity),
+					offset,
+					size);
+				}
 				break;
 			default:
 				Log::GetInstance()->Error("Invalid shape type in ShapeManager Component Creation");

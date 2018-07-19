@@ -28,6 +28,16 @@ SOFTWARE.
 
 namespace sfge
 {
+void Body2dManager::FixedUpdate()
+{
+}
 
+void Body2dManager::CreateComponent(json& componentJson, Entity entity)
+{
+}
+
+void Body2dManager::DestroyComponent(Entity entity)
+{
+}
 }
 

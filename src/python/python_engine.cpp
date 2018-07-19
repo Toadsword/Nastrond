@@ -77,14 +77,15 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Right", sf::Keyboard::Right)
 		.export_values();
 
-
+	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 
 	py::class_<PyComponent> component(m, "Component");
 	component
-		.def(py::init<Entity>(), py::return_value_policy::reference)
+		.def(py::init<PythonEngine*, Entity>(), py::return_value_policy::reference)
 		.def("init", &PyComponent::Init)
 		.def("update", &PyComponent::Update)
 		.def_property_readonly("entity", &PyComponent::GetEntity)
+		.def("get_component", &PyComponent::GetComponent);
 	/*
 		.def("on_trigger_enter", &PyComponent::OnTriggerEnter)
 		.def("on_collision_enter", &PyComponent::OnCollisionEnter)
@@ -92,31 +93,26 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("on_collision_exit", &PyComponent::OnCollisionExit)
 	*/;
 
-	/*py::enum_<ComponentType>(component, "ComponentType")
-		.value("PyComponent", ComponentType::PYCOMPONENT)
-		.value("Shape", ComponentType::SHAPE)
-		.value("Body", ComponentType::BODY2D)
-		.value("Sprite", ComponentType::SPRITE)
-		.export_values();*/
+	py::enum_<ComponentType>(component, "ComponentType")
+		.value("PyComponent", PYCOMPONENT)
+		.value("Shape", SHAPE)
+		.value("Body", BODY2D)
+		.value("Sprite", SPRITE)
+		.value("Sound", SOUND)
+		.export_values();
 
 	py::class_<Transform2d> transform(m, "Transform");
 	transform
 		.def_readwrite("euler_angle", &Transform2d::EulerAngle)
 		.def_readwrite("position", &Transform2d::Position)
 		.def_readwrite("scale", &Transform2d::Scale);
-	/*
-		.def("set_euler_angle", &Transform::SetEulerAngle)
-		.def("get_position", &Transform::GetPosition)
-		.def("set_position", &Transform::SetPosition)
-		.def("get_scale", &Transform::GetScale)
-		.def("set_scale", &Transform::SetScale);*/
-	
+
 	/*py::class_<Collider> collider(m, "Collider");
 	collider
 		.def("is_trigger", &Collider::IsTrigger);
 	*/
-	/*
-	py::class_<b2Body> body(m, "Body");
+	
+	py::class_<b2Body,std::unique_ptr<b2Body, py::nodelete>> body(m, "Body");
 	body
 		.def_property("velocity", &b2Body::GetLinearVelocity, &b2Body::SetLinearVelocity)
 		.def("apply_force", &b2Body::ApplyForce)
@@ -128,15 +124,16 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("KINEMATIC_BODY", b2_kinematicBody)
 		.value("DYNAMIC_BODY", b2_dynamicBody)
 		.export_values();
-		*/
+		
 	py::class_<Sound> sound(m, "Sound");
 	sound
 		.def("play", &Sound::Play)
 		.def("stop", &Sound::Stop);
 	
-	py::class_<Shape> shape(m, "Shape");
+	py::class_<Shape, std::unique_ptr<Shape, py::nodelete>> shape(m, "Shape");
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);
+
 	//Utility
 	py::class_<sf::Color> color(m, "Color");
 	color
@@ -295,7 +292,7 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 		{
 			auto moduleObj = py::globals()[m_PyModuleNameMap[moduleId].c_str()];
 			m_PythonInstanceMap[m_IncrementalInstanceId] = 
-				moduleObj.attr(className.c_str())(entity);
+				moduleObj.attr(className.c_str())(this, entity);
 			//Adding the important components
 
 			if (auto entityManager = m_Engine.GetEntityManager().lock())

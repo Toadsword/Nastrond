@@ -22,16 +22,18 @@
  SOFTWARE.
  */
 
+#include <sstream>
 
 #include <python/pycomponent.h>
 #include <python/python_engine.h>
 #include <engine/log.h>
-#include <physics/collider.h>
-#include <sstream>
+#include <physics/physics.h>
+#include <graphics/graphics.h>
 namespace sfge
 {
-PyComponent::PyComponent(Entity entity)
+PyComponent::PyComponent(PythonEngine* pythonEngine, Entity entity)
 {
+	m_PythonEngine = pythonEngine;
 	m_Entity = entity;
 }
 void PyComponent::Init()
@@ -91,22 +93,35 @@ void PyComponent::Update(float dt)
 		);
 	}
 
-	py::object PyComponent::GetComponent(ComponentType componentType)
+	py::object PyComponent::GetComponent(ComponentType componentType) const
 	{
-		switch (componentType)
+		if (m_PythonEngine)
 		{
-		case BODY2D:
-			break;
-		case COLLIDER:
-			break;
-		case SHAPE:
-			break;
-		case SPRITE:
-			break;
-		case SOUND:
-			break;
-		default: 
-			return py::none();
+			switch (componentType)
+			{
+			case BODY2D:
+				if(auto physicsManager = m_PythonEngine->GetEngine().GetPhysicsManager().lock())
+				{
+					auto* body = physicsManager->GetBodyManager().GetComponent(m_Entity);
+					return py::cast(body, py::return_value_policy::reference);
+				}
+				break;
+			case COLLIDER:
+				break;
+			case SHAPE:
+				if(auto graphicsManager = m_PythonEngine->GetEngine().GetGraphicsManager().lock())
+				{
+					std::shared_ptr<Shape> shape = graphicsManager->GetShapeManager().GetComponent(m_Entity);
+					return py::cast(shape, py::return_value_policy::reference);
+				}
+				break;
+			case SPRITE:
+				break;
+			case SOUND:
+				break;
+			default:
+				return py::none();
+			}
 		}
 		return py::none();
 	}

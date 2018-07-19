@@ -81,6 +81,26 @@ void PhysicsManager::Collect()
 {
 }
 
+void PhysicsManager::CreateComponent(json& componentJson, Entity entity)
+{
+
+}
+
+void PhysicsManager::DestroyComponent(Entity entity)
+{
+
+}
+
+Body2dManager& PhysicsManager::GetBodyManager()
+{
+	return m_BodyManager;
+}
+
+ColliderManager& PhysicsManager::GetColliderManager()
+{
+	return m_ColliderManager;
+}
+
 void ContactListener::BeginContact(b2Contact* contact) 
 {
 	//TODO pack b2Contact data and entity

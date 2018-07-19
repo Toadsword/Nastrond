@@ -32,12 +32,13 @@ SOFTWARE.
 namespace sfge
 {
 
-class Body2dManager : ComponentManager<b2Body*>, Module
+class Body2dManager : public ComponentManager<b2Body*>, public Module
 {
 	using Module::Module;
-
 	void FixedUpdate() override;
 
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
 
 private:
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;

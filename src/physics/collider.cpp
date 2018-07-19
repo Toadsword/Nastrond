@@ -22,10 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <physics/collider.h>
-#include <physics/body2d.h>
+#include <engine/globals.h>
 
 namespace sfge
 {
+ColliderManager::ColliderManager(Body2dManager& bodyManager) : 
+	m_BodyManager(bodyManager)
+{
+	m_ColliderDatas.reserve(INIT_ENTITY_NMB * 4);
+}
 
-
+void ColliderManager::CreateComponent(json& componentJson, Entity entity)
+{
+}
 }
