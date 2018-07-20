@@ -57,7 +57,6 @@ SOFTWARE.
 
 //#define USE_B2
 //#define OOP
-//#define COMP
 #define ECS
 #define THREAD_ECS
 
