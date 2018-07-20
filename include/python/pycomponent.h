@@ -36,7 +36,8 @@
 
 namespace sfge
 {
-	class Collider;
+
+struct ColliderData;
 
 	/**
  * \brief Python abstraction of Component
@@ -50,12 +51,12 @@ public:
 	void Init();
 	void Update(float dt);
 	void FixedUpdate(float fixedDeltaTime);
-	/*
-	void OnCollisionEnter(Collider* collider) const;
-	void OnTriggerEnter(Collider * collider);
-	void OnCollisionExit(Collider* collider);
-	void OnTriggerExit(Collider * collider);
-	*/
+	
+	void OnCollisionEnter(ColliderData* collider) const;
+	void OnTriggerEnter(ColliderData * collider);
+	void OnCollisionExit(ColliderData* collider);
+	void OnTriggerExit(ColliderData * collider);
+	
 
 	py::object GetComponent(ComponentType componentType) const;
 

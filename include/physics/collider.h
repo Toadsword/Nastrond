@@ -36,6 +36,7 @@ namespace sfge
 
 enum class ColliderType
 {
+	NONE,
 	CIRCLE,
 	BOX,
 	POLYGON
@@ -45,6 +46,7 @@ struct ColliderData
 {
 	Entity entity = INVALID_ENTITY;
 	b2Fixture* fixture = nullptr;
+	b2Body* body = nullptr;
 };
 
 class ColliderManager

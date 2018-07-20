@@ -180,6 +180,11 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 							case ComponentType::SPRITE:
 								break;
 							case ComponentType::COLLIDER:
+								if (auto physicsManager = m_Engine.GetPhysicsManager().lock())
+								{
+									physicsManager->GetColliderManager().CreateComponent(componentJson, entity);
+									entityManager->AddComponentType(entity, ComponentType::COLLIDER);
+								}
 								break;
 							case ComponentType::PYCOMPONENT:
 								if (auto pythonEngine = m_Engine.GetPythonEngine().lock())

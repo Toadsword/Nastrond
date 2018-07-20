@@ -133,7 +133,7 @@ void Engine::Start()
 		m_InputManager->Update(dt);
 		if (fixedUpdateClock.getElapsedTime().asSeconds() < m_Config->fixedDeltaTime)
 		{
-			m_PhysicsManager->Update(dt);
+			m_PhysicsManager->FixedUpdate();
 			fixedUpdateClock.restart();
 			m_PythonEngine->FixedUpdate();
 			m_SceneManager->FixedUpdate();

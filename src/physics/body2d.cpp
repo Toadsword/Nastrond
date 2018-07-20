@@ -37,6 +37,7 @@ Body2d::Body2d() : TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f(
 Body2d::Body2d(Transform2d * transform, sf::Vector2f offset) : 
 	TransformRequiredComponent(transform), Offsetable(offset)
 {
+	
 }
 
 b2Vec2 Body2d::GetLinearVelocity()
@@ -120,6 +121,7 @@ void Body2dManager::FixedUpdate()
 
 void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 {
+	Log::GetInstance()->Msg("Create component Transform");
 	if (auto world = m_WorldPtr.lock())
 	{
 		b2BodyDef bodyDef;
@@ -132,21 +134,24 @@ void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 			bodyDef.gravityScale = componentJson["gravity_scale"];
 		}
 
-		auto* body = world->CreateBody(&bodyDef);
+
+		auto offset = GetVectorFromJson(componentJson, "offset");
 		Transform2d* transform = nullptr;
 		if (auto transformManager = m_TransformManagerPtr.lock())
 		{
 			transform = transformManager->GetComponentPtr(entity);
+			bodyDef.position = pixel2meter(transform->Position + offset);
 		}
-		auto offset = GetVectorFromJson(componentJson, "offset");
-
+		auto* body = world->CreateBody(&bodyDef);
 		m_Components[entity - 1] = Body2d(transform, offset);
 		m_Components[entity - 1].SetBody(body);
+		
 	}
 }
 
 void Body2dManager::DestroyComponent(Entity entity)
 {
 }
+
 }
 

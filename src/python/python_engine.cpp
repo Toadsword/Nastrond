@@ -85,13 +85,13 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("init", &PyComponent::Init)
 		.def("update", &PyComponent::Update)
 		.def_property_readonly("entity", &PyComponent::GetEntity)
-		.def("get_component", &PyComponent::GetComponent);
-	/*
+		.def("get_component", &PyComponent::GetComponent)
+	
 		.def("on_trigger_enter", &PyComponent::OnTriggerEnter)
 		.def("on_collision_enter", &PyComponent::OnCollisionEnter)
 		.def("on_trigger_exit", &PyComponent::OnTriggerExit)
 		.def("on_collision_exit", &PyComponent::OnCollisionExit)
-	*/;
+	;
 
 	py::enum_<ComponentType>(component, "ComponentType")
 		.value("PyComponent", ComponentType::PYCOMPONENT)
@@ -107,10 +107,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_readwrite("position", &Transform2d::Position)
 		.def_readwrite("scale", &Transform2d::Scale);
 
-	/*py::class_<Collider> collider(m, "Collider");
+	py::class_<ColliderData> collider(m, "Collider");
 	collider
-		.def("is_trigger", &Collider::IsTrigger);
-	*/
+		.def_readonly("body", &ColliderData::body)
+		.def_readonly("entity", &ColliderData::entity);
+	
 	py::class_<Body2d> body2d(m, "Body2d");
 	body2d
 		.def_property("velocity", &Body2d::GetLinearVelocity, &Body2d::SetLinearVelocity)
@@ -317,10 +318,16 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 					}
 				}
 			}
-			auto pyComponent = GetPyComponent(m_IncrementalModuleId);
+			auto pyComponent = GetPyComponent(m_IncrementalInstanceId);
 			if (pyComponent)
 			{
 				m_PyComponents.push_back(pyComponent);
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "[Python Error] Could not load the PyComponent* out of the instance";
+				Log::GetInstance()->Error(oss.str());
 			}
 			m_IncrementalInstanceId++;
 			return m_IncrementalInstanceId - 1;
@@ -401,7 +408,57 @@ PyComponent* PythonEngine::GetPyComponent(InstanceId instanceId)
 	{
 		return m_PythonInstanceMap[instanceId].cast<PyComponent*>();
 	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "[Python Error] Could not find instance Id: " << instanceId << " in the pythonInstanceMap";
+		Log::GetInstance()->Error(oss.str());
+	}
 	return nullptr;
+}
+
+void PythonEngine::OnTriggerEnter(Entity entity, ColliderData * colliderData)
+{
+	for (auto& pyComponent : m_PyComponents)
+	{
+		if (pyComponent->GetEntity() == entity)
+		{
+			pyComponent->OnTriggerEnter(colliderData);
+		}
+	}
+}
+
+void PythonEngine::OnTriggerExit(Entity entity, ColliderData * colliderData)
+{
+	for (auto& pyComponent : m_PyComponents)
+	{
+		if (pyComponent->GetEntity() == entity)
+		{
+			pyComponent->OnTriggerExit(colliderData);
+		}
+	}
+}
+
+void PythonEngine::OnCollisionEnter(Entity entity, ColliderData * colliderData)
+{
+	for (auto& pyComponent : m_PyComponents)
+	{
+		if (pyComponent->GetEntity() == entity)
+		{
+			pyComponent->OnCollisionEnter(colliderData);
+		}
+	}
+}
+
+void PythonEngine::OnCollisionExit(Entity entity, ColliderData * colliderData)
+{
+	for (auto& pyComponent : m_PyComponents)
+	{
+		if (pyComponent->GetEntity() == entity)
+		{
+			pyComponent->OnCollisionExit(colliderData);
+		}
+	}
 }
 
 

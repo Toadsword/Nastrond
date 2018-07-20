@@ -11,25 +11,17 @@ class PlayerCharacterBasic(Component):
 
     def update(self, dt):
         horizontal_move = 0.0
-        jump_button = False
-        if input_manager.keyboard.is_key_held(KeyboardManager.Key.Up):
-            jump_button = True
+        vertical_move = 0.0
+
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Left):
             horizontal_move -= 1.0
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Right):
-            horizontal_move += 1
-        # d *= self.speed
+            horizontal_move += 1.0
+        if input_manager.keyboard.is_key_held(KeyboardManager.Key.Up):
+            vertical_move -= 1.0
+        if input_manager.keyboard.is_key_held(KeyboardManager.Key.Down):
+            vertical_move += 1.0
+
         if self.body:
-            self.body.velocity = b2Vec2(horizontal_move, self.body.velocity.y)
-            if self.foot > 0 and jump_button:
-                self.body.add_force(b2Vec2(0,-100))
+            self.body.velocity = b2Vec2(horizontal_move, vertical_move)
 
-    def on_trigger_enter(self, collider):
-        colliding_body = collider.game_object.get_component(Component.Body)
-        if collider.is_trigger() and colliding_body.body_type == Body2d.STATIC_BODY:
-            self.foot += 1
-
-    def on_trigger_exit(self, collider):
-        colliding_body = collider.game_object.get_component(Component.Body)
-        if collider.is_trigger() and colliding_body.body_type == Body2d.STATIC_BODY:
-            self.foot -= 1

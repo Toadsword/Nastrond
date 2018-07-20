@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <physics/physics.h>
-
+#include <python/python_engine.h>
 #include <engine/config.h>
 namespace sfge
 {
@@ -37,7 +37,7 @@ void PhysicsManager::Init()
 	if(const auto configPtr = m_Engine.GetConfig().lock())
 		gravity = configPtr->gravity;
 	m_World = std::make_shared<b2World>(gravity);
-	m_ContactListener = std::make_unique<ContactListener>();
+	m_ContactListener = std::make_unique<ContactListener>(m_Engine);
 	m_World->SetContactListener(m_ContactListener.get());
 
 	m_BodyManager.Init();
@@ -45,10 +45,7 @@ void PhysicsManager::Init()
 
 void PhysicsManager::Update(sf::Time dt)
 {
-	if (m_World)
-	{
-		m_World->Step(dt.asSeconds(), m_VelocityIterations, m_PositionIterations);
-	}
+	
 }
 
 void PhysicsManager::FixedUpdate()
@@ -112,15 +109,60 @@ ColliderManager& PhysicsManager::GetColliderManager()
 	return m_ColliderManager;
 }
 
-void ContactListener::BeginContact(b2Contact* contact) 
+ContactListener::ContactListener(Engine & engine) :  m_Engine(engine)
 {
-	//TODO pack b2Contact data and entity
-	
+}
+
+void ContactListener::BeginContact(b2Contact* contact)
+{
+	auto pythonEngine = m_Engine.GetPythonEngine().lock();
+	auto colliderA = static_cast<ColliderData*>(contact->GetFixtureA()->GetUserData());
+	auto colliderB = static_cast<ColliderData*>(contact->GetFixtureB()->GetUserData());
+
+	if (colliderA->fixture->IsSensor() or colliderB->fixture->IsSensor())
+	{
+		//Trigger
+		if (pythonEngine)
+		{
+			pythonEngine->OnTriggerEnter(colliderA->entity, colliderB);
+			pythonEngine->OnTriggerEnter(colliderB->entity, colliderA);
+		}
+	}
+	else
+	{
+		//Collision
+		if (pythonEngine)
+		{
+			pythonEngine->OnCollisionEnter(colliderA->entity, colliderB);
+			pythonEngine->OnCollisionEnter(colliderB->entity, colliderA);
+		}
+	}
 }
 
 void ContactListener::EndContact(b2Contact* contact)
 {
-	//TODO pack b2Contact data and entity
+	auto pythonEngine = m_Engine.GetPythonEngine().lock();
+	auto colliderA = static_cast<ColliderData*>(contact->GetFixtureA()->GetUserData());
+	auto colliderB = static_cast<ColliderData*>(contact->GetFixtureB()->GetUserData());
+
+	if (colliderA->fixture->IsSensor() or colliderB->fixture->IsSensor())
+	{
+		//Trigger
+		if (pythonEngine)
+		{
+			pythonEngine->OnTriggerExit(colliderA->entity, colliderB);
+			pythonEngine->OnTriggerExit(colliderB->entity, colliderA);
+		}
+	}
+	else
+	{
+		//Collision
+		if (pythonEngine)
+		{
+			pythonEngine->OnCollisionExit(colliderA->entity, colliderB);
+			pythonEngine->OnCollisionExit(colliderB->entity, colliderA);
+		}
+	}
 }
 
 

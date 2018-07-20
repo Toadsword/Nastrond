@@ -126,8 +126,8 @@ void PyComponent::Update(float dt)
 		return py::none();
 	}
 
-	/*
-	void PyComponent::OnCollisionEnter(b2Contact * collider) const
+	
+void PyComponent::OnCollisionEnter(ColliderData * collider) const
 	{
 	try
 	{
@@ -146,7 +146,7 @@ void PyComponent::Update(float dt)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerEnter(b2Contact * collider)
+void PyComponent::OnTriggerEnter(ColliderData * collider)
 {
 	try
 	{
@@ -165,7 +165,7 @@ void PyComponent::OnTriggerEnter(b2Contact * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnCollisionExit(b2Contact * collider)
+void PyComponent::OnCollisionExit(ColliderData * collider)
 {
 	try
 	{
@@ -184,7 +184,7 @@ void PyComponent::OnCollisionExit(b2Contact * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerExit(b2Contact * collider)
+void PyComponent::OnTriggerExit(ColliderData * collider)
 {
 	try
 	{
@@ -203,7 +203,7 @@ void PyComponent::OnTriggerExit(b2Contact * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-	*/
+	
 Entity PyComponent::GetEntity()
 {
 	return m_Entity;

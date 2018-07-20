@@ -35,6 +35,7 @@
 namespace sfge
 {
 class PyComponent;
+struct ColliderData;
 
 typedef unsigned ModuleId;
 #define INVALID_MODULE 0U
@@ -76,6 +77,13 @@ public:
 	 * \return pyComponent PyComponent pointer that interacts with the python script
 	 */
 	PyComponent* GetPyComponent(InstanceId instanceId);
+
+	/*
+	*/
+	void OnTriggerEnter(Entity entity, ColliderData* colliderData);
+	void OnTriggerExit(Entity entity, ColliderData* colliderData);
+	void OnCollisionEnter(Entity entity, ColliderData* colliderData);
+	void OnCollisionExit(Entity entity, ColliderData* colliderData);
 private:
 	/**
 	 * \brief Load all the python scripts at initialization or reset
