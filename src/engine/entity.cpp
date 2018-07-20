@@ -52,13 +52,13 @@ Entity EntityManager::CreateEntity()
 
 bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 {
-	return (MaskArray[entity - 1] & componentType) == componentType;
+	return (MaskArray[entity - 1] & (int)componentType) == (int)componentType;
 }
 
 void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
 {
 
-	MaskArray[entity - 1] = MaskArray[entity - 1] | componentType;
+	MaskArray[entity - 1] = MaskArray[entity - 1] | (int)componentType;
 }
 
 void EntityManager::RemoveComponentType(Entity entity, ComponentType componentType)

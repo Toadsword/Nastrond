@@ -51,6 +51,18 @@ void PhysicsManager::Update(sf::Time dt)
 	}
 }
 
+void PhysicsManager::FixedUpdate()
+{
+	auto config = m_Engine.GetConfig().lock();
+	if (config and m_World)
+	{
+		m_World->Step(config->fixedDeltaTime,
+			config->velocityIterations,
+			config->positionIterations);
+		m_BodyManager.FixedUpdate();
+	}
+}
+
 std::weak_ptr<b2World> PhysicsManager::GetWorld() const
 {
 	return m_World;

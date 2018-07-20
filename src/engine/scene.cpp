@@ -32,6 +32,7 @@
 #include <engine/entity.h>
 #include <graphics/graphics.h>
 #include <python/python_engine.h>
+#include <physics/physics.h>
 
 
 // for convenience
@@ -150,33 +151,38 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 							const ComponentType componentType = componentJson["type"];
 							switch (componentType)
 							{
-							case TRANSFORM:
+							case ComponentType::TRANSFORM:
 								if(auto transformManager = m_Engine.GetTransform2dManager().lock())
 								{
 									transformManager->CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, TRANSFORM);
+									entityManager->AddComponentType(entity, ComponentType::TRANSFORM);
 								}
 								break;
-							case SHAPE:
+							case ComponentType::SHAPE:
 								if(const auto graphicsManager = m_Engine.GetGraphicsManager().lock())
 								{
 									auto& shapeManager = graphicsManager->GetShapeManager();
 									shapeManager.CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, SHAPE);
+									entityManager->AddComponentType(entity, ComponentType::SHAPE);
 								}
 								else
 								{
 									Log::GetInstance()->Error("[Error] Could not get ptr to GraphicsManager in Scene loading");
 								}
 								break;
-							case BODY2D:
+							case ComponentType::BODY2D:
+								if (auto physicsManager = m_Engine.GetPhysicsManager().lock())
+								{
+									physicsManager->GetBodyManager().CreateComponent(componentJson, entity);
+									entityManager->AddComponentType(entity, ComponentType::BODY2D);
+								}
 								break;
-							case SPRITE:
+							case ComponentType::SPRITE:
 								break;
-							case COLLIDER:
+							case ComponentType::COLLIDER:
 								break;
-							case PYCOMPONENT:
-								if (auto pythonEngine = m_Engine.GetPythonManager().lock())
+							case ComponentType::PYCOMPONENT:
+								if (auto pythonEngine = m_Engine.GetPythonEngine().lock())
 								{
 									if (CheckJsonExists(componentJson, "script_path"))
 									{

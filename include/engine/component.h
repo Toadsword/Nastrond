@@ -36,7 +36,7 @@ SOFTWARE.
 namespace sfge
 {
 
-enum ComponentType : int
+enum class ComponentType : int
 {
 	TRANSFORM = 1 << 0,
 	SPRITE = 1 << 1,
@@ -70,6 +70,14 @@ public:
 		return m_Components[entity-1];
 	}
 
+	T * GetComponentPtr(Entity entity)
+	{
+		if (entity == INVALID_ENTITY)
+		{
+			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
+		}
+		return &m_Components[entity - 1];
+	}
 	std::vector<T>& GetComponents()
 	{
 		return m_Components;

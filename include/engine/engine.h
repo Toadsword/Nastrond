@@ -104,7 +104,7 @@ public:
 	std::weak_ptr<AudioManager> GetAudioManager() const;
 	std::weak_ptr<SceneManager> GetSceneManager() const;
 	std::weak_ptr<InputManager> GetInputManager() const;
-	std::weak_ptr<PythonEngine> GetPythonManager() const;
+	std::weak_ptr<PythonEngine> GetPythonEngine() const;
 	std::weak_ptr<PhysicsManager> GetPhysicsManager() const;
 	std::weak_ptr<EntityManager> GetEntityManager() const;
 	std::weak_ptr<Transform2dManager> GetTransform2dManager() const;
@@ -122,7 +122,7 @@ protected:
 	std::shared_ptr<AudioManager> m_AudioManager = nullptr;
 	std::shared_ptr<SceneManager> m_SceneManager = nullptr;
 	std::shared_ptr<InputManager> m_InputManager = nullptr;
-	std::shared_ptr<PythonEngine> m_PythonManager = nullptr;
+	std::shared_ptr<PythonEngine> m_PythonEngine = nullptr;
 	std::shared_ptr<PhysicsManager> m_PhysicsManager = nullptr;
 	std::shared_ptr<Editor> m_Editor = nullptr;
 	std::shared_ptr<EntityManager> m_EntityManager = nullptr;

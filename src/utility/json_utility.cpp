@@ -34,7 +34,7 @@ bool CheckJsonNumber(const json& jsonObject, std::string parameterName)
 
 sf::Vector2f GetVectorFromJson(const json & jsonObject, std::string parameterName)
 {
-	sf::Vector2f vector;
+	sf::Vector2f vector = sf::Vector2f();
 	if (CheckJsonParameter(jsonObject, parameterName, json::value_t::array))
 	{
 		if (jsonObject[parameterName].size() == 2)

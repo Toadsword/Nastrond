@@ -34,6 +34,13 @@ SOFTWARE.
 namespace sfge
 {
 
+enum class ColliderType
+{
+	CIRCLE,
+	BOX,
+	POLYGON
+};
+
 struct ColliderData
 {
 	Entity entity = INVALID_ENTITY;
@@ -47,6 +54,7 @@ public:
 	void CreateComponent(json& componentJson, Entity entity);
 private:
 	Body2dManager& m_BodyManager;
+	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 	std::vector<ColliderData> m_ColliderDatas;
 };
 

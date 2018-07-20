@@ -87,7 +87,7 @@ void SpriteManager::Draw(sf::RenderWindow& window)
 	{
 		for (int i = 0; i<m_Components.size();i++)
 		{
-			if(entityManager->HasComponent(i+1,SPRITE))
+			if(entityManager->HasComponent(i+1, ComponentType::SPRITE))
 				m_Components[i].Draw(window);
 		}
 	}

@@ -55,7 +55,7 @@ Engine::Engine()
 	m_AudioManager = std::make_shared<AudioManager>(*this);
 	m_SceneManager = std::make_shared<SceneManager>(*this);
 	m_InputManager = std::make_shared<InputManager>(*this);
-	m_PythonManager = std::make_shared<PythonEngine>(*this);
+	m_PythonEngine = std::make_shared<PythonEngine>(*this);
 	m_PhysicsManager = std::make_shared<PhysicsManager>(*this);
 	m_Editor = std::make_shared<Editor>(*this);
 }
@@ -98,7 +98,7 @@ void Engine::InitModules()
 	m_AudioManager->Init();
 	m_SceneManager->Init();
 	m_InputManager->Init();
-	m_PythonManager->Init();
+	m_PythonEngine->Init();
 	m_PhysicsManager->Init();
 	m_Editor->Init();
 
@@ -135,10 +135,10 @@ void Engine::Start()
 		{
 			m_PhysicsManager->Update(dt);
 			fixedUpdateClock.restart();
-			m_PythonManager->FixedUpdate();
+			m_PythonEngine->FixedUpdate();
 			m_SceneManager->FixedUpdate();
 		}
-		m_PythonManager->Update(dt);
+		m_PythonEngine->Update(dt);
 
 		m_SceneManager->Update(dt);
 
@@ -160,7 +160,7 @@ void Engine::Destroy() const
 	m_Editor->Destroy();
 	m_PhysicsManager->Destroy();
 
-	m_PythonManager->Destroy();
+	m_PythonEngine->Destroy();
 }
 
 void Engine::Clear() const
@@ -169,7 +169,7 @@ void Engine::Clear() const
 	m_AudioManager->Clear();
 	m_SceneManager->Clear();
 	m_InputManager->Clear();
-	m_PythonManager->Clear();
+	m_PythonEngine->Clear();
 	m_Editor->Clear();
 	m_PhysicsManager->Clear();
 }
@@ -180,7 +180,7 @@ void Engine::Collect() const
 	m_AudioManager->Collect();
 	m_SceneManager->Collect();
 	m_InputManager->Collect();
-	m_PythonManager->Collect();
+	m_PythonEngine->Collect();
 	m_Editor->Collect();
 	m_PhysicsManager->Collect();
 }
@@ -211,9 +211,9 @@ std::weak_ptr<InputManager> Engine::GetInputManager() const
 	return std::weak_ptr<InputManager>(m_InputManager);
 }
 
-std::weak_ptr<PythonEngine> Engine::GetPythonManager() const
+std::weak_ptr<PythonEngine> Engine::GetPythonEngine() const
 {
-	return std::weak_ptr<PythonEngine>(m_PythonManager);
+	return std::weak_ptr<PythonEngine>(m_PythonEngine);
 }
 
 std::weak_ptr<PhysicsManager> Engine::GetPhysicsManager() const

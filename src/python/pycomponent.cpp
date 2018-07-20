@@ -99,25 +99,25 @@ void PyComponent::Update(float dt)
 		{
 			switch (componentType)
 			{
-			case BODY2D:
+			case ComponentType::BODY2D:
 				if(auto physicsManager = m_PythonEngine->GetEngine().GetPhysicsManager().lock())
 				{
 					auto& body = physicsManager->GetBodyManager().GetComponent(m_Entity);
 					return py::cast(body, py::return_value_policy::reference);
 				}
 				break;
-			case COLLIDER:
+			case ComponentType::COLLIDER:
 				break;
-			case SHAPE:
+			case ComponentType::SHAPE:
 				if(auto graphicsManager = m_PythonEngine->GetEngine().GetGraphicsManager().lock())
 				{
-					std::shared_ptr<Shape> shape = graphicsManager->GetShapeManager().GetComponent(m_Entity);
+					auto shape = graphicsManager->GetShapeManager().GetComponent(m_Entity);
 					return py::cast(shape, py::return_value_policy::reference);
 				}
 				break;
-			case SPRITE:
+			case ComponentType::SPRITE:
 				break;
-			case SOUND:
+			case ComponentType::SOUND:
 				break;
 			default:
 				return py::none();

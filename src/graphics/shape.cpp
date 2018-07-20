@@ -103,7 +103,7 @@ void ShapeManager::Draw(sf::RenderWindow& window)
 	{
 		for(int i = 0; i < m_Components.size(); i++)
 		{
-			if(m_Components[i] and entityManager->HasComponent(i + 1, SHAPE))
+			if(m_Components[i] and entityManager->HasComponent(i + 1, ComponentType::SHAPE))
 			{
 				m_Components[i]->Draw(window);
 			}
@@ -117,7 +117,7 @@ void ShapeManager::Update(sf::Time dt)
 	{
 		for (int i = 0; i < m_Components.size(); i++)
 		{
-			if (m_Components[i] and entityManager->HasComponent(i+1, SHAPE))
+			if (m_Components[i] and entityManager->HasComponent(i+1, ComponentType::SHAPE))
 			{
 				m_Components[i]->Update(dt);
 			}

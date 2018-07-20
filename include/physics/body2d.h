@@ -38,6 +38,14 @@ class Body2d: public TransformRequiredComponent, public Offsetable
 public:
 	Body2d();
 	Body2d(Transform2d* transform, sf::Vector2f offset);
+
+	b2Vec2 GetLinearVelocity();
+	void SetLinearVelocity(b2Vec2 velocity);
+	void ApplyForce(b2Vec2 force);
+	b2BodyType GetType();
+	float GetMass();
+	void SetBody(b2Body* body);
+	b2Body* GetBody();
 private:
 	b2Body * m_Body = nullptr;
 };

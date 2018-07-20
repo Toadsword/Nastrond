@@ -59,6 +59,8 @@ struct Configuration
 	 */
 	unsigned int maxFramerate = 60;
 	float fixedDeltaTime = 0.2f;
+	int velocityIterations = 8;
+	int positionIterations = 2;
 	/**
 	 * \brief The list of Scene that can be loaded by the SceneManager
 	 */

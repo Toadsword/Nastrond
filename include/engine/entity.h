@@ -31,7 +31,7 @@ SOFTWARE.
 namespace sfge
 {
 
-enum ComponentType : int;
+enum class ComponentType : int;
 /**
  * \brief Entity index number, starting from 1U
  */

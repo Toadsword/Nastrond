@@ -94,11 +94,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	*/;
 
 	py::enum_<ComponentType>(component, "ComponentType")
-		.value("PyComponent", PYCOMPONENT)
-		.value("Shape", SHAPE)
-		.value("Body", BODY2D)
-		.value("Sprite", SPRITE)
-		.value("Sound", SOUND)
+		.value("PyComponent", ComponentType::PYCOMPONENT)
+		.value("Shape", ComponentType::SHAPE)
+		.value("Body", ComponentType::BODY2D)
+		.value("Sprite", ComponentType::SPRITE)
+		.value("Sound", ComponentType::SOUND)
 		.export_values();
 
 	py::class_<Transform2d> transform(m, "Transform");
@@ -112,6 +112,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("is_trigger", &Collider::IsTrigger);
 	*/
 	py::class_<Body2d> body2d(m, "Body2d");
+	body2d
+		.def_property("velocity", &Body2d::GetLinearVelocity, &Body2d::SetLinearVelocity)
+		.def("apply_force", &Body2d::ApplyForce)
+		.def_property_readonly("body_type", &Body2d::GetType)
+		.def_property_readonly("mass", &Body2d::GetMass);
 
 	py::class_<b2Body,std::unique_ptr<b2Body, py::nodelete>> body(m, "Body");
 	body
@@ -192,6 +197,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 PythonEngine::PythonEngine(Engine & engine) :
 	Module(engine)
 {
+	m_PyComponents.reserve(INIT_ENTITY_NMB * 4);
 }
 
 void PythonEngine::Init()
@@ -212,8 +218,12 @@ void PythonEngine::Init()
 }
 
 
-void PythonEngine::Update(sf::Time)
+void PythonEngine::Update(sf::Time dt)
 {
+	for (auto pyComponent : m_PyComponents)
+	{
+		pyComponent->Update(dt.asSeconds());
+	}
 }
 
 
@@ -299,13 +309,18 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 			if (auto entityManager = m_Engine.GetEntityManager().lock())
 			{
 				//First the transform
-				if ((entityManager->GetMask(entity)  & TRANSFORM) == TRANSFORM)
+				if (entityManager->HasComponent(entity, ComponentType::TRANSFORM))
 				{
 					if (auto transformManager = m_Engine.GetTransform2dManager().lock())
 					{
 						m_PythonInstanceMap[m_IncrementalInstanceId].attr("transform") = transformManager->GetComponent(entity);
 					}
 				}
+			}
+			auto pyComponent = GetPyComponent(m_IncrementalModuleId);
+			if (pyComponent)
+			{
+				m_PyComponents.push_back(pyComponent);
 			}
 			m_IncrementalInstanceId++;
 			return m_IncrementalInstanceId - 1;
@@ -318,85 +333,7 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 		}
 	}
 	return 0U;
-	/*
-	{
-		if (m_PythonModuleIdMap.find(scriptFilename) != m_PythonModuleIdMap.end())
-		{
-			const ModuleId moduleId = m_PythonModuleIdMap[scriptFilename];
-			if (moduleId == 0U)
-			{
-				std::ostringstream oss;
-				oss << "Python script: " << scriptFilename << " has id 0";
-				Log::GetInstance()->Error(oss.str());
-				return 0U;
-			}
-			{
-				{
-					std::ostringstream oss;
-					oss << "Loaded Python script: " << scriptFilename << " has id: " << moduleId;
-					Log::GetInstance()->Msg(oss.str());
-				}
-				try
-				{
-					m_PythonInstanceMap[m_IncrementalInstanceId] = m_PythonModuleObjectMap[moduleId]
-						.attr(className.c_str())();
-
-					m_IncrementalInstanceId++;
-					return m_IncrementalInstanceId - 1;
-				}
-				catch (const std::runtime_error& e)
-				{
-					std::stringstream oss;
-					oss << "Python error on script file: " << scriptFilename << "\n" << e.what();
-					Log::GetInstance()->Error(oss.str());
-				}
-			}
-		}
-		else
-		{
-
-			try
-			{
-
-				{
-					std::ostringstream oss;
-					oss << "Loading module: " << moduleName << " with Component: " << className;
-					Log::GetInstance()->Msg(oss.str());
-				}
-				py::object globals = py::globals();
-
-				m_PythonModuleObjectMap[m_IncrementalModuleId] = import(moduleName, scriptFilename, globals);
-				m_PythonModuleIdMap[scriptFilename] = m_IncrementalModuleId;
-				//Adding all the other module
-				for (auto& moduleObjPair : m_PythonModuleObjectMap)
-				{
-					moduleObjPair.second.attr(className.c_str()) = m_PythonModuleObjectMap[m_IncrementalModuleId]
-						.attr(className.c_str());
-				}
-				
-
-
-				
-				m_IncrementalInstanceId++;
-				return m_IncrementalInstanceId - 1;
-			}
-			catch (const std::runtime_error& e)
-			{
-				std::stringstream oss;
-				oss << "Python error on script file: " << scriptFilename << "\n" << e.what();
-				Log::GetInstance()->Error(oss.str());
-			}
-		}
-	}
-	else
-	{
-		std::stringstream oss;
-		oss << "Python error on script file: " << scriptFilename << " is not a file!\n";
-		Log::GetInstance()->Error(oss.str());
-	}
-
-	return 0U;
-	*/
+	
 }
 void PythonEngine::Collect()
 {

@@ -23,6 +23,7 @@ SOFTWARE.
 */
 #include <physics/collider.h>
 #include <engine/globals.h>
+#include <engine/component.h>
 
 namespace sfge
 {
@@ -30,9 +31,27 @@ ColliderManager::ColliderManager(Body2dManager& bodyManager) :
 	m_BodyManager(bodyManager)
 {
 	m_ColliderDatas.reserve(INIT_ENTITY_NMB * 4);
+	m_EntityManagerPtr = bodyManager.GetEngine().GetEntityManager();
 }
 
 void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 {
+	auto entityManager = m_EntityManagerPtr.lock();
+	if (entityManager and entityManager->HasComponent(entity, ComponentType::BODY2D))
+	{
+		auto & body = m_BodyManager.GetComponent(entity);
+
+		b2FixtureDef fixtureDef;
+
+		std::unique_ptr<b2Shape> shape = nullptr;
+
+		
+
+		if (shape)
+		{
+			fixtureDef.shape = shape.get();
+		}
+		body.GetBody()->CreateFixture(&fixtureDef);
+	}
 }
 }
