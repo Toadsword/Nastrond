@@ -39,10 +39,10 @@ include_directories(include ${CMAKE_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE SFGE_SRC src/*/*.cpp include/*.h)
 if(WIN32)
-set_property(GLOBAL PROPERTY USE_FOLDERS On) 
+set_property(GLOBAL PROPERTY USE_FOLDERS On)
 
-SET_SOURCE_FILES_PROPERTIES( ${SFGE_SRC} PROPERTIES 
-                FOLDER "${CMAKE_SOURCE_DIR}/src" ) 
+SET_SOURCE_FILES_PROPERTIES( ${SFGE_SRC} PROPERTIES
+                FOLDER "${CMAKE_SOURCE_DIR}/src" )
 endif(WIN32)
 #SFML
 set(SFML_DIR ${EXTERNAL_DIR}/SFML)
@@ -63,7 +63,7 @@ set(IMGUI_ROOT ${EXTERNAL_DIR}/imgui/)
 set(SFML_ROOT ${EXTERNAL_DIR}/SFML/)
 add_subdirectory(${SFML_IMGUI})
 include_directories(${IMGUI_ROOT} ${SFML_IMGUI})
-LIST(APPEND SFGE_LIBRARIES 
+LIST(APPEND SFGE_LIBRARIES
 	imgui-sfml)
 
 
@@ -108,10 +108,24 @@ include_directories(${PYBIND11_DIR})
 LIST(APPEND SFGE_LIBRARIES
   pybind11::embed)
 
+if(APPLE)
+set(boost_min_ver 1.50.0)
+set(boost_libs system filesystem)
+find_package(Boost ${boost_min_ver})
+
+if(Boost_FOUND)
+    find_package(Boost ${boost_min_ver} COMPONENTS ${boost_libs})
+endif()
+include_directories(${Boost_INCLUDE_DIRS})
+LIST(APPEND SFGE_LIBRARIES
+  ${Boost_LIBRARIES})
+endif(APPLE)
+
 #MISCELLANEOUS UTILITIES
 set(UTILITIES_DIR ${EXTERNAL_DIR}/utilities/)
 include_directories(${UTILITIES_DIR})
-  
+
+
 #SFGE_COMMON
 if(NOT WIN32 AND NOT APPLE)
 	LIST(APPEND SFGE_LIBRARIES
@@ -121,6 +135,11 @@ add_library(SFGE_COMMON STATIC ${SFGE_SRC})
 include_directories(include/)
 target_link_libraries(SFGE_COMMON PUBLIC ${SFGE_LIBRARIES})
 set_property(TARGET SFGE_COMMON PROPERTY CXX_STANDARD 17)
+if(APPLE)
+set_target_properties(SFGE_COMMON PROPERTIES
+ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+ENDIF(APPLE)
 #SFGE_TEST
 SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )
@@ -132,6 +151,11 @@ foreach(test_file ${TEST_FILES} )
     # Make sure YourLib is linked to each app
     target_link_libraries(${test_name} PUBLIC SFGE_COMMON)
 	set_property(TARGET ${test_name} PROPERTY CXX_STANDARD 17)
+  if(APPLE)
+    set_target_properties(${test_name} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+  ENDIF(APPLE)
 endforeach()
 
 #SFGE
@@ -141,6 +165,10 @@ MESSAGE("SFGE_COMMON: " ${SFGE_COMMON})
 
 target_link_libraries(SFGE PUBLIC SFGE_COMMON)
 set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
-
+if(APPLE)
+  set_target_properties(SFGE PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+  RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+ENDIF(APPLE)
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)

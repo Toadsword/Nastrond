@@ -79,18 +79,18 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 
-	py::class_<PyComponent> component(m, "Component");
+	py::class_<Component, PyComponent> component(m, "Component");
 	component
 		.def(py::init<PythonEngine*, Entity>(), py::return_value_policy::reference)
-		.def("init", &PyComponent::Init)
-		.def("update", &PyComponent::Update)
-		.def_property_readonly("entity", &PyComponent::GetEntity)
-		.def("get_component", &PyComponent::GetComponent)
+		.def("init", &Component::Init)
+		.def("update", &Component::Update)
+		.def_property_readonly("entity", &Component::GetEntity)
+		.def("get_component", &Component::GetComponent)
 	
-		.def("on_trigger_enter", &PyComponent::OnTriggerEnter)
-		.def("on_collision_enter", &PyComponent::OnCollisionEnter)
-		.def("on_trigger_exit", &PyComponent::OnTriggerExit)
-		.def("on_collision_exit", &PyComponent::OnCollisionExit)
+		.def("on_trigger_enter", &Component::OnTriggerEnter)
+		.def("on_collision_enter", &Component::OnCollisionEnter)
+		.def("on_trigger_exit", &Component::OnTriggerExit)
+		.def("on_collision_exit", &Component::OnCollisionExit)
 	;
 
 	py::enum_<ComponentType>(component, "ComponentType")
@@ -328,6 +328,7 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 				std::ostringstream oss;
 				oss << "[Python Error] Could not load the PyComponent* out of the instance";
 				Log::GetInstance()->Error(oss.str());
+                return INVALID_INSTANCE;
 			}
 			m_IncrementalInstanceId++;
 			return m_IncrementalInstanceId - 1;
@@ -364,11 +365,6 @@ void PythonEngine::LoadScripts(std::string dirname)
 
 		if (IsDirectory(entry))
 		{
-			{
-				std::ostringstream oss;
-				oss << "Opening folder: " << entry << "\n";
-				Log::GetInstance()->Msg(oss.str());
-			}
 			IterateDirectory(entry, LoadAllPyModules);
 		}
 	};
