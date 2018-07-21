@@ -56,9 +56,9 @@ SOFTWARE.
 #define THREAD_POOL_NMB 4
 
 //#define USE_B2
-//#define OOP
-#define ECS
-#define THREAD_ECS
+#define OOP
+//#define ECS
+//#define THREAD_ECS
 
 #ifdef USE_B2
 static b2World world(b2Vec2(0.0f, 0.0f));

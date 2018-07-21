@@ -39,36 +39,49 @@ namespace sfge
 
 struct ColliderData;
 
+class Component : LayerComponent
+{
+public:
+    Component(PythonEngine* pythonEngine, Entity entity);
+    ~Component() = default;
+    
+    virtual void Init() {};
+    virtual void Update(float dt) {};
+    virtual void FixedUpdate(float fixedDeltaTime) {};
+    
+    virtual void OnCollisionEnter(ColliderData* collider) {};
+    virtual void OnTriggerEnter(ColliderData * collider) {};
+    virtual  void OnCollisionExit(ColliderData* collider) {};
+    virtual void OnTriggerExit(ColliderData * collider) {};
+    
+    
+    py::object GetComponent(ComponentType componentType) const;
+    
+    Entity GetEntity();
+    
+    unsigned int GetInstanceId() const;
+    void SetInstanceId(unsigned int instanceId = 0U);
+protected:
+    unsigned int m_InstanceId = 0U;
+    Entity m_Entity = 0U;
+    PythonEngine* m_PythonEngine=nullptr;
+};
+    
 	/**
  * \brief Python abstraction of Component
  */
-class PyComponent : LayerComponent
+class PyComponent : public Component
 {
 public:
-	PyComponent(PythonEngine* pythonEngine, Entity entity);
-	~PyComponent() = default;
-
-	void Init();
-	void Update(float dt);
-	void FixedUpdate(float fixedDeltaTime);
-	
-	void OnCollisionEnter(ColliderData* collider) const;
-	void OnTriggerEnter(ColliderData * collider);
-	void OnCollisionExit(ColliderData* collider);
-	void OnTriggerExit(ColliderData * collider);
-	
-
-	py::object GetComponent(ComponentType componentType) const;
-
-	Entity GetEntity();
-
-	unsigned int GetInstanceId() const;
-	void SetInstanceId(unsigned int instanceId = 0U);
-
-private:
-	unsigned int m_InstanceId = 0U;
-	Entity m_Entity = 0U;
-	PythonEngine* m_PythonEngine=nullptr;
+    using Component::Component; 
+    void Init() override;
+    void Update(float dt)  override;
+    void FixedUpdate(float fixedDeltaTime) override;
+    
+    void OnCollisionEnter(ColliderData* collider)  override;
+    void OnTriggerEnter(ColliderData * collider) override;
+    void OnCollisionExit(ColliderData* collider) override;
+    void OnTriggerExit(ColliderData * collider) override;
 };
 
 }

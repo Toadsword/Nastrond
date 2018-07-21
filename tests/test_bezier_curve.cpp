@@ -64,7 +64,7 @@ public:
 		sf::Vector2f res(0.0f, 0.0f);
 		for (int i = 0; i <= n; i++)
 		{
-			auto bTerm = binomialCoeff(n, i) * pow(1.0f - t, n - i) * pow(t, i) * points[i];
+			auto bTerm = points[i] * (float)(pow(1.0f - t, n - i) * pow(t, i) * binomialCoeff(n, i)) ;
 			res += bTerm;
 		}
 		return res;

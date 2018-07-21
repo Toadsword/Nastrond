@@ -31,7 +31,7 @@
 #include <graphics/graphics.h>
 namespace sfge
 {
-PyComponent::PyComponent(PythonEngine* pythonEngine, Entity entity)
+Component::Component(PythonEngine* pythonEngine, Entity entity)
 {
 	m_PythonEngine = pythonEngine;
 	m_Entity = entity;
@@ -41,9 +41,11 @@ void PyComponent::Init()
 	Log::GetInstance()->Msg("Init PyComponent from C++");
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        
+        py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
-			PyComponent,
+			Component,
 			"init",
 			Init,
 
@@ -59,16 +61,13 @@ void PyComponent::Init()
 
 void PyComponent::Update(float dt)
 {
-	/*{
-		std::ostringstream oss;
-		oss << "Update PyComponent with dt:  " << dt;
-		Log::GetInstance()->Msg(oss.str());
-	}*/
+	
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
-			PyComponent,
+			Component,
 			"update",
 			Update,
 			dt
@@ -84,7 +83,8 @@ void PyComponent::Update(float dt)
 
 	void PyComponent::FixedUpdate(float fixedDeltaTime)
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
 			PyComponent,
 			"fixed_update",
@@ -93,7 +93,7 @@ void PyComponent::Update(float dt)
 		);
 	}
 
-	py::object PyComponent::GetComponent(ComponentType componentType) const
+	py::object Component::GetComponent(ComponentType componentType) const
 	{
 		if (m_PythonEngine)
 		{
@@ -127,13 +127,14 @@ void PyComponent::Update(float dt)
 	}
 
 	
-void PyComponent::OnCollisionEnter(ColliderData * collider) const
+void PyComponent::OnCollisionEnter(ColliderData * collider)
 	{
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
-			PyComponent,
+			Component,
 			"on_collision_enter",
 			OnCollisionEnter,
 			collider
@@ -150,9 +151,10 @@ void PyComponent::OnTriggerEnter(ColliderData * collider)
 {
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
-			PyComponent,
+			Component,
 			"on_trigger_enter",
 			OnTriggerEnter,
 			collider
@@ -169,9 +171,10 @@ void PyComponent::OnCollisionExit(ColliderData * collider)
 {
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
-			PyComponent,
+			Component,
 			"on_collision_exit",
 			OnCollisionExit,
 			collider
@@ -188,9 +191,10 @@ void PyComponent::OnTriggerExit(ColliderData * collider)
 {
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
-			PyComponent,
+			Component,
 			"on_trigger_exit",
 			OnTriggerExit,
 			collider
@@ -204,16 +208,16 @@ void PyComponent::OnTriggerExit(ColliderData * collider)
 	}
 }
 	
-Entity PyComponent::GetEntity()
+Entity Component::GetEntity()
 {
 	return m_Entity;
 }
-unsigned int PyComponent::GetInstanceId() const
+unsigned int Component::GetInstanceId() const
 {
 	return m_InstanceId;
 }
 
-void PyComponent::SetInstanceId(unsigned int instanceId)
+void Component::SetInstanceId(unsigned int instanceId)
 {
 	m_InstanceId = instanceId;
 }
