@@ -58,7 +58,7 @@ struct Configuration
 	 * \brief The limited framerate
 	 */
 	unsigned int maxFramerate = 60;
-	float fixedDeltaTime = 0.2f;
+	float fixedDeltaTime = 0.02f;
 	int velocityIterations = 8;
 	int positionIterations = 2;
 	/**

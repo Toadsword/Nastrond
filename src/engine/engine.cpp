@@ -108,8 +108,10 @@ void Engine::InitModules()
 
 void Engine::Start()
 {
+	sf::Clock globalClock;
 	sf::Clock updateClock;
-	sf::Clock fixedUpdateClock;
+	sf::Time previousFixedUpdateTime = globalClock.getElapsedTime();
+	sf::Time deltaFixedUpdateTime = sf::Time();
 	while (running && m_Window != nullptr)
 	{
 		const sf::Time dt = updateClock.restart();
@@ -131,10 +133,12 @@ void Engine::Start()
 		}
 		
 		m_InputManager->Update(dt);
-		if (fixedUpdateClock.getElapsedTime().asSeconds() < m_Config->fixedDeltaTime)
+		sf::Time fixedUpdateTime = globalClock.getElapsedTime() + deltaFixedUpdateTime - previousFixedUpdateTime;
+		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
 			m_PhysicsManager->FixedUpdate();
-			fixedUpdateClock.restart();
+			deltaFixedUpdateTime = fixedUpdateTime - sf::seconds(m_Config->fixedDeltaTime);
+			previousFixedUpdateTime = globalClock.getElapsedTime();
 			m_PythonEngine->FixedUpdate();
 			m_SceneManager->FixedUpdate();
 		}

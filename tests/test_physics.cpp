@@ -22,18 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <engine/engine.h>
-#include <engine/modules.h>
+#include <engine/scene.h>
 
 int main()
 {
 	sfge::Engine engine;
-	engine.Init(false, true);
+	engine.Init();
 
-	auto sceneManager = engine.GetSceneManager();
-	sceneManager.SetCurrentScene(sceneManager.LoadSceneFromName("data/scenes/test_physics.scene"));
-
-
-	engine.Start();
+	if (auto sceneManager = engine.GetSceneManager().lock())
+	{
+		sceneManager->LoadSceneFromPath("data/scenes/test_physics.scene");
+		engine.Start();
+	}
 #if WIN32
 	system("pause");
 #endif

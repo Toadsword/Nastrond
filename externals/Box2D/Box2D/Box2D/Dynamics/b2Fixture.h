@@ -1,6 +1,5 @@
 /*
 * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
-* Copyright (c) 2015, Justin Hoffman https://github.com/skitzoid
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -202,8 +201,6 @@ protected:
 	friend class b2World;
 	friend class b2Contact;
 	friend class b2ContactManager;
-
-	friend bool b2ContactPointerLessThan(const b2Contact* l, const b2Contact* r);
 
 	b2Fixture();
 

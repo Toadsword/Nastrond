@@ -1,6 +1,5 @@
 /*
 * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
-* Copyright (c) 2015, Justin Hoffman https://github.com/skitzoid
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -104,10 +103,6 @@ b2Body::b2Body(const b2BodyDef* bd, b2World* world)
 
 	m_fixtureList = nullptr;
 	m_fixtureCount = 0;
-
-	memset(m_islandIndex, 0, sizeof(m_islandIndex));
-
-	m_worldIndex = -1;
 }
 
 b2Body::~b2Body()
@@ -128,17 +123,6 @@ void b2Body::SetType(b2BodyType type)
 		return;
 	}
 
-	if (m_type == b2_staticBody)
-	{
-		// Remove from static bodies.
-		m_world->m_staticBodies.Peek()->m_worldIndex = m_worldIndex;
-		m_world->m_staticBodies.RemoveAndSwap(m_worldIndex);
-
-		// Add to non static bodies.
-		m_worldIndex = m_world->m_nonStaticBodies.GetCount();
-		m_world->m_nonStaticBodies.Push(this);
-	}
-
 	m_type = type;
 
 	ResetMassData();
@@ -150,14 +134,6 @@ void b2Body::SetType(b2BodyType type)
 		m_sweep.a0 = m_sweep.a;
 		m_sweep.c0 = m_sweep.c;
 		SynchronizeFixtures();
-
-		// Remove from non static bodies.
-		m_world->m_nonStaticBodies.Peek()->m_worldIndex = m_worldIndex;
-		m_world->m_nonStaticBodies.RemoveAndSwap(m_worldIndex);
-
-		// Add to static bodies.
-		m_worldIndex = m_world->m_staticBodies.GetCount();
-		m_world->m_staticBodies.Push(this);
 	}
 
 	SetAwake(true);
@@ -549,7 +525,7 @@ void b2Body::SetFixedRotation(bool flag)
 
 void b2Body::Dump()
 {
-	int32 bodyIndex = GetIslandIndex();
+	int32 bodyIndex = m_islandIndex;
 
 	b2Log("{\n");
 	b2Log("  b2BodyDef bd;\n");

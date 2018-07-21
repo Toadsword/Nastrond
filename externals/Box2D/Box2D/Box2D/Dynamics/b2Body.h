@@ -1,6 +1,5 @@
 /*
 * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
-* Copyright (c) 2015, Justin Hoffman https://github.com/skitzoid
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -312,15 +311,6 @@ public:
 	/// Get the type of this body.
 	b2BodyType GetType() const;
 
-	/// Should this body only use continuous collision detection when colliding 
-	/// with bullet bodies? This only affects static bodies. Other bodies always
-	/// behave as if this were true.
-	void SetPreferNoCCD(bool flag);
-
-	/// Does this body only use continuous collision detection when colliding 
-	/// with bullet bodies?
-	bool GetPreferNoCCD() const;
-
 	/// Should this body be treated like a bullet for continuous collision detection?
 	void SetBullet(bool flag);
 
@@ -396,12 +386,6 @@ public:
 	b2World* GetWorld();
 	const b2World* GetWorld() const;
 
-	/// Get the island index for the current thread.
-	int32 GetIslandIndex() const;
-
-	/// Set the island index for the current thread.
-	void SetIslandIndex(int32 islandIndex);
-
 	/// Dump this body to a log file
 	void Dump();
 
@@ -412,7 +396,6 @@ private:
 	friend class b2ContactManager;
 	friend class b2ContactSolver;
 	friend class b2Contact;
-	friend class b2ClearBodyIslandFlagsTask;
 	
 	friend class b2DistanceJoint;
 	friend class b2FrictionJoint;
@@ -435,7 +418,7 @@ private:
 		e_bulletFlag		= 0x0008,
 		e_fixedRotationFlag	= 0x0010,
 		e_activeFlag		= 0x0020,
-		e_preferNoCCDFlag	= 0x0040
+		e_toiFlag			= 0x0040
 	};
 
 	b2Body(const b2BodyDef* bd, b2World* world);
@@ -454,7 +437,7 @@ private:
 
 	uint16 m_flags;
 
-	int32 m_islandIndex[b2_maxThreads];
+	int32 m_islandIndex;
 
 	b2Transform m_xf;		// the body origin transform
 	b2Sweep m_sweep;		// the swept motion for CCD
@@ -485,8 +468,6 @@ private:
 	float32 m_gravityScale;
 
 	float32 m_sleepTime;
-
-	int32 m_worldIndex;
 
 	void* m_userData;
 };
@@ -636,23 +617,6 @@ inline float32 b2Body::GetGravityScale() const
 inline void b2Body::SetGravityScale(float32 scale)
 {
 	m_gravityScale = scale;
-}
-
-inline void b2Body::SetPreferNoCCD(bool flag)
-{
-	if (flag)
-	{
-		m_flags |= e_preferNoCCDFlag;
-	}
-	else
-	{
-		m_flags &= ~e_preferNoCCDFlag;
-	}
-}
-
-inline bool b2Body::GetPreferNoCCD() const
-{
-	return (m_flags & e_preferNoCCDFlag) == e_preferNoCCDFlag;
 }
 
 inline void b2Body::SetBullet(bool flag)
@@ -913,18 +877,6 @@ inline b2World* b2Body::GetWorld()
 inline const b2World* b2Body::GetWorld() const
 {
 	return m_world;
-}
-
-inline int32 b2Body::GetIslandIndex() const
-{
-	int32 threadId = b2GetThreadId();
-	return m_islandIndex[threadId];
-}
-
-inline void b2Body::SetIslandIndex(int32 islandIndex)
-{
-	int32 threadId = b2GetThreadId();
-	m_islandIndex[threadId] = islandIndex;
 }
 
 #endif
