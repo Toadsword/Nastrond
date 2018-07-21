@@ -44,7 +44,7 @@ struct EntityManager : Module
 {
 	EntityManager(Engine& engine);
 	EntityMask GetMask(Entity entity);
-	Entity CreateEntity();
+	Entity CreateEntity(Entity entity = INVALID_ENTITY);
 	bool HasComponent(Entity entity, ComponentType componentType);
 	void AddComponentType(Entity entity, ComponentType componentType);
 	void RemoveComponentType(Entity entity, ComponentType componentType);

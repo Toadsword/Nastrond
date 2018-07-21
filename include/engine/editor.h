@@ -25,6 +25,8 @@ SOFTWARE.
 #ifndef SFGE_EDITOR_H
 #define SFGE_EDITOR_H
 
+#include <list>
+
 #include <engine/module.h>
 #include <engine/entity.h>
 #include <physics/body2d.h>
@@ -32,10 +34,21 @@ SOFTWARE.
 namespace sfge
 {
 
+    class Shape;
+    
 
 //Editor components
 namespace editor
 {
+    
+struct EntityInfo;
+struct ComponentInfo;
+    
+class IComponentInspector
+{
+public:
+    virtual void DrawOnEditor() = 0;
+};
 struct NamableEditorComponent
 {
 	std::string name = "";
@@ -46,9 +59,12 @@ struct PathEditorComponent
 	std::string path = "";
 };
 
+
 struct SceneInfo : NamableEditorComponent, PathEditorComponent
 {
 };
+
+
 }
 
 class Editor : public Module

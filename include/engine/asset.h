@@ -28,9 +28,19 @@ SOFTWARE.
 #include <uuid.h>
 #include <xxhash.hpp>
 
-class Asset
+struct Asset
 {
+    std::string name;
+    std::string path;
+    xxh::hash64_t hash;
+    uuids::uuid uuid;
+};
 
+class AssetManager
+{
+    
+private:
+    std::vector<Asset> m_Assets;
 };
 
 #endif

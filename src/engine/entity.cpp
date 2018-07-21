@@ -38,15 +38,25 @@ EntityMask EntityManager::GetMask(Entity entity)
 	return MaskArray[entity-1];
 }
 
-Entity EntityManager::CreateEntity()
+Entity EntityManager::CreateEntity(Entity wantedEntity)
 {
-	for (Entity entity = 1U; entity <= MaskArray.size(); entity++)
-	{
-		if(MaskArray[entity-1] == 0U)
-		{
-			return entity;
-		}
-	}
+    if(wantedEntity == INVALID_ENTITY)
+    {
+        for (Entity entity = 1U; entity <= MaskArray.size(); entity++)
+        {
+            if(MaskArray[entity-1] == 0U)
+            {
+                return entity;
+            }
+        }
+    }
+    else
+    {
+        if(MaskArray[wantedEntity-1] == 0U)
+        {
+            return wantedEntity;
+        }
+    }
 	return INVALID_ENTITY;
 }
 
