@@ -48,7 +48,13 @@ struct ColliderData
 	b2Fixture* fixture = nullptr;
 	b2Body* body = nullptr;
 };
-
+namespace editor
+{
+struct ColliderInfo : ComponentInfo
+{
+	void DrawOnInspector() override;
+};
+}
 class ColliderManager
 {
 public:
@@ -58,6 +64,7 @@ private:
 	Body2dManager& m_BodyManager;
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 	std::vector<ColliderData> m_ColliderDatas;
+	std::vector<editor::ColliderInfo> m_ColliderInfos;
 };
 
 }

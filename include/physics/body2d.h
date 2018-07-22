@@ -29,6 +29,7 @@ SOFTWARE.
 #include <Box2D/Box2D.h>
 #include <engine/component.h>
 #include <engine/transform.h>
+#include <engine/editor.h>
 
 namespace sfge
 {
@@ -50,7 +51,21 @@ private:
 	b2Body * m_Body = nullptr;
 };
 
-class Body2dManager : public ComponentManager<Body2d>, public Module
+namespace editor
+{
+struct Body2dInfo : ComponentInfo
+{
+	void DrawOnInspector() override;
+	void AddVelocity(b2Vec2 velocity);
+	std::deque<b2Vec2>& GetVelocities();
+	Body2d* body = nullptr;
+private:
+	std::deque<b2Vec2> m_Velocities;
+	const int m_VelocitiesMaxSize = 120;
+};
+}
+
+class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public Module
 {
 public:
 	Body2dManager(Engine& engine);

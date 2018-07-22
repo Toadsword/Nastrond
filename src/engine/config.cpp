@@ -64,10 +64,7 @@ std::unique_ptr<Configuration> Configuration::LoadConfig(json& configJson)
 		);
 	}
 	newConfig->maxFramerate = configJson["maxFramerate"];
-	for(const std::string& scene : configJson["scenesList"])
-	{
-		newConfig->scenesList.push_back(scene);
-	}
+
 	if(CheckJsonExists(configJson, "devMode"))
 		newConfig->devMode = configJson["devMode"];
 	return newConfig;

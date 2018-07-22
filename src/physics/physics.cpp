@@ -89,15 +89,6 @@ void PhysicsManager::Collect()
 {
 }
 
-void PhysicsManager::CreateComponent(json& componentJson, Entity entity)
-{
-
-}
-
-void PhysicsManager::DestroyComponent(Entity entity)
-{
-
-}
 
 Body2dManager& PhysicsManager::GetBodyManager()
 {

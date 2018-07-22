@@ -28,6 +28,10 @@ SOFTWARE.
 
 namespace sfge
 {
+void editor::ColliderInfo::DrawOnInspector()
+{
+}
+
 ColliderManager::ColliderManager(Body2dManager& bodyManager) : 
 	m_BodyManager(bodyManager)
 {

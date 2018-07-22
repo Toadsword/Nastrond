@@ -27,6 +27,8 @@ SOFTWARE.
 
 #include <vector>
 #include <engine/module.h>
+#include <engine/editor.h>
+#include "globals.h"
 
 namespace sfge
 {
@@ -36,10 +38,18 @@ enum class ComponentType : int;
  * \brief Entity index number, starting from 1U
  */
 
-typedef unsigned Entity;
-const Entity INVALID_ENTITY = 0U;
+using EntityMask = int;
 
-typedef int EntityMask;
+namespace editor
+{
+
+struct EntityInfo : NamableEditorComponent, IDrawableInspector
+{
+void DrawOnInspector() override;	
+};
+
+}
+
 struct EntityManager : Module
 {
 	EntityManager(Engine& engine);
@@ -48,8 +58,11 @@ struct EntityManager : Module
 	bool HasComponent(Entity entity, ComponentType componentType);
 	void AddComponentType(Entity entity, ComponentType componentType);
 	void RemoveComponentType(Entity entity, ComponentType componentType);
+	editor::EntityInfo& GetEntityInfo(Entity entity);
 
-	std::vector<EntityMask> MaskArray;
+
+	std::vector<EntityMask> MaskArray{INIT_ENTITY_NMB};
+	std::vector<editor::EntityInfo> m_EntityInfos{INIT_ENTITY_NMB};
 };
 }
 

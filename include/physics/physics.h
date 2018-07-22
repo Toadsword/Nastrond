@@ -57,7 +57,7 @@ protected:
 /**
  * \brief The Physics Manager use Box2D to simulate 2D physics
  */
-class PhysicsManager : public Module, public ComponentManager<b2Body*>
+class PhysicsManager : public Module
 {
 public:
 	using Module::Module;
@@ -86,8 +86,6 @@ public:
 	void Clear() override;
 	void Collect() override;
 
-	void CreateComponent(json& componentJson, Entity entity) override;
-	void DestroyComponent(Entity entity) override;
 
 	Body2dManager& GetBodyManager();
 	ColliderManager& GetColliderManager();

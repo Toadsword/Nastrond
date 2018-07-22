@@ -27,12 +27,12 @@ SOFTWARE.
 
 //STL
 #include <string>
-#include <queue>
 //Dependencies
 #include <SFML/Graphics.hpp>
 //Engine
 #include <engine/component.h>
 #include <engine/transform.h>
+#include <engine/editor.h>
 
 namespace sfge
 {
@@ -65,10 +65,19 @@ protected:
 	sf::Sprite sprite;
 };
 
+
+namespace editor
+{
+struct SpriteInfo : ComponentInfo
+{
+	void DrawOnInspector() override;
+};
+}
+
 /**
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
-class SpriteManager : public ComponentManager<Sprite>, 
+class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>, 
 	public LayerComponentManager<Sprite>, public Module
 {
 public:

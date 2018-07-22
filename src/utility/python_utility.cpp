@@ -66,9 +66,9 @@ std::string module2class(std::string& module_name)
 	std::string class_name;
 	while (std::getline(iss, token, '_'))
 	{
-		if (token.size() > 0)
+		if (!token.empty())
 		{
-			char first = token.at(0);
+			const char first = token.at(0);
 			class_name += std::toupper(first);
 			class_name += token.substr(1, token.size());
 		}

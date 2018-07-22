@@ -140,7 +140,16 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 			{
 				Entity entity = INVALID_ENTITY;
 				entity = entityManager->CreateEntity();
-				
+				if(CheckJsonExists(entityJson, "name"))
+				{
+					entityManager->GetEntityInfo(entity).name = entityJson["name"].get<std::string>();
+				}
+				else
+				{
+					std::ostringstream oss;
+					oss << "Entity " << entity;
+					entityManager->GetEntityInfo(entity).name = oss.str();
+				}
 				if (entity != INVALID_ENTITY && 
 					CheckJsonExists(entityJson, "components"))
 				{

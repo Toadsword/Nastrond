@@ -30,6 +30,7 @@ SOFTWARE.
 #include <engine/module.h>
 #include <engine/component.h>
 #include <engine/transform.h>
+#include <engine/editor.h>
 //Externals
 #include <SFML/Graphics.hpp>
 
@@ -75,6 +76,7 @@ protected:
 
 };
 
+
 class Polygon : public Shape
 {
 public:
@@ -83,8 +85,18 @@ protected:
 	
 };
 
+namespace editor
+{
+
+struct ShapeInfo : ComponentInfo
+{
+	void DrawOnInspector() override;
+};
+
+}
+
 class ShapeManager : 
-	public ComponentManager<std::shared_ptr<Shape>>, public Module
+	public ComponentManager<std::shared_ptr<Shape>, std::shared_ptr<editor::ShapeInfo>>, public Module
 {
 
 public:
@@ -99,6 +111,8 @@ protected:
 	std::weak_ptr<Transform2dManager> m_TransformManager;
 	std::weak_ptr<EntityManager> m_EntityManager;
 };
+
+
 
 }
 #endif /* SRC_GRAPHICS_SHAPE_H_ */

@@ -34,6 +34,7 @@ SOFTWARE.
 #include <Box2D/Box2D.h>
 //Engine include
 #include <utility/json_utility.h>
+#include "globals.h"
 
 namespace sfge
 {
@@ -61,10 +62,8 @@ struct Configuration
 	float fixedDeltaTime = 0.02f;
 	int velocityIterations = 8;
 	int positionIterations = 2;
-	/**
-	 * \brief The list of Scene that can be loaded by the SceneManager
-	 */
-	std::list<std::string> scenesList;
+	int currentEntitiesNmb = INIT_ENTITY_NMB;
+
 
 	std::string scriptsDirname = "scripts/";
 	std::string dataDirname = "data/";
@@ -74,6 +73,7 @@ struct Configuration
 	*/
 	static std::unique_ptr<Configuration> LoadConfig(std::string configFilename);
 	static std::unique_ptr<Configuration> LoadConfig(json& configJson);
+
 };
 }
 #endif // !CONFIG_H

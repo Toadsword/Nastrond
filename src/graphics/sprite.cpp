@@ -67,6 +67,9 @@ void Sprite::Init()
 }
 
 
+void editor::SpriteInfo::DrawOnInspector()
+{
+}
 
 SpriteManager::SpriteManager(Engine& engine, GraphicsManager& graphicsManager) : 
 	Module(engine), m_GraphicsManager(graphicsManager)

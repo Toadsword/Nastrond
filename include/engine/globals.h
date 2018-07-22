@@ -35,6 +35,11 @@
 
 #define SFGE_VERSION 0.2
 
+
+using Entity = unsigned;
+const Entity INVALID_ENTITY = 0U;
+
+
 enum ThreadJobRole
 {
 	LOADING,

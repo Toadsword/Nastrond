@@ -88,6 +88,10 @@ Polygon::Polygon(Transform2d* transform, sf::Vector2f offset, std::list<sf::Vect
 	//TODO Add the possibility for polygon
 }
 
+void editor::ShapeInfo::DrawOnInspector()
+{
+}
+
 ShapeManager::ShapeManager(Engine& engine):
 		Module(engine)
 {

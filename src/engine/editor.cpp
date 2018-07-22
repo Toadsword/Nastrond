@@ -35,15 +35,17 @@ SOFTWARE.
 #include <engine/config.h>
 #include <engine/scene.h>
 #include <graphics/graphics.h>
-
+#include <physics/physics.h>
 
 namespace sfge
 {
 
 Editor::Editor(Engine& engine): Module(engine),
-	m_GraphicsManager(m_Engine.GetGraphicsManager()), 
-	m_SceneManager(m_Engine.GetSceneManager()),
-	m_EntityManager(m_Engine.GetEntityManager())
+	m_GraphicsManagerPtr(m_Engine.GetGraphicsManager()), 
+	m_SceneManagerPtr(m_Engine.GetSceneManager()),
+	m_EntityManagerPtr(m_Engine.GetEntityManager()),
+	m_TransformManagerPtr(m_Engine.GetTransform2dManager()),
+	m_PhysicsManagerPtr(m_Engine.GetPhysicsManager())
 {
 	
 }
@@ -55,7 +57,7 @@ void Editor::Init()
 {
 	if (m_Enable)
 	{
-		if (auto graphicsManager = m_GraphicsManager.lock())
+		if (auto graphicsManager = m_GraphicsManagerPtr.lock())
 		{
 			m_Window = graphicsManager->GetWindow();
 		}
@@ -77,7 +79,8 @@ void Editor::Update(sf::Time dt)
 	{
 		const auto windowPtr = m_Window.lock();
 		const auto configPtr = m_Engine.GetConfig().lock();
-		if (windowPtr and configPtr)
+		auto entityManager = m_EntityManagerPtr.lock();
+		if (windowPtr and configPtr and entityManager)
 		{
 			ImGui::SFML::Update(*windowPtr, dt);
 
@@ -85,13 +88,48 @@ void Editor::Update(sf::Time dt)
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Entities");
-			//TODO ADD THE ENTITES ON THE WINDOW
+			
+			for (int i = 0; i < configPtr->currentEntitiesNmb; i++)
+			{
+				if(entityManager->GetMask(i+1) != INVALID_ENTITY)
+				{
+					auto& entityInfo = entityManager->GetEntityInfo(i+1);
+					if(ImGui::Selectable(entityInfo.name.c_str(), selectedEntity-1 == i))
+					{
+						selectedEntity = i + 1;
+					}
+				}
+			}
+			
 			ImGui::End();
 			//Component inspector window
 			ImGui::SetNextWindowPos(ImVec2(configPtr->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Inspector");
 			//TODO ADD THE SELECTED ENTITY COMPONENTS ON THE WINDOW
+			if(selectedEntity != INVALID_ENTITY)
+			{
+				if(entityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM))
+				{
+					auto& entityInfo = entityManager->GetEntityInfo(selectedEntity);
+					ImGui::InputText("Name", &entityInfo.name[0u], 15);
+					if(auto transformManager = m_TransformManagerPtr.lock())
+					{
+						auto& transformInfo = transformManager->GetComponentInfo(selectedEntity);
+						transformInfo.DrawOnInspector();
+					}
+				}
+
+				if(entityManager->HasComponent(selectedEntity, ComponentType::BODY2D))
+				{
+					if(auto physicsManager = m_PhysicsManagerPtr.lock())
+					{
+						auto& bodyManager = physicsManager->GetBodyManager();
+						auto& bodyInfo = bodyManager.GetComponentInfo(selectedEntity);
+						bodyInfo.DrawOnInspector();
+					}
+				}
+			}
 			ImGui::End();
 		}
 		

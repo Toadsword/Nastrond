@@ -47,13 +47,14 @@ enum class ComponentType : int
 	PYCOMPONENT = 1 << 6
 };
 
-template<class T>
+template<class T, class TInfo>
 class ComponentManager
 {
 public:
 	ComponentManager()
 	{
 		m_Components = std::vector<T>{ INIT_ENTITY_NMB };
+		m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
 	};
 
 	virtual ~ComponentManager()
@@ -69,7 +70,14 @@ public:
 		}
 		return m_Components[entity-1];
 	}
-
+	TInfo& GetComponentInfo(Entity entity)
+	{
+		if (entity == INVALID_ENTITY)
+		{
+			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
+		}
+		return m_ComponentsInfo[entity - 1];
+	}
 	T * GetComponentPtr(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
@@ -88,6 +96,7 @@ public:
 
 protected:
 	std::vector<T> m_Components;
+	std::vector<TInfo> m_ComponentsInfo;
 };
 
 

@@ -27,6 +27,10 @@ SOFTWARE.
 
 namespace sfge
 {
+void editor::EntityInfo::DrawOnInspector()
+{
+
+}
 
 EntityManager::EntityManager(Engine& engine) : Module(engine)
 {
@@ -73,5 +77,10 @@ void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
 
 void EntityManager::RemoveComponentType(Entity entity, ComponentType componentType)
 {
+}
+
+editor::EntityInfo& EntityManager::GetEntityInfo(Entity entity)
+{
+	return m_EntityInfos[entity - 1];
 }
 }

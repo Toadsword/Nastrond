@@ -25,17 +25,15 @@ SOFTWARE.
 #ifndef SFGE_EDITOR_H
 #define SFGE_EDITOR_H
 
-#include <list>
 
 #include <engine/module.h>
-#include <engine/entity.h>
-#include <physics/body2d.h>
+#include <engine/globals.h>
 
 namespace sfge
 {
 
-    class Shape;
-    
+
+class Body2dManager;
 
 //Editor components
 namespace editor
@@ -44,11 +42,12 @@ namespace editor
 struct EntityInfo;
 struct ComponentInfo;
     
-class IComponentInspector
+class IDrawableInspector
 {
 public:
-    virtual void DrawOnEditor() = 0;
+    virtual void DrawOnInspector() = 0;
 };
+
 struct NamableEditorComponent
 {
 	std::string name = "";
@@ -64,6 +63,10 @@ struct SceneInfo : NamableEditorComponent, PathEditorComponent
 {
 };
 
+struct ComponentInfo : NamableEditorComponent, IDrawableInspector
+{
+	
+};
 
 }
 
@@ -93,14 +96,16 @@ public:
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
-	std::weak_ptr<GraphicsManager> m_GraphicsManager;
-	std::weak_ptr<SceneManager> m_SceneManager;
-	std::weak_ptr<EntityManager> m_EntityManager;
-	std::weak_ptr<Transform2dManager> m_TransformManager;
-	std::weak_ptr<Body2dManager> m_BodyManager;
+	std::weak_ptr<GraphicsManager> m_GraphicsManagerPtr;
+	std::weak_ptr<SceneManager> m_SceneManagerPtr;
+	std::weak_ptr<EntityManager> m_EntityManagerPtr;
+	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
+	std::weak_ptr<PhysicsManager> m_PhysicsManagerPtr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;
+
+	Entity selectedEntity = INVALID_ENTITY;
 };
 
 }
