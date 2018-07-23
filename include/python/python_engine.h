@@ -53,6 +53,8 @@ public:
 	* \brief Initialize the python interpreter
 	*/
 	void Init() override;
+
+	void InitPyComponent();
 	/**
 	* \brief Update the python interpreter, called only in play mode
 	* \param dt The delta time since last frame
@@ -76,8 +78,8 @@ public:
 	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
 	 * \return pyComponent PyComponent pointer that interacts with the python script
 	 */
-	PyComponent* GetPyComponent(InstanceId instanceId);
-
+	PyComponent* GetPyComponentFromInstanceId(InstanceId instanceId);
+	py::object GetPyComponentFromType(py::object type, Entity entity);
 	/*
 	*/
 	void OnTriggerEnter(Entity entity, ColliderData* colliderData);

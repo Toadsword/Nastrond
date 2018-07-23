@@ -90,9 +90,17 @@ namespace editor
 
 struct ShapeInfo : ComponentInfo
 {
-	void DrawOnInspector() override;
 };
-
+struct CircleShapeInfo : ShapeInfo
+{
+	void DrawOnInspector() override;
+	std::weak_ptr<Circle> circlePtr;
+}; 
+struct RectShapeInfo : ShapeInfo
+{
+	void DrawOnInspector() override;
+	std::weak_ptr<Rectangle> rectanglePtr;
+}; 
 }
 
 class ShapeManager : 

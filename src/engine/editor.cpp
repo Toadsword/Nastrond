@@ -109,10 +109,11 @@ void Editor::Update(sf::Time dt)
 			//TODO ADD THE SELECTED ENTITY COMPONENTS ON THE WINDOW
 			if(selectedEntity != INVALID_ENTITY)
 			{
+				auto& entityInfo = entityManager->GetEntityInfo(selectedEntity);
+				ImGui::InputText("Name", &entityInfo.name[0u], 15);
 				if(entityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM))
 				{
-					auto& entityInfo = entityManager->GetEntityInfo(selectedEntity);
-					ImGui::InputText("Name", &entityInfo.name[0u], 15);
+					
 					if(auto transformManager = m_TransformManagerPtr.lock())
 					{
 						auto& transformInfo = transformManager->GetComponentInfo(selectedEntity);
@@ -129,6 +130,28 @@ void Editor::Update(sf::Time dt)
 						bodyInfo.DrawOnInspector();
 					}
 				}
+
+				if (entityManager->HasComponent(selectedEntity, ComponentType::SPRITE))
+				{
+					if (auto graphicsManager = m_GraphicsManagerPtr.lock())
+					{
+						auto& spriteManager = graphicsManager->GetSpriteManager();
+						auto& spriteInfo = spriteManager.GetComponentInfo(selectedEntity);
+						spriteInfo.DrawOnInspector();
+
+					}
+				}
+				if (entityManager->HasComponent(selectedEntity, ComponentType::SHAPE))
+				{
+					if (auto graphicsManager = m_GraphicsManagerPtr.lock())
+					{
+						auto& spriteManager = graphicsManager->GetShapeManager();
+						auto shapeInfo = spriteManager.GetComponentInfo(selectedEntity);
+						shapeInfo->DrawOnInspector();
+
+					}
+				}
+
 			}
 			ImGui::End();
 		}

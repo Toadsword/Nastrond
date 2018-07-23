@@ -30,10 +30,10 @@ SOFTWARE.
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
-#include <engine/modules.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 
+#include <physics/physics.h>
 
 
 #define MULTITHREAD
@@ -105,8 +105,7 @@ int main()
 {
 
 	sf::RenderWindow window(sf::VideoMode(800, 800), "Multithread test");
-	b2ThreadPool tp(PHYSICS_CORES);
-	b2World world(b2Vec2(0.0f, 9.81f), &tp);
+	b2World world(b2Vec2(0.0f, 9.81f));
 	std::vector<SquareObject> objects(OBJ_NMB);
 
 	srand(time(nullptr));

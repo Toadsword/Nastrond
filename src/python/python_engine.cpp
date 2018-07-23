@@ -32,6 +32,7 @@
 #include <input/input.h>
 #include <audio/audio.h>
 #include <graphics/shape.h>
+#include <graphics/sprite.h>
 #include <physics/physics.h>
 #include <python/pycomponent.h>
 
@@ -86,7 +87,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("update", &Component::Update)
 		.def_property_readonly("entity", &Component::GetEntity)
 		.def("get_component", &Component::GetComponent)
-	
+		.def("get_component", &Component::GetPyComponent)
 		.def("on_trigger_enter", &Component::OnTriggerEnter)
 		.def("on_collision_enter", &Component::OnCollisionEnter)
 		.def("on_trigger_exit", &Component::OnTriggerExit)
@@ -99,6 +100,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Body", ComponentType::BODY2D)
 		.value("Sprite", ComponentType::SPRITE)
 		.value("Sound", ComponentType::SOUND)
+		.value("Transform", ComponentType::TRANSFORM)
 		.export_values();
 
 	py::class_<Transform2d> transform(m, "Transform");
@@ -140,7 +142,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<Shape, std::unique_ptr<Shape, py::nodelete>> shape(m, "Shape");
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);
-
+	py::class_<Sprite, std::unique_ptr<Sprite, py::nodelete>> sprite(m, "Sprite");
 	//Utility
 	py::class_<sf::Color> color(m, "Color");
 	color
@@ -216,6 +218,14 @@ void PythonEngine::Init()
 		sfgeModule.attr("input_manager") = py::cast(inputManagerPtr.get(), py::return_value_policy::reference);
 		
 	LoadScripts();
+}
+
+void PythonEngine::InitPyComponent()
+{
+	for (auto pyComponent : m_PyComponents)
+	{
+		pyComponent->Init();
+	}
 }
 
 
@@ -307,18 +317,8 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 				moduleObj.attr(className.c_str())(this, entity);
 			//Adding the important components
 
-			if (auto entityManager = m_Engine.GetEntityManager().lock())
-			{
-				//First the transform
-				if (entityManager->HasComponent(entity, ComponentType::TRANSFORM))
-				{
-					if (auto transformManager = m_Engine.GetTransform2dManager().lock())
-					{
-						m_PythonInstanceMap[m_IncrementalInstanceId].attr("transform") = transformManager->GetComponent(entity);
-					}
-				}
-			}
-			auto pyComponent = GetPyComponent(m_IncrementalInstanceId);
+			
+			auto pyComponent = GetPyComponentFromInstanceId(m_IncrementalInstanceId);
 			if (pyComponent)
 			{
 				m_PyComponents.push_back(pyComponent);
@@ -398,7 +398,7 @@ void PythonEngine::LoadScripts(std::string dirname)
 }
 
 
-PyComponent* PythonEngine::GetPyComponent(InstanceId instanceId)
+PyComponent* PythonEngine::GetPyComponentFromInstanceId(InstanceId instanceId)
 {
 	if(m_PythonInstanceMap.find(instanceId) != m_PythonInstanceMap.end())
 	{
@@ -411,6 +411,19 @@ PyComponent* PythonEngine::GetPyComponent(InstanceId instanceId)
 		Log::GetInstance()->Error(oss.str());
 	}
 	return nullptr;
+}
+
+py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)
+{
+	for (PyComponent* pyComponent : m_PyComponents)
+	{
+		if (pyComponent->GetEntity() == entity and
+			py::cast(pyComponent).get_type().is(type))
+		{
+			return py::cast(pyComponent);
+		}
+	}
+	return py::none();
 }
 
 void PythonEngine::OnTriggerEnter(Entity entity, ColliderData * colliderData)

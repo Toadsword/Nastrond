@@ -41,7 +41,8 @@ namespace sfge
 {
 class GraphicsManager;
 
-typedef unsigned TextureId;
+using TextureId = unsigned;
+const TextureId INVALID_TEXTURE = 0U;
 /**
 * \brief The Texture Manager is the cache of all the textures used for sprites or other objects
 *

@@ -187,6 +187,12 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 								}
 								break;
 							case ComponentType::SPRITE:
+								if (const auto graphicsManager = m_Engine.GetGraphicsManager().lock())
+								{
+									auto& spriteManager = graphicsManager->GetSpriteManager();
+									spriteManager.CreateComponent(componentJson, entity);
+									entityManager->AddComponentType(entity, ComponentType::SPRITE);
+								}
 								break;
 							case ComponentType::COLLIDER:
 								if (auto physicsManager = m_Engine.GetPhysicsManager().lock())
@@ -241,6 +247,10 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	if(auto editor = m_Engine.GetEditor().lock())
 	{
 		editor->SetCurrentScene(std::move(sceneInfo));
+	}
+	if (auto pythonEngine = m_Engine.GetPythonEngine().lock())
+	{
+		pythonEngine->InitPyComponent();
 	}
 	
 }

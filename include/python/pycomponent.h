@@ -56,7 +56,9 @@ public:
     
     
     py::object GetComponent(ComponentType componentType) const;
-    
+	py::object GetPyComponent(py::object type);
+
+
     Entity GetEntity();
     
     unsigned int GetInstanceId() const;

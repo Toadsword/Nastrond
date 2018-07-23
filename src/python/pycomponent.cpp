@@ -99,6 +99,13 @@ void PyComponent::Update(float dt)
 		{
 			switch (componentType)
 			{
+			case ComponentType::TRANSFORM:
+				if (auto transformManager = m_PythonEngine->GetEngine().GetTransform2dManager().lock())
+				{
+					auto& transform = transformManager->GetComponent(m_Entity);
+					return py::cast(transform, py::return_value_policy::reference);
+				}
+				break;
 			case ComponentType::BODY2D:
 				if(auto physicsManager = m_PythonEngine->GetEngine().GetPhysicsManager().lock())
 				{
@@ -116,6 +123,11 @@ void PyComponent::Update(float dt)
 				}
 				break;
 			case ComponentType::SPRITE:
+				if (auto graphicsManager = m_PythonEngine->GetEngine().GetGraphicsManager().lock())
+				{
+					auto sprite = graphicsManager->GetSpriteManager().GetComponent(m_Entity);
+					return py::cast(sprite, py::return_value_policy::reference);
+				}
 				break;
 			case ComponentType::SOUND:
 				break;
@@ -124,6 +136,11 @@ void PyComponent::Update(float dt)
 			}
 		}
 		return py::none();
+	}
+
+	py::object Component::GetPyComponent(py::object type)
+	{
+		return m_PythonEngine->GetPyComponentFromType(type, m_Entity);
 	}
 
 	

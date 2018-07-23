@@ -28,6 +28,9 @@ SOFTWARE.
 #include <engine/log.h>
 #include <engine/transform.h>
 
+#include<imgui.h>
+#include<imgui-SFML.h>
+
 namespace sfge
 {
 Shape::Shape(Transform2d * transform, const sf::Vector2f offset) : 
@@ -88,10 +91,37 @@ Polygon::Polygon(Transform2d* transform, sf::Vector2f offset, std::list<sf::Vect
 	//TODO Add the possibility for polygon
 }
 
-void editor::ShapeInfo::DrawOnInspector()
+void editor::CircleShapeInfo::DrawOnInspector()
 {
+	ImGui::Separator();
+	ImGui::Text("Circle Shape");
+	auto circle = circlePtr.lock();
+	if (circle)
+	{
+		float offset[2] =
+		{
+			circle->GetOffset().x,
+			circle->GetOffset().y
+		};
+		ImGui::InputFloat2("Offset", offset);
+	}
 }
 
+void editor::RectShapeInfo::DrawOnInspector()
+{
+	ImGui::Separator();
+	ImGui::Text("Rectangle Shape");
+	auto rect = rectanglePtr.lock();
+	if (rect)
+	{
+		float offset[2] =
+		{
+			rect->GetOffset().x,
+			rect->GetOffset().y
+		};
+		ImGui::InputFloat2("Offset", offset);
+	}
+}
 ShapeManager::ShapeManager(Engine& engine):
 		Module(engine)
 {
@@ -157,11 +187,14 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 				{
 					radius = componentJson["radius"];
 				}
-
-				m_Components[entity - 1] = std::make_shared<Circle>(
+				auto circle = std::make_shared<Circle>(
 					&transformManager->GetComponent(entity),
 					offset,
-					radius); 
+					radius);
+				m_Components[entity - 1] = circle;
+				auto circleShapeInfo = std::make_shared<editor::CircleShapeInfo>();
+				circleShapeInfo->circlePtr = circle;
+				m_ComponentsInfo[entity - 1] = circleShapeInfo;
 			}
 				break;
 			case ShapeType::RECTANGLE:
@@ -176,11 +209,15 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 				{
 					size = GetVectorFromJson(componentJson, "size");
 				}
-
-				m_Components[entity - 1] = std::make_shared<Rectangle>(
+				auto rect = std::make_shared<Rectangle>(
 					&transformManager->GetComponent(entity),
 					offset,
 					size);
+				m_Components[entity - 1] = rect;
+				auto rectShapeInfo = std::make_shared<editor::RectShapeInfo>();
+				rectShapeInfo->rectanglePtr = rect;
+				m_ComponentsInfo[entity - 1] = rectShapeInfo;
+				
 				}
 				break;
 			default:
@@ -210,3 +247,5 @@ void ShapeManager::DestroyComponent(Entity entity)
 
 
 }
+
+

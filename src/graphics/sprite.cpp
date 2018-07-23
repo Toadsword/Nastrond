@@ -32,6 +32,9 @@ SOFTWARE.
 #include <engine/config.h>
 #include <engine/transform.h>
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 namespace sfge
 {
 void Sprite::Draw(sf::RenderWindow& window)
@@ -46,10 +49,6 @@ void Sprite::Draw(sf::RenderWindow& window)
 void Sprite::SetTexture(sf::Texture* newTexture)
 {
 	sprite.setTexture(*newTexture);
-}
-void Sprite::SetTextureId(TextureId textureId)
-{
-	m_TextureId = textureId;
 }
 
 Sprite::Sprite() : 
@@ -69,6 +68,16 @@ void Sprite::Init()
 
 void editor::SpriteInfo::DrawOnInspector()
 {
+	ImGui::Separator();
+	ImGui::Text("Sprite");
+	ImGui::LabelText("Texture Path", texturePath.c_str());
+	ImGui::InputInt("Texture Id", (int*)&textureId);
+	float offset[2] =
+	{
+		sprite->GetOffset().x,
+		sprite->GetOffset().y
+	};
+	ImGui::InputFloat2("Offset", offset);
 }
 
 SpriteManager::SpriteManager(Engine& engine, GraphicsManager& graphicsManager) : 
@@ -95,29 +104,45 @@ void SpriteManager::Draw(sf::RenderWindow& window)
 		}
 	}
 }
-/*
-void SpriteManager::LoadSprite(json& componentJson, Sprite* newSprite)
-{
-	if (newSprite == nullptr)
-		return;
 
-	if(CheckJsonParameter(componentJson, "path", json::value_t::string))
+void SpriteManager::Reset()
+{
+}
+
+void SpriteManager::Collect()
+{
+	
+}
+
+void SpriteManager::CreateComponent(json& componentJson, Entity entity)
+{
+
+	Sprite newSprite;
+	editor::SpriteInfo newSpriteInfo;
+	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		std::string path = componentJson["path"].get<std::string>();
+		newSpriteInfo.texturePath = path;
 		sf::Texture* texture = nullptr;
 		if (FileExists(path))
 		{
-			unsigned int textureId = m_GraphicsManager.GetTextureManager()->LoadTexture(path);
-			if (textureId != 0)
+			unsigned int textureId = m_GraphicsManager.GetTextureManager().LoadTexture(path);
+			if (textureId != INVALID_TEXTURE)
 			{
 				{
 					std::ostringstream oss;
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}
-				texture = m_GraphicsManager.GetTextureManager()->GetTexture(textureId);
-				newSprite->SetTexture(texture);
-				newSprite->SetTextureId(textureId);
+				texture = m_GraphicsManager.GetTextureManager().GetTexture(textureId);
+				newSprite.SetTexture(texture);
+				newSpriteInfo.textureId = textureId;
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "Texture file " << path << " cannot be loaded";
+				Log::GetInstance()->Error(oss.str());
 			}
 		}
 		else
@@ -133,22 +158,10 @@ void SpriteManager::LoadSprite(json& componentJson, Sprite* newSprite)
 	}
 	if (CheckJsonParameter(componentJson, "layer", json::value_t::number_integer))
 	{
-		newSprite->SetLayer(componentJson["layer"]);
+		newSprite.SetLayer(componentJson["layer"]);
 	}
-	m_Sprites.push_back(newSprite);
-}
-*/
-void SpriteManager::Reset()
-{
-}
-
-void SpriteManager::Collect()
-{
-	
-}
-
-void SpriteManager::CreateComponent(json& componentJson, Entity entity)
-{
+	m_Components[entity - 1] = newSprite;
+	m_ComponentsInfo[entity - 1] = newSpriteInfo;
 }
 
 void SpriteManager::DestroyComponent(Entity entity)

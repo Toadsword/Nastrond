@@ -141,7 +141,7 @@ int main()
 	sun.setFillColor(sf::Color::Yellow);
 
 	std::list<Planet*> planets;
-	std::srand(30);//time(NULL));
+	std::srand(31);//time(NULL));
 
 	for (int i = 0; i < PLANET_NMB; i++)
 	{
@@ -181,7 +181,7 @@ int main()
 		world.Step(deltaTime.asSeconds());
 
 		// clear the window with black color
-		window.clear(sf::Color::Black);
+		//window.clear(sf::Color::Black);
 
 		window.draw(sun);
 		for (auto& p : planets)

@@ -33,6 +33,7 @@ SOFTWARE.
 #include <engine/component.h>
 #include <engine/transform.h>
 #include <engine/editor.h>
+#include <graphics/texture.h>
 
 namespace sfge
 {
@@ -55,13 +56,10 @@ public:
 
 	void SetTexture(sf::Texture* newTexture);
 
-	void SetTextureId(TextureId textureId);
 
 
 	
 protected:
-	std::string filename;
-	unsigned int m_TextureId = 0U;
 	sf::Sprite sprite;
 };
 
@@ -71,6 +69,9 @@ namespace editor
 struct SpriteInfo : ComponentInfo
 {
 	void DrawOnInspector() override;
+	Sprite* sprite = nullptr;
+	std::string texturePath = "";
+	TextureId textureId = INVALID_TEXTURE;
 };
 }
 

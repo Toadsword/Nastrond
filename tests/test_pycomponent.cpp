@@ -23,18 +23,18 @@ SOFTWARE.
 */
 #include <engine/engine.h>
 #include <engine/log.h>
-#include <engine/modules.h>
 #include <python/pycomponent.h>
 #include <utility/json_utility.h>
 #include <graphics/shape.h>
+#include <engine/scene.h>
 
 int main()
 {
 	sfge::Engine engine;
-	engine.Init(true);
+	engine.Init();
 
-	auto pythonManager = engine.GetPythonManager();
-
+	auto sceneManager = engine.GetSceneManager().lock();
+	json sceneJson;
 	json gameObjectJson = {
 	{"name", "PyGameObject" },
 	{"components",
@@ -53,22 +53,16 @@ int main()
 		{
 			{"type", (int)sfge::ComponentType::SHAPE },
 			{"shape_type",(int)sfge::ShapeType::CIRCLE},
-			{"position",{ 100,300 }},
+			{"offset",{ 100,300 }},
 			{ "radius", 500.0 }
 		}
 	}
 	}
 	};
-
-	sfge::GameObject* gameObject = sfge::GameObject::LoadGameObject(engine, gameObjectJson);
-
-	for (int i = 0; i < 10; i++)
-	{
-		sfge::Log::GetInstance()->Msg("GAME OBJECT UPDATE");
-		gameObject->Update(sf::seconds(0.4));
-	}
-	delete(gameObject);
-	engine.Destroy();
+	sceneJson["entities"] = json::array({gameObjectJson});
+	sceneManager->LoadSceneFromJson(sceneJson);
+	
+	engine.Start();
 
 #ifdef WIN32
 	system("pause");
