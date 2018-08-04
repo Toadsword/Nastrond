@@ -22,14 +22,86 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <vector>
+#include <array>
 #include <iostream>
 #include<SFML/System.hpp>
 
 
-#define ENTITY_NUMBERS 100'000'000
-
+#define ENTITY_NUMBERS 10'000'000
+//#define SOA_VECTOR2
 namespace SOA
 {
+#ifndef SOA_VECTOR2
+class TransformSystem
+{
+public:
+	TransformSystem()
+	{
+		m_PositionsX.resize(ENTITY_NUMBERS);
+		m_PositionsY.resize(ENTITY_NUMBERS);
+		m_ScalesX.resize(ENTITY_NUMBERS);
+		m_ScalesY.resize(ENTITY_NUMBERS);
+		m_EulerAngles.resize(ENTITY_NUMBERS);
+		for (int i = 0; i < ENTITY_NUMBERS;i++)
+		{
+			m_PositionsX[i] = rand();
+			m_PositionsY[i] = rand();
+			m_ScalesX[i] = rand();
+			m_ScalesY[i] = rand();
+			m_EulerAngles[i] = rand();
+		}
+	}
+	void Translate(sf::Vector2f moveValue)
+	{
+		/*	
+		for (int i = 0; i < ENTITY_NUMBERS; i++)
+		{
+			m_PositionsX[i] += moveValue.x;
+			m_PositionsY[i] += moveValue.y;
+		}
+		*/
+		for (auto& posX : m_PositionsX)
+		{
+			posX += moveValue.x;
+		}
+		for (auto& posY : m_PositionsY)
+		{
+			posY += moveValue.y;
+		}
+	}
+	void Scale(float scaleValue)
+	{
+		/*
+		for (int i = 0; i < ENTITY_NUMBERS; i++)
+		{
+			m_ScalesX[i] *= scaleValue;
+			m_ScalesY[i] *= scaleValue;
+		}
+		*/
+		for (auto& scaleX : m_ScalesX)
+		{
+			scaleX *= scaleValue;
+		}
+		for (auto& scaleY : m_ScalesY)
+		{
+			scaleY *= scaleValue;
+		}
+	}
+	void Rotate(float rotateValue)
+	{
+		for (int i = 0; i < ENTITY_NUMBERS; i++)
+		{
+			m_EulerAngles[i] += rotateValue;
+		}
+	}
+private:
+	std::vector<float> m_PositionsX;
+	std::vector<float> m_PositionsY;
+	std::vector<float> m_ScalesX;
+	std::vector<float> m_ScalesY;
+	std::vector<float> m_EulerAngles;
+};
+#else
 class TransformSystem
 {
 public:
@@ -38,7 +110,7 @@ public:
 		m_Positions.resize(ENTITY_NUMBERS);
 		m_Scales.resize(ENTITY_NUMBERS);
 		m_EulerAngles.resize(ENTITY_NUMBERS);
-		for (int i = 0; i < ENTITY_NUMBERS;i++)
+		for (int i = 0; i < ENTITY_NUMBERS; i++)
 		{
 			m_Positions[i] = sf::Vector2f(rand(), rand());
 			m_Scales[i] = sf::Vector2f(rand(), rand());
@@ -47,23 +119,23 @@ public:
 	}
 	void Translate(sf::Vector2f moveValue)
 	{
-		for (auto& position : m_Positions)
+		for (int i = 0; i < ENTITY_NUMBERS; i++)
 		{
-			position += moveValue;
+			m_Positions[i] += moveValue;
 		}
 	}
 	void Scale(float scaleValue)
 	{
-		for (auto& scale : m_Scales)
+		for (int i = 0; i < ENTITY_NUMBERS; i++)
 		{
-			scale *= scaleValue;
+			m_Scales[i] *= scaleValue;
 		}
 	}
 	void Rotate(float rotateValue)
 	{
-		for (auto& eulerAngle : m_EulerAngles)
+		for (int i = 0; i < ENTITY_NUMBERS; i++)
 		{
-			eulerAngle += rotateValue;
+			m_EulerAngles[i] += rotateValue;
 		}
 	}
 private:
@@ -71,6 +143,7 @@ private:
 	std::vector<sf::Vector2f> m_Scales;
 	std::vector<float> m_EulerAngles;
 };
+#endif
 }
 
 namespace AOS
