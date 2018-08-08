@@ -63,7 +63,7 @@ public:
 class InputManager : public Module
 {
 public:
-	using Module::Module;
+	InputManager() = default;
 
 	/**
 	 * \brief Initialize the Input Manager

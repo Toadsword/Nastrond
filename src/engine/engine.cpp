@@ -48,16 +48,16 @@ namespace sfge
 
 Engine::Engine()
 {
-
-	m_EntityManager = std::make_shared<EntityManager>(*this);
-	m_TransformManager = std::make_shared<Transform2dManager>(*this);
-	m_GraphicsManager = std::make_shared<GraphicsManager>(*this);
-	m_AudioManager = std::make_shared<AudioManager>(*this);
-	m_SceneManager = std::make_shared<SceneManager>(*this);
-	m_InputManager = std::make_shared<InputManager>(*this);
-	m_PythonEngine = std::make_shared<PythonEngine>(*this);
-	m_PhysicsManager = std::make_shared<PhysicsManager>(*this);
-	m_Editor = std::make_shared<Editor>(*this);
+	instance = this;
+	m_EntityManager = std::make_shared<EntityManager>();
+	m_TransformManager = std::make_shared<Transform2dManager>();
+	m_GraphicsManager = std::make_shared<GraphicsManager>();
+	m_AudioManager = std::make_shared<AudioManager>();
+	m_SceneManager = std::make_shared<SceneManager>();
+	m_InputManager = std::make_shared<InputManager>();
+	m_PythonEngine = std::make_shared<PythonEngine>();
+	m_PhysicsManager = std::make_shared<PhysicsManager>();
+	m_Editor = std::make_shared<Editor>();
 }
 
 void Engine::Init(std::string configFilename)
@@ -93,7 +93,7 @@ void Engine::InitModules()
 
 
 
-
+	m_EntityManager->Init();
 	m_GraphicsManager->Init();
 	m_AudioManager->Init();
 	m_SceneManager->Init();

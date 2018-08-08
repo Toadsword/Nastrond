@@ -22,15 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <engine/engine.h>
 #include <engine/module.h>
 
 namespace sfge
 {
-Module::Module(Engine& engine) : m_Engine(engine)
-{
-
-
-}
 
 void Module::Destroy()
 {
@@ -38,10 +34,6 @@ void Module::Destroy()
 	Collect();
 }
 
-Engine& Module::GetEngine() const
-{
-	return m_Engine;
-}
 
 void Module::SetEnable(bool enable)
 {

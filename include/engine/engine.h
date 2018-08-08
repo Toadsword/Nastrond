@@ -34,6 +34,7 @@ SOFTWARE.
 #include <SFML/Graphics.hpp>
 
 #include <utility/json_utility.h>
+#include <utility/singleton.h>
 
 namespace sfge
 {
@@ -68,7 +69,7 @@ enum class EngineModule
 /**
 * \brief The main Engine class to centralise the frame process and the references
 */
-class Engine
+class Engine : public Singleton<Engine>
 {
 public:
 	Engine();

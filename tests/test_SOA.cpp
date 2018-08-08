@@ -195,6 +195,7 @@ private:
 	std::vector <Transform> m_Transforms;
 };
 }
+
 int main()
 {
 	sf::Clock performanceClock;
@@ -221,7 +222,8 @@ int main()
 		<< "AOS Compute: " << aosTime.asMicroseconds() << "\n"
 		<< "SOA Loading: " << soaLoadingTime.asMicroseconds() << "\n"
 		<< "SOA Compute: " << soaTime.asMicroseconds() << "\n";
-
+#if WIN32
 	system("pause");
+#endif
 	return EXIT_SUCCESS;
 }

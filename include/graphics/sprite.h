@@ -82,18 +82,19 @@ class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>,
 	public LayerComponentManager<Sprite>, public Module
 {
 public:
-	SpriteManager(Engine& engine, GraphicsManager& graphicsManager);
+	SpriteManager() = default;
+	void Init() override;
 	void Update(sf::Time dt) override;
 	void Draw(sf::RenderWindow& window);
 
 	void Reset();
-	void Collect();
+	void Collect() override;
 
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
 protected:
-	GraphicsManager& m_GraphicsManager;
+	std::weak_ptr<GraphicsManager> m_GraphicsManagerPtr;
 	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 };

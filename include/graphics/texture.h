@@ -50,7 +50,7 @@ const TextureId INVALID_TEXTURE = 0U;
 class TextureManager : public Module
 {
 public:
-	TextureManager(Engine& engine);
+	TextureManager() = default;
 	/**
 	 * \brief Load all the textures in the data in Shipping mode
 	 */

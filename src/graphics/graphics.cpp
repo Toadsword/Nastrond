@@ -22,28 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <graphics/graphics.h>
+#include <sstream>
 
+#include <graphics/graphics.h>
+#include <engine/engine.h>
 #include <engine/log.h>
 #include <engine/config.h>
 
 //Dependencies includes
 #include <SFML/Graphics/RenderWindow.hpp>
-#include "imgui-SFML.h"
-#include "imgui.h"
+#include <imgui-SFML.h>
+#include <imgui.h>
 
-#include <sstream>
 
 namespace sfge
 {
-GraphicsManager::GraphicsManager(Engine& engine) :
-		Module(engine), m_SpriteManager(engine, *this), 
-		m_ShapeManager(engine), m_TextureManager(engine)
-{
-}
+
 void GraphicsManager::Init()
 {
-	if (const auto configPtr = m_Engine.GetConfig().lock())
+	if (const auto configPtr = Engine::GetInstance()->GetConfig().lock())
 	{
 
 		if (!m_Windowless)
@@ -64,6 +61,8 @@ void GraphicsManager::Init()
 		
 	}
 	m_TextureManager.Init();
+	m_ShapeManager.Init();
+	m_SpriteManager.Init();
 
 }
 

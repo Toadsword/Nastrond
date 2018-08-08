@@ -40,21 +40,17 @@ SOFTWARE.
 namespace sfge
 {
 
-Editor::Editor(Engine& engine): Module(engine),
-	m_GraphicsManagerPtr(m_Engine.GetGraphicsManager()), 
-	m_SceneManagerPtr(m_Engine.GetSceneManager()),
-	m_EntityManagerPtr(m_Engine.GetEntityManager()),
-	m_TransformManagerPtr(m_Engine.GetTransform2dManager()),
-	m_PhysicsManagerPtr(m_Engine.GetPhysicsManager())
-{
-	
-}
 
 /**
 * \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
 */
 void Editor::Init()
 {
+	m_GraphicsManagerPtr = Engine::GetInstance()->GetGraphicsManager();
+	m_SceneManagerPtr = Engine::GetInstance()->GetSceneManager();
+	m_EntityManagerPtr= Engine::GetInstance()->GetEntityManager();
+	m_TransformManagerPtr= Engine::GetInstance()->GetTransform2dManager();
+	m_PhysicsManagerPtr= Engine::GetInstance()->GetPhysicsManager();
 	if (m_Enable)
 	{
 		if (auto graphicsManager = m_GraphicsManagerPtr.lock())
@@ -78,7 +74,7 @@ void Editor::Update(sf::Time dt)
 	if (m_Enable)
 	{
 		const auto windowPtr = m_Window.lock();
-		const auto configPtr = m_Engine.GetConfig().lock();
+		const auto configPtr = Engine::GetInstance()->GetConfig().lock();
 		auto entityManager = m_EntityManagerPtr.lock();
 		if (windowPtr and configPtr and entityManager)
 		{

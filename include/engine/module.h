@@ -26,7 +26,6 @@ SOFTWARE.
 #define SFGE_MODULE_H
 
 #include <SFML/System/Time.hpp>
-#include <engine/engine.h>
 
 namespace sfge
 {
@@ -37,7 +36,7 @@ namespace sfge
 class Module
 {
 public:
-	Module(Engine& engine);
+	Module() = default;
 
 	virtual ~Module() = default;
 	Module& operator=(const Module&) = delete;
@@ -67,8 +66,6 @@ public:
 	*/
 	virtual void Collect() {}
 
-	Engine& GetEngine() const;
-
 	void SetEnable(bool enable);
 	bool GetEnable() const;
 
@@ -76,7 +73,6 @@ public:
 
 protected:
 	bool m_Enable = true;
-	Engine& m_Engine;
 };
 }
 

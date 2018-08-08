@@ -25,7 +25,7 @@ SOFTWARE.
 #include <engine/globals.h>
 #include <engine/component.h>
 #include <physics/physics.h>
-
+#include <engine/engine.h>
 namespace sfge
 {
 void editor::ColliderInfo::DrawOnInspector()
@@ -36,7 +36,7 @@ ColliderManager::ColliderManager(Body2dManager& bodyManager) :
 	m_BodyManager(bodyManager)
 {
 	m_ColliderDatas.reserve(INIT_ENTITY_NMB * 4);
-	m_EntityManagerPtr = bodyManager.GetEngine().GetEntityManager();
+	m_EntityManagerPtr = Engine::GetInstance()->GetEntityManager();
 }
 
 void ColliderManager::CreateComponent(json& componentJson, Entity entity)

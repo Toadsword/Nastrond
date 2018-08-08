@@ -28,7 +28,7 @@ SOFTWARE.
 #include <engine/entity.h>
 #include <imgui.h>
 #include <imgui-SFML.h>
-
+#include <engine/engine.h>
 namespace sfge
 {
 Body2d::Body2d() : TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
@@ -142,18 +142,14 @@ std::deque<b2Vec2>& editor::Body2dInfo::GetVelocities()
 	return m_Velocities;
 }
 
-Body2dManager::Body2dManager(Engine& engine) : 
-	Module(engine)
-{
-	m_Components = std::vector<Body2d>(INIT_ENTITY_NMB, { nullptr, sf::Vector2f() });
-	m_ComponentsInfo = std::vector<editor::Body2dInfo>{ INIT_ENTITY_NMB };
-	m_EntityManagerPtr = m_Engine.GetEntityManager();
-	m_TransformManagerPtr = m_Engine.GetTransform2dManager();
-}
 
 void Body2dManager::Init()
 {
-	if (const auto physicsManager = m_Engine.GetPhysicsManager().lock())
+	m_Components = std::vector<Body2d>(INIT_ENTITY_NMB, { nullptr, sf::Vector2f() });
+	m_ComponentsInfo = std::vector<editor::Body2dInfo>{ INIT_ENTITY_NMB };
+	m_EntityManagerPtr = Engine::GetInstance()->GetEntityManager();
+	m_TransformManagerPtr = Engine::GetInstance()->GetTransform2dManager();
+	if (const auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
 		m_WorldPtr = physicsManager->GetWorld();
 }
 

@@ -32,7 +32,7 @@ void editor::EntityInfo::DrawOnInspector()
 
 }
 
-EntityManager::EntityManager(Engine& engine) : Module(engine)
+void EntityManager::Init()
 {
 	MaskArray = std::vector<EntityMask>(INIT_ENTITY_NMB, 0U);
 }

@@ -27,9 +27,9 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <engine/log.h>
 #include <engine/transform.h>
-
-#include<imgui.h>
-#include<imgui-SFML.h>
+#include <engine/engine.h>
+#include <imgui.h>
+#include <imgui-SFML.h>
 
 namespace sfge
 {
@@ -122,18 +122,19 @@ void editor::RectShapeInfo::DrawOnInspector()
 		ImGui::InputFloat2("Offset", offset);
 	}
 }
-ShapeManager::ShapeManager(Engine& engine):
-		Module(engine)
+
+
+void ShapeManager::Init()
 {
-	m_TransformManager = m_Engine.GetTransform2dManager();
-	m_EntityManager = m_Engine.GetEntityManager();
+	m_TransformManager = Engine::GetInstance()->GetTransform2dManager();
+	m_EntityManager = Engine::GetInstance()->GetEntityManager();
 }
 
 
 void ShapeManager::Draw(sf::RenderWindow& window)
 {
 
-	if (auto entityManager = m_Engine.GetEntityManager().lock())
+	if (auto entityManager = Engine::GetInstance()->GetEntityManager().lock())
 	{
 		for(int i = 0; i < m_Components.size(); i++)
 		{
@@ -147,7 +148,7 @@ void ShapeManager::Draw(sf::RenderWindow& window)
 
 void ShapeManager::Update(sf::Time dt)
 {
-	if (auto entityManager = m_Engine.GetEntityManager().lock())
+	if (auto entityManager = Engine::GetInstance()->GetEntityManager().lock())
 	{
 		for (int i = 0; i < m_Components.size(); i++)
 		{

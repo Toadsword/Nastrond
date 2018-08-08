@@ -33,11 +33,11 @@ struct TransformInfo : ComponentInfo
 };
 }
 
-class Transform2dManager : 
+class Transform2dManager :
 	public ComponentManager<Transform2d, editor::TransformInfo>, public Module
 {
 public:
-	using Module::Module;
+	Transform2dManager() = default;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 

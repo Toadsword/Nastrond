@@ -52,7 +52,8 @@ void DrawOnInspector() override;
 
 struct EntityManager : Module
 {
-	EntityManager(Engine& engine);
+	EntityManager() = default;
+	void Init() override;
 	EntityMask GetMask(Entity entity);
 	Entity CreateEntity(Entity entity = INVALID_ENTITY);
 	bool HasComponent(Entity entity, ComponentType componentType);

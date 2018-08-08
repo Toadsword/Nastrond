@@ -48,7 +48,7 @@ typedef unsigned InstanceId;
 class PythonEngine : public Module, public LayerComponentManager<PyComponent*>
 {
 public:
-	PythonEngine(Engine& engine);
+	PythonEngine() = default;
 	/**
 	* \brief Initialize the python interpreter
 	*/

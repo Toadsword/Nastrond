@@ -25,6 +25,7 @@ SOFTWARE.
 #include <physics/physics.h>
 #include <python/python_engine.h>
 #include <engine/config.h>
+#include <engine/engine.h>
 namespace sfge
 {
 
@@ -34,10 +35,10 @@ const float PhysicsManager::pixelPerMeter = 100.0f;
 void PhysicsManager::Init()
 {
 	b2Vec2 gravity = b2Vec2();
-	if(const auto configPtr = m_Engine.GetConfig().lock())
+	if(const auto configPtr = Engine::GetInstance()->GetConfig().lock())
 		gravity = configPtr->gravity;
 	m_World = std::make_shared<b2World>(gravity);
-	m_ContactListener = std::make_unique<ContactListener>(m_Engine);
+	m_ContactListener = std::make_unique<ContactListener>();
 	m_World->SetContactListener(m_ContactListener.get());
 
 	m_BodyManager.Init();
@@ -50,7 +51,7 @@ void PhysicsManager::Update(sf::Time dt)
 
 void PhysicsManager::FixedUpdate()
 {
-	auto config = m_Engine.GetConfig().lock();
+	auto config = Engine::GetInstance()->GetConfig().lock();
 	if (config and m_World)
 	{
 		m_World->Step(config->fixedDeltaTime,
@@ -100,13 +101,10 @@ ColliderManager& PhysicsManager::GetColliderManager()
 	return m_ColliderManager;
 }
 
-ContactListener::ContactListener(Engine & engine) :  m_Engine(engine)
-{
-}
 
 void ContactListener::BeginContact(b2Contact* contact)
 {
-	auto pythonEngine = m_Engine.GetPythonEngine().lock();
+	auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock();
 	auto colliderA = static_cast<ColliderData*>(contact->GetFixtureA()->GetUserData());
 	auto colliderB = static_cast<ColliderData*>(contact->GetFixtureB()->GetUserData());
 
@@ -132,7 +130,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 void ContactListener::EndContact(b2Contact* contact)
 {
-	auto pythonEngine = m_Engine.GetPythonEngine().lock();
+	auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock();
 	auto colliderA = static_cast<ColliderData*>(contact->GetFixtureA()->GetUserData());
 	auto colliderB = static_cast<ColliderData*>(contact->GetFixtureB()->GetUserData());
 

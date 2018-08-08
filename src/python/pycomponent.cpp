@@ -29,6 +29,7 @@
 #include <engine/log.h>
 #include <physics/physics.h>
 #include <graphics/graphics.h>
+#include <engine/engine.h>
 namespace sfge
 {
 Component::Component(PythonEngine* pythonEngine, Entity entity)
@@ -100,14 +101,14 @@ void PyComponent::Update(float dt)
 			switch (componentType)
 			{
 			case ComponentType::TRANSFORM:
-				if (auto transformManager = m_PythonEngine->GetEngine().GetTransform2dManager().lock())
+				if (auto transformManager = Engine::GetInstance()->GetTransform2dManager().lock())
 				{
 					auto& transform = transformManager->GetComponent(m_Entity);
 					return py::cast(transform, py::return_value_policy::reference);
 				}
 				break;
 			case ComponentType::BODY2D:
-				if(auto physicsManager = m_PythonEngine->GetEngine().GetPhysicsManager().lock())
+				if(auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
 				{
 					auto& body = physicsManager->GetBodyManager().GetComponent(m_Entity);
 					return py::cast(body, py::return_value_policy::reference);
@@ -116,14 +117,14 @@ void PyComponent::Update(float dt)
 			case ComponentType::COLLIDER:
 				break;
 			case ComponentType::SHAPE:
-				if(auto graphicsManager = m_PythonEngine->GetEngine().GetGraphicsManager().lock())
+				if(auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 				{
 					auto shape = graphicsManager->GetShapeManager().GetComponent(m_Entity);
 					return py::cast(shape, py::return_value_policy::reference);
 				}
 				break;
 			case ComponentType::SPRITE:
-				if (auto graphicsManager = m_PythonEngine->GetEngine().GetGraphicsManager().lock())
+				if (auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 				{
 					auto sprite = graphicsManager->GetSpriteManager().GetComponent(m_Entity);
 					return py::cast(sprite, py::return_value_policy::reference);

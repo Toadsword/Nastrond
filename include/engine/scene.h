@@ -48,7 +48,7 @@ struct SceneInfo;
 class SceneManager : public Module
 {
 public:
-	using Module::Module;
+	SceneManager() = default;
 	~SceneManager() = default;
 	void Init() override;
 

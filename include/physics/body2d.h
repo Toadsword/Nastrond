@@ -68,7 +68,7 @@ private:
 class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public Module
 {
 public:
-	Body2dManager(Engine& engine);
+	Body2dManager() = default;
 	void Init() override;
 	void FixedUpdate() override;
 

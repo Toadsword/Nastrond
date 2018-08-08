@@ -29,7 +29,7 @@
 #include <memory>
 
 #include <engine/entity.h>
-
+#include <python/python_engine.h>
 #include <utility/python_utility.h>
 //STL
 #include <engine/component.h>

@@ -29,6 +29,7 @@
 #include <python/python_engine.h>
 #include <engine/log.h>
 #include <engine/scene.h>
+#include <engine/engine.h>
 #include <input/input.h>
 #include <audio/audio.h>
 #include <graphics/shape.h>
@@ -197,24 +198,21 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 
 
-PythonEngine::PythonEngine(Engine & engine) :
-	Module(engine)
-{
-	m_PyComponents.reserve(INIT_ENTITY_NMB * 4);
-}
 
 void PythonEngine::Init()
 {
+
+	m_PyComponents.reserve(INIT_ENTITY_NMB * 4);
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
 	py::initialize_interpreter();
 	//Adding refecrence to c++ engine modules
 
 	py::module sfgeModule = py::module::import("SFGE");
-	sfgeModule.attr("engine")=  py::cast(&m_Engine);
+	sfgeModule.attr("engine")=  py::cast(Engine::GetInstance(), py::return_value_policy::reference);
 
-	if(auto sceneManagerPtr = m_Engine.GetSceneManager().lock())
+	if(auto sceneManagerPtr = Engine::GetInstance()->GetSceneManager().lock())
 		sfgeModule.attr("scene_manager") = py::cast(sceneManagerPtr.get(), py::return_value_policy::reference);
-	if(auto inputManagerPtr = m_Engine.GetInputManager().lock())
+	if(auto inputManagerPtr = Engine::GetInstance()->GetInputManager().lock())
 		sfgeModule.attr("input_manager") = py::cast(inputManagerPtr.get(), py::return_value_policy::reference);
 		
 	LoadScripts();

@@ -33,7 +33,7 @@
 #include <graphics/graphics.h>
 #include <python/python_engine.h>
 #include <physics/physics.h>
-
+#include <engine/engine.h>
 
 // for convenience
 
@@ -44,8 +44,8 @@ namespace sfge
 
 void SceneManager::Init()
 {
-	m_EntityManagerPtr = m_Engine.GetEntityManager();
-	if(auto config = m_Engine.GetConfig().lock())
+	m_EntityManagerPtr = Engine::GetInstance()->GetEntityManager();
+	if(auto config = Engine::GetInstance()->GetConfig().lock())
 	{
 		SearchScenes(config->dataDirname);
 	}
@@ -161,14 +161,14 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 							switch (componentType)
 							{
 							case ComponentType::TRANSFORM:
-								if(auto transformManager = m_Engine.GetTransform2dManager().lock())
+								if(auto transformManager = Engine::GetInstance()->GetTransform2dManager().lock())
 								{
 									transformManager->CreateComponent(componentJson, entity);
 									entityManager->AddComponentType(entity, ComponentType::TRANSFORM);
 								}
 								break;
 							case ComponentType::SHAPE:
-								if(const auto graphicsManager = m_Engine.GetGraphicsManager().lock())
+								if(const auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 								{
 									auto& shapeManager = graphicsManager->GetShapeManager();
 									shapeManager.CreateComponent(componentJson, entity);
@@ -180,14 +180,14 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 								}
 								break;
 							case ComponentType::BODY2D:
-								if (auto physicsManager = m_Engine.GetPhysicsManager().lock())
+								if (auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
 								{
 									physicsManager->GetBodyManager().CreateComponent(componentJson, entity);
 									entityManager->AddComponentType(entity, ComponentType::BODY2D);
 								}
 								break;
 							case ComponentType::SPRITE:
-								if (const auto graphicsManager = m_Engine.GetGraphicsManager().lock())
+								if (const auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 								{
 									auto& spriteManager = graphicsManager->GetSpriteManager();
 									spriteManager.CreateComponent(componentJson, entity);
@@ -195,14 +195,14 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 								}
 								break;
 							case ComponentType::COLLIDER:
-								if (auto physicsManager = m_Engine.GetPhysicsManager().lock())
+								if (auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
 								{
 									physicsManager->GetColliderManager().CreateComponent(componentJson, entity);
 									entityManager->AddComponentType(entity, ComponentType::COLLIDER);
 								}
 								break;
 							case ComponentType::PYCOMPONENT:
-								if (auto pythonEngine = m_Engine.GetPythonEngine().lock())
+								if (auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock())
 								{
 									if (CheckJsonExists(componentJson, "script_path"))
 									{
@@ -244,11 +244,11 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		oss << "No Entities in " << sceneInfo->name;
 		Log::GetInstance()->Error(oss.str());
 	}
-	if(auto editor = m_Engine.GetEditor().lock())
+	if(auto editor = Engine::GetInstance()->GetEditor().lock())
 	{
 		editor->SetCurrentScene(std::move(sceneInfo));
 	}
-	if (auto pythonEngine = m_Engine.GetPythonEngine().lock())
+	if (auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock())
 	{
 		pythonEngine->InitPyComponent();
 	}
@@ -271,7 +271,7 @@ void SceneManager::LoadSceneFromName(const std::string& sceneName)
 	{
 
 		sf::Clock loadingClock;
-		m_Engine.Clear();
+		Engine::GetInstance()->Clear();
 		LoadSceneFromPath(m_ScenePathMap[sceneName]);
 		{
 			sf::Time loadingTime = loadingClock.getElapsedTime();

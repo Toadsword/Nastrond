@@ -42,6 +42,7 @@ class MusicManager
 {
 public:
 	MusicManager();
+	~MusicManager() = default;
 	/**
 	* \brief open a music from a path file, put it on MusicMap and return the matchin id
 	* \param filename The filename of the music file
@@ -52,7 +53,6 @@ public:
 	* \param musicId the id key of the music
 	*/
 	std::shared_ptr<sf::Music> GetMusic(unsigned int musicId);
-	~MusicManager() = default;
 protected:
 	std::map< std::string , unsigned int> musicPathId;
 	std::map<unsigned int, std::shared_ptr<sf::Music>> musicMap;
@@ -61,11 +61,9 @@ protected:
 
 class AudioManager : public Module
 {
-protected:
-	SoundManager m_SoundManager;
-	MusicManager m_MusicManager;
+
 public:
-	using Module::Module;
+	AudioManager() = default;
 	/**
 	* \brief Initialize SoundManager class, SoundBuffer class and MusicManager class
 	*/
@@ -83,6 +81,9 @@ public:
 	void Destroy() override;
 	void Clear() override;
 	void Collect() override;
+protected:
+	SoundManager m_SoundManager;
+	MusicManager m_MusicManager;
 };
 }
 #endif // !SFGE_AUDIO

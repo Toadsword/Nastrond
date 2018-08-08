@@ -31,6 +31,7 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <engine/log.h>
 #include <engine/config.h>
+#include <engine/engine.h>
 #include <utility/file_utility.h>
 
 
@@ -51,13 +52,10 @@ static std::set<std::string> imgExtensionSet
 	".pic"
 };
 
-TextureManager::TextureManager(Engine& engine) : Module(engine)
-{
-}
 
 void TextureManager::Init()
 {
-	if(auto config = m_Engine.GetConfig().lock())
+	if(auto config = Engine::GetInstance()->GetConfig().lock())
 	{
 		if(config->devMode)
 		{

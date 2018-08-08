@@ -25,15 +25,25 @@ SOFTWARE.
 #ifndef SFGE_EDITOR_H
 #define SFGE_EDITOR_H
 
+#include <memory>
 
 #include <engine/module.h>
 #include <engine/globals.h>
+
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Event.hpp>
+#include <utility/json_utility.h>
 
 namespace sfge
 {
 
 
 class Body2dManager;
+class GraphicsManager;
+class Transform2dManager;
+class EntityManager;
+class SceneManager;
+class PhysicsManager;
 
 //Editor components
 namespace editor
@@ -73,7 +83,7 @@ struct ComponentInfo : NamableEditorComponent, IDrawableInspector
 class Editor : public Module
 {
 public:
-	Editor(Engine& engine);
+	Editor() = default;
 	/**
 	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
 	*/

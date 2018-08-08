@@ -39,7 +39,7 @@ namespace sfge
 class GraphicsManager : public Module
 {
 public:
-	GraphicsManager(Engine& engine);
+	GraphicsManager() = default;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/

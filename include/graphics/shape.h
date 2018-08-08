@@ -108,7 +108,8 @@ class ShapeManager :
 {
 
 public:
-	ShapeManager(Engine& engine);
+	ShapeManager() = default;
+	void Init() override;
 	void Draw(sf::RenderWindow& window);
 	void Update(sf::Time dt) override;
 	void Clear() override;

@@ -28,7 +28,7 @@ SOFTWARE.
 #include <utility/file_utility.h>
 
 #include <engine/log.h>
-
+#include <engine/engine.h>
 #include <engine/config.h>
 #include <engine/transform.h>
 
@@ -80,11 +80,12 @@ void editor::SpriteInfo::DrawOnInspector()
 	ImGui::InputFloat2("Offset", offset);
 }
 
-SpriteManager::SpriteManager(Engine& engine, GraphicsManager& graphicsManager) : 
-	Module(engine), m_GraphicsManager(graphicsManager)
+void SpriteManager::Init()
 {
-	m_TransformManagerPtr = m_GraphicsManager.GetEngine().GetTransform2dManager();
-	m_EntityManagerPtr = m_GraphicsManager.GetEngine().GetEntityManager();
+	m_TransformManagerPtr = Engine::GetInstance()->GetTransform2dManager();
+	m_EntityManagerPtr = Engine::GetInstance()->GetEntityManager();
+	m_GraphicsManagerPtr = Engine::GetInstance()->GetGraphicsManager();
+
 }
 
 void SpriteManager::Update(sf::Time dt)
@@ -124,9 +125,11 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 		std::string path = componentJson["path"].get<std::string>();
 		newSpriteInfo.texturePath = path;
 		sf::Texture* texture = nullptr;
-		if (FileExists(path))
+		auto graphicsManager = m_GraphicsManagerPtr.lock();
+		if (FileExists(path) && graphicsManager != nullptr)
 		{
-			unsigned int textureId = m_GraphicsManager.GetTextureManager().LoadTexture(path);
+			auto& textureManager = graphicsManager->GetTextureManager();
+			unsigned int textureId = textureManager.LoadTexture(path);
 			if (textureId != INVALID_TEXTURE)
 			{
 				{
@@ -134,7 +137,7 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}
-				texture = m_GraphicsManager.GetTextureManager().GetTexture(textureId);
+				texture = textureManager.GetTexture(textureId);
 				newSprite.SetTexture(texture);
 				newSpriteInfo.textureId = textureId;
 			}
