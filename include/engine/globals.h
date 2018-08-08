@@ -39,14 +39,15 @@
 using Entity = unsigned;
 const Entity INVALID_ENTITY = 0U;
 
-
-enum ThreadJobRole
+enum class ModuleType
 {
-	LOADING,
-	WORKING1,
-	WORKING2,
-	WORKING3
+	ENTITY,
+	TRANSFORM2D,
+	GRAPHICS2D,
+
 };
+
+
 
 typedef unsigned Id;
 

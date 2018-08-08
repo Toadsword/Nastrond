@@ -67,7 +67,6 @@ struct Configuration
 
 	std::string scriptsDirname = "scripts/";
 	std::string dataDirname = "data/";
-
 	/**
 	* \brief Used to load the overall Configuration of the GameEngine at start
 	*/
