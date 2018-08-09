@@ -40,7 +40,7 @@ int main()
 	{"components",
 	{
 		{
-			{"type", (int)sfge::ComponentType::TRANSFORM}
+			{"type", (int)sfge::ComponentType::TRANSFORM2D}
 		},
 		{
 			{"type", (int)sfge::ComponentType::PYCOMPONENT },
@@ -51,7 +51,7 @@ int main()
 			{ "script_path", "scripts/sprite_test.py" }
 		},
 		{
-			{"type", (int)sfge::ComponentType::SHAPE },
+			{"type", (int)sfge::ComponentType::SHAPE2D },
 			{"shape_type",(int)sfge::ShapeType::CIRCLE},
 			{"offset",{ 100,300 }},
 			{ "radius", 500.0 }

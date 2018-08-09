@@ -248,10 +248,10 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	{
 		editor->SetCurrentScene(std::move(sceneInfo));
 	}
-	/*if (auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock())
+	if (auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock())
 	{
 		pythonEngine->InitPyComponent();
-	}*/
+	}
 	
 }
 
