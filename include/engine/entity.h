@@ -50,8 +50,9 @@ void DrawOnInspector() override;
 
 }
 
-struct EntityManager : Module
+class EntityManager : Module
 {
+public:
 	EntityManager() = default;
 	void Init() override;
 	EntityMask GetMask(Entity entity);
@@ -61,7 +62,7 @@ struct EntityManager : Module
 	void RemoveComponentType(Entity entity, ComponentType componentType);
 	editor::EntityInfo& GetEntityInfo(Entity entity);
 
-
+private:
 	std::vector<EntityMask> MaskArray{INIT_ENTITY_NMB};
 	std::vector<editor::EntityInfo> m_EntityInfos{INIT_ENTITY_NMB};
 };

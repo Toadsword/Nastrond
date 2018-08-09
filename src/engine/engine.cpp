@@ -30,6 +30,7 @@ SOFTWARE.
 
 
 #include <engine/engine.h>
+#include <engine/entity.h>
 #include <engine/globals.h>
 #include <engine/scene.h>
 #include <graphics/graphics2d.h>
@@ -238,6 +239,11 @@ std::weak_ptr<Transform2dManager> Engine::GetTransform2dManager() const
 std::weak_ptr<Editor> Engine::GetEditor() const
 {
 	return std::weak_ptr<Editor>(m_Editor);
+}
+
+ctpl::thread_pool & Engine::GetThreadPool()
+{
+	return m_ThreadPool;
 }
 
 }

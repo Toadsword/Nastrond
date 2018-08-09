@@ -50,7 +50,7 @@ class PythonEngine;
 class InputManager;
 class SceneManager;
 class Physics2dManager;
-struct EntityManager;
+class EntityManager;
 class Editor;
 class Transform2dManager;
 
