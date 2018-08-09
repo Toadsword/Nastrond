@@ -100,7 +100,7 @@ void PyComponent::Update(float dt)
 		{
 			switch (componentType)
 			{
-			case ComponentType::TRANSFORM:
+			case ComponentType::TRANSFORM2D:
 				if (auto transformManager = Engine::GetInstance()->GetTransform2dManager().lock())
 				{
 					auto& transform = transformManager->GetComponent(m_Entity);
@@ -114,16 +114,16 @@ void PyComponent::Update(float dt)
 					return py::cast(body, py::return_value_policy::reference);
 				}
 				break;
-			case ComponentType::COLLIDER:
+			case ComponentType::COLLIDER2D:
 				break;
-			case ComponentType::SHAPE:
+			case ComponentType::SHAPE2D:
 				if(auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 				{
 					auto shape = graphicsManager->GetShapeManager().GetComponent(m_Entity);
 					return py::cast(shape, py::return_value_policy::reference);
 				}
 				break;
-			case ComponentType::SPRITE:
+			case ComponentType::SPRITE2D:
 				if (auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 				{
 					auto sprite = graphicsManager->GetSpriteManager().GetComponent(m_Entity);

@@ -109,16 +109,16 @@ LIST(APPEND SFGE_LIBRARIES
   pybind11::embed)
 
 if(APPLE)
-set(boost_min_ver 1.50.0)
-set(boost_libs system filesystem)
-find_package(Boost ${boost_min_ver})
+	set(boost_min_ver 1.50.0)
+	set(boost_libs system filesystem)
+	find_package(Boost ${boost_min_ver})
 
-if(Boost_FOUND)
-    find_package(Boost ${boost_min_ver} COMPONENTS ${boost_libs})
-endif()
-include_directories(${Boost_INCLUDE_DIRS})
-LIST(APPEND SFGE_LIBRARIES
-  ${Boost_LIBRARIES})
+	if(Boost_FOUND)
+		find_package(Boost ${boost_min_ver} COMPONENTS ${boost_libs})
+	endif()
+	include_directories(${Boost_INCLUDE_DIRS})
+	LIST(APPEND SFGE_LIBRARIES
+	  ${Boost_LIBRARIES})
 endif(APPLE)
 
 #MISCELLANEOUS UTILITIES

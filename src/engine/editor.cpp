@@ -107,7 +107,7 @@ void Editor::Update(sf::Time dt)
 			{
 				auto& entityInfo = entityManager->GetEntityInfo(selectedEntity);
 				ImGui::InputText("Name", &entityInfo.name[0u], 15);
-				if(entityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM))
+				if(entityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
 				{
 					
 					if(auto transformManager = m_TransformManagerPtr.lock())
@@ -127,7 +127,7 @@ void Editor::Update(sf::Time dt)
 					}
 				}
 
-				if (entityManager->HasComponent(selectedEntity, ComponentType::SPRITE))
+				if (entityManager->HasComponent(selectedEntity, ComponentType::SPRITE2D))
 				{
 					if (auto graphicsManager = m_GraphicsManagerPtr.lock())
 					{
@@ -137,7 +137,7 @@ void Editor::Update(sf::Time dt)
 
 					}
 				}
-				if (entityManager->HasComponent(selectedEntity, ComponentType::SHAPE))
+				if (entityManager->HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
 					if (auto graphicsManager = m_GraphicsManagerPtr.lock())
 					{

@@ -95,6 +95,7 @@ private:
 	std::map<std::string, ModuleId> m_PythonModuleIdMap;
 	std::map<ModuleId, std::string> m_PyComponentClassNameMap;
 	std::map<ModuleId, std::string> m_PyModuleNameMap;
+	std::map<ModuleId, py::object> m_PyModuleObjMap;
 	Id m_IncrementalModuleId = 1U;
 
 	std::map<Id, py::object> m_PythonInstanceMap;

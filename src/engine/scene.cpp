@@ -160,19 +160,19 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 							const ComponentType componentType = componentJson["type"];
 							switch (componentType)
 							{
-							case ComponentType::TRANSFORM:
+							case ComponentType::TRANSFORM2D:
 								if(auto transformManager = Engine::GetInstance()->GetTransform2dManager().lock())
 								{
 									transformManager->CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::TRANSFORM);
+									entityManager->AddComponentType(entity, ComponentType::TRANSFORM2D);
 								}
 								break;
-							case ComponentType::SHAPE:
+							case ComponentType::SHAPE2D:
 								if(const auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 								{
 									auto& shapeManager = graphicsManager->GetShapeManager();
 									shapeManager.CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::SHAPE);
+									entityManager->AddComponentType(entity, ComponentType::SHAPE2D);
 								}
 								else
 								{
@@ -186,19 +186,19 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 									entityManager->AddComponentType(entity, ComponentType::BODY2D);
 								}
 								break;
-							case ComponentType::SPRITE:
+							case ComponentType::SPRITE2D:
 								if (const auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
 								{
 									auto& spriteManager = graphicsManager->GetSpriteManager();
 									spriteManager.CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::SPRITE);
+									entityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 								}
 								break;
-							case ComponentType::COLLIDER:
+							case ComponentType::COLLIDER2D:
 								if (auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
 								{
 									physicsManager->GetColliderManager().CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::COLLIDER);
+									entityManager->AddComponentType(entity, ComponentType::COLLIDER2D);
 								}
 								break;
 							case ComponentType::PYCOMPONENT:

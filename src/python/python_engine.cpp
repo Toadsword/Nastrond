@@ -97,11 +97,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::enum_<ComponentType>(component, "ComponentType")
 		.value("PyComponent", ComponentType::PYCOMPONENT)
-		.value("Shape", ComponentType::SHAPE)
+		.value("Shape", ComponentType::SHAPE2D)
 		.value("Body", ComponentType::BODY2D)
-		.value("Sprite", ComponentType::SPRITE)
+		.value("Sprite", ComponentType::SPRITE2D)
 		.value("Sound", ComponentType::SOUND)
-		.value("Transform", ComponentType::TRANSFORM)
+		.value("Transform", ComponentType::TRANSFORM2D)
 		.export_values();
 
 	py::class_<Transform2d> transform(m, "Transform");
@@ -249,7 +249,7 @@ void PythonEngine::Clear()
 {
 	m_PythonInstanceMap.clear();
 	m_PyComponents.clear ();
-	m_PyComponents.resize (INIT_ENTITY_NMB);
+	m_PyComponents.reserve (INIT_ENTITY_NMB*4);
 }
 
 ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
@@ -278,10 +278,8 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 			try
 			{
 
-
-				py::object globals = py::globals();
-
-				globals[py::str(moduleName)] = import(moduleName, moduleFilename, globals);
+                py::dict globals = py::globals ();
+				m_PyModuleObjMap[m_IncrementalModuleId] = import(moduleName, moduleFilename, globals);
 				m_PyModuleNameMap[m_IncrementalModuleId] = moduleName;
 				m_PythonModuleIdMap[moduleFilename] = m_IncrementalModuleId;
 				m_PyComponentClassNameMap[m_IncrementalModuleId] = className;
@@ -315,8 +313,8 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 		try
 		{
 			auto globals = py::globals ();
-			auto& moduleName = m_PyModuleNameMap[moduleId];
-			auto moduleObj = globals[py::str(moduleName)];
+			auto moduleName = m_PyModuleNameMap[moduleId];
+			auto moduleObj = m_PyModuleObjMap[moduleId];
 			m_PythonInstanceMap[m_IncrementalInstanceId] = 
 				moduleObj.attr(className.c_str())(this, entity);
 			//Adding the important components
@@ -386,9 +384,8 @@ void PythonEngine::LoadScripts(std::string dirname)
 			{
 				try
 				{
-					auto globals = py::globals();
-					auto moduleObj = globals[py::str(pyModuleName)];
-					auto importedModuleObj = globals[py::str(m_PyModuleNameMap[importedModuleId])];
+					auto moduleObj = m_PyModuleObjMap[pyModuleId];
+					auto importedModuleObj = m_PyModuleObjMap[importedModuleId];
 					moduleObj.attr(py::str(importedClassName)) = importedModuleObj.attr(py::str(importedClassName));
 				}
 				catch(std::runtime_error& e)

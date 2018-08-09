@@ -163,7 +163,7 @@ void Body2dManager::FixedUpdate()
 		{
 			Entity entity = i + 1;
 			if (entityManager->HasComponent(entity, ComponentType::BODY2D) &&
-				entityManager->HasComponent(entity, ComponentType::TRANSFORM))
+				entityManager->HasComponent(entity, ComponentType::TRANSFORM2D))
 			{
 				auto & transform = transformManager->GetComponent(entity);
 				auto & body2d = GetComponent(entity);

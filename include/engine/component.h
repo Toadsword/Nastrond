@@ -39,11 +39,11 @@ namespace sfge
 enum class ComponentType : int
 {
   	NONE = 0,
-	TRANSFORM = 1 << 0,
-	SPRITE = 1 << 1,
-	SHAPE = 1 << 2,
+	TRANSFORM2D = 1 << 0,
+	SPRITE2D = 1 << 1,
+	SHAPE2D = 1 << 2,
 	BODY2D = 1 << 3,
-	COLLIDER = 1 << 4,
+	COLLIDER2D = 1 << 4,
 	SOUND = 1 << 5,
 	PYCOMPONENT = 1 << 6
 };
