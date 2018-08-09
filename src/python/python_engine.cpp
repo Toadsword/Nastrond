@@ -222,7 +222,8 @@ void PythonEngine::InitPyComponent()
 {
 	for (auto pyComponent : m_PyComponents)
 	{
-		pyComponent->Init();
+		if(pyComponent != nullptr)
+			pyComponent->Init();
 	}
 }
 
@@ -231,14 +232,15 @@ void PythonEngine::Update(sf::Time dt)
 {
 	for (auto pyComponent : m_PyComponents)
 	{
-		pyComponent->Update(dt.asSeconds());
+		if(pyComponent != nullptr)
+			pyComponent->Update(dt.asSeconds());
 	}
 }
 
 
 void PythonEngine::Destroy()
 {
-	m_PythonInstanceMap.clear();
+	Clear ();
 	Log::GetInstance()->Msg("Finalize the python embed interpretor");
 	py::finalize_interpreter();
 }
@@ -246,6 +248,8 @@ void PythonEngine::Destroy()
 void PythonEngine::Clear()
 {
 	m_PythonInstanceMap.clear();
+	m_PyComponents.clear ();
+	m_PyComponents.resize (INIT_ENTITY_NMB);
 }
 
 ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
@@ -274,10 +278,10 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 			try
 			{
 
-				
+
 				py::object globals = py::globals();
 
-				globals[moduleName.c_str()] = import(moduleName, moduleFilename, globals);
+				globals[py::str(moduleName)] = import(moduleName, moduleFilename, globals);
 				m_PyModuleNameMap[m_IncrementalModuleId] = moduleName;
 				m_PythonModuleIdMap[moduleFilename] = m_IncrementalModuleId;
 				m_PyComponentClassNameMap[m_IncrementalModuleId] = className;
@@ -310,14 +314,16 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 		
 		try
 		{
-			auto moduleObj = py::globals()[m_PyModuleNameMap[moduleId].c_str()];
+			auto globals = py::globals ();
+			auto& moduleName = m_PyModuleNameMap[moduleId];
+			auto moduleObj = globals[py::str(moduleName)];
 			m_PythonInstanceMap[m_IncrementalInstanceId] = 
 				moduleObj.attr(className.c_str())(this, entity);
 			//Adding the important components
 
 			
 			auto pyComponent = GetPyComponentFromInstanceId(m_IncrementalInstanceId);
-			if (pyComponent)
+			if (pyComponent != nullptr)
 			{
 				m_PyComponents.push_back(pyComponent);
 			}
@@ -334,7 +340,7 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 		catch(std::runtime_error& e)
 		{
 			std::stringstream oss;
-			oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what();
+			oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what()<<"\n"<<py::str(py::globals ());
 			Log::GetInstance()->Error(oss.str());
 		}
 	}
@@ -380,9 +386,10 @@ void PythonEngine::LoadScripts(std::string dirname)
 			{
 				try
 				{
-					auto moduleObj = py::globals()[pyModuleName.c_str()];
-					auto importedModuleObj = py::globals()[m_PyModuleNameMap[importedModuleId].c_str()];
-					moduleObj.attr(importedClassName.c_str()) = importedModuleObj.attr(importedClassName.c_str());
+					auto globals = py::globals();
+					auto moduleObj = globals[py::str(pyModuleName)];
+					auto importedModuleObj = globals[py::str(m_PyModuleNameMap[importedModuleId])];
+					moduleObj.attr(py::str(importedClassName)) = importedModuleObj.attr(py::str(importedClassName));
 				}
 				catch(std::runtime_error& e)
 				{
@@ -415,7 +422,8 @@ py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)
 {
 	for (PyComponent* pyComponent : m_PyComponents)
 	{
-		if (pyComponent->GetEntity() == entity and
+		if (pyComponent != nullptr and
+		pyComponent->GetEntity() == entity and
 			py::cast(pyComponent).get_type().is(type))
 		{
 			return py::cast(pyComponent);
@@ -428,7 +436,7 @@ void PythonEngine::OnTriggerEnter(Entity entity, ColliderData * colliderData)
 {
 	for (auto& pyComponent : m_PyComponents)
 	{
-		if (pyComponent->GetEntity() == entity)
+		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
 			pyComponent->OnTriggerEnter(colliderData);
 		}
@@ -439,7 +447,7 @@ void PythonEngine::OnTriggerExit(Entity entity, ColliderData * colliderData)
 {
 	for (auto& pyComponent : m_PyComponents)
 	{
-		if (pyComponent->GetEntity() == entity)
+		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
 			pyComponent->OnTriggerExit(colliderData);
 		}
@@ -450,7 +458,7 @@ void PythonEngine::OnCollisionEnter(Entity entity, ColliderData * colliderData)
 {
 	for (auto& pyComponent : m_PyComponents)
 	{
-		if (pyComponent->GetEntity() == entity)
+		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
 			pyComponent->OnCollisionEnter(colliderData);
 		}
@@ -461,7 +469,7 @@ void PythonEngine::OnCollisionExit(Entity entity, ColliderData * colliderData)
 {
 	for (auto& pyComponent : m_PyComponents)
 	{
-		if (pyComponent->GetEntity() == entity)
+		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
 			pyComponent->OnCollisionExit(colliderData);
 		}

@@ -6,4 +6,4 @@ class SwitchScene(Component):
 
     def update(self, dt):
         if input_manager.keyboard.is_key_down(KeyboardManager.Key.Space):
-            scene_manager.load_scene("data/scenes/test.scene")
+            scene_manager.load_scene("SceneTest")

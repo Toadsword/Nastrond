@@ -100,11 +100,16 @@ class Component:
         pass
 
 
-class Transform(Component):
+class Transform():
     """Mandatory Component attached to the GameObject containing all the geometric important data of the GameObject"""
     def __init__(self):
-        pass
+        self.position = Vector2f()
+        self.scale = Vector2f()
+        self.angle = 0.0
 
+class Body2d:
+    def __init__(self):
+        self.velocity = b2Vec2()
 
 
 

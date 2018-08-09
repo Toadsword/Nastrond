@@ -38,6 +38,7 @@ namespace sfge
 
 enum class ComponentType : int
 {
+  	NONE = 0,
 	TRANSFORM = 1 << 0,
 	SPRITE = 1 << 1,
 	SHAPE = 1 << 2,

@@ -1,10 +1,14 @@
+from typing import Any
+
 from SFGE import *
 
 
 class PlayerCharacterBasic(Component):
+    speed = None  # type: float
+    body = None  # type: Body2d
+    foot = None  # type: int
 
-    def __init__(self, python_engine, entity):
-        Component.__init__(self, python_engine, entity)
+    def init(self):
         self.foot = 0
         self.body = self.get_component(Component.Body)
         self.speed = 1.0
