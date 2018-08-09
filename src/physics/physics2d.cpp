@@ -22,17 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <physics/physics.h>
+#include <physics/physics2d.h>
 #include <python/python_engine.h>
 #include <engine/config.h>
 #include <engine/engine.h>
 namespace sfge
 {
 
-const float PhysicsManager::pixelPerMeter = 100.0f;
+const float Physics2dManager::pixelPerMeter = 100.0f;
 
 
-void PhysicsManager::Init()
+void Physics2dManager::Init()
 {
 	b2Vec2 gravity = b2Vec2();
 	if(const auto configPtr = Engine::GetInstance()->GetConfig().lock())
@@ -44,12 +44,12 @@ void PhysicsManager::Init()
 	m_BodyManager.Init();
 }
 
-void PhysicsManager::Update(sf::Time dt)
+void Physics2dManager::Update(sf::Time dt)
 {
 	
 }
 
-void PhysicsManager::FixedUpdate()
+void Physics2dManager::FixedUpdate()
 {
 	auto config = Engine::GetInstance()->GetConfig().lock();
 	if (config and m_World)
@@ -61,13 +61,13 @@ void PhysicsManager::FixedUpdate()
 	}
 }
 
-std::weak_ptr<b2World> PhysicsManager::GetWorld() const
+std::weak_ptr<b2World> Physics2dManager::GetWorld() const
 {
 	return m_World;
 }
 
 
-void PhysicsManager::Destroy()
+void Physics2dManager::Destroy()
 {
 	if (m_World)
 	{
@@ -80,23 +80,23 @@ void PhysicsManager::Destroy()
 
 }
 
-void PhysicsManager::Clear()
+void Physics2dManager::Clear()
 {
 	Destroy();
 	Init();
 }
 
-void PhysicsManager::Collect()
+void Physics2dManager::Collect()
 {
 }
 
 
-Body2dManager& PhysicsManager::GetBodyManager()
+Body2dManager& Physics2dManager::GetBodyManager()
 {
 	return m_BodyManager;
 }
 
-ColliderManager& PhysicsManager::GetColliderManager()
+ColliderManager& Physics2dManager::GetColliderManager()
 {
 	return m_ColliderManager;
 }
@@ -157,12 +157,12 @@ void ContactListener::EndContact(b2Contact* contact)
 
 float pixel2meter(float pixel)
 {
-	return pixel/PhysicsManager::pixelPerMeter;
+	return pixel/Physics2dManager::pixelPerMeter;
 }
 
 float pixel2meter(int pixel)
 {
-	return pixel / PhysicsManager::pixelPerMeter;
+	return pixel / Physics2dManager::pixelPerMeter;
 }
 
 b2Vec2 pixel2meter(sf::Vector2f pixel)
@@ -177,7 +177,7 @@ b2Vec2 pixel2meter(sf::Vector2i pixel)
 
 float meter2pixel(float meter)
 {
-	return meter*PhysicsManager::pixelPerMeter;
+	return meter*Physics2dManager::pixelPerMeter;
 }
 
 sf::Vector2f meter2pixel(b2Vec2 meter)

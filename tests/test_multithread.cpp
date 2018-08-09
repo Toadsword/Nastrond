@@ -33,7 +33,7 @@ SOFTWARE.
 #include <imgui-SFML.h>
 #include <imgui.h>
 
-#include <physics/physics.h>
+#include <physics/physics2d.h>
 
 
 #define MULTITHREAD

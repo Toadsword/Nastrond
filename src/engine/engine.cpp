@@ -32,14 +32,14 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/globals.h>
 #include <engine/scene.h>
-#include <graphics/graphics.h>
+#include <graphics/graphics2d.h>
 #include <input/input.h>
 #include <python/python_engine.h>
 #include <engine/config.h>
 #include <audio/audio.h>
 #include <engine/editor.h>
-#include <engine/transform.h>
-#include <physics/physics.h>
+#include <engine/transform2d.h>
+#include <physics/physics2d.h>
 #include <engine/log.h>
 
 
@@ -51,12 +51,12 @@ Engine::Engine()
 	instance = this;
 	m_EntityManager = std::make_shared<EntityManager>();
 	m_TransformManager = std::make_shared<Transform2dManager>();
-	m_GraphicsManager = std::make_shared<GraphicsManager>();
+	m_GraphicsManager = std::make_shared<Graphics2dManager>();
 	m_AudioManager = std::make_shared<AudioManager>();
 	m_SceneManager = std::make_shared<SceneManager>();
 	m_InputManager = std::make_shared<InputManager>();
 	m_PythonEngine = std::make_shared<PythonEngine>();
-	m_PhysicsManager = std::make_shared<PhysicsManager>();
+	m_PhysicsManager = std::make_shared<Physics2dManager>();
 	m_Editor = std::make_shared<Editor>();
 }
 
@@ -195,9 +195,9 @@ std::weak_ptr<Configuration> Engine::GetConfig() const
 	return std::weak_ptr<Configuration>(m_Config);
 }
 
-std::weak_ptr<GraphicsManager> Engine::GetGraphicsManager() const
+std::weak_ptr<Graphics2dManager> Engine::GetGraphicsManager() const
 {
-	return std::weak_ptr<GraphicsManager>(m_GraphicsManager);
+	return std::weak_ptr<Graphics2dManager>(m_GraphicsManager);
 }
 
 std::weak_ptr<AudioManager> Engine::GetAudioManager() const
@@ -220,9 +220,9 @@ std::weak_ptr<PythonEngine> Engine::GetPythonEngine() const
 	return std::weak_ptr<PythonEngine>(m_PythonEngine);
 }
 
-std::weak_ptr<PhysicsManager> Engine::GetPhysicsManager() const
+std::weak_ptr<Physics2dManager> Engine::GetPhysicsManager() const
 {
-	return std::weak_ptr<PhysicsManager>(m_PhysicsManager);
+	return std::weak_ptr<Physics2dManager>(m_PhysicsManager);
 }
 
 std::weak_ptr<EntityManager> Engine::GetEntityManager() const

@@ -5,12 +5,12 @@
  *      Author: efarhan
  */
 
-#include <engine/transform.h>
+#include <engine/transform2d.h>
 #include <imgui.h>
 
 namespace sfge
 {
-void editor::TransformInfo::DrawOnInspector()
+void editor::Transform2dInfo::DrawOnInspector()
 {
 	
 	float pos[2] = { transform->Position.x, transform->Position.y };

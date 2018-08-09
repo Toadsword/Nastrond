@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include <Box2D/Box2D.h>
 #include <engine/component.h>
-#include <engine/transform.h>
+#include <engine/transform2d.h>
 #include <engine/editor.h>
 
 namespace sfge

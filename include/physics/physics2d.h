@@ -29,7 +29,7 @@ SOFTWARE.
 #include <SFML/System/Time.hpp>
 
 #include <engine/module.h>
-#include <physics/collider.h>
+#include <physics/collider2d.h>
 #include <physics/body2d.h>
 
 namespace sfge
@@ -55,12 +55,12 @@ public:
 /**
  * \brief The Physics Manager use Box2D to simulate 2D physics
  */
-class PhysicsManager : public Module
+class Physics2dManager : public Module
 {
 public:
-	PhysicsManager() = default;
+	Physics2dManager() = default;
 
-	~PhysicsManager() = default;
+	~Physics2dManager() = default;
 	/**
 	 * \brief Initialize the Physics Manager, but do not create a b2World
 	 */

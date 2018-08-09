@@ -34,8 +34,8 @@ SOFTWARE.
 #include <engine/log.h>
 #include <engine/config.h>
 #include <engine/scene.h>
-#include <graphics/graphics.h>
-#include <physics/physics.h>
+#include <graphics/graphics2d.h>
+#include <physics/physics2d.h>
 
 namespace sfge
 {

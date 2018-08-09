@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <sstream>
 
-#include <graphics/graphics.h>
+#include <graphics/graphics2d.h>
 #include <engine/engine.h>
 #include <engine/log.h>
 #include <engine/config.h>
@@ -38,7 +38,7 @@ SOFTWARE.
 namespace sfge
 {
 
-void GraphicsManager::Init()
+void Graphics2dManager::Init()
 {
 	if (const auto configPtr = Engine::GetInstance()->GetConfig().lock())
 	{
@@ -66,7 +66,7 @@ void GraphicsManager::Init()
 
 }
 
-void GraphicsManager::Update(sf::Time dt)
+void Graphics2dManager::Update(sf::Time dt)
 {
 	if (!m_Windowless)
 	{
@@ -80,7 +80,7 @@ void GraphicsManager::Update(sf::Time dt)
 	}
 }
 
-void GraphicsManager::Display()
+void Graphics2dManager::Display()
 {
 	if (!m_Windowless)
 	{
@@ -88,7 +88,7 @@ void GraphicsManager::Display()
 	}
 }
 
-void GraphicsManager::DrawLine(sf::Vector2f from, sf::Vector2f to, sf::Color color)
+void Graphics2dManager::DrawLine(sf::Vector2f from, sf::Vector2f to, sf::Color color)
 {
 	sf::Vertex vertices[2] =
 	{
@@ -99,27 +99,27 @@ void GraphicsManager::DrawLine(sf::Vector2f from, sf::Vector2f to, sf::Color col
 	m_Window->draw(vertices, 2, sf::Lines);
 }
 
-std::shared_ptr<sf::RenderWindow> GraphicsManager::GetWindow()
+std::shared_ptr<sf::RenderWindow> Graphics2dManager::GetWindow()
 {
 	return m_Window;
 }
 
-SpriteManager& GraphicsManager::GetSpriteManager()
+SpriteManager& Graphics2dManager::GetSpriteManager()
 {
 	return m_SpriteManager;
 }
 
-TextureManager& GraphicsManager::GetTextureManager()
+TextureManager& Graphics2dManager::GetTextureManager()
 {
 	return m_TextureManager;
 }
 
-ShapeManager& GraphicsManager::GetShapeManager()
+ShapeManager& Graphics2dManager::GetShapeManager()
 {
 	return m_ShapeManager;
 }
 
-void GraphicsManager::CheckVersion() const
+void Graphics2dManager::CheckVersion() const
 {
 	sf::ContextSettings settings = m_Window->getSettings();
 	std::stringstream log_message;
@@ -134,7 +134,7 @@ void checkVersion()
 }
 
 
-void GraphicsManager::Destroy()
+void Graphics2dManager::Destroy()
 {
 	Clear();
 	Collect();
@@ -143,13 +143,13 @@ void GraphicsManager::Destroy()
 	ImGui::SFML::Shutdown();
 }
 
-void GraphicsManager::Clear()
+void Graphics2dManager::Clear()
 {
 	m_TextureManager.Clear();
 	m_SpriteManager.Reset();
 }
 
-void GraphicsManager::Collect()
+void Graphics2dManager::Collect()
 {
 
 	m_TextureManager.Collect();

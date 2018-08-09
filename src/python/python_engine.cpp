@@ -32,9 +32,9 @@
 #include <engine/engine.h>
 #include <input/input.h>
 #include <audio/audio.h>
-#include <graphics/shape.h>
-#include <graphics/sprite.h>
-#include <physics/physics.h>
+#include <graphics/shape2d.h>
+#include <graphics/sprite2d.h>
+#include <physics/physics2d.h>
 #include <python/pycomponent.h>
 
 #include <utility/file_utility.h>

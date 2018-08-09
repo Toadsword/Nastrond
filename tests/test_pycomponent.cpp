@@ -25,7 +25,7 @@ SOFTWARE.
 #include <engine/log.h>
 #include <python/pycomponent.h>
 #include <utility/json_utility.h>
-#include <graphics/shape.h>
+#include <graphics/shape2d.h>
 #include <engine/scene.h>
 
 int main()

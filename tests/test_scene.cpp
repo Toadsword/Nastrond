@@ -22,16 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <engine/modules.h>
+#include <engine/engine.h>
+#include <engine/scene.h>
 #include <utility/json_utility.h>
 
 int main()
 {
 	sfge::Engine engine;
-	engine.Init(false, true);
+	engine.Init();
 
-	auto sceneManager = engine.GetSceneManager();
-	sceneManager.SetCurrentScene(sceneManager.LoadSceneFromName("data/scenes/test.scene"));
+	if(auto sceneManager = engine.GetSceneManager().lock ())
+	  sceneManager->LoadSceneFromPath ("data/scenes/test.scene");
 
 
 	engine.Start();

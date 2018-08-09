@@ -34,7 +34,7 @@ py::object import(const std::string& module, const std::string& path, py::object
 {
 	{
 		std::ostringstream oss;
-		oss << "Loading python module: " << module << " with globals: " << globals.str().cast<std::string>();
+		oss << "Loading python module: " << module << " with globals: " << py::str(globals).cast<std::string>();
 		sfge::Log::GetInstance()->Msg(oss.str());
 	}
 

@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #include <physics/body2d.h>
-#include <physics/physics.h>
-#include <engine/transform.h>
+#include <physics/physics2d.h>
+#include <engine/transform2d.h>
 #include <engine/entity.h>
 #include <imgui.h>
 #include <imgui-SFML.h>

@@ -26,9 +26,9 @@ SOFTWARE.
 #define SFGE_GRAPHICS_H
 
 #include <engine/module.h>
-#include <graphics/shape.h>
+#include <graphics/shape2d.h>
 #include <graphics/texture.h>
-#include <graphics/sprite.h>
+#include <graphics/sprite2d.h>
 
 namespace sfge
 {
@@ -36,10 +36,10 @@ namespace sfge
 /**
 * \brief The Graphics Manager
 */
-class GraphicsManager : public Module
+class Graphics2dManager : public Module
 {
 public:
-	GraphicsManager() = default;
+	Graphics2dManager() = default;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/

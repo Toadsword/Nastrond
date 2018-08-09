@@ -21,10 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <physics/collider.h>
+#include <physics/collider2d.h>
 #include <engine/globals.h>
 #include <engine/component.h>
-#include <physics/physics.h>
+#include <physics/physics2d.h>
 #include <engine/engine.h>
 namespace sfge
 {

@@ -31,7 +31,7 @@ SOFTWARE.
 
 #include <ctpl_stl.h>
 
-#include <physics/physics.h>
+#include <physics/physics2d.h>
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
@@ -56,8 +56,8 @@ SOFTWARE.
 #define THREAD_POOL_NMB 4
 
 //#define USE_B2
-#define OOP
-//#define ECS
+//#define OOP
+#define ECS
 //#define THREAD_ECS
 
 #ifdef USE_B2

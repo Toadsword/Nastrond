@@ -44,12 +44,12 @@ namespace sfge
 */
 struct Configuration;
 class Module;
-class GraphicsManager;
+class Graphics2dManager;
 class AudioManager;
 class PythonEngine;
 class InputManager;
 class SceneManager;
-class PhysicsManager;
+class Physics2dManager;
 struct EntityManager;
 class Editor;
 class Transform2dManager;
@@ -101,15 +101,17 @@ public:
 	*/
 	std::weak_ptr<Configuration> GetConfig() const;
 
-	std::weak_ptr<GraphicsManager> GetGraphicsManager() const;
+	std::weak_ptr<Graphics2dManager> GetGraphicsManager() const;
 	std::weak_ptr<AudioManager> GetAudioManager() const;
 	std::weak_ptr<SceneManager> GetSceneManager() const;
 	std::weak_ptr<InputManager> GetInputManager() const;
 	std::weak_ptr<PythonEngine> GetPythonEngine() const;
-	std::weak_ptr<PhysicsManager> GetPhysicsManager() const;
+	std::weak_ptr<Physics2dManager> GetPhysicsManager() const;
 	std::weak_ptr<EntityManager> GetEntityManager() const;
 	std::weak_ptr<Transform2dManager> GetTransform2dManager() const;
 	std::weak_ptr<Editor> GetEditor() const;
+
+	ctpl::thread_pool& GetThreadPool();
 	bool running = false;
 protected:
 	void InitModules();
@@ -119,12 +121,12 @@ protected:
 
 
 	//module
-	std::shared_ptr<GraphicsManager> m_GraphicsManager = nullptr;
+	std::shared_ptr<Graphics2dManager> m_GraphicsManager = nullptr;
 	std::shared_ptr<AudioManager> m_AudioManager = nullptr;
 	std::shared_ptr<SceneManager> m_SceneManager = nullptr;
 	std::shared_ptr<InputManager> m_InputManager = nullptr;
 	std::shared_ptr<PythonEngine> m_PythonEngine = nullptr;
-	std::shared_ptr<PhysicsManager> m_PhysicsManager = nullptr;
+	std::shared_ptr<Physics2dManager> m_PhysicsManager = nullptr;
 	std::shared_ptr<Editor> m_Editor = nullptr;
 	std::shared_ptr<EntityManager> m_EntityManager = nullptr;
 	std::shared_ptr<Transform2dManager> m_TransformManager = nullptr;

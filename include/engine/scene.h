@@ -32,7 +32,7 @@
 
 #include <engine/module.h>
 #include <utility/json_utility.h>
-#include <engine/transform.h>
+#include <engine/transform2d.h>
 
 namespace sfge
 {

@@ -31,13 +31,13 @@ SOFTWARE.
 #include <SFML/Graphics.hpp>
 //Engine
 #include <engine/component.h>
-#include <engine/transform.h>
+#include <engine/transform2d.h>
 #include <engine/editor.h>
 #include <graphics/texture.h>
 
 namespace sfge
 {
-class GraphicsManager;
+class Graphics2dManager;
 /**
 * \brief Sprite component used in the GameObject
 */
@@ -94,7 +94,7 @@ public:
 	void DestroyComponent(Entity entity) override;
 
 protected:
-	std::weak_ptr<GraphicsManager> m_GraphicsManagerPtr;
+	std::weak_ptr<Graphics2dManager> m_GraphicsManagerPtr;
 	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 };

@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <graphics/graphics.h>
-#include <graphics/shape.h>
+#include <graphics/graphics2d.h>
+#include <graphics/shape2d.h>
 #include <utility/json_utility.h>
 #include <engine/log.h>
-#include <engine/transform.h>
+#include <engine/transform2d.h>
 #include <engine/engine.h>
 #include <imgui.h>
 #include <imgui-SFML.h>

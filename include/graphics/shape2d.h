@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include <engine/module.h>
 #include <engine/component.h>
-#include <engine/transform.h>
+#include <engine/transform2d.h>
 #include <engine/editor.h>
 //Externals
 #include <SFML/Graphics.hpp>

@@ -24,8 +24,8 @@ SOFTWARE.
 
 //Engine
 #include <engine/engine.h>
-#include <graphics/sprite.h>
-#include <engine/transform.h>
+#include <graphics/sprite2d.h>
+#include <engine/transform2d.h>
 #include <utility/json_utility.h>
 #include <engine/log.h>
 #include <engine/config.h>

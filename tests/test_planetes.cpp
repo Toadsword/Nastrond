@@ -28,7 +28,7 @@ SOFTWARE.
 #include <cmath>
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
-#include <physics/physics.h>
+#include <physics/physics2d.h>
 
 
 #define SUN_MASS 100.0f

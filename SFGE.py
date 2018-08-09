@@ -80,14 +80,23 @@ class Component:
     Shape = 0
     Body = 0
     Sound = 0
-    def __init__(self, python_engine, entity):
-        self.python_engine = python_engine
-        self.entity = entity
 
     def update(self, dt):
         pass
 
     def fixed_update(self, dt):
+        pass
+
+    def on_trigger_enter(self, collider):
+        pass
+
+    def on_trigger_exit(self, collider):
+        pass
+
+    def on_collision_enter(self, collider):
+        pass
+
+    def on_collision_exit(self, collider):
         pass
 
 

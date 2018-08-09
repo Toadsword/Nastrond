@@ -30,9 +30,9 @@
 #include <engine/config.h>
 #include <utility/file_utility.h>
 #include <engine/entity.h>
-#include <graphics/graphics.h>
+#include <graphics/graphics2d.h>
 #include <python/python_engine.h>
-#include <physics/physics.h>
+#include <physics/physics2d.h>
 #include <engine/engine.h>
 
 // for convenience

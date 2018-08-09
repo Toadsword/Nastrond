@@ -151,6 +151,7 @@ foreach(test_file ${TEST_FILES} )
     # Make sure YourLib is linked to each app
     target_link_libraries(${test_name} PUBLIC SFGE_COMMON)
 	set_property(TARGET ${test_name} PROPERTY CXX_STANDARD 17)
+		set_target_properties(${test_name} PROPERTIES COMPILE_FLAGS "-save-temps")
   if(APPLE)
     set_target_properties(${test_name} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
@@ -158,6 +159,11 @@ foreach(test_file ${TEST_FILES} )
   ENDIF(APPLE)
 endforeach()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}" )
+elseif()
+	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -masm=intel" )
+endif()
 #SFGE
 add_executable(SFGE src/main.cpp)
 

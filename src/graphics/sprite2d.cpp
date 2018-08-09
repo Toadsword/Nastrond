@@ -22,15 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <graphics/graphics.h>
-#include <graphics/sprite.h>
+#include <graphics/graphics2d.h>
+#include <graphics/sprite2d.h>
 #include <graphics/texture.h>
 #include <utility/file_utility.h>
 
 #include <engine/log.h>
 #include <engine/engine.h>
 #include <engine/config.h>
-#include <engine/transform.h>
+#include <engine/transform2d.h>
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -72,12 +72,15 @@ void editor::SpriteInfo::DrawOnInspector()
 	ImGui::Text("Sprite");
 	ImGui::LabelText("Texture Path", texturePath.c_str());
 	ImGui::InputInt("Texture Id", (int*)&textureId);
-	float offset[2] =
+	if(sprite)
 	{
-		sprite->GetOffset().x,
-		sprite->GetOffset().y
-	};
-	ImGui::InputFloat2("Offset", offset);
+		float offset[2] =
+		{
+			sprite->GetOffset().x,
+			sprite->GetOffset().y
+		};
+		ImGui::InputFloat2("Offset", offset);
+	}
 }
 
 void SpriteManager::Init()

@@ -26,7 +26,7 @@ struct Transform2d
 
 namespace editor
 {
-struct TransformInfo : ComponentInfo
+struct Transform2dInfo : ComponentInfo
 {
 	void DrawOnInspector() override;
 	Transform2d* transform = nullptr;
@@ -34,7 +34,7 @@ struct TransformInfo : ComponentInfo
 }
 
 class Transform2dManager :
-	public ComponentManager<Transform2d, editor::TransformInfo>, public Module
+	public ComponentManager<Transform2d, editor::Transform2dInfo>, public Module
 {
 public:
 	Transform2dManager() = default;

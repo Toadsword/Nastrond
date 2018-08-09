@@ -27,8 +27,8 @@
 #include <python/pycomponent.h>
 #include <python/python_engine.h>
 #include <engine/log.h>
-#include <physics/physics.h>
-#include <graphics/graphics.h>
+#include <physics/physics2d.h>
+#include <graphics/graphics2d.h>
 #include <engine/engine.h>
 namespace sfge
 {

@@ -39,11 +39,11 @@ namespace sfge
 
 
 class Body2dManager;
-class GraphicsManager;
+class Graphics2dManager;
 class Transform2dManager;
 class EntityManager;
 class SceneManager;
-class PhysicsManager;
+class Physics2dManager;
 
 //Editor components
 namespace editor
@@ -106,11 +106,11 @@ public:
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
-	std::weak_ptr<GraphicsManager> m_GraphicsManagerPtr;
+	std::weak_ptr<Graphics2dManager> m_GraphicsManagerPtr;
 	std::weak_ptr<SceneManager> m_SceneManagerPtr;
 	std::weak_ptr<EntityManager> m_EntityManagerPtr;
 	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
-	std::weak_ptr<PhysicsManager> m_PhysicsManagerPtr;
+	std::weak_ptr<Physics2dManager> m_PhysicsManagerPtr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;

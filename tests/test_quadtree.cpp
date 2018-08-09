@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
-#include <physics/physics.h>
+#include <physics/physics2d.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 
