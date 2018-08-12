@@ -118,7 +118,7 @@ void SceneManager::LoadSceneFromPath(const std::string& scenePath) const
 void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo) const
 {
 	if(!sceneInfo)
-		sceneInfo = std::make_unique<editor::SceneInfo>();
+		sceneInfo = std::make_unique<editor::SceneInfo> ();
 	if (CheckJsonParameter(sceneJson, "name", json::value_t::string))
 	{
 		sceneInfo->name = sceneJson["name"].get<std::string>();
