@@ -30,17 +30,18 @@ SOFTWARE.
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <iostream>
+#include <array>
 
-#define LENGTH 1'000'000
+#define LENGTH 100'000
 
 int main()
 {
     std::vector<float> numbers1(LENGTH);
-    std::array<float, LENGTH> numbers5;
+    std::array<float, LENGTH> numbers5{};
     std::list<float> numbers2;
     std::vector<float*> numbers3(LENGTH);
     std::list<float*> numbers4;
-    std::array<float, 8> tmp;
+    std::array<float, 8> tmp{};
     int tmpIndex = 0;
     for(int i = 0; i<LENGTH;i++)
     {
@@ -55,12 +56,12 @@ int main()
 
     for(int i = 0; i < LENGTH; i++)
     {
-        numbers1[i] += numbers1[i];
+		numbers1[i] += numbers1[i];
     }
     sf::Time vectorFloatTime = clock.restart();
     for(int i = 0; i < LENGTH; i++)
     {
-        numbers5[i] += numbers5[i];
+		numbers5[i] += numbers5[i];
     }
     sf::Time arrayFloatTime = clock.restart();
 
@@ -71,7 +72,7 @@ int main()
 
     sf::Time vectorFloatPtrTime = clock.restart();
 
-    for(auto elem : numbers2)
+    for(auto& elem : numbers2)
     {
         sqrt(elem);
     }
@@ -91,6 +92,9 @@ int main()
               << "List Float Time: " << listFloatTime.asMicroseconds() << "\n"
               << "List Float Ptr Time: " << listFloatPtrTime.asMicroseconds() << "\n"
               ;
+#if WIN32
+	system("pause");
+#endif
     return EXIT_SUCCESS;
 
 

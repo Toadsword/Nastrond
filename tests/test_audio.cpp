@@ -22,7 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <iostream>
+
 #include <SFML/Graphics.hpp>
+
+#include <engine/component.h>
 #include <engine/engine.h>
 #include <engine/log.h>
 #include <input/input.h>
@@ -39,7 +42,7 @@ int main()
 	json gameObjectJson1;
 	json objectJson1;
 	objectJson1["path"] = "data/audio/sounds/Laser.wav";
-	objectJson1["type"] = (int)sfge::ComponentType::SOUND;
+	objectJson1["type"] = static_cast<int>(sfge::ComponentType::SOUND);
 	gameObjectJson1["components"] = json::array({ objectJson1 });
 	gameObjectJson1["name"] = objectJson1["path"];
 	sfge::GameObject* gameObject1 = sfge::GameObject::LoadGameObject(engine, gameObjectJson1);
