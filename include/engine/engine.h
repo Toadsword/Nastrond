@@ -36,17 +36,6 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <utility/singleton.h>
 
-//modules
-#include <audio/audio.h>
-#include <input/input.h>
-#include <engine/editor.h>
-#include <engine/transform2d.h>
-#include <engine/entity.h>
-#include <engine/scene.h>
-#include <python/python_engine.h>
-#include <graphics/graphics2d.h>
-#include <physics/physics2d.h>
-
 namespace sfge
 {
 
@@ -54,6 +43,16 @@ namespace sfge
 * Prototypes declarations
 */
 struct Configuration;
+class Module;
+class Graphics2dManager;
+class AudioManager;
+class PythonEngine;
+class InputManager;
+class SceneManager;
+class Physics2dManager;
+class EntityManager;
+class Editor;
+class Transform2dManager;
 
 enum class EngineModule
 {
@@ -102,18 +101,15 @@ public:
 	*/
 	std::weak_ptr<Configuration> GetConfig() const;
 
-
-	AudioManager& GetAudioManager() const;
-	SceneManager& GetSceneManager() const;
-	InputManager& GetInputManager() const;
-	PythonEngine& GetPythonEngine() const;
-
-    EntityManager& GetEntityManager() const;
-    Editor& GetEditor() const;
-
-    Transform2dManager& GetTransform2dManager() const;
-	Physics2dManager& GetPhysicsManager() const;
-  	Graphics2dManager& GetGraphicsManager() const;
+	std::weak_ptr<Graphics2dManager> GetGraphicsManager() const;
+	std::weak_ptr<AudioManager> GetAudioManager() const;
+	std::weak_ptr<SceneManager> GetSceneManager() const;
+	std::weak_ptr<InputManager> GetInputManager() const;
+	std::weak_ptr<PythonEngine> GetPythonEngine() const;
+	std::weak_ptr<Physics2dManager> GetPhysicsManager() const;
+	std::weak_ptr<EntityManager> GetEntityManager() const;
+	std::weak_ptr<Transform2dManager> GetTransform2dManager() const;
+	std::weak_ptr<Editor> GetEditor() const;
 
 	ctpl::thread_pool& GetThreadPool();
 	bool running = false;
@@ -125,15 +121,15 @@ protected:
 
 
 	//module
-	Graphics2dManager m_GraphicsManager;
-	AudioManager m_AudioManager;
-	SceneManager m_SceneManager;
-	InputManager m_InputManager;
-	PythonEngine m_PythonEngine;
-	Physics2dManager m_PhysicsManager;
-	Editor m_Editor;
-	EntityManager m_EntityManager;
-	Transform2dManager m_TransformManager;
+	std::shared_ptr<Graphics2dManager> m_GraphicsManager = nullptr;
+	std::shared_ptr<AudioManager> m_AudioManager = nullptr;
+	std::shared_ptr<SceneManager> m_SceneManager = nullptr;
+	std::shared_ptr<InputManager> m_InputManager = nullptr;
+	std::shared_ptr<PythonEngine> m_PythonEngine = nullptr;
+	std::shared_ptr<Physics2dManager> m_PhysicsManager = nullptr;
+	std::shared_ptr<Editor> m_Editor = nullptr;
+	std::shared_ptr<EntityManager> m_EntityManager = nullptr;
+	std::shared_ptr<Transform2dManager> m_TransformManager = nullptr;
 
 };
 

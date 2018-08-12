@@ -151,8 +151,10 @@ foreach(test_file ${TEST_FILES} )
     # Make sure YourLib is linked to each app
     target_link_libraries(${test_name} PUBLIC SFGE_COMMON)
 	set_property(TARGET ${test_name} PROPERTY CXX_STANDARD 17)
+	IF(UNIX)
 		set_target_properties(${test_name} PROPERTIES COMPILE_FLAGS "-save-temps")
-  if(APPLE)
+	ENDIF(UNIX)
+  IF(APPLE)
     set_target_properties(${test_name} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
