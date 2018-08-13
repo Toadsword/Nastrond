@@ -6,10 +6,22 @@
 
 namespace sfge
 {
-    System::System ()
-        : m_ThreadPool (Engine::GetInstance ()->GetThreadPool ())
-    {
 
-    }
+void System::Destroy()
+{
+	Clear();
+	Collect();
+}
+
+
+void System::SetEnable(bool enable)
+{
+	m_Enable = enable;
+}
+
+bool System::GetEnable() const
+{
+	return m_Enable;
+}
 
 }

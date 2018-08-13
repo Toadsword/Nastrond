@@ -65,7 +65,7 @@ private:
 };
 }
 
-class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public Module
+class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System
 {
 public:
 	Body2dManager() = default;

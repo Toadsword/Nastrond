@@ -54,7 +54,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Engine> engine(m, "Engine");
 
-	py::class_<Module> module(m, "Module");
+	py::class_<System> module(m, "Module");
 
 	py::class_<SceneManager> sceneManager(m, "SceneManager");
 	sceneManager
@@ -64,7 +64,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager
 		.def_property_readonly("keyboard", &InputManager::GetKeyboardManager, py::return_value_policy::reference);
-
+	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
 	py::class_<KeyboardManager> keyboardManager(m, "KeyboardManager");
 	keyboardManager
 		.def("is_key_held", &KeyboardManager::IsKeyHeld)
@@ -208,13 +208,23 @@ void PythonEngine::Init()
 	//Adding refecrence to c++ engine modules
 
 	py::module sfgeModule = py::module::import("SFGE");
-	sfgeModule.attr("engine")=  py::cast(Engine::GetInstance(), py::return_value_policy::reference);
+	try
+	{
+		sfgeModule.attr("engine") = py::cast(Engine::GetInstance(), py::return_value_policy::reference);
 
-	if(auto sceneManagerPtr = Engine::GetInstance()->GetSceneManager().lock())
-		sfgeModule.attr("scene_manager") = py::cast(sceneManagerPtr.get(), py::return_value_policy::reference);
-	if(auto inputManagerPtr = Engine::GetInstance()->GetInputManager().lock())
-		sfgeModule.attr("input_manager") = py::cast(inputManagerPtr.get(), py::return_value_policy::reference);
-		
+		if (auto sceneManagerPtr = Engine::GetInstance()->GetSceneManager().lock())
+			sfgeModule.attr("scene_manager") = py::cast(sceneManagerPtr.get(), py::return_value_policy::reference);
+		if (auto inputManagerPtr = Engine::GetInstance()->GetInputManager().lock())
+			sfgeModule.attr("input_manager") = py::cast(inputManagerPtr.get(), py::return_value_policy::reference);
+		if (auto physicsManagerPtr = Engine::GetInstance()->GetPhysicsManager().lock())
+			sfgeModule.attr("physics2d_manager") = py::cast(physicsManagerPtr.get(), py::return_value_policy::reference);
+	}
+	catch (py::error_already_set& e)
+	{
+		std::ostringstream oss;
+		oss << "[ERROR] Python already set error: " << e.what();
+		Log::GetInstance()->Error(oss.str());
+	}
 	LoadScripts();
 }
 

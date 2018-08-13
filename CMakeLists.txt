@@ -37,13 +37,27 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/externals)
 
 include_directories(include ${CMAKE_SOURCE_DIR}/include)
 
-file(GLOB_RECURSE SFGE_SRC src/*/*.cpp include/*.h)
-if(WIN32)
-set_property(GLOBAL PROPERTY USE_FOLDERS On)
+file(GLOB_RECURSE SFGE_AUDIO_SRC src/audio/*.cpp include/audio/*.h)
+file(GLOB_RECURSE SFGE_ENGINE_SRC src/engine/*.cpp include/engine/*.h)
+file(GLOB_RECURSE SFGE_GRAPHICS_SRC src/graphics/*.cpp include/graphics/*.h)
+file(GLOB_RECURSE SFGE_INPUT_SRC src/input/*.cpp include/input/*.h)
+file(GLOB_RECURSE SFGE_PHYSICS_SRC src/physics/*.cpp include/physics/*.h)
+file(GLOB_RECURSE SFGE_PYTHON_SRC src/python/*.cpp include/python/*.h)
+file(GLOB_RECURSE SFGE_UTILITY_SRC src/utility/*.cpp include/utility/*.h)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS On)
 SET_SOURCE_FILES_PROPERTIES( ${SFGE_SRC} PROPERTIES
                 FOLDER "${CMAKE_SOURCE_DIR}/src" )
-endif(WIN32)
+
+source_group("Audio"            FILES ${SFGE_AUDIO_SRC})
+source_group("Engine"            FILES ${SFGE_ENGINE_SRC})
+source_group("Graphics"            FILES ${SFGE_GRAPHICS_SRC})
+source_group("Input"            FILES ${SFGE_INPUT_SRC})
+source_group("Physics"            FILES ${SFGE_PHYSICS_SRC})
+source_group("Python"            FILES ${SFGE_PYTHON_SRC})
+source_group("Utility"            FILES ${SFGE_UTILITY_SRC})
+List(APPEND SFGE_SRC  ${SFGE_AUDIO_SRC} ${SFGE_ENGINE_SRC} ${SFGE_GRAPHICS_SRC} 
+${SFGE_INPUT_SRC} ${SFGE_PHYSICS_SRC}  ${SFGE_PYTHON_SRC} ${SFGE_UTILITY_SRC})
 #SFML
 set(SFML_DIR ${EXTERNAL_DIR}/SFML)
 set(SFML_BUILD_EXAMPLES FALSE)
@@ -140,6 +154,7 @@ set_target_properties(SFGE_COMMON PROPERTIES
 ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF(APPLE)
+
 #SFGE_TEST
 SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )

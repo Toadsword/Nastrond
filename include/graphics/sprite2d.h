@@ -79,7 +79,7 @@ struct SpriteInfo : ComponentInfo
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
 class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>, 
-	public LayerComponentManager<Sprite>, public Module
+	public LayerComponentManager<Sprite>, public System
 {
 public:
 	SpriteManager() = default;

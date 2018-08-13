@@ -43,7 +43,7 @@ namespace sfge
 * Prototypes declarations
 */
 struct Configuration;
-class Module;
+class System;
 class Graphics2dManager;
 class AudioManager;
 class PythonEngine;

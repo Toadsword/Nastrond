@@ -25,14 +25,26 @@ SOFTWARE.
 
 #ifndef SFGE_SOUND_H
 #define SFGE_SOUND_H
+#include <map>
 
 #include <SFML/Audio.hpp>
-#include <map>
+#include <engine/component.h>
+#include <engine/editor.h>
 
 namespace sfge
 {
 class SoundManager;
 
+using SoundId = unsigned int;
+#define INVALID_SOUND_ID 0U;
+
+namespace editor
+{
+class SoundInfo : public ComponentInfo, PathEditorComponent
+{
+	void DrawOnInspector() override;
+};
+}
 /**
 * \brief Sound class child is a Component
 */
@@ -46,15 +58,16 @@ public:
 	*/
 	void Init();
 
+
 	void SetBuffer(sf::SoundBuffer* buffer);
 	void Play();
 	void Stop();
 
 protected:
-	sf::Sound* m_Sound = nullptr;
+	sf::Sound m_Sound;
 };
 
-class SoundManager
+class SoundManager : public ComponentManager<Sound, editor::SoundInfo>
 {
 public:
 	SoundManager();
@@ -70,20 +83,19 @@ public:
 	*/
 	sf::SoundBuffer* GetSoundBuffer(unsigned int sound_buffer_id);
 
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
 
 	void Reset();
 
 	void Collect();
 
 protected:
-	/**
-	* \brief The list where the sounds of LoadSound fuction of SoundManager was placed
-	*/
-	std::vector<Sound> m_Sounds;
-	std::map<std::string, unsigned int> idsPathMap;
-	std::map<unsigned int, unsigned int> idsRefCountMap;
-	std::map<unsigned int, sf::SoundBuffer*> soundBufferMap;
-	unsigned int incrementId = 0;
+
+	std::map<std::string, SoundId> idsPathMap;
+	std::map<SoundId, unsigned int> idsRefCountMap;
+	std::map<SoundId, sf::SoundBuffer*> soundBufferMap;
+	SoundId incrementId = INVALID_SOUND_ID;
 };
 }
 #endif

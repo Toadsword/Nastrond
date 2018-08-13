@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <memory>
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <engine/globals.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -80,7 +80,7 @@ struct ComponentInfo : NamableEditorComponent, IDrawableInspector
 
 }
 
-class Editor : public Module
+class Editor : public System
 {
 public:
 	Editor() = default;

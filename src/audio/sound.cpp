@@ -102,27 +102,29 @@ sf::SoundBuffer* SoundManager::GetSoundBuffer(unsigned int sound_buffer_id)
 
 }
 
+void SoundManager::CreateComponent(json & componentJson, Entity entity)
+{
+}
+
+void SoundManager::DestroyComponent(Entity entity)
+{
+}
+
 sfge::Sound::Sound()
 {
-	m_Sound = new sf::Sound();
 }
 
 sfge::Sound::~Sound()
 {
-	if (m_Sound != nullptr)
-	{
-		delete(m_Sound);
-		m_Sound = nullptr;
-	}
 }
 void Sound::Init()
 {
 }
 void Sound::SetBuffer(sf::SoundBuffer* buffer)
 {
-	m_Sound->setBuffer(*buffer);
+	m_Sound.setBuffer(*buffer);
 }
-SoundManager::SoundManager()
+SoundManager::SoundManager(): ComponentManager()
 {
 
 }
@@ -139,37 +141,38 @@ void SoundManager::Collect()
 	std::list<unsigned int> unusedIds;
 	for (auto idRefCountPair : idsRefCountMap)
 	{
-		if (idRefCountPair.second == 0U)
+		const SoundId& soundId = idRefCountPair.first;
+		const int& soundIdCount = idRefCountPair.second;
+		if (soundIdCount == 0U)
 		{
-			unusedIds.push_back(idRefCountPair.first);
+			unusedIds.push_back(soundId);
 		}
 	}
 	for (unsigned int soundBufferId : unusedIds)
 	{
 		idsRefCountMap.erase(soundBufferId);
-		delete(soundBufferMap[soundBufferId]);
 		soundBufferMap.erase(soundBufferId);
 	}
-	for (auto sound : m_Sounds)
+	for (auto sound : m_Components)
 	{
 	}
-	m_Sounds.clear();
+	m_Components.clear();
 }
 
 void Sound::Play()
 {
-	m_Sound->play();
+	m_Sound.play();
 
 }
 
 void Sound::Stop()
 {
-	m_Sound->stop();
+	m_Sound.stop();
 }
 
 SoundManager::~SoundManager()
 {
-	for (auto sound : m_Sounds)
+	for (auto sound : m_Components)
 	{
 	}
 	for (auto soundBuffer : soundBufferMap)
@@ -177,4 +180,8 @@ SoundManager::~SoundManager()
 		delete(soundBuffer.second);
 	}
 }
+}
+
+void sfge::editor::SoundInfo::DrawOnInspector()
+{
 }

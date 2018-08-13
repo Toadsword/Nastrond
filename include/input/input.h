@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <array>
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/System/Time.hpp>
@@ -60,7 +60,7 @@ public:
 /**
 * \brief Handles Input like the Keyboard, the Joystick or the Mouse
 */
-class InputManager : public Module
+class InputManager : public System
 {
 public:
 	InputManager() = default;

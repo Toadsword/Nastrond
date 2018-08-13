@@ -97,10 +97,20 @@ TextureId TextureManager::LoadTexture(std::string filename)
 {
 	const auto folderLastIndex = filename.find_last_of('/');
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	if (filenameExtensionIndex >= filename.size())
+	{
+		std::ostringstream oss;
+		oss << "[ERROR] Texture path: " << filename << " has invalid extension";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_TEXTURE;
+	}
 	const std::string extension = filename.substr(filenameExtensionIndex);
 	if(imgExtensionSet.find(extension) == imgExtensionSet.end())
 	{
-		return 0U;
+		std::ostringstream oss;
+		oss << "[ERROR] Texture path: " << filename << " has invalid extension";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_TEXTURE;
 	}
 	//Check extension first
 	
@@ -118,7 +128,12 @@ TextureId TextureManager::LoadTexture(std::string filename)
 		{
 			auto* texture = new sf::Texture();
 			if (!texture->loadFromFile(filename))
-				return 0U;
+			{
+				std::ostringstream oss;
+				oss << "[ERROR] Could not load texture file: " << filename;
+				Log::GetInstance()->Error(oss.str());
+				return INVALID_TEXTURE;
+			}
 			m_IncrementId++;
 			m_NameIdsMap[filename] = m_IncrementId;
 			m_IdsRefCountMap[m_IncrementId] = 1U;
@@ -133,14 +148,14 @@ TextureId TextureManager::LoadTexture(std::string filename)
 			m_IncrementId++;
 			auto texture = new sf::Texture();
 			if (!texture->loadFromFile(filename))
-				return 0U;
+				return INVALID_TEXTURE;
 			m_NameIdsMap[filename] = m_IncrementId;
 			m_IdsRefCountMap[m_IncrementId] = 1U;
 			m_TexturesMap[m_IncrementId] = texture;
 			return m_IncrementId;
 		}
 	}
-	return 0U;
+	return INVALID_TEXTURE;
 }
 
 

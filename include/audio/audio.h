@@ -32,7 +32,7 @@ SOFTWARE.
 
 #include <SFML/Audio.hpp>
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <audio/sound.h>
 
 namespace sfge
@@ -59,7 +59,7 @@ protected:
 	unsigned int incrementId = 0;
 };
 
-class AudioManager : public Module
+class AudioManager : public System
 {
 
 public:

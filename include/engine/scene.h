@@ -30,7 +30,7 @@
 #include <string>
 #include <list>
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <utility/json_utility.h>
 #include <engine/transform2d.h>
 
@@ -45,7 +45,7 @@ struct SceneInfo;
 /**
 * \brief The Scene Manager do the transition between two scenes, read from the Engine Configuration the scenes build list
 */
-class SceneManager : public Module
+class SceneManager : public System
 {
 public:
 	SceneManager() = default;

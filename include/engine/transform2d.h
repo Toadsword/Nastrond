@@ -34,7 +34,7 @@ struct Transform2dInfo : ComponentInfo
 }
 
 class Transform2dManager :
-	public ComponentManager<Transform2d, editor::Transform2dInfo>, public Module
+	public ComponentManager<Transform2d, editor::Transform2dInfo>, public System
 {
 public:
 	Transform2dManager() = default;

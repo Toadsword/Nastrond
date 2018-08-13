@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#include <sstream>
 #include <graphics/sprite2d.h>
 #include <graphics/texture.h>
 #include <engine/log.h>
@@ -28,20 +29,37 @@ int main()
 {
 	sfge::TextureManager textureManager;
 
-	unsigned int goodTextId = textureManager.LoadTexture("data/sprites/boss_01_dialog_pose_001_b.png");
-	unsigned int badTextId = textureManager.LoadTexture("prout.jpg");
+	std::string goodTextPath = "fake/path/prout.jpg";
+	std::string badTextPath = "fake/path/prout.jpg";
+	std::string badTextPathWithoutExtension = "fake/path/prout";
+
+	unsigned int goodTextId = textureManager.LoadTexture(goodTextPath);
+	unsigned int badTextId = textureManager.LoadTexture(badTextPath);
+	unsigned int badTextExtId = textureManager.LoadTexture(badTextPathWithoutExtension);
 
 	sf::Sprite sprite;
-	if (badTextId != 0)
+	if (badTextId != INVALID_ENTITY)
 	{
 		sfge::Log::GetInstance()->Msg("Loading Bad File");
 		sprite.setTexture(*textureManager.GetTexture(badTextId));
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "Bad file: " << badTextPath << " could not be loaded";
+		sfge::Log::GetInstance()->Error(oss.str());
 	}
 	if (goodTextId != 0)
 	{
 
 		sfge::Log::GetInstance()->Msg("Loading Good File");
 		sprite.setTexture(*textureManager.GetTexture(goodTextId));
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "Bad file: " << goodTextPath << " could not be loaded";
+		sfge::Log::GetInstance()->Error(oss.str());
 	}
 
 	// create the window

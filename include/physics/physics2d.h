@@ -28,7 +28,7 @@ SOFTWARE.
 #include <Box2D/Box2D.h>
 #include <SFML/System/Time.hpp>
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <physics/collider2d.h>
 #include <physics/body2d.h>
 
@@ -55,7 +55,7 @@ public:
 /**
  * \brief The Physics Manager use Box2D to simulate 2D physics
  */
-class Physics2dManager : public Module
+class Physics2dManager : public System
 {
 public:
 	Physics2dManager() = default;

@@ -29,18 +29,49 @@
 
 namespace sfge
 {
+/**
+* \brief Module are classes used by the Engine to init and update features
+*/
 class System
 {
-
 public:
-    System();
+	System() = default;
 
-    virtual void Init() = 0;
-    virtual void Execute();
+	virtual ~System() = default;
+	System& operator=(const System&) = delete;
+	/**
+	* \brief Called to initialize the module
+	*/
+	virtual void Init() {}
+	/**
+	* \brief Called every frame to update the module
+	* \param dt The delta time since last frame
+	*/
+	virtual void Update(sf::Time dt) {}
+	/**
+	* \brief Called directly after the physics finished his job
+	*/
+	virtual void FixedUpdate() {}
+	/**
+	* \brief Used instead of the destructor to delete all heap created structure and finalize
+	*/
+	virtual void Destroy();
+	/**
+	* \brief Called before we load a scene
+	*/
+	virtual void Clear() {}
+	/**
+	* \brief Called after we load a scene
+	*/
+	virtual void Collect() {}
+
+	void SetEnable(bool enable);
+	bool GetEnable() const;
+
+
 
 protected:
-    virtual void ExecuteRange(int start, int end, std::function<void> function);
-    ctpl::thread_pool &m_ThreadPool;
+	bool m_Enable = true;
 };
 }
 #endif //SFGE_SYSTEM_H

@@ -28,7 +28,7 @@
 #include <map>
 #include <pybind11/functional.h>
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <utility/python_utility.h>
 #include <engine/component.h>
 
@@ -45,7 +45,7 @@ typedef unsigned InstanceId;
 /**
 * \brief Manage the python interpreter
 */
-class PythonEngine : public Module, public LayerComponentManager<PyComponent*>
+class PythonEngine : public System, public LayerComponentManager<PyComponent*>
 {
 public:
 	PythonEngine() = default;

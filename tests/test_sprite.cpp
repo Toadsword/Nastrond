@@ -45,7 +45,15 @@ int main()
 	spriteJson["path"] = "data/sprites/roguelikeDungeon_transparent.png";
 	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
 	entityJson["components"] = json::array({ spriteJson });
-	sceneJson["entities"] = json::array({entityJson});
+
+	json fakeEntityJson;
+	json fakeSpriteJson;
+	fakeSpriteJson["path"] = "fake/path/prout.jpg";
+	fakeSpriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	fakeEntityJson["components"] = json::array({ fakeSpriteJson });
+
+
+	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
 
 	if (const auto sceneManager = engine.GetSceneManager().lock())
 	{

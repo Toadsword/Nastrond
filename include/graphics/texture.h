@@ -35,7 +35,7 @@ SOFTWARE.
 #include <SFML/Graphics.hpp>
 
 
-#include <engine/module.h>
+#include <engine/system.h>
 
 namespace sfge
 {
@@ -47,7 +47,7 @@ const TextureId INVALID_TEXTURE = 0U;
 * \brief The Texture Manager is the cache of all the textures used for sprites or other objects
 *
 */
-class TextureManager : public Module
+class TextureManager : public System
 {
 public:
 	TextureManager() = default;

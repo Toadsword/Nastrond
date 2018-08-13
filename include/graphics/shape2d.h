@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <list>
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <engine/component.h>
 #include <engine/transform2d.h>
 #include <engine/editor.h>
@@ -104,7 +104,7 @@ struct RectShapeInfo : ShapeInfo
 }
 
 class ShapeManager : 
-	public ComponentManager<std::shared_ptr<Shape>, std::shared_ptr<editor::ShapeInfo>>, public Module
+	public ComponentManager<std::shared_ptr<Shape>, std::shared_ptr<editor::ShapeInfo>>, public System
 {
 
 public:

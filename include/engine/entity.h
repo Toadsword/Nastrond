@@ -26,7 +26,7 @@ SOFTWARE.
 #define SFGE_ENTITY_H
 
 #include <vector>
-#include <engine/module.h>
+#include <engine/system.h>
 #include <engine/editor.h>
 #include "globals.h"
 
@@ -50,7 +50,7 @@ void DrawOnInspector() override;
 
 }
 
-class EntityManager : Module
+class EntityManager : System
 {
 public:
 	EntityManager() = default;

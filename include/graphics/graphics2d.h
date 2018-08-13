@@ -25,7 +25,7 @@ SOFTWARE.
 #ifndef SFGE_GRAPHICS_H
 #define SFGE_GRAPHICS_H
 
-#include <engine/module.h>
+#include <engine/system.h>
 #include <graphics/shape2d.h>
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
@@ -36,7 +36,7 @@ namespace sfge
 /**
 * \brief The Graphics Manager
 */
-class Graphics2dManager : public Module
+class Graphics2dManager : public System
 {
 public:
 	Graphics2dManager() = default;
