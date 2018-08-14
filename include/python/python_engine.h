@@ -31,9 +31,14 @@
 #include <engine/system.h>
 #include <utility/python_utility.h>
 #include <engine/component.h>
+#include <python/pycomponent.h>
 
 namespace sfge
 {
+namespace editor
+{
+struct PyComponentInfo;
+}
 class PyComponent;
 struct ColliderData;
 
@@ -73,6 +78,7 @@ public:
 
 	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
 
+	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 	/**
 	 * \brief Get a python component object
 	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
@@ -101,7 +107,7 @@ private:
 	std::map<Id, py::object> m_PythonInstanceMap;
 	Id m_IncrementalInstanceId = 1U;
 	std::vector<PyComponent*> m_PyComponents{};
-
+	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{};
 };
 
 }

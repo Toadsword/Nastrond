@@ -86,6 +86,16 @@ public:
     void OnTriggerExit(ColliderData * collider) override;
 };
 
+namespace editor
+{
+struct PyComponentInfo : NamableEditorComponent, PathEditorComponent, IDrawableInspector
+{
+	void DrawOnInspector() override;
+
+	PyComponent* pyComponent = nullptr;
+};
+}
+
 }
 
 

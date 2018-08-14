@@ -50,11 +50,14 @@ void DrawOnInspector() override;
 
 }
 
-class EntityManager : System
+class EntityManager : public System
 {
 public:
 	using System::System;
 	void Init() override;
+
+	void Clear() override;
+
 	EntityMask GetMask(Entity entity);
 	Entity CreateEntity(Entity entity = INVALID_ENTITY);
 	bool HasComponent(Entity entity, ComponentType componentType);

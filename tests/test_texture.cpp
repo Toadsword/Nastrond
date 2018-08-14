@@ -30,7 +30,7 @@ int main()
 	sfge::Engine engine;
 	auto& textureManager = engine.GetGraphicsManager().GetTextureManager();
 
-	const std::string goodTextPath = "fake/path/prout.jpg";
+	const std::string goodTextPath = "data/sprites/other_play.png";
 	const std::string badTextPath = "fake/path/prout.jpg";
 	const std::string badTextPathWithoutExtension = "fake/path/prout";
 

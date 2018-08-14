@@ -168,7 +168,13 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("reset", &Timer::Reset)
 		.def("get_current", &Timer::GetCurrent)
 		.def("get_current_time", &Timer::GetCurrentTime)
-		.def("is_over", &Timer::IsOver);
+		.def("is_over", &Timer::IsOver)
+		.def("__repr__", [](const Timer &timer)
+	{
+		std::ostringstream oss;
+		oss << "(" << timer.GetTime() << ", " << timer.GetPeriod() << ")";
+		return oss.str();
+	});
 
 	py::class_<sf::Vector2f> vector2f(m, "Vector2f");
 	vector2f
@@ -180,7 +186,13 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def(py::self -= py::self)
 		.def(py::self * float())
 		.def_readwrite("x", &sf::Vector2f::x)
-		.def_readwrite("y", &sf::Vector2f::y);
+		.def_readwrite("y", &sf::Vector2f::y)
+		.def("__repr__", [](const sf::Vector2f &vec)
+	{
+		std::ostringstream oss;
+		oss << "(" << vec.x << ", " << vec.y << ")";
+		return oss.str();
+	});
 
 	py::class_<b2Vec2> b2vec2(m, "b2Vec2");
 	b2vec2
@@ -194,15 +206,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		
 }
 
-
-
-
-
-
 void PythonEngine::Init()
 {
 
 	m_PyComponents.reserve(INIT_ENTITY_NMB * 4);
+	m_PyComponentsInfo.reserve(INIT_ENTITY_NMB * 4);
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
 	py::initialize_interpreter();
 	//Adding refecrence to c++ engine modules
@@ -271,7 +279,7 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 		if (m_PythonModuleIdMap.find(moduleFilename) != m_PythonModuleIdMap.end())
 		{
 			const ModuleId moduleId = m_PythonModuleIdMap[moduleFilename];
-			if (moduleId == 0U)
+			if (moduleId == INVALID_MODULE)
 			{
 				std::ostringstream oss;
 				oss << "Python script: " << moduleFilename << " has id 0";
@@ -300,13 +308,13 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 				std::stringstream oss;
 				oss << "[PYTHON ERROR] on script file: " << moduleFilename << "\n" << e.what();
 				Log::GetInstance()->Error(oss.str());
-				return 0U;
+				return INVALID_MODULE;
 			}
 			m_IncrementalModuleId++;
 			return m_IncrementalModuleId - 1;
 		}
 	}
-	return 0U;
+	return INVALID_MODULE;
 }
 
 
@@ -322,14 +330,29 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 			auto moduleName = m_PyModuleNameMap[moduleId];
 			auto moduleObj = m_PyModuleObjMap[moduleId];
 			m_PythonInstanceMap[m_IncrementalInstanceId] = 
-				moduleObj.attr(className.c_str())(this, entity);
+				moduleObj.attr(className.c_str())(m_Engine, entity);
 			//Adding the important components
 
-			
-			auto pyComponent = GetPyComponentFromInstanceId(m_IncrementalInstanceId);
+
+			const auto pyComponent = GetPyComponentFromInstanceId(m_IncrementalInstanceId);
 			if (pyComponent != nullptr)
 			{
 				m_PyComponents.push_back(pyComponent);
+				auto pyInfo = editor::PyComponentInfo();
+				pyInfo.name = className;
+				for(auto& pair : m_PythonModuleIdMap)
+				{
+					const auto path = pair.first;
+					const auto tmpModuleId = pair.second;
+					if(tmpModuleId == moduleId)
+					{
+						pyInfo.path = path;
+						break;
+					}
+				}
+				pyInfo.pyComponent = pyComponent;
+				m_PyComponentsInfo.push_back(pyInfo);
+				m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::PYCOMPONENT);
 			}
 			else
 			{
@@ -351,6 +374,20 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 	return 0U;
 	
 }
+
+std::list<editor::PyComponentInfo> PythonEngine::GetPyComponentsInfoFromEntity(Entity entity)
+{
+	std::list<editor::PyComponentInfo> pyComponentInfos;
+	for(auto& pyInfo : m_PyComponentsInfo)
+	{
+		if(pyInfo.pyComponent != nullptr && pyInfo.pyComponent->GetEntity() == entity)
+		{
+			pyComponentInfos.push_back(pyInfo);
+		}
+	}
+	return pyComponentInfos;
+}
+
 void PythonEngine::Collect()
 {
 }
@@ -384,8 +421,8 @@ void PythonEngine::LoadScripts(std::string dirname)
 		auto pyModuleName = pyModuleObjPair.second;
 		for(auto& importedClassNamePair : m_PyComponentClassNameMap)
 		{
-			auto importedModuleId = importedClassNamePair.first;
-			auto importedClassName = importedClassNamePair.second;
+			const auto importedModuleId = importedClassNamePair.first;
+			const auto importedClassName = importedClassNamePair.second;
 			if(importedModuleId != pyModuleId)
 			{
 				try

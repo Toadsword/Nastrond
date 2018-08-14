@@ -116,7 +116,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	
 	if (m_NameIdsMap.find(filename) != m_NameIdsMap.end())
 	{
-		auto textureId = m_NameIdsMap[filename];
+		const auto textureId = m_NameIdsMap[filename];
 		//Check if the texture was destroyed
 		const auto checkTexture = m_TexturesMap.find(textureId);
 		if (checkTexture != m_TexturesMap.end())
@@ -134,10 +134,9 @@ TextureId TextureManager::LoadTexture(std::string filename)
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_TEXTURE;
 			}
-			m_IncrementId++;
-			m_NameIdsMap[filename] = m_IncrementId;
-			m_IdsRefCountMap[m_IncrementId] = 1U;
-			m_TexturesMap[m_IncrementId] = texture;
+			m_NameIdsMap[filename] = textureId;
+			m_IdsRefCountMap[textureId] = 1U;
+			m_TexturesMap[textureId] = texture;
 			return m_IncrementId;
 		}
 	}
@@ -145,14 +144,27 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	{
 		if (FileExists(filename))
 		{
-			m_IncrementId++;
+
 			auto texture = new sf::Texture();
 			if (!texture->loadFromFile(filename))
+			{
+				std::ostringstream oss;
+				oss << "[ERROR] Could not load texture file: " << filename;
+				Log::GetInstance()->Error(oss.str());
 				return INVALID_TEXTURE;
+			}
+
+			m_IncrementId++;
 			m_NameIdsMap[filename] = m_IncrementId;
 			m_IdsRefCountMap[m_IncrementId] = 1U;
 			m_TexturesMap[m_IncrementId] = texture;
 			return m_IncrementId;
+		}
+		else
+		{
+			std::ostringstream oss;
+			oss << "[ERROR] Could not load texture file: " << filename;
+			Log::GetInstance()->Error(oss.str());
 		}
 	}
 	return INVALID_TEXTURE;

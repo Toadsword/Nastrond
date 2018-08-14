@@ -158,6 +158,7 @@ void Engine::Start()
 
 void Engine::Destroy() 
 {
+	m_EntityManager.Destroy();
 	m_GraphicsManager.Destroy();
 	m_AudioManager.Destroy();
 	m_SceneManager.Destroy();
@@ -170,6 +171,7 @@ void Engine::Destroy()
 
 void Engine::Clear() 
 {
+	m_EntityManager.Clear();
 	m_GraphicsManager.Clear();
 	m_AudioManager.Clear();
 	m_SceneManager.Clear();
@@ -181,6 +183,8 @@ void Engine::Clear()
 
 void Engine::Collect() 
 {
+
+	m_EntityManager.Collect();
 	m_GraphicsManager.Collect();
 	m_AudioManager.Collect();
 	m_SceneManager.Collect();

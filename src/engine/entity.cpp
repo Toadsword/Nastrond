@@ -34,7 +34,12 @@ void editor::EntityInfo::DrawOnInspector()
 
 void EntityManager::Init()
 {
-	MaskArray = std::vector<EntityMask>(INIT_ENTITY_NMB, 0U);
+	Clear();
+}
+
+void EntityManager::Clear()
+{
+	MaskArray = std::vector<EntityMask>(INIT_ENTITY_NMB, INVALID_ENTITY);
 }
 
 EntityMask EntityManager::GetMask(Entity entity)
@@ -48,7 +53,7 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
     {
         for (Entity entity = 1U; entity <= MaskArray.size(); entity++)
         {
-            if(MaskArray[entity-1] == 0U)
+            if(MaskArray[entity-1] == INVALID_ENTITY)
             {
                 return entity;
             }
@@ -56,7 +61,7 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
     }
     else
     {
-        if(MaskArray[wantedEntity-1] == 0U)
+        if(MaskArray[wantedEntity-1] == INVALID_ENTITY)
         {
             return wantedEntity;
         }

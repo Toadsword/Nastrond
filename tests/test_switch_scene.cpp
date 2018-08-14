@@ -32,8 +32,7 @@ int main()
 		sfge::Engine engine;
 		engine.Init();
 
-		if(auto sceneManager = engine.GetSceneManager().lock())
-			sceneManager->LoadSceneFromPath("data/scenes/test_switch.scene");
+		engine.GetSceneManager().LoadSceneFromPath("data/scenes/test_switch.scene");
 
 
 		engine.Start(); 

@@ -54,11 +54,9 @@ int main()
 
 
 	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
-
-	if (const auto sceneManager = engine.GetSceneManager().lock())
-	{
-		sceneManager->LoadSceneFromJson(sceneJson);
-	}
+	sceneJson["name"] = "Test Sprite";
+	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
+	
 	engine.Start();
 #if WIN32
 	system("pause");

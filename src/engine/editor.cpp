@@ -134,12 +134,17 @@ void Editor::Update(sf::Time dt)
 				}
 				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
-					
-						auto& shapeManager = m_GraphicsManager.GetShapeManager();
-						auto shapeInfo = shapeManager.GetComponentInfo(selectedEntity);
-						shapeInfo->DrawOnInspector();
-
-					
+					auto& shapeManager = m_GraphicsManager.GetShapeManager();
+					auto shapeInfo = shapeManager.GetComponentInfo(selectedEntity);
+					shapeInfo->DrawOnInspector();
+				}
+				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
+				{
+					auto& pythonEngine = m_Engine.GetPythonEngine();
+					for(auto& pyInfo : pythonEngine.GetPyComponentsInfoFromEntity(selectedEntity))
+					{
+						pyInfo.DrawOnInspector();
+					}
 				}
 
 			}

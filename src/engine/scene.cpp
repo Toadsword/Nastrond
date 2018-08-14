@@ -121,6 +121,7 @@ void SceneManager::LoadSceneFromPath(const std::string& scenePath) const
 
 void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo) const
 {
+	m_Engine.Clear();
 	if(!sceneInfo)
 		sceneInfo = std::make_unique<editor::SceneInfo>();
 	if (CheckJsonParameter(sceneJson, "name", json::value_t::string))
@@ -241,6 +242,8 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	}
 
 	//TODO remove previous scene
+
+	m_Engine.Collect();
 
 	auto& editor = m_Engine.GetEditor();
 	editor.SetCurrentScene(std::move(sceneInfo));

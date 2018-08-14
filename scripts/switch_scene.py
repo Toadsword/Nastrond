@@ -1,5 +1,6 @@
 from SFGE import *
 
+
 class SwitchScene(Component):
     def init(self):
         pass
