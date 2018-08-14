@@ -39,7 +39,7 @@ namespace sfge
 class Graphics2dManager : public System
 {
 public:
-	Graphics2dManager() = default;
+	using System::System;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/
@@ -79,9 +79,9 @@ protected:
 	* \brief Write to log the OpenGL version
 	*/
 	void CheckVersion() const;
-	TextureManager m_TextureManager;
-	SpriteManager m_SpriteManager;
-	ShapeManager m_ShapeManager;
+	TextureManager m_TextureManager{m_Engine};
+	SpriteManager m_SpriteManager{m_Engine};
+	ShapeManager m_ShapeManager{m_Engine};
 	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
 };
 

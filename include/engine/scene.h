@@ -48,7 +48,7 @@ struct SceneInfo;
 class SceneManager : public System
 {
 public:
-	SceneManager() = default;
+	SceneManager(Engine& engine);
 	~SceneManager() = default;
 	void Init() override;
 
@@ -76,8 +76,7 @@ public:
 	std::list<std::string> GetAllScenes();
 private:
 
-	std::weak_ptr<EntityManager> m_EntityManagerPtr;
-	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
+	EntityManager& m_EntityManager;
 
 	std::map<std::string, std::string> m_ScenePathMap;
 

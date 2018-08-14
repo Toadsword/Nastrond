@@ -22,23 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <sstream>
-#include <graphics/sprite2d.h>
+#include <engine/engine.h>
 #include <graphics/texture.h>
 #include <engine/log.h>
 int main()
 {
-	sfge::TextureManager textureManager;
+	sfge::Engine engine;
+	auto& textureManager = engine.GetGraphicsManager().GetTextureManager();
 
-	std::string goodTextPath = "fake/path/prout.jpg";
-	std::string badTextPath = "fake/path/prout.jpg";
-	std::string badTextPathWithoutExtension = "fake/path/prout";
+	const std::string goodTextPath = "fake/path/prout.jpg";
+	const std::string badTextPath = "fake/path/prout.jpg";
+	const std::string badTextPathWithoutExtension = "fake/path/prout";
 
-	unsigned int goodTextId = textureManager.LoadTexture(goodTextPath);
-	unsigned int badTextId = textureManager.LoadTexture(badTextPath);
-	unsigned int badTextExtId = textureManager.LoadTexture(badTextPathWithoutExtension);
+	const sfge::TextureId goodTextId = textureManager.LoadTexture(goodTextPath);
+	const sfge::TextureId badTextId = textureManager.LoadTexture(badTextPath);
+	const sfge::TextureId badTextExtId = textureManager.LoadTexture(badTextPathWithoutExtension);
 
 	sf::Sprite sprite;
-	if (badTextId != INVALID_ENTITY)
+	if (badTextId != sfge::INVALID_TEXTURE)
 	{
 		sfge::Log::GetInstance()->Msg("Loading Bad File");
 		sprite.setTexture(*textureManager.GetTexture(badTextId));
@@ -49,7 +50,7 @@ int main()
 		oss << "Bad file: " << badTextPath << " could not be loaded";
 		sfge::Log::GetInstance()->Error(oss.str());
 	}
-	if (goodTextId != 0)
+	if (goodTextId != sfge::INVALID_TEXTURE)
 	{
 
 		sfge::Log::GetInstance()->Msg("Loading Good File");
@@ -69,7 +70,7 @@ int main()
 	while (window.isOpen())
 	{
 		// check all the window's events that were triggered since the last iteration of the loop
-		sf::Event event;
+		sf::Event event{};
 		while (window.pollEvent(event))
 		{
 			// "close requested" event: we close the window

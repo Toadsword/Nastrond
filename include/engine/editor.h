@@ -31,8 +31,7 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/Event.hpp>
-#include <utility/json_utility.h>
+#include <engine/editor_info.h>
 
 namespace sfge
 {
@@ -45,45 +44,12 @@ class EntityManager;
 class SceneManager;
 class Physics2dManager;
 
-//Editor components
-namespace editor
-{
-    
-struct EntityInfo;
-struct ComponentInfo;
-    
-class IDrawableInspector
-{
-public:
-    virtual void DrawOnInspector() = 0;
-};
 
-struct NamableEditorComponent
-{
-	std::string name = "";
-};
-
-struct PathEditorComponent
-{
-	std::string path = "";
-};
-
-
-struct SceneInfo : NamableEditorComponent, PathEditorComponent
-{
-};
-
-struct ComponentInfo : NamableEditorComponent, IDrawableInspector
-{
-	
-};
-
-}
 
 class Editor : public System
 {
 public:
-	Editor() = default;
+	Editor(Engine& engine);
 	/**
 	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
 	*/
@@ -106,11 +72,11 @@ public:
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
-	std::weak_ptr<Graphics2dManager> m_GraphicsManagerPtr;
-	std::weak_ptr<SceneManager> m_SceneManagerPtr;
-	std::weak_ptr<EntityManager> m_EntityManagerPtr;
-	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
-	std::weak_ptr<Physics2dManager> m_PhysicsManagerPtr;
+	Graphics2dManager& m_GraphicsManager;
+	SceneManager& m_SceneManager;
+	EntityManager& m_EntityManager;
+	Transform2dManager& m_TransformManager;
+	Physics2dManager& m_PhysicsManager;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;

@@ -50,7 +50,7 @@ const TextureId INVALID_TEXTURE = 0U;
 class TextureManager : public System
 {
 public:
-	TextureManager() = default;
+	using System::System;
 	/**
 	 * \brief Load all the textures in the data in Shipping mode
 	 */
@@ -61,7 +61,7 @@ public:
 	* \param filename The filename string of the texture
 	* \return The strictly positive texture id > 0, if equals 0 then the texture was not loaded
 	*/
-	unsigned int LoadTexture(std::string filename);
+	TextureId LoadTexture(std::string filename);
 	/**
 	* \brief Used after loading the texture in the texture cache to get the pointer to the texture
 	* \param text_id The texture id striclty positive
@@ -78,7 +78,7 @@ private:
 	void LoadTextures(std::string dataDirname);
 
 	std::map<std::string, TextureId> m_NameIdsMap;
-	std::map<TextureId, unsigned int> m_IdsRefCountMap;
+	std::map<TextureId, size_t> m_IdsRefCountMap;
 	std::map<TextureId, sf::Texture*> m_TexturesMap;
 	TextureId m_IncrementId = 0U;
 

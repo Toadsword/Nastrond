@@ -108,7 +108,7 @@ class ShapeManager :
 {
 
 public:
-	ShapeManager() = default;
+	ShapeManager(Engine& engine);
 	void Init() override;
 	void Draw(sf::RenderWindow& window);
 	void Update(sf::Time dt) override;
@@ -117,8 +117,8 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 protected:
-	std::weak_ptr<Transform2dManager> m_TransformManager;
-	std::weak_ptr<EntityManager> m_EntityManager;
+	Transform2dManager& m_Transform2dManager;
+	EntityManager& m_EntityManager;
 };
 
 

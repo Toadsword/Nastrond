@@ -83,11 +83,16 @@ void editor::SpriteInfo::DrawOnInspector()
 	}
 }
 
+SpriteManager::SpriteManager(Engine& engine):
+	System(engine),
+	m_GraphicsManager(m_Engine.GetGraphicsManager()),
+	m_EntityManager(m_Engine.GetEntityManager()),
+	m_Transform2dManager(m_Engine.GetTransform2dManager())
+{
+}
+
 void SpriteManager::Init()
 {
-	m_TransformManagerPtr = Engine::GetInstance()->GetTransform2dManager();
-	m_EntityManagerPtr = Engine::GetInstance()->GetEntityManager();
-	m_GraphicsManagerPtr = Engine::GetInstance()->GetGraphicsManager();
 
 }
 
@@ -99,14 +104,13 @@ void SpriteManager::Update(sf::Time dt)
 
 void SpriteManager::Draw(sf::RenderWindow& window)
 {
-	if (auto entityManager = m_EntityManagerPtr.lock())
+	
+	for (int i = 0; i<m_Components.size();i++)
 	{
-		for (int i = 0; i<m_Components.size();i++)
-		{
-			if(entityManager->HasComponent(i+1, ComponentType::SPRITE2D))
-				m_Components[i].Draw(window);
-		}
+		if(m_EntityManager.HasComponent(i+1, ComponentType::SPRITE2D))
+			m_Components[i].Draw(window);
 	}
+	
 }
 
 void SpriteManager::Reset()
@@ -128,11 +132,10 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 		std::string path = componentJson["path"].get<std::string>();
 		newSpriteInfo.texturePath = path;
 		sf::Texture* texture = nullptr;
-		auto graphicsManager = m_GraphicsManagerPtr.lock();
-		if (FileExists(path) && graphicsManager != nullptr)
+		if (FileExists(path))
 		{
-			auto& textureManager = graphicsManager->GetTextureManager();
-			unsigned int textureId = textureManager.LoadTexture(path);
+			auto& textureManager = m_GraphicsManager.GetTextureManager();
+			const TextureId textureId = textureManager.LoadTexture(path);
 			if (textureId != INVALID_TEXTURE)
 			{
 				{

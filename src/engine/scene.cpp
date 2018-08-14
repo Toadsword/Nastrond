@@ -40,12 +40,16 @@
 
 namespace sfge
 {
-
+SceneManager::SceneManager(Engine& engine):
+	System(engine),
+	m_EntityManager(m_Engine.GetEntityManager())
+{
+}
 
 void SceneManager::Init()
 {
-	m_EntityManagerPtr = Engine::GetInstance()->GetEntityManager();
-	if(auto config = Engine::GetInstance()->GetConfig().lock())
+	
+	if(auto config = m_Engine.GetConfig().lock())
 	{
 		SearchScenes(config->dataDirname);
 	}
@@ -134,108 +138,99 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
-		if (auto entityManager = m_EntityManagerPtr.lock())
+		for(auto& entityJson : sceneJson["entities"])
 		{
-			for(auto& entityJson : sceneJson["entities"])
+			Entity entity = INVALID_ENTITY;
+			entity = m_EntityManager.CreateEntity();
+			if(CheckJsonExists(entityJson, "name"))
 			{
-				Entity entity = INVALID_ENTITY;
-				entity = entityManager->CreateEntity();
-				if(CheckJsonExists(entityJson, "name"))
+				m_EntityManager.GetEntityInfo(entity).name = entityJson["name"].get<std::string>();
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "Entity " << entity;
+				m_EntityManager.GetEntityInfo(entity).name = oss.str();
+			}
+			if (entity != INVALID_ENTITY && 
+				CheckJsonExists(entityJson, "components"))
+			{
+				for (auto& componentJson : entityJson["components"])
 				{
-					entityManager->GetEntityInfo(entity).name = entityJson["name"].get<std::string>();
-				}
-				else
-				{
-					std::ostringstream oss;
-					oss << "Entity " << entity;
-					entityManager->GetEntityInfo(entity).name = oss.str();
-				}
-				if (entity != INVALID_ENTITY && 
-					CheckJsonExists(entityJson, "components"))
-				{
-					for (auto& componentJson : entityJson["components"])
+					if (CheckJsonExists(componentJson, "type"))
 					{
-						if (CheckJsonExists(componentJson, "type"))
+						const ComponentType componentType = componentJson["type"];
+						switch (componentType)
 						{
-							const ComponentType componentType = componentJson["type"];
-							switch (componentType)
+						case ComponentType::TRANSFORM2D:
+						{
+							auto& transform2dManager = m_Engine.GetTransform2dManager();
+
+							transform2dManager.CreateComponent(componentJson, entity);
+							m_EntityManager.AddComponentType(entity, ComponentType::TRANSFORM2D);
+							break;
+						}
+						case ComponentType::SHAPE2D:
+						{
+							auto& graphicsManager = m_Engine.GetGraphicsManager();
+							auto& shapeManager = graphicsManager.GetShapeManager();
+							shapeManager.CreateComponent(componentJson, entity);
+							m_EntityManager.AddComponentType(entity, ComponentType::SHAPE2D);
+							break;
+						}
+						case ComponentType::BODY2D:
+						{
+							auto& physicsManager = m_Engine.GetPhysicsManager();
+							physicsManager.GetBodyManager().CreateComponent(componentJson, entity);
+							m_EntityManager.AddComponentType(entity, ComponentType::BODY2D);
+
+							break;
+						}
+						case ComponentType::SPRITE2D:
+						{
+							auto& graphicsManager = m_Engine.GetGraphicsManager();
+							auto& spriteManager = graphicsManager.GetSpriteManager();
+							spriteManager.CreateComponent(componentJson, entity);
+							m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
+							break;
+						}
+						case ComponentType::COLLIDER2D:
+						{
+							auto& physicsManager = m_Engine.GetPhysicsManager();
+							physicsManager.GetColliderManager().CreateComponent(componentJson, entity);
+							m_EntityManager.AddComponentType(entity, ComponentType::COLLIDER2D);
+							break; 
+						}
+						case ComponentType::PYCOMPONENT:
 							{
-							case ComponentType::TRANSFORM2D:
-								if(auto transformManager = Engine::GetInstance()->GetTransform2dManager().lock())
+								auto& pythonEngine = m_Engine.GetPythonEngine();
+								if (CheckJsonExists(componentJson, "script_path"))
 								{
-									transformManager->CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::TRANSFORM2D);
+									std::string path = componentJson["script_path"];
+									const ModuleId moduleId = pythonEngine.LoadPyModule(path);
+									if(moduleId != INVALID_MODULE)
+										const InstanceId instanceId = pythonEngine.LoadPyComponent(moduleId, entity);
 								}
-								break;
-							case ComponentType::SHAPE2D:
-								if(const auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
-								{
-									auto& shapeManager = graphicsManager->GetShapeManager();
-									shapeManager.CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::SHAPE2D);
-								}
-								else
-								{
-									Log::GetInstance()->Error("[Error] Could not get ptr to GraphicsManager in Scene loading");
-								}
-								break;
-							case ComponentType::BODY2D:
-								if (auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
-								{
-									physicsManager->GetBodyManager().CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::BODY2D);
-								}
-								break;
-							case ComponentType::SPRITE2D:
-								if (const auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
-								{
-									auto& spriteManager = graphicsManager->GetSpriteManager();
-									spriteManager.CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::SPRITE2D);
-								}
-								break;
-							case ComponentType::COLLIDER2D:
-								if (auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
-								{
-									physicsManager->GetColliderManager().CreateComponent(componentJson, entity);
-									entityManager->AddComponentType(entity, ComponentType::COLLIDER2D);
-								}
-								break;
-							case ComponentType::PYCOMPONENT:
-								if (auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock())
-								{
-									if (CheckJsonExists(componentJson, "script_path"))
-									{
-										std::string path = componentJson["script_path"];
-										const ModuleId moduleId = pythonEngine->LoadPyModule(path);
-										if(moduleId != INVALID_MODULE)
-											const InstanceId instanceId = pythonEngine->LoadPyComponent(moduleId, entity);
-									}
-								}
-								break;
-							default:
 								break;
 							}
-						}
-						else
-						{
-							std::ostringstream oss;
-							oss << "[Error] No type specified for component with json content: " << componentJson;
-							Log::GetInstance()->Error(oss.str());
+						default:
+							break;
 						}
 					}
-				}
-				else
-				{
-					std::ostringstream oss;
-					oss << "[Error] No components attached in the JSON entity: " << entity << "with json content: " << entityJson;
-					Log::GetInstance()->Error(oss.str());
+					else
+					{
+						std::ostringstream oss;
+						oss << "[Error] No type specified for component with json content: " << componentJson;
+						Log::GetInstance()->Error(oss.str());
+					}
 				}
 			}
-		}
-		else
-		{
-			Log::GetInstance()->Error("[Error] Cannot create entity, EntityManager cannot be lock");
+			else
+			{
+				std::ostringstream oss;
+				oss << "[Error] No components attached in the JSON entity: " << entity << "with json content: " << entityJson;
+				Log::GetInstance()->Error(oss.str());
+			}
 		}
 	}
 	else
@@ -244,14 +239,15 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		oss << "No Entities in " << sceneInfo->name;
 		Log::GetInstance()->Error(oss.str());
 	}
-	if(auto editor = Engine::GetInstance()->GetEditor().lock())
-	{
-		editor->SetCurrentScene(std::move(sceneInfo));
-	}
-	if (auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock())
-	{
-		pythonEngine->InitPyComponent();
-	}
+
+	//TODO remove previous scene
+
+	auto& editor = m_Engine.GetEditor();
+	editor.SetCurrentScene(std::move(sceneInfo));
+	
+	auto& pythonEngine = m_Engine.GetPythonEngine();
+	pythonEngine.InitPyComponent();
+	
 	
 }
 
@@ -271,7 +267,7 @@ void SceneManager::LoadSceneFromName(const std::string& sceneName)
 	{
 
 		sf::Clock loadingClock;
-		Engine::GetInstance()->Clear();
+		m_Engine.Clear();
 		LoadSceneFromPath(m_ScenePathMap[sceneName]);
 		{
 			sf::Time loadingTime = loadingClock.getElapsedTime();

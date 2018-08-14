@@ -35,10 +35,10 @@ const float Physics2dManager::pixelPerMeter = 100.0f;
 void Physics2dManager::Init()
 {
 	b2Vec2 gravity = b2Vec2();
-	if(const auto configPtr = Engine::GetInstance()->GetConfig().lock())
+	if(const auto configPtr = m_Engine.GetConfig().lock())
 		gravity = configPtr->gravity;
 	m_World = std::make_shared<b2World>(gravity);
-	m_ContactListener = std::make_unique<ContactListener>();
+	m_ContactListener = std::make_unique<ContactListener>(m_Engine);
 	m_World->SetContactListener(m_ContactListener.get());
 
 	m_BodyManager.Init();
@@ -51,7 +51,7 @@ void Physics2dManager::Update(sf::Time dt)
 
 void Physics2dManager::FixedUpdate()
 {
-	auto config = Engine::GetInstance()->GetConfig().lock();
+	auto config = m_Engine.GetConfig().lock();
 	if (config and m_World)
 	{
 		m_World->Step(config->fixedDeltaTime,
@@ -104,53 +104,46 @@ ColliderManager& Physics2dManager::GetColliderManager()
 
 void ContactListener::BeginContact(b2Contact* contact)
 {
-	auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock();
+	auto pythonEngine = m_Engine.GetPythonEngine();
 	auto colliderA = static_cast<ColliderData*>(contact->GetFixtureA()->GetUserData());
 	auto colliderB = static_cast<ColliderData*>(contact->GetFixtureB()->GetUserData());
 
 	if (colliderA->fixture->IsSensor() or colliderB->fixture->IsSensor())
 	{
 		//Trigger
-		if (pythonEngine)
-		{
-			pythonEngine->OnTriggerEnter(colliderA->entity, colliderB);
-			pythonEngine->OnTriggerEnter(colliderB->entity, colliderA);
-		}
+		
+		pythonEngine.OnTriggerEnter(colliderA->entity, colliderB);
+		pythonEngine.OnTriggerEnter(colliderB->entity, colliderA);
+		
 	}
 	else
 	{
 		//Collision
-		if (pythonEngine)
-		{
-			pythonEngine->OnCollisionEnter(colliderA->entity, colliderB);
-			pythonEngine->OnCollisionEnter(colliderB->entity, colliderA);
-		}
+			pythonEngine.OnCollisionEnter(colliderA->entity, colliderB);
+			pythonEngine.OnCollisionEnter(colliderB->entity, colliderA);
+		
 	}
 }
 
 void ContactListener::EndContact(b2Contact* contact)
 {
-	auto pythonEngine = Engine::GetInstance()->GetPythonEngine().lock();
+	auto pythonEngine = m_Engine.GetPythonEngine();
 	auto colliderA = static_cast<ColliderData*>(contact->GetFixtureA()->GetUserData());
 	auto colliderB = static_cast<ColliderData*>(contact->GetFixtureB()->GetUserData());
 
 	if (colliderA->fixture->IsSensor() or colliderB->fixture->IsSensor())
 	{
 		//Trigger
-		if (pythonEngine)
-		{
-			pythonEngine->OnTriggerExit(colliderA->entity, colliderB);
-			pythonEngine->OnTriggerExit(colliderB->entity, colliderA);
-		}
+			pythonEngine.OnTriggerExit(colliderA->entity, colliderB);
+			pythonEngine.OnTriggerExit(colliderB->entity, colliderA);
+		
 	}
 	else
 	{
 		//Collision
-		if (pythonEngine)
-		{
-			pythonEngine->OnCollisionExit(colliderA->entity, colliderB);
-			pythonEngine->OnCollisionExit(colliderB->entity, colliderA);
-		}
+			pythonEngine.OnCollisionExit(colliderA->entity, colliderB);
+			pythonEngine.OnCollisionExit(colliderB->entity, colliderA);
+		
 	}
 }
 
@@ -185,4 +178,8 @@ sf::Vector2f meter2pixel(b2Vec2 meter)
 	return sf::Vector2f(meter2pixel(meter.x), meter2pixel(meter.y));
 }
 
+ContactListener::ContactListener(Engine& engine):
+	m_Engine(engine)
+{
+}
 }

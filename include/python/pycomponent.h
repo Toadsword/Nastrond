@@ -42,7 +42,7 @@ struct ColliderData;
 class Component : LayerComponent
 {
 public:
-    Component(PythonEngine* pythonEngine, Entity entity);
+    Component(Engine& engine, Entity entity);
     ~Component() = default;
     
     virtual void Init() {};
@@ -66,7 +66,7 @@ public:
 protected:
     unsigned int m_InstanceId = 0U;
     Entity m_Entity = 0U;
-    PythonEngine* m_PythonEngine=nullptr;
+	Engine& m_Engine;
 };
     
 	/**

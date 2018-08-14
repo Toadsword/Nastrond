@@ -35,6 +35,15 @@ SOFTWARE.
 
 #include <utility/json_utility.h>
 #include <utility/singleton.h>
+#include <graphics/graphics2d.h>
+#include <audio/audio.h>
+#include <engine/scene.h>
+#include <input/input.h>
+#include <python/python_engine.h>
+#include <physics/physics2d.h>
+#include <engine/entity.h>
+#include <engine/transform2d.h>
+#include <engine/editor.h>
 
 namespace sfge
 {
@@ -43,36 +52,23 @@ namespace sfge
 * Prototypes declarations
 */
 struct Configuration;
-class System;
 class Graphics2dManager;
 class AudioManager;
-class PythonEngine;
-class InputManager;
 class SceneManager;
+class InputManager;
+class PythonEngine;
 class Physics2dManager;
-class EntityManager;
 class Editor;
+class EntityManager;
 class Transform2dManager;
-
-enum class EngineModule
-{
-	GRAPHICS_MANAGER,
-	AUDIO_MANAGER,
-	INPUT_MANAGER,
-	PYTHON_MANAGER,
-	SCENE_MANAGER,
-	EDITOR,
-	PHYSICS_MANAGER,
-	LENGTH
-};
 
 /**
 * \brief The main Engine class to centralise the frame process and the references
 */
-class Engine : public Singleton<Engine>
+class Engine
 {
 public:
-	Engine();
+	Engine() = default;
 	/**
 	* \brief Initialize all the modules of the Game Engine, reading the config file too
 	*/
@@ -87,12 +83,12 @@ public:
 	/**
 	 * \brief Destroy all the modules
 	 */
-	void Destroy() const;
-	void Clear() const;
+	void Destroy();
+	void Clear();
 	/**
 	* \brief Reload is used after loading a new scene
 	*/
-	void Collect() const;
+	void Collect();
 
 	~Engine() = default;
 	/**
@@ -101,15 +97,15 @@ public:
 	*/
 	std::weak_ptr<Configuration> GetConfig() const;
 
-	std::weak_ptr<Graphics2dManager> GetGraphicsManager() const;
-	std::weak_ptr<AudioManager> GetAudioManager() const;
-	std::weak_ptr<SceneManager> GetSceneManager() const;
-	std::weak_ptr<InputManager> GetInputManager() const;
-	std::weak_ptr<PythonEngine> GetPythonEngine() const;
-	std::weak_ptr<Physics2dManager> GetPhysicsManager() const;
-	std::weak_ptr<EntityManager> GetEntityManager() const;
-	std::weak_ptr<Transform2dManager> GetTransform2dManager() const;
-	std::weak_ptr<Editor> GetEditor() const;
+	Graphics2dManager& GetGraphicsManager();
+	AudioManager& GetAudioManager();
+	SceneManager& GetSceneManager();
+	InputManager& GetInputManager();
+	PythonEngine& GetPythonEngine();
+	Physics2dManager& GetPhysicsManager();
+	EntityManager& GetEntityManager();
+	Transform2dManager& GetTransform2dManager();
+	Editor& GetEditor();
 
 	ctpl::thread_pool& GetThreadPool();
 	bool running = false;
@@ -121,15 +117,15 @@ protected:
 
 
 	//module
-	std::shared_ptr<Graphics2dManager> m_GraphicsManager = nullptr;
-	std::shared_ptr<AudioManager> m_AudioManager = nullptr;
-	std::shared_ptr<SceneManager> m_SceneManager = nullptr;
-	std::shared_ptr<InputManager> m_InputManager = nullptr;
-	std::shared_ptr<PythonEngine> m_PythonEngine = nullptr;
-	std::shared_ptr<Physics2dManager> m_PhysicsManager = nullptr;
-	std::shared_ptr<Editor> m_Editor = nullptr;
-	std::shared_ptr<EntityManager> m_EntityManager = nullptr;
-	std::shared_ptr<Transform2dManager> m_TransformManager = nullptr;
+	Graphics2dManager m_GraphicsManager {*this};
+	AudioManager m_AudioManager {*this};
+	SceneManager m_SceneManager {*this};
+	InputManager m_InputManager {*this};
+	PythonEngine m_PythonEngine {*this};
+	Physics2dManager m_PhysicsManager {*this};
+	Editor m_Editor {*this};
+	EntityManager m_EntityManager {*this};
+	Transform2dManager m_TransformManager {*this};
 
 };
 

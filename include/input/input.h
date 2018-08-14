@@ -63,7 +63,7 @@ public:
 class InputManager : public System
 {
 public:
-	InputManager() = default;
+	using System::System;
 
 	/**
 	 * \brief Initialize the Input Manager

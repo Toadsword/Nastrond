@@ -53,7 +53,7 @@ void DrawOnInspector() override;
 class EntityManager : System
 {
 public:
-	EntityManager() = default;
+	using System::System;
 	void Init() override;
 	EntityMask GetMask(Entity entity);
 	Entity CreateEntity(Entity entity = INVALID_ENTITY);

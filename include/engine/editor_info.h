@@ -22,51 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-#ifndef SFGE_COLLIDER_H
-#define SFGE_COLLIDER_H
-
-#include <engine/entity.h>
-#include <Box2D/Box2D.h>
-#include <physics/body2d.h>
-
-
-namespace sfge
+#include <string>
+//Editor components
+namespace sfge::editor
 {
 
-enum class ColliderType
-{
-	NONE,
-	CIRCLE,
-	BOX,
-	POLYGON
-};
+struct EntityInfo;
+struct ComponentInfo;
 
-struct ColliderData
-{
-	Entity entity = INVALID_ENTITY;
-	b2Fixture* fixture = nullptr;
-	b2Body* body = nullptr;
-};
-namespace editor
-{
-struct ColliderInfo : ComponentInfo
-{
-	void DrawOnInspector() override;
-};
-}
-class ColliderManager : System
+class IDrawableInspector
 {
 public:
-	ColliderManager(Engine& engine);
-	void CreateComponent(json& componentJson, Entity entity);
-private:
-	Body2dManager& m_BodyManager;
-	EntityManager& m_EntityManager;
-	std::vector<ColliderData> m_ColliderDatas;
-	std::vector<editor::ColliderInfo> m_ColliderInfos;
+	virtual void DrawOnInspector() = 0;
+};
+
+struct NamableEditorComponent
+{
+	std::string name = "";
+};
+
+struct PathEditorComponent
+{
+	std::string path = "";
+};
+
+
+struct SceneInfo : NamableEditorComponent, PathEditorComponent
+{
+};
+
+struct ComponentInfo : NamableEditorComponent, IDrawableInspector
+{
+
 };
 
 }
-
-#endif

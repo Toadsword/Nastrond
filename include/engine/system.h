@@ -24,21 +24,23 @@
 
 #ifndef SFGE_SYSTEM_H
 #define SFGE_SYSTEM_H
-
-#include <engine/engine.h>
+#include <SFML/System/Time.hpp>
 
 namespace sfge
 {
+
+class Engine;
 /**
 * \brief Module are classes used by the Engine to init and update features
 */
 class System
 {
 public:
-	System() = default;
+	System(Engine& engine);
 
 	virtual ~System() = default;
-	System& operator=(const System&) = delete;
+	//System& operator=(const System&) = delete;
+	explicit System(const System & system);
 	/**
 	* \brief Called to initialize the module
 	*/
@@ -68,10 +70,11 @@ public:
 	void SetEnable(bool enable);
 	bool GetEnable() const;
 
-
+	Engine& GetEngine() const;
 
 protected:
 	bool m_Enable = true;
+	Engine& m_Engine;
 };
 }
 #endif //SFGE_SYSTEM_H

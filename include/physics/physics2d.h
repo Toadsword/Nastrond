@@ -47,10 +47,12 @@ sf::Vector2f meter2pixel(b2Vec2 meter);
 class ContactListener : public b2ContactListener
 {
 public:
-	ContactListener() = default;
+	ContactListener(Engine& engine);
 	void BeginContact(b2Contact* contact) override;
 
 	void EndContact(b2Contact* contact) override;
+protected:
+	Engine & m_Engine;
 };
 /**
  * \brief The Physics Manager use Box2D to simulate 2D physics
@@ -58,8 +60,7 @@ public:
 class Physics2dManager : public System
 {
 public:
-	Physics2dManager() = default;
-
+	using System::System;
 	~Physics2dManager() = default;
 	/**
 	 * \brief Initialize the Physics Manager, but do not create a b2World
@@ -94,8 +95,8 @@ private:
 	std::shared_ptr<b2World> m_World = nullptr;
 
 	std::unique_ptr<ContactListener> m_ContactListener = nullptr;
-	Body2dManager m_BodyManager;
-	ColliderManager m_ColliderManager{m_BodyManager};
+	Body2dManager m_BodyManager{m_Engine};
+	ColliderManager m_ColliderManager{m_Engine};
 
 };
 

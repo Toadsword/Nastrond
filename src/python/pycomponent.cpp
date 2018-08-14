@@ -32,9 +32,9 @@
 #include <engine/engine.h>
 namespace sfge
 {
-Component::Component(PythonEngine* pythonEngine, Entity entity)
+Component::Component(Engine& engine, Entity entity) :
+	m_Engine(engine)
 {
-	m_PythonEngine = pythonEngine;
 	m_Entity = entity;
 }
 void PyComponent::Init()
@@ -96,52 +96,48 @@ void PyComponent::Update(float dt)
 
 	py::object Component::GetComponent(ComponentType componentType) const
 	{
-		if (m_PythonEngine)
+		
+		switch (componentType)
 		{
-			switch (componentType)
+		case ComponentType::TRANSFORM2D:
+			
 			{
-			case ComponentType::TRANSFORM2D:
-				if (auto transformManager = Engine::GetInstance()->GetTransform2dManager().lock())
-				{
-					auto& transform = transformManager->GetComponent(m_Entity);
-					return py::cast(transform, py::return_value_policy::reference);
-				}
-				break;
-			case ComponentType::BODY2D:
-				if(auto physicsManager = Engine::GetInstance()->GetPhysicsManager().lock())
-				{
-					auto& body = physicsManager->GetBodyManager().GetComponent(m_Entity);
-					return py::cast(body, py::return_value_policy::reference);
-				}
-				break;
-			case ComponentType::COLLIDER2D:
-				break;
-			case ComponentType::SHAPE2D:
-				if(auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
-				{
-					auto shape = graphicsManager->GetShapeManager().GetComponent(m_Entity);
-					return py::cast(shape, py::return_value_policy::reference);
-				}
-				break;
-			case ComponentType::SPRITE2D:
-				if (auto graphicsManager = Engine::GetInstance()->GetGraphicsManager().lock())
-				{
-					auto sprite = graphicsManager->GetSpriteManager().GetComponent(m_Entity);
-					return py::cast(sprite, py::return_value_policy::reference);
-				}
-				break;
-			case ComponentType::SOUND:
-				break;
-			default:
-				return py::none();
+				auto& transformManager = m_Engine.GetTransform2dManager();
+				auto& transform = transformManager.GetComponent(m_Entity);
+				return py::cast(transform, py::return_value_policy::reference);
 			}
+		case ComponentType::BODY2D:
+			{
+				auto& physicsManager = m_Engine.GetPhysicsManager();
+				auto& body = physicsManager.GetBodyManager().GetComponent(m_Entity);
+				return py::cast(body, py::return_value_policy::reference);
+			}
+		case ComponentType::COLLIDER2D:
+			break;
+		case ComponentType::SHAPE2D:
+			{
+				auto& graphicsManager = m_Engine.GetGraphicsManager();
+				auto shape = graphicsManager.GetShapeManager().GetComponent(m_Entity);
+				return py::cast(shape, py::return_value_policy::reference);
+			}
+		case ComponentType::SPRITE2D:
+			{
+				auto& graphicsManager = m_Engine.GetGraphicsManager();
+				auto sprite = graphicsManager.GetSpriteManager().GetComponent(m_Entity);
+				return py::cast(sprite, py::return_value_policy::reference);
+			}
+			break;
+		case ComponentType::SOUND:
+			break;
+		default:
+			return py::none();
 		}
 		return py::none();
 	}
 
 	py::object Component::GetPyComponent(py::object type)
 	{
-		return m_PythonEngine->GetPyComponentFromType(type, m_Entity);
+		return m_Engine.GetPythonEngine().GetPyComponentFromType(type, m_Entity);
 	}
 
 	

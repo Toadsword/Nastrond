@@ -63,7 +63,7 @@ class AudioManager : public System
 {
 
 public:
-	AudioManager() = default;
+	using System::System;
 	/**
 	* \brief Initialize SoundManager class, SoundBuffer class and MusicManager class
 	*/

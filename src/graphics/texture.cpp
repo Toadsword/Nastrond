@@ -55,7 +55,7 @@ static std::set<std::string> imgExtensionSet
 
 void TextureManager::Init()
 {
-	if(auto config = Engine::GetInstance()->GetConfig().lock())
+	if(auto config = m_Engine.GetConfig().lock())
 	{
 		if(config->devMode)
 		{

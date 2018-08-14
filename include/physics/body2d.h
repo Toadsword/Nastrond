@@ -68,7 +68,7 @@ private:
 class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System
 {
 public:
-	Body2dManager() = default;
+	Body2dManager(Engine& engine);
 	void Init() override;
 	void FixedUpdate() override;
 
@@ -76,8 +76,8 @@ public:
 	void DestroyComponent(Entity entity) override;
 
 private:
-	std::weak_ptr<EntityManager> m_EntityManagerPtr;
-	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
+	EntityManager& m_EntityManager;
+	Transform2dManager& m_Transform2dManager;
 	std::weak_ptr<b2World> m_WorldPtr;
 };
 

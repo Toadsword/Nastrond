@@ -83,7 +83,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Component, PyComponent> component(m, "Component");
 	component
-		.def(py::init<PythonEngine*, Entity>(), py::return_value_policy::reference)
+		.def(py::init<Engine&, Entity>(), py::return_value_policy::reference)
 		.def("init", &Component::Init)
 		.def("update", &Component::Update)
 		.def_property_readonly("entity", &Component::GetEntity)
@@ -110,8 +110,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_readwrite("position", &Transform2d::Position)
 		.def_readwrite("scale", &Transform2d::Scale);
 
-	py::class_<ColliderData> collider(m, "Collider");
-	collider
+	py::class_<ColliderData> colliderData(m, "ColliderData");
+	colliderData
 		.def_readonly("body", &ColliderData::body)
 		.def_readonly("entity", &ColliderData::entity);
 	
@@ -210,14 +210,10 @@ void PythonEngine::Init()
 	py::module sfgeModule = py::module::import("SFGE");
 	try
 	{
-		sfgeModule.attr("engine") = py::cast(Engine::GetInstance(), py::return_value_policy::reference);
-
-		if (auto sceneManagerPtr = Engine::GetInstance()->GetSceneManager().lock())
-			sfgeModule.attr("scene_manager") = py::cast(sceneManagerPtr.get(), py::return_value_policy::reference);
-		if (auto inputManagerPtr = Engine::GetInstance()->GetInputManager().lock())
-			sfgeModule.attr("input_manager") = py::cast(inputManagerPtr.get(), py::return_value_policy::reference);
-		if (auto physicsManagerPtr = Engine::GetInstance()->GetPhysicsManager().lock())
-			sfgeModule.attr("physics2d_manager") = py::cast(physicsManagerPtr.get(), py::return_value_policy::reference);
+		sfgeModule.attr("engine") = py::cast(m_Engine, py::return_value_policy::reference);
+		sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager(), py::return_value_policy::reference);
+		sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager(), py::return_value_policy::reference);
+		sfgeModule.attr("physics2d_manager") = py::cast(m_Engine.GetPhysicsManager(), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{

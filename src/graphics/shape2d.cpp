@@ -91,6 +91,13 @@ Polygon::Polygon(Transform2d* transform, sf::Vector2f offset, std::list<sf::Vect
 	//TODO Add the possibility for polygon
 }
 
+ShapeManager::ShapeManager(Engine& engine):
+	System(engine),
+	m_EntityManager(m_Engine.GetEntityManager()),
+	m_Transform2dManager(m_Engine.GetTransform2dManager())
+{
+}
+
 void editor::CircleShapeInfo::DrawOnInspector()
 {
 	ImGui::Separator();
@@ -126,38 +133,34 @@ void editor::RectShapeInfo::DrawOnInspector()
 
 void ShapeManager::Init()
 {
-	m_TransformManager = Engine::GetInstance()->GetTransform2dManager();
-	m_EntityManager = Engine::GetInstance()->GetEntityManager();
 }
 
 
 void ShapeManager::Draw(sf::RenderWindow& window)
 {
 
-	if (auto entityManager = Engine::GetInstance()->GetEntityManager().lock())
-	{
+	
 		for(int i = 0; i < m_Components.size(); i++)
 		{
-			if(m_Components[i] and entityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
+			if(m_Components[i] and m_EntityManager.HasComponent(i + 1, ComponentType::SHAPE2D))
 			{
 				m_Components[i]->Draw(window);
 			}
 		}
-	}
+	
 }
 
 void ShapeManager::Update(sf::Time dt)
 {
-	if (auto entityManager = Engine::GetInstance()->GetEntityManager().lock())
+	
+	for (int i = 0; i < m_Components.size(); i++)
 	{
-		for (int i = 0; i < m_Components.size(); i++)
+		if (m_Components[i] and m_EntityManager.HasComponent(i+1, ComponentType::SHAPE2D))
 		{
-			if (m_Components[i] and entityManager->HasComponent(i+1, ComponentType::SHAPE2D))
-			{
-				m_Components[i]->Update(dt);
-			}
+			m_Components[i]->Update(dt);
 		}
 	}
+	
 }
 
 void ShapeManager::Clear()
@@ -169,75 +172,70 @@ void ShapeManager::Clear()
 void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 {
 	Log::GetInstance()->Msg("Create component Shape");
-	if (auto transformManager = m_TransformManager.lock())
+	
+	if (CheckJsonNumber(componentJson, "shape_type"))
 	{
-		if (CheckJsonNumber(componentJson, "shape_type"))
+		const ShapeType shapeType = componentJson["shape_type"];
+		switch (shapeType)
 		{
-			const ShapeType shapeType = componentJson["shape_type"];
-			switch (shapeType)
+		case ShapeType::CIRCLE:
+		{
+			sf::Vector2f offset;
+			if (CheckJsonExists(componentJson, "offset"))
 			{
-			case ShapeType::CIRCLE:
+				offset = GetVectorFromJson(componentJson, "offset");
+			}
+			float radius = 10.0f;
+			if (CheckJsonNumber(componentJson, "radius"))
 			{
-				sf::Vector2f offset;
-				if (CheckJsonExists(componentJson, "offset"))
-				{
-					offset = GetVectorFromJson(componentJson, "offset");
-				}
-				float radius = 10.0f;
-				if (CheckJsonNumber(componentJson, "radius"))
-				{
-					radius = componentJson["radius"];
-				}
-				auto circle = std::make_shared<Circle>(
-					&transformManager->GetComponent(entity),
-					offset,
-					radius);
-				m_Components[entity - 1] = circle;
-				auto circleShapeInfo = std::make_shared<editor::CircleShapeInfo>();
-				circleShapeInfo->circlePtr = circle;
-				m_ComponentsInfo[entity - 1] = circleShapeInfo;
+				radius = componentJson["radius"];
 			}
-				break;
-			case ShapeType::RECTANGLE:
-				{
-				sf::Vector2f offset;
-				if (CheckJsonExists(componentJson, "offset"))
-				{
-					offset = GetVectorFromJson(componentJson, "offset");
-				}
-				sf::Vector2f size = sf::Vector2f();
-				if (CheckJsonExists(componentJson, "size"))
-				{
-					size = GetVectorFromJson(componentJson, "size");
-				}
-				auto rect = std::make_shared<Rectangle>(
-					&transformManager->GetComponent(entity),
-					offset,
-					size);
-				m_Components[entity - 1] = rect;
-				auto rectShapeInfo = std::make_shared<editor::RectShapeInfo>();
-				rectShapeInfo->rectanglePtr = rect;
-				m_ComponentsInfo[entity - 1] = rectShapeInfo;
-				
-				}
-				break;
-			default:
-				Log::GetInstance()->Error("Invalid shape type in ShapeManager Component Creation");
-				break;
-			}
+			auto circle = std::make_shared<Circle>(
+				m_Transform2dManager.GetComponentPtr(entity),
+				offset,
+				radius);
+			m_Components[entity - 1] = circle;
+			auto circleShapeInfo = std::make_shared<editor::CircleShapeInfo>();
+			circleShapeInfo->circlePtr = circle;
+			m_ComponentsInfo[entity - 1] = circleShapeInfo;
 		}
-		else
-		{
-			std::ostringstream oss;
-			oss << "[Error] No shape_type defined in json:  "<<componentJson;
-			Log::GetInstance()->Error(oss.str());
+			break;
+		case ShapeType::RECTANGLE:
+			{
+			sf::Vector2f offset;
+			if (CheckJsonExists(componentJson, "offset"))
+			{
+				offset = GetVectorFromJson(componentJson, "offset");
+			}
+			sf::Vector2f size = sf::Vector2f();
+			if (CheckJsonExists(componentJson, "size"))
+			{
+				size = GetVectorFromJson(componentJson, "size");
+			}
+			auto rect = std::make_shared<Rectangle>(
+				m_Transform2dManager.GetComponentPtr(entity),
+				offset,
+				size);
+			m_Components[entity - 1] = rect;
+			auto rectShapeInfo = std::make_shared<editor::RectShapeInfo>();
+			rectShapeInfo->rectanglePtr = rect;
+			m_ComponentsInfo[entity - 1] = rectShapeInfo;
+			
+			}
+			break;
+		default:
+			Log::GetInstance()->Error("Invalid shape type in ShapeManager Component Creation");
+			break;
 		}
 	}
 	else
 	{
-
-		Log::GetInstance()->Error("[Error] No reference to TransformManager in ShapeManager");
+		std::ostringstream oss;
+		oss << "[Error] No shape_type defined in json:  "<<componentJson;
+		Log::GetInstance()->Error(oss.str());
 	}
+	
+	
 }
 
 void ShapeManager::DestroyComponent(Entity entity)

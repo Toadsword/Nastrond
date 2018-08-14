@@ -33,6 +33,8 @@ SOFTWARE.
 #include <engine/log.h>
 #include <engine/entity.h>
 
+#include <utility/json_utility.h>
+
 namespace sfge
 {
 
@@ -79,13 +81,21 @@ public:
 		}
 		return m_ComponentsInfo[entity - 1];
 	}
-	T * GetComponentPtr(Entity entity)
+	T* GetComponentPtr(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
 		}
 		return &m_Components[entity - 1];
+	}
+	T& GetComponentRef(Entity entity)
+	{
+		if (entity == INVALID_ENTITY)
+		{
+			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
+		}
+		return m_Components[entity - 1];
 	}
 	std::vector<T>& GetComponents()
 	{

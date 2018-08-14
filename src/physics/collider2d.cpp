@@ -32,18 +32,18 @@ void editor::ColliderInfo::DrawOnInspector()
 {
 }
 
-ColliderManager::ColliderManager(Body2dManager& bodyManager) : 
-	m_BodyManager(bodyManager)
+ColliderManager::ColliderManager(Engine& engine) :
+	System(engine),
+	m_BodyManager(m_Engine.GetPhysicsManager().GetBodyManager()),
+	m_EntityManager(m_Engine.GetEntityManager())
 {
 	m_ColliderDatas.reserve(INIT_ENTITY_NMB * 4);
-	m_EntityManagerPtr = Engine::GetInstance()->GetEntityManager();
 }
 
 void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 {
 	Log::GetInstance()->Msg("Create component Collider");
-	auto entityManager = m_EntityManagerPtr.lock();
-	if (entityManager and entityManager->HasComponent(entity, ComponentType::BODY2D))
+	if (m_EntityManager.HasComponent(entity, ComponentType::BODY2D))
 	{
 		auto & body = m_BodyManager.GetComponent(entity);
 
@@ -65,7 +65,7 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 				shape = std::make_unique<b2CircleShape>();
 				if (CheckJsonNumber(componentJson, "radius"))
 				{
-					shape->m_radius = pixel2meter((float)componentJson["radius"]);
+					shape->m_radius = pixel2meter(static_cast<float>(componentJson["radius"]));
 				}
 				break;
 			case ColliderType::BOX:
@@ -87,7 +87,7 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 			default:
 			{
 				std::ostringstream oss;
-				oss << "[Error] Collider of type: " << (int)colliderType << " could not be loaded from json: " << componentJson;
+				oss << "[Error] Collider of type: " << static_cast<int>(colliderType) << " could not be loaded from json: " << componentJson;
 				Log::GetInstance()->Error(oss.str());
 			}
 				break;

@@ -82,7 +82,7 @@ class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>,
 	public LayerComponentManager<Sprite>, public System
 {
 public:
-	SpriteManager() = default;
+	SpriteManager(Engine& engine);
 	void Init() override;
 	void Update(sf::Time dt) override;
 	void Draw(sf::RenderWindow& window);
@@ -94,9 +94,9 @@ public:
 	void DestroyComponent(Entity entity) override;
 
 protected:
-	std::weak_ptr<Graphics2dManager> m_GraphicsManagerPtr;
-	std::weak_ptr<Transform2dManager> m_TransformManagerPtr;
-	std::weak_ptr<EntityManager> m_EntityManagerPtr;
+	Graphics2dManager& m_GraphicsManager;
+	Transform2dManager& m_Transform2dManager;
+	EntityManager& m_EntityManager;
 };
 
 

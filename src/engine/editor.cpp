@@ -39,24 +39,26 @@ SOFTWARE.
 
 namespace sfge
 {
-
+Editor::Editor(Engine& engine):
+	System(engine),
+	m_GraphicsManager(m_Engine.GetGraphicsManager()),
+	m_SceneManager(m_Engine.GetSceneManager()),
+	m_EntityManager(m_Engine.GetEntityManager()),
+	m_TransformManager(m_Engine.GetTransform2dManager()),
+	m_PhysicsManager(m_Engine.GetPhysicsManager())
+{
+}
 
 /**
 * \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
 */
 void Editor::Init()
 {
-	m_GraphicsManagerPtr = Engine::GetInstance()->GetGraphicsManager();
-	m_SceneManagerPtr = Engine::GetInstance()->GetSceneManager();
-	m_EntityManagerPtr= Engine::GetInstance()->GetEntityManager();
-	m_TransformManagerPtr= Engine::GetInstance()->GetTransform2dManager();
-	m_PhysicsManagerPtr= Engine::GetInstance()->GetPhysicsManager();
+	
 	if (m_Enable)
 	{
-		if (auto graphicsManager = m_GraphicsManagerPtr.lock())
-		{
-			m_Window = graphicsManager->GetWindow();
-		}
+		m_Window = m_GraphicsManager.GetWindow();
+		
 		Log::GetInstance()->Msg("Enabling Editor");
 		if(const auto window = m_Window.lock())
 		{
@@ -74,9 +76,8 @@ void Editor::Update(sf::Time dt)
 	if (m_Enable)
 	{
 		const auto windowPtr = m_Window.lock();
-		const auto configPtr = Engine::GetInstance()->GetConfig().lock();
-		auto entityManager = m_EntityManagerPtr.lock();
-		if (windowPtr and configPtr and entityManager)
+		const auto configPtr = m_Engine.GetConfig().lock();
+		if (windowPtr and configPtr)
 		{
 			ImGui::SFML::Update(*windowPtr, dt);
 
@@ -87,9 +88,9 @@ void Editor::Update(sf::Time dt)
 			
 			for (int i = 0; i < configPtr->currentEntitiesNmb; i++)
 			{
-				if(entityManager->GetMask(i+1) != INVALID_ENTITY)
+				if(m_EntityManager.GetMask(i+1) != INVALID_ENTITY)
 				{
-					auto& entityInfo = entityManager->GetEntityInfo(i+1);
+					auto& entityInfo = m_EntityManager.GetEntityInfo(i+1);
 					if(ImGui::Selectable(entityInfo.name.c_str(), selectedEntity-1 == i))
 					{
 						selectedEntity = i + 1;
@@ -105,47 +106,40 @@ void Editor::Update(sf::Time dt)
 			//TODO ADD THE SELECTED ENTITY COMPONENTS ON THE WINDOW
 			if(selectedEntity != INVALID_ENTITY)
 			{
-				auto& entityInfo = entityManager->GetEntityInfo(selectedEntity);
+				auto& entityInfo = m_EntityManager.GetEntityInfo(selectedEntity);
 				ImGui::InputText("Name", &entityInfo.name[0u], 15);
-				if(entityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
+				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
+				{
+					auto& transformInfo = m_TransformManager.GetComponentInfo(selectedEntity);
+					transformInfo.DrawOnInspector();
+				}
+
+				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::BODY2D))
 				{
 					
-					if(auto transformManager = m_TransformManagerPtr.lock())
-					{
-						auto& transformInfo = transformManager->GetComponentInfo(selectedEntity);
-						transformInfo.DrawOnInspector();
-					}
+					auto& bodyManager = m_PhysicsManager.GetBodyManager();
+					auto& bodyInfo = bodyManager.GetComponentInfo(selectedEntity);
+					bodyInfo.DrawOnInspector();
+					
 				}
 
-				if(entityManager->HasComponent(selectedEntity, ComponentType::BODY2D))
+				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SPRITE2D))
 				{
-					if(auto physicsManager = m_PhysicsManagerPtr.lock())
-					{
-						auto& bodyManager = physicsManager->GetBodyManager();
-						auto& bodyInfo = bodyManager.GetComponentInfo(selectedEntity);
-						bodyInfo.DrawOnInspector();
-					}
-				}
+					
+					auto& spriteManager = m_GraphicsManager.GetSpriteManager();
+					auto& spriteInfo = spriteManager.GetComponentInfo(selectedEntity);
+					spriteInfo.DrawOnInspector();
 
-				if (entityManager->HasComponent(selectedEntity, ComponentType::SPRITE2D))
-				{
-					if (auto graphicsManager = m_GraphicsManagerPtr.lock())
-					{
-						auto& spriteManager = graphicsManager->GetSpriteManager();
-						auto& spriteInfo = spriteManager.GetComponentInfo(selectedEntity);
-						spriteInfo.DrawOnInspector();
-
-					}
+					
 				}
-				if (entityManager->HasComponent(selectedEntity, ComponentType::SHAPE2D))
+				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
-					if (auto graphicsManager = m_GraphicsManagerPtr.lock())
-					{
-						auto& spriteManager = graphicsManager->GetShapeManager();
-						auto shapeInfo = spriteManager.GetComponentInfo(selectedEntity);
+					
+						auto& shapeManager = m_GraphicsManager.GetShapeManager();
+						auto shapeInfo = shapeManager.GetComponentInfo(selectedEntity);
 						shapeInfo->DrawOnInspector();
 
-					}
+					
 				}
 
 			}
