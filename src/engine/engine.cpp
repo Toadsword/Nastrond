@@ -90,7 +90,12 @@ void Engine::InitModules()
 	{
 		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
 	}
-	m_ThreadPool.resize(THREAD_NMB);
+    {
+        std::ostringstream oss;
+        oss << "Number of cores on machine: "<<std::thread::hardware_concurrency ();
+        Log::GetInstance ()->Msg (oss.str ());
+    }
+    m_ThreadPool.resize(std::thread::hardware_concurrency ()-1);
 
 
 

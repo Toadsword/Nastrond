@@ -27,6 +27,7 @@
 
 #include <list>
 #include <map>
+#include <list>
 #include <pybind11/functional.h>
 
 #include <engine/system.h>
