@@ -25,6 +25,7 @@
 #ifndef SFGE_PYENGINE_H
 #define SFGE_PYENGINE_H
 
+#include <list>
 #include <map>
 #include <pybind11/functional.h>
 
@@ -42,10 +43,10 @@ struct PyComponentInfo;
 class PyComponent;
 struct ColliderData;
 
-typedef unsigned ModuleId;
-#define INVALID_MODULE 0U
-typedef unsigned InstanceId;
-#define INVALID_INSTANCE 0U
+using ModuleId = unsigned;
+const unsigned INVALID_MODULE = 0U;
+using InstanceId = unsigned;
+const unsigned INVALID_INSTANCE = 0U;
 
 /**
 * \brief Manage the python interpreter
@@ -104,8 +105,8 @@ private:
 	std::map<ModuleId, py::object> m_PyModuleObjMap;
 	Id m_IncrementalModuleId = 1U;
 
-	std::map<Id, py::object> m_PythonInstanceMap;
-	Id m_IncrementalInstanceId = 1U;
+	std::map<InstanceId, py::object> m_PythonInstanceMap;
+	InstanceId m_IncrementalInstanceId = 1U;
 	std::vector<PyComponent*> m_PyComponents{};
 	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{};
 };
