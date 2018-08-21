@@ -41,6 +41,8 @@ using SoundId = unsigned int;
 using SoundBufferId = unsigned;
 const SoundBufferId INVALID_SOUND_BUFFER = 0U;
 
+const auto MAX_SOUND_BUFFER_SIZE = 1'000'000ll;
+
 namespace editor
 {
 class SoundInfo : public ComponentInfo, PathEditorComponent

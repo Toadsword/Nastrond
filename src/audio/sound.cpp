@@ -202,12 +202,15 @@ void SoundBufferManager::LoadSoundBuffers(std::string dataDirname)
 	{
 		if (IsRegularFile(entry))
 		{
-			const auto newSoundBufferId = LoadSoundBuffer(entry);
-			if (newSoundBufferId != INVALID_SOUND_BUFFER)
+			if(CalculateFileSize(entry) > MAX_SOUND_BUFFER_SIZE)
 			{
-				std::ostringstream oss;
-				oss << "Loading soundbuffers: " << entry << "\n";
-				Log::GetInstance()->Msg(oss.str());
+				const auto newSoundBufferId = LoadSoundBuffer(entry);
+				if (newSoundBufferId != INVALID_SOUND_BUFFER)
+				{
+					std::ostringstream oss;
+					oss << "Loading soundbuffers: " << entry << "\n";
+					Log::GetInstance()->Msg(oss.str());
+				}
 			}
 		}
 

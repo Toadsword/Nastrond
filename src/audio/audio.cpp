@@ -48,6 +48,12 @@ MusicManager&  AudioManager::GetMusicManager()
 {
 	return m_MusicManager;
 }
+
+SoundBufferManager& AudioManager::GetSoundBufferManager()
+{
+	return m_SoundBufferManager;
+}
+
 void AudioManager::Clear()
 {
 	m_SoundManager.Reset();
