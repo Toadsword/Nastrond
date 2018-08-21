@@ -22,59 +22,16 @@
  SOFTWARE.
  */
 
-#ifndef SFGE_SYSTEM_H
-#define SFGE_SYSTEM_H
-#include <SFML/System/Time.hpp>
+#ifndef SFGE_PYSYSTEM_H
+#define SFGE_PYSYSTEM_H
+
+#include <engine/system.h>
 
 namespace sfge
 {
-
-class Engine;
-/**
-* \brief Systems are classes used by the Engine to init and update features, new features can be added through PySystem
-*/
-class System
+class PySystem : public System
 {
-public:
-	System(Engine& engine);
-
-	virtual ~System() = default;
-	System& operator=(const System&) = delete;
-	explicit System(const System & system);
-	/**
-	* \brief Called to initialize the module
-	*/
-	virtual void Init() {}
-	/**
-	* \brief Called every frame to update the module
-	* \param dt The delta time since last frame
-	*/
-	virtual void Update(sf::Time dt) {}
-	/**
-	* \brief Called directly after the physics finished his job
-	*/
-	virtual void FixedUpdate() {}
-	/**
-	* \brief Used instead of the destructor to delete all heap created structure and finalize
-	*/
-	virtual void Destroy();
-	/**
-	* \brief Called before we load a scene
-	*/
-	virtual void Clear() {}
-	/**
-	* \brief Called after we load a scene
-	*/
-	virtual void Collect() {}
-
-	void SetEnable(bool enable);
-	bool GetEnable() const;
-
-	Engine& GetEngine() const;
-
-protected:
-	bool m_Enable = true;
-	Engine& m_Engine;
+  
 };
 }
-#endif //SFGE_SYSTEM_H
+#endif

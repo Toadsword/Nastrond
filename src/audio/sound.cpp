@@ -101,6 +101,8 @@ unsigned int SoundManager::LoadSoundBuffer(std::string filename)
 
 	return 0U;
 }
+
+
 sf::SoundBuffer* SoundManager::GetSoundBuffer(unsigned int sound_buffer_id)
 {
 	if (soundBufferMap.find(sound_buffer_id) != soundBufferMap.end())
@@ -200,7 +202,7 @@ void SoundBufferManager::LoadSoundBuffers(std::string dataDirname)
 	std::function<void(std::string)> LoadAllSoundBuffers;
 	LoadAllSoundBuffers = [&LoadAllSoundBuffers, this](std::string entry)
 	{
-		if (IsRegularFile(entry))
+		if (IsRegularFile(entry) && HasValidExtension(entry))
 		{
 			if(CalculateFileSize(entry) > MAX_SOUND_BUFFER_SIZE)
 			{
@@ -216,15 +218,29 @@ void SoundBufferManager::LoadSoundBuffers(std::string dataDirname)
 
 		if (IsDirectory(entry))
 		{
-			/*{
-				std::ostringstream oss;
-				oss << "Opening folder: " << entry << "\n";
-				Log::GetInstance()->Msg(oss.str());
-			}*/
 			IterateDirectory(entry, LoadAllSoundBuffers);
 		}
 	};
 	IterateDirectory(dataDirname, LoadAllSoundBuffers);
+}
+
+
+bool SoundBufferManager::HasValidExtension(std::string filename)
+{
+	const auto folderLastIndex = filename.find_last_of('/');
+	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	if (filenameExtensionIndex >= filename.size())
+	{
+		return false;
+	}
+
+	//Check extension first
+	const std::string extension = filename.substr(filenameExtensionIndex);
+	if (sndExtensionSet.find(extension) == sndExtensionSet.end())
+	{
+		return false;
+	}
+	return true;
 }
 
 void SoundBufferManager::Clear()
@@ -253,9 +269,8 @@ void SoundBufferManager::Collect()
 
 SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 {
-	const auto folderLastIndex = filename.find_last_of('/');
-	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
-	if (filenameExtensionIndex >= filename.size())
+
+	if (!HasValidExtension(filename))
 	{
 		std::ostringstream oss;
 		oss << "[ERROR] Sound buffer path: " << filename << " has invalid extension";
@@ -263,15 +278,8 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 		return INVALID_SOUND_BUFFER;
 	}
 
-	//Check extension first
-	const std::string extension = filename.substr(filenameExtensionIndex);
-	if (sndExtensionSet.find(extension) == sndExtensionSet.end())
-	{
-		std::ostringstream oss;
-		oss << "[ERROR] Sound buffer path: " << filename << " has invalid extension";
-		Log::GetInstance()->Error(oss.str());
-		return INVALID_SOUND_BUFFER;
-	}
+
+
 	auto soundBufferId = INVALID_SOUND_ID;
 	for (SoundBufferId checkedId = 1U; checkedId <= m_IncrementId; checkedId++)
 	{

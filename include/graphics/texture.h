@@ -75,7 +75,9 @@ public:
 	void Collect() override;
 
 
+
 private:
+  	bool HasValidExtension(std::string filename);
 	void LoadTextures(std::string dataDirname);
 
 	std::vector<std::string> m_TexturePaths {INIT_ENTITY_NMB * 4};

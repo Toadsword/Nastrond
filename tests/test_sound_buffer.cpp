@@ -23,6 +23,7 @@ SOFTWARE.
 */
 #include <sstream>
 #include <engine/engine.h>
+#include <engine/config.h>
 #include <audio/audio.h>
 #include <audio/sound.h>
 #include <engine/log.h>
@@ -30,6 +31,11 @@ SOFTWARE.
 TEST(TestSoundBuffer, TestSoundBuffer)
 {
 	sfge::Engine engine;
+
+	auto config = std::make_unique<sfge::Configuration>();
+	config->devMode = false;
+	engine.Init (std::move (config));
+
 	auto& soundBufferManager = engine.GetAudioManager().GetSoundBufferManager();
 
 	const std::string goodSoundBufferPath = "data/sounds/doorClose_1.ogg";
@@ -40,6 +46,10 @@ TEST(TestSoundBuffer, TestSoundBuffer)
 	const auto badSndBufferId = soundBufferManager.LoadSoundBuffer(badTextPath);
 	const auto badExtSndBufferId = soundBufferManager.LoadSoundBuffer(badTextPathWithoutExtension);
 
+
+	ASSERT_EQ (badExtSndBufferId, sfge::INVALID_SOUND_BUFFER);
+	ASSERT_EQ (badSndBufferId, sfge::INVALID_SOUND_BUFFER);
+	ASSERT_NE (goodSndBufferId, sfge::INVALID_SOUND_BUFFER);
 
 	sf::Sound sound;
 	if (badSndBufferId != sfge::INVALID_TEXTURE)
@@ -71,4 +81,5 @@ TEST(TestSoundBuffer, TestSoundBuffer)
 	std::this_thread::sleep_for(std::chrono::milliseconds
 	(soundBufferManager.GetSoundBuffer(goodSndBufferId)->getDuration().asMilliseconds()));
 
+	engine.Destroy ();
 }

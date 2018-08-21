@@ -91,6 +91,8 @@ public:
 	SoundBufferId LoadSoundBuffer(std::string filename);
 	sf::SoundBuffer* GetSoundBuffer(SoundBufferId soundBufferId);
 private:
+
+  	bool HasValidExtension(std::string filename);
 	std::vector<std::string> m_SoundBufferPaths{ INIT_ENTITY_NMB };
 	std::vector<unsigned int> m_SoundBufferCountRefs{ INIT_ENTITY_NMB };
 	std::vector<std::unique_ptr<sf::SoundBuffer>> m_SoundBuffers{INIT_ENTITY_NMB};

@@ -70,7 +70,7 @@ void TextureManager::LoadTextures(std::string dataDirname)
 	std::function<void(std::string)> LoadAllTextures;
 	LoadAllTextures = [&LoadAllTextures, this](std::string entry)
 	{
-		if (IsRegularFile(entry))
+		if (IsRegularFile(entry) && HasValidExtension(entry))
 		{
 			const TextureId newTextureId = LoadTexture(entry);
 			if (newTextureId != INVALID_TEXTURE)
@@ -83,11 +83,6 @@ void TextureManager::LoadTextures(std::string dataDirname)
 
 		if (IsDirectory(entry))
 		{
-			{
-				std::ostringstream oss;
-				oss << "Opening folder: " << entry << "\n";
-				Log::GetInstance()->Msg(oss.str());
-			}
 			IterateDirectory(entry, LoadAllTextures);
 		}
 	};
@@ -96,9 +91,7 @@ void TextureManager::LoadTextures(std::string dataDirname)
 
 TextureId TextureManager::LoadTexture(std::string filename)
 {
-	const auto folderLastIndex = filename.find_last_of('/');
-	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
-	if (filenameExtensionIndex >= filename.size())
+	if (!HasValidExtension (filename))
 	{
 		std::ostringstream oss;
 		oss << "[ERROR] Texture path: " << filename << " has invalid extension";
@@ -106,15 +99,6 @@ TextureId TextureManager::LoadTexture(std::string filename)
 		return INVALID_TEXTURE;
 	}
 
-	//Check extension first
-	const std::string extension = filename.substr(filenameExtensionIndex);
-	if(imgExtensionSet.find(extension) == imgExtensionSet.end())
-	{
-		std::ostringstream oss;
-		oss << "[ERROR] Texture path: " << filename << " has invalid extension";
-		Log::GetInstance()->Error(oss.str());
-		return INVALID_TEXTURE;
-	}
 	auto textureId = INVALID_TEXTURE;
 	for (TextureId checkedId = 1U; checkedId <= m_IncrementId; checkedId++)
 	{
@@ -182,6 +166,24 @@ TextureId TextureManager::LoadTexture(std::string filename)
 sf::Texture* TextureManager::GetTexture(TextureId textureId)
 {
 	return m_Textures[textureId-1].get();
+}
+
+bool TextureManager::HasValidExtension(std::string filename)
+{
+	const auto folderLastIndex = filename.find_last_of('/');
+	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	if (filenameExtensionIndex >= filename.size())
+	{
+		return false;
+	}
+
+	//Check extension first
+	const std::string extension = filename.substr(filenameExtensionIndex);
+	if(imgExtensionSet.find(extension) == imgExtensionSet.end())
+	{
+		return false;
+	}
+	return true;
 }
 
 void TextureManager::Clear()
