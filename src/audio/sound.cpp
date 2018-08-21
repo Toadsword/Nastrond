@@ -170,6 +170,14 @@ void Sound::Stop()
 	m_Sound.stop();
 }
 
+SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
+{
+}
+
+sf::SoundBuffer* SoundBufferManager::GetSoundBuffer(SoundBufferId soundBufferId)
+{
+}
+
 SoundManager::~SoundManager()
 {
 	for (auto sound : m_Components)
