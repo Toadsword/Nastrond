@@ -58,6 +58,12 @@ source_group("Python"            FILES ${SFGE_PYTHON_SRC})
 source_group("Utility"            FILES ${SFGE_UTILITY_SRC})
 List(APPEND SFGE_SRC  ${SFGE_AUDIO_SRC} ${SFGE_ENGINE_SRC} ${SFGE_GRAPHICS_SRC} 
 ${SFGE_INPUT_SRC} ${SFGE_PHYSICS_SRC}  ${SFGE_PYTHON_SRC} ${SFGE_UTILITY_SRC})
+
+#Google Test
+set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest)
+add_subdirectory(${GOOGLE_TEST_DIR})
+include_directories(${GOOGLE_TEST_DIR}/include)
+
 #SFML
 set(SFML_DIR ${EXTERNAL_DIR}/SFML)
 set(SFML_BUILD_EXAMPLES FALSE)
@@ -91,6 +97,8 @@ add_subdirectory(${BOX2D_DIR})
 include_directories(${BOX2D_DIR}/Box2D/)
 LIST(APPEND SFGE_LIBRARIES
 	Box2D)
+
+
 
 #PYTHON
 #IF(NOT WIN32)
@@ -175,6 +183,10 @@ foreach(test_file ${TEST_FILES} )
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
   ENDIF(APPLE)
 endforeach()
+
+add_executable(SFGE_TEST ${TEST_FILES})
+target_link_libraries(SFGE_TEST gtest gtest_main)
+
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}" )
