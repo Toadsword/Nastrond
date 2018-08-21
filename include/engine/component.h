@@ -103,6 +103,11 @@ public:
 	}
 
 	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
+	virtual void CreateEmptyComponent(Entity entity)
+	{
+		json emptyComponent;
+		CreateComponent (emptyComponent, entity);
+	};
 	virtual void DestroyComponent(Entity entity) = 0;
 
 protected:

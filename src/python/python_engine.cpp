@@ -64,7 +64,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager
 		.def_property_readonly("keyboard", &InputManager::GetKeyboardManager, py::return_value_policy::reference);
-	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
 	py::class_<KeyboardManager> keyboardManager(m, "KeyboardManager");
 	keyboardManager
 		.def("is_key_held", &KeyboardManager::IsKeyHeld)
@@ -78,6 +77,26 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Left", sf::Keyboard::Left)
 		.value("Right", sf::Keyboard::Right)
 		.export_values();
+
+	py::class_<Transform2dManager> transform2dManager(m , "Transform2dManager");
+	transform2dManager
+	    .def("create_component", &Transform2dManager::CreateEmptyComponent)
+	    .def("get_component", &Transform2dManager::GetComponentRef, py::return_value_policy::reference);
+
+	py::class_<EntityManager> entityManager(m, "EntityManager");
+	entityManager
+	    .def("create_entity", &EntityManager::CreateEntity)
+	    .def("has_component", &EntityManager::HasComponent);
+
+	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
+	physics2dManager
+	    .def_property_readonly ("body_manager", &Physics2dManager::GetBodyManager, py::return_value_policy::reference);
+
+	py::class_<Body2dManager> body2dManager(m, "Body2dManager");
+	body2dManager
+	    .def("create_component", &Body2dManager::CreateEmptyComponent)
+	    .def("get_component", &Body2dManager::GetComponentRef, py::return_value_policy::reference);
+
 
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 
@@ -101,7 +120,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Body", ComponentType::BODY2D)
 		.value("Sprite", ComponentType::SPRITE2D)
 		.value("Sound", ComponentType::SOUND)
-		.value("Transform", ComponentType::TRANSFORM2D)
+		.value("Transform2d", ComponentType::TRANSFORM2D)
 		.export_values();
 
 	py::class_<Transform2d> transform(m, "Transform");
@@ -213,7 +232,7 @@ void PythonEngine::Init()
 	m_PyComponentsInfo.reserve(INIT_ENTITY_NMB * 4);
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
 	py::initialize_interpreter();
-	//Adding refecrence to c++ engine modules
+	//Adding reference to c++ engine modules
 
 	py::module sfgeModule = py::module::import("SFGE");
 	try
@@ -222,6 +241,8 @@ void PythonEngine::Init()
 		sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager(), py::return_value_policy::reference);
 		sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager(), py::return_value_policy::reference);
 		sfgeModule.attr("physics2d_manager") = py::cast(m_Engine.GetPhysicsManager(), py::return_value_policy::reference);
+		sfgeModule.attr("transform2d_manager") = py::cast(m_Engine.GetTransform2dManager(), py::return_value_policy::reference);
+		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{
