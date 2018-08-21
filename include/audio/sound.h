@@ -76,7 +76,14 @@ public:
 
 	using System::System;
 
+	~SoundBufferManager();
+
+	void Init() override;
+
+	void LoadSoundBuffers(std::string filename);
+
 	void Clear() override;
+	
 	void Collect() override;
 
 	SoundBufferId LoadSoundBuffer(std::string filename);
@@ -85,6 +92,8 @@ private:
 	std::vector<std::string> m_SoundBufferPaths{ INIT_ENTITY_NMB };
 	std::vector<unsigned int> m_SoundBufferCountRefs{ INIT_ENTITY_NMB };
 	std::vector<std::unique_ptr<sf::SoundBuffer>> m_SoundBuffers{INIT_ENTITY_NMB};
+	SoundBufferId m_IncrementId = 0U;
+
 };
 
 class SoundManager : public ComponentManager<Sound, editor::SoundInfo>

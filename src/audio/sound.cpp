@@ -26,11 +26,20 @@ SOFTWARE.
 #include <audio/sound.h>
 #include <audio/audio.h>
 #include <engine/log.h>
+#include <engine/engine.h>
+#include <engine/config.h>
 #include <utility/file_utility.h>
 
 
 namespace sfge
 {
+
+static std::set<std::string> sndExtensionSet
+{
+	".wav",
+	".ogg",
+	".flac"
+};
 unsigned int SoundManager::LoadSoundBuffer(std::string filename)
 {
 	//If already loaded
@@ -170,12 +179,163 @@ void Sound::Stop()
 	m_Sound.stop();
 }
 
+SoundBufferManager::~SoundBufferManager()
+{
+	m_SoundBuffers.clear();
+}
+
+void SoundBufferManager::Init()
+{
+	if (const auto config = m_Engine.GetConfig().lock())
+	{
+		if (config->devMode)
+		{
+			LoadSoundBuffers(config->dataDirname);
+		}
+	}
+}
+
+void SoundBufferManager::LoadSoundBuffers(std::string dataDirname)
+{
+	std::function<void(std::string)> LoadAllSoundBuffers;
+	LoadAllSoundBuffers = [&LoadAllSoundBuffers, this](std::string entry)
+	{
+		if (IsRegularFile(entry))
+		{
+			const auto newSoundBufferId = LoadSoundBuffer(entry);
+			if (newSoundBufferId != INVALID_SOUND_BUFFER)
+			{
+				std::ostringstream oss;
+				oss << "Loading soundbuffers: " << entry << "\n";
+				Log::GetInstance()->Msg(oss.str());
+			}
+		}
+
+		if (IsDirectory(entry))
+		{
+			/*{
+				std::ostringstream oss;
+				oss << "Opening folder: " << entry << "\n";
+				Log::GetInstance()->Msg(oss.str());
+			}*/
+			IterateDirectory(entry, LoadAllSoundBuffers);
+		}
+	};
+	IterateDirectory(dataDirname, LoadAllSoundBuffers);
+}
+
+void SoundBufferManager::Clear()
+{
+	for (auto& soundBufferRefCount : m_SoundBufferCountRefs)
+	{
+		soundBufferRefCount = 0U;
+	}
+}
+
+void SoundBufferManager::Collect()
+{
+	std::list<SoundBufferId> unusedTextureIds;
+	for (auto i = 0ll; i < m_SoundBufferCountRefs.size(); i++)
+	{
+		if (m_SoundBufferCountRefs[i] == 0U)
+		{
+			unusedTextureIds.push_back(i + 1);
+		}
+	}
+	for (auto unusedTextureId : unusedTextureIds)
+	{
+		m_SoundBuffers[unusedTextureId] = nullptr;
+	}
+}
+
 SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 {
+	const auto folderLastIndex = filename.find_last_of('/');
+	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	if (filenameExtensionIndex >= filename.size())
+	{
+		std::ostringstream oss;
+		oss << "[ERROR] Sound buffer path: " << filename << " has invalid extension";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_SOUND_BUFFER;
+	}
+
+	//Check extension first
+	const std::string extension = filename.substr(filenameExtensionIndex);
+	if (sndExtensionSet.find(extension) == sndExtensionSet.end())
+	{
+		std::ostringstream oss;
+		oss << "[ERROR] Sound buffer path: " << filename << " has invalid extension";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_SOUND_BUFFER;
+	}
+	auto soundBufferId = INVALID_SOUND_ID;
+	for (SoundBufferId checkedId = 1U; checkedId <= m_IncrementId; checkedId++)
+	{
+		if (filename == m_SoundBufferPaths[checkedId])
+		{
+			soundBufferId = checkedId;
+		}
+	}
+	//Was or still is loaded
+	if (soundBufferId != INVALID_SOUND_BUFFER)
+	{
+
+		//Check if the texture was destroyed
+		if (m_SoundBuffers[soundBufferId - 1] != nullptr)
+		{
+			m_SoundBufferCountRefs[soundBufferId - 1]++;
+			return soundBufferId;
+		}
+		else
+		{
+			auto soundBuffer = std::make_unique<sf::SoundBuffer>();
+			if (!soundBuffer->loadFromFile(filename))
+			{
+				std::ostringstream oss;
+				oss << "[ERROR] Could not load sound buffer file: " << filename;
+				Log::GetInstance()->Error(oss.str());
+				return INVALID_SOUND_BUFFER;
+			}
+			m_SoundBufferCountRefs[soundBufferId - 1] = 1U;
+			m_SoundBuffers[soundBufferId - 1] = std::move(soundBuffer);
+			return m_IncrementId;
+		}
+	}
+	else
+	{
+		//Texture was never loaded
+		if (FileExists(filename))
+		{
+
+			auto soundBuffer = std::make_unique<sf::SoundBuffer>();
+			if (!soundBuffer->loadFromFile(filename))
+			{
+				std::ostringstream oss;
+				oss << "[ERROR] Could not load texture file: " << filename;
+				Log::GetInstance()->Error(oss.str());
+				return INVALID_TEXTURE;
+			}
+
+			m_IncrementId++;
+			m_SoundBufferPaths[m_IncrementId - 1] = filename;
+			m_SoundBufferCountRefs[m_IncrementId - 1] = 1U;
+			m_SoundBuffers[m_IncrementId - 1] = std::move(soundBuffer);
+			return m_IncrementId;
+		}
+		else
+		{
+			std::ostringstream oss;
+			oss << "[ERROR] Could not load texture file: " << filename;
+			Log::GetInstance()->Error(oss.str());
+		}
+	}
+	return INVALID_TEXTURE;
 }
 
 sf::SoundBuffer* SoundBufferManager::GetSoundBuffer(SoundBufferId soundBufferId)
 {
+	return m_SoundBuffers[soundBufferId - 1].get();
 }
 
 SoundManager::~SoundManager()
