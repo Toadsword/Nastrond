@@ -26,7 +26,8 @@ SOFTWARE.
 #include <audio/audio.h>
 #include <audio/sound.h>
 #include <engine/log.h>
-int main()
+#include <gtest/gtest.h>
+TEST(TestSoundBuffer, TestSoundBuffer)
 {
 	sfge::Engine engine;
 	auto& soundBufferManager = engine.GetAudioManager().GetSoundBufferManager();
@@ -69,8 +70,5 @@ int main()
 
 	std::this_thread::sleep_for(std::chrono::milliseconds
 	(soundBufferManager.GetSoundBuffer(goodSndBufferId)->getDuration().asMilliseconds()));
-#if WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
+
 }

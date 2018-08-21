@@ -23,19 +23,15 @@ SOFTWARE.
 */
 #include <engine/engine.h>
 #include <engine/scene.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestEditor, ShowValue)
 {
 	sfge::Engine engine;
 	engine.Init();
-	if (auto sceneManager = engine.GetSceneManager().lock())
-	{
-		sceneManager->LoadSceneFromPath("data/scenes/test.scene");
+	auto& sceneManager = engine.GetSceneManager();
+	sceneManager.LoadSceneFromPath("data/scenes/test.scene");
 
-		engine.Start();
-	}
-#ifdef WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
+	engine.Start();
+	
 }

@@ -25,8 +25,9 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/scene.h>
 #include <utility/json_utility.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestScene, TestSwitchScene)
 {
 	{
 		sfge::Engine engine;
@@ -39,9 +40,4 @@ int main()
 	}
 
 
-#ifdef WIN32
-
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
 }

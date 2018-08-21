@@ -73,7 +73,7 @@ void TextureManager::LoadTextures(std::string dataDirname)
 		if (IsRegularFile(entry))
 		{
 			const TextureId newTextureId = LoadTexture(entry);
-			if (newTextureId)
+			if (newTextureId != INVALID_TEXTURE)
 			{
 				std::ostringstream oss;
 				oss << "Loading texture: " << entry << "\n";
@@ -179,11 +179,6 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	return INVALID_TEXTURE;
 }
 
-
-
-
-
-
 sf::Texture* TextureManager::GetTexture(TextureId textureId)
 {
 	return m_Textures[textureId-1].get();
@@ -202,14 +197,14 @@ void TextureManager::Collect()
 	std::list<TextureId> unusedTextureIds;
 	for (auto i = 0ll; i < m_TextureIdsRefCounts.size(); i++)
 	{
-		if(m_TextureIdsRefCounts[i] == 0U)
+		if(m_Textures[i] && m_TextureIdsRefCounts[i] == 0U )
 		{
 			unusedTextureIds.push_back(i+1);
 		}
 	}
 	for (auto unusedTextureId : unusedTextureIds)
 	{
-		m_Textures[unusedTextureId] = nullptr;
+		m_Textures[unusedTextureId-1] = nullptr;
 	}
 }
 

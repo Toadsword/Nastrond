@@ -52,15 +52,6 @@ namespace sfge
 * Prototypes declarations
 */
 struct Configuration;
-class Graphics2dManager;
-class AudioManager;
-class SceneManager;
-class InputManager;
-class PythonEngine;
-class Physics2dManager;
-class Editor;
-class EntityManager;
-class Transform2dManager;
 
 /**
 * \brief The main Engine class to centralise the frame process and the references

@@ -39,7 +39,7 @@ public:
 	System(Engine& engine);
 
 	virtual ~System() = default;
-	//System& operator=(const System&) = delete;
+	System& operator=(const System&) = delete;
 	explicit System(const System & system);
 	/**
 	* \brief Called to initialize the module

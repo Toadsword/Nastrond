@@ -25,7 +25,9 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <graphics/texture.h>
 #include <engine/log.h>
-int main()
+#include <gtest/gtest.h>
+
+TEST(TextureTest, BadTexture)
 {
 	sfge::Engine engine;
 	auto& textureManager = engine.GetGraphicsManager().GetTextureManager();
@@ -86,8 +88,4 @@ int main()
 		// end the current frame
 		window.display();
 	}
-#if WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
 }

@@ -27,8 +27,9 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <graphics/shape2d.h>
 #include <engine/scene.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestPyComponent, TestPyComponent)
 {
 	sfge::Engine engine;
 	engine.Init();
@@ -63,9 +64,4 @@ int main()
 	sceneManager.LoadSceneFromJson(sceneJson);
 	
 	engine.Start();
-
-#ifdef WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
 }

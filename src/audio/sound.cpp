@@ -240,7 +240,7 @@ void SoundBufferManager::Collect()
 	std::list<SoundBufferId> unusedTextureIds;
 	for (auto i = 0ll; i < m_SoundBufferCountRefs.size(); i++)
 	{
-		if (m_SoundBufferCountRefs[i] == 0U)
+		if (m_SoundBuffers[i] && m_SoundBufferCountRefs[i] == 0U)
 		{
 			unusedTextureIds.push_back(i + 1);
 		}
