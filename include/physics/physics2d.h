@@ -75,7 +75,7 @@ public:
 	 * \brief Called each frame to update the b2World if not in editor mode
 	 * @param dt Delta time since last frame
 	 */
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 	void FixedUpdate() override;
 	/**
 	* \brief Called at the end of the program to Destroy a b2World, if it sill exists

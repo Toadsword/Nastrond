@@ -49,7 +49,7 @@ public:
 		* \brief Update the Graphics Manager and prepare for the rendering
 		* \param dt Delta time since last frame
 		*/
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 
 	void Display();
 	/**

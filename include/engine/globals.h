@@ -48,6 +48,5 @@ enum class ModuleType
 
 
 
-typedef unsigned Id;
 
 #endif //SFGE_GLOBALS_H

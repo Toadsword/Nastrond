@@ -72,7 +72,7 @@ public:
 	* \brief Update the audioManager, called only in play mode
 	* \ param dt The delta time since last frame
 	*/
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 
 	SoundManager& GetSoundManager();
 	MusicManager& GetMusicManager();

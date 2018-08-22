@@ -34,7 +34,7 @@ void AudioManager::Init()
 {
 
 };
-void AudioManager::Update(sf::Time dt)
+void AudioManager::Update(float dt)
 {
 
 };

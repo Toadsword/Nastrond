@@ -84,7 +84,7 @@ class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>,
 public:
 	SpriteManager(Engine& engine);
 	void Init() override;
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 	void Draw(sf::RenderWindow& window);
 
 	void Reset();

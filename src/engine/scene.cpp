@@ -210,7 +210,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 									std::string path = componentJson["script_path"];
 									const ModuleId moduleId = pythonEngine.LoadPyModule(path);
 									if(moduleId != INVALID_MODULE)
-										const InstanceId instanceId = pythonEngine.LoadPyComponent(moduleId, entity);
+										const InstanceId instanceId = pythonEngine.LoadPyClass(moduleId, entity);
 								}
 								break;
 							}

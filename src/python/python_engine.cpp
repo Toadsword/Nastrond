@@ -36,13 +36,10 @@
 #include <graphics/sprite2d.h>
 #include <physics/physics2d.h>
 #include <python/pycomponent.h>
+#include <python/pysystem.h>
 
 #include <utility/file_utility.h>
 #include <utility/time_utility.h>
-
-
-
-
 
 
 namespace sfge
@@ -54,7 +51,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Engine> engine(m, "Engine");
 
-	py::class_<System> module(m, "Module");
+	py::class_<System, PySystem> system(m, "System");
+	system
+		.def("init", &System::Init)
+		.def("update", &System::Update);
 
 	py::class_<SceneManager> sceneManager(m, "SceneManager");
 	sceneManager
@@ -227,10 +227,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 void PythonEngine::Init()
 {
-
-	m_PyComponents.reserve(INIT_ENTITY_NMB * 4);
-	m_PyComponentsInfo.reserve(INIT_ENTITY_NMB * 4);
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
+
 	py::initialize_interpreter();
 	//Adding reference to c++ engine modules
 
@@ -263,12 +261,12 @@ void PythonEngine::InitPyComponent()
 }
 
 
-void PythonEngine::Update(sf::Time dt)
+void PythonEngine::Update(float dt)
 {
 	for (auto pyComponent : m_PyComponents)
 	{
 		if(pyComponent != nullptr)
-			pyComponent->Update(dt.asSeconds());
+			pyComponent->Update(dt);
 	}
 }
 
@@ -282,9 +280,10 @@ void PythonEngine::Destroy()
 
 void PythonEngine::Clear()
 {
-	m_PythonInstanceMap.clear();
+	m_PythonInstances.clear();
 	m_PyComponents.clear ();
-	m_PyComponents.reserve (INIT_ENTITY_NMB*4);
+	m_PyComponents.reserve (INIT_ENTITY_NMB * 4);
+	m_PySystems.reserve(INIT_ENTITY_NMB * 4);
 }
 
 ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
@@ -292,35 +291,44 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 	const auto folderLastIndex = moduleFilename.find_last_of('/');
 	std::string filename = moduleFilename.substr(folderLastIndex + 1, moduleFilename.size());
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	if(filenameExtensionIndex > moduleFilename.size())
+	{
+		std::ostringstream oss;
+		oss << "Python script: " << moduleFilename << " has not a correct extension";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_MODULE;
+	}
 	std::string moduleName = filename.substr(0, filenameExtensionIndex);
 	const std::string extension = filename.substr(filenameExtensionIndex);
 	const std::string className = module2class(moduleName);
 	if (IsRegularFile(moduleFilename) && extension == ".py")
 	{
-		if (m_PythonModuleIdMap.find(moduleFilename) != m_PythonModuleIdMap.end())
+		ModuleId moduleId = INVALID_MODULE;
+		for(ModuleId testedModuleId = 1U; testedModuleId < m_IncrementalModuleId; testedModuleId++)
 		{
-			const ModuleId moduleId = m_PythonModuleIdMap[moduleFilename];
-			if (moduleId == INVALID_MODULE)
+			if(m_PythonModulePaths[testedModuleId-1] == moduleFilename)
 			{
-				std::ostringstream oss;
-				oss << "Python script: " << moduleFilename << " has id 0";
-				Log::GetInstance()->Error(oss.str());
+				moduleId = testedModuleId;
 			}
+		}
+		if (moduleId != INVALID_MODULE)
+		{
 			return moduleId;
 		}
 		else
 		{
 			try
 			{
-
+				moduleId = m_IncrementalModuleId;
                 py::dict globals = py::globals ();
-				m_PyModuleObjMap[m_IncrementalModuleId] = import(moduleName, moduleFilename, globals);
-				m_PyModuleNameMap[m_IncrementalModuleId] = moduleName;
-				m_PythonModuleIdMap[moduleFilename] = m_IncrementalModuleId;
-				m_PyComponentClassNameMap[m_IncrementalModuleId] = className;
+				m_PyModuleObjs[moduleId] = import(moduleName, moduleFilename, globals);
+				m_PyModuleNames[moduleId] = moduleName;
+				m_PyClassNames[moduleId] = className;
+
+				m_IncrementalModuleId++;
 				{
 					std::ostringstream oss;
-					oss << "Loading module: " << moduleName << " with Component: " << className << ",\n";
+					oss << "Loading module: " << moduleName << " with class: " << className << ",\n";
 					Log::GetInstance()->Msg(oss.str());
 				}
 			}
@@ -331,46 +339,40 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_MODULE;
 			}
-			m_IncrementalModuleId++;
-			return m_IncrementalModuleId - 1;
+			return moduleId;
 		}
 	}
 	return INVALID_MODULE;
 }
 
 
-InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
+InstanceId PythonEngine::LoadPyClass(ModuleId moduleId, Entity entity)
 {
-	std::string className = m_PyComponentClassNameMap[moduleId];
-	if(m_PyComponentClassNameMap.find(moduleId) != m_PyComponentClassNameMap.end())
+	std::string className = m_PyClassNames[moduleId];
+	try
 	{
-		
-		try
+		auto globals = py::globals ();
+		auto moduleName = m_PyModuleNames[moduleId];
+		auto moduleObj = m_PyModuleObjs[moduleId];
+		//Check if class is subclass of Component
+		std::ostringstream oss;
+		oss << "issubclassof(" << py::str(moduleObj.attr(className.c_str())) << ")";
+		const auto isComponent = py::eval(oss.str()).cast<bool>();
+
+		const auto pyInstanceId = m_IncrementalInstanceId;
+		if (isComponent)
 		{
-			auto globals = py::globals ();
-			auto moduleName = m_PyModuleNameMap[moduleId];
-			auto moduleObj = m_PyModuleObjMap[moduleId];
-			m_PythonInstanceMap[m_IncrementalInstanceId] = 
+			//Load PyComponent
+			m_PythonInstances[pyInstanceId] =
 				moduleObj.attr(className.c_str())(m_Engine, entity);
-			//Adding the important components
 
-
-			const auto pyComponent = GetPyComponentFromInstanceId(m_IncrementalInstanceId);
+			const auto pyComponent = GetPyComponentFromInstanceId(pyInstanceId);
 			if (pyComponent != nullptr)
 			{
 				m_PyComponents.push_back(pyComponent);
 				auto pyInfo = editor::PyComponentInfo();
 				pyInfo.name = className;
-				for(auto& pair : m_PythonModuleIdMap)
-				{
-					const auto path = pair.first;
-					const auto tmpModuleId = pair.second;
-					if(tmpModuleId == moduleId)
-					{
-						pyInfo.path = path;
-						break;
-					}
-				}
+				pyInfo.path = m_PythonModulePaths[moduleId];
 				pyInfo.pyComponent = pyComponent;
 				m_PyComponentsInfo.push_back(pyInfo);
 				m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::PYCOMPONENT);
@@ -380,19 +382,45 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 				std::ostringstream oss;
 				oss << "[Python Error] Could not load the PyComponent* out of the instance";
 				Log::GetInstance()->Error(oss.str());
-                return INVALID_INSTANCE;
+				return INVALID_INSTANCE;
 			}
-			m_IncrementalInstanceId++;
-			return m_IncrementalInstanceId - 1;
 		}
-		catch(std::runtime_error& e)
+		else
 		{
-			std::stringstream oss;
-			oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what()<<"\n"<<py::str(py::globals ());
-			Log::GetInstance()->Error(oss.str());
+			//Load PySystem
+			m_PythonInstances[pyInstanceId] =
+				moduleObj.attr(className.c_str())(m_Engine);
+			const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
+			if (pySystem != nullptr)
+			{
+				m_PySystems.push_back(pySystem);
+				
+				/*auto pyInfo = editor::PyComponentInfo();
+				pyInfo.name = className;
+				pyInfo.path = m_PythonModulePaths[moduleId];
+				pyInfo.pyComponent = pySystem;
+				m_PyComponentsInfo.push_back(pyInfo);
+				*/
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "[Python Error] Could not load the PyComponent* out of the instance";
+				Log::GetInstance()->Error(oss.str());
+				return INVALID_INSTANCE;
+			}
 		}
+		m_IncrementalInstanceId++;
+		return pyInstanceId;
 	}
-	return 0U;
+	catch(std::runtime_error& e)
+	{
+		std::stringstream oss;
+		oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what()<<"\n"<<py::str(py::globals ());
+		Log::GetInstance()->Error(oss.str());
+	}
+	
+	return INVALID_INSTANCE;
 	
 }
 
@@ -436,47 +464,52 @@ void PythonEngine::LoadScripts(std::string dirname)
 	};
 	IterateDirectory(dirname, LoadAllPyModules);
 	//Spread the class name in all the scripts
-	for(auto& pyModuleObjPair : m_PyModuleNameMap)
+	for(ModuleId moduleId = 1U; moduleId < m_IncrementalModuleId; moduleId++)
 	{
-		const auto pyModuleId = pyModuleObjPair.first;
-		auto pyModuleName = pyModuleObjPair.second;
-		for(auto& importedClassNamePair : m_PyComponentClassNameMap)
+		for (ModuleId otherModuleId = 1U; otherModuleId < m_IncrementalModuleId; otherModuleId++)
 		{
-			const auto importedModuleId = importedClassNamePair.first;
-			const auto importedClassName = importedClassNamePair.second;
-			if(importedModuleId != pyModuleId)
+			if(moduleId == otherModuleId) continue;
+			try
 			{
-				try
-				{
-					auto moduleObj = m_PyModuleObjMap[pyModuleId];
-					auto importedModuleObj = m_PyModuleObjMap[importedModuleId];
-					moduleObj.attr(py::str(importedClassName)) = importedModuleObj.attr(py::str(importedClassName));
-				}
-				catch(std::runtime_error& e)
-				{
-					std::ostringstream oss;
-					oss << "[PYTHON ERROR] Could not import class: " << importedClassName << " into module: " << pyModuleId << " with error: " << e.what();
-					Log::GetInstance()->Error(oss.str());
-				}
+			m_PyModuleObjs[moduleId].attr(py::str(m_PyClassNames[otherModuleId])) = 
+				m_PyModuleObjs[otherModuleId].attr(py::str(m_PyClassNames[otherModuleId]));
+			}
+			catch (std::runtime_error& e)
+			{
+				std::ostringstream oss;
+				oss << "[PYTHON ERROR] Could not import class: " << m_PyClassNames[otherModuleId] << " into module: " << moduleId << " with error: " << e.what();
+				Log::GetInstance()->Error(oss.str());
 			}
 		}
+		
 	}
 }
 
 
 PyComponent* PythonEngine::GetPyComponentFromInstanceId(InstanceId instanceId)
 {
-	if(m_PythonInstanceMap.find(instanceId) != m_PythonInstanceMap.end())
-	{
-		return m_PythonInstanceMap[instanceId].cast<PyComponent*>();
-	}
-	else
+	if (instanceId >= m_IncrementalInstanceId)
 	{
 		std::ostringstream oss;
 		oss << "[Python Error] Could not find instance Id: " << instanceId << " in the pythonInstanceMap";
 		Log::GetInstance()->Error(oss.str());
+
+		return nullptr;
 	}
-	return nullptr;
+	return m_PythonInstances[instanceId].cast<PyComponent*>();
+}
+
+PySystem* PythonEngine::GetPySystemFromInstanceId(InstanceId instanceId)
+{
+	if (instanceId >= m_IncrementalInstanceId)
+	{
+		std::ostringstream oss;
+		oss << "[Python Error] Could not find instance Id: " << instanceId << " in the pythonInstanceMap";
+		Log::GetInstance()->Error(oss.str());
+
+		return nullptr;
+	}
+	return m_PythonInstances[instanceId].cast<PySystem*>();
 }
 
 py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)

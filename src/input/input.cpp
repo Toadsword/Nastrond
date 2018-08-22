@@ -46,7 +46,7 @@ void InputManager::Init()
 {
 }
 
-void InputManager::Update(sf::Time dt)
+void InputManager::Update(float dt)
 {
 	m_KeyboardManager.Update(dt);
 }
@@ -63,7 +63,7 @@ void InputManager::Collect()
 {
 }
 
-void KeyboardManager::Update(sf::Time dt)
+void KeyboardManager::Update(float dt)
 {
 	for (int i = 0; i < sf::Keyboard::KeyCount; i++)
 	{

@@ -58,7 +58,7 @@ void Shape::SetFillColor(sf::Color color) const
 		m_Shape->setFillColor(color);
 }
 
-void Shape::Update(sf::Time dt) const
+void Shape::Update(float dt) const
 {
 	if(m_Shape and m_Transform)
 	{
@@ -150,7 +150,7 @@ void ShapeManager::Draw(sf::RenderWindow& window)
 	
 }
 
-void ShapeManager::Update(sf::Time dt)
+void ShapeManager::Update(float dt)
 {
 	
 	for (int i = 0; i < m_Components.size(); i++)

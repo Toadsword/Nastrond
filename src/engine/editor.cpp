@@ -71,7 +71,7 @@ void Editor::Init()
 		}
 	}
 }
-void Editor::Update(sf::Time dt)
+void Editor::Update(float dt)
 {
 	if (m_Enable)
 	{
@@ -79,7 +79,7 @@ void Editor::Update(sf::Time dt)
 		const auto configPtr = m_Engine.GetConfig().lock();
 		if (windowPtr and configPtr)
 		{
-			ImGui::SFML::Update(*windowPtr, dt);
+			ImGui::SFML::Update(*windowPtr, sf::seconds(dt));
 
 			//GameObject window
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);

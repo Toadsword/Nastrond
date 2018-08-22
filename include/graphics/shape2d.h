@@ -53,7 +53,7 @@ public:
 	virtual ~Shape();
 	void Draw(sf::RenderWindow& window) const;
 	void SetFillColor(sf::Color color) const;
-	void Update(sf::Time dt) const;
+	void Update(float dt) const;
 protected:
 	std::unique_ptr<sf::Shape> m_Shape = nullptr;
 };
@@ -111,7 +111,7 @@ public:
 	ShapeManager(Engine& engine);
 	void Init() override;
 	void Draw(sf::RenderWindow& window);
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 	void Clear() override;
 
 	void CreateComponent(json& componentJson, Entity entity) override;

@@ -14,7 +14,7 @@ class PlanetSystem(System):
 
             transform2d_manager.create_component(new_entity)
             transform = transform2d_manager.get_component(new_entity) # type: Transform2d
-            transform.position = Vector2f(random.randint(0,800), random.random(0,800))
+            transform.position = Vector2f(random.randint(0, 800), random.random(0, 800))
 
 
 

@@ -49,7 +49,7 @@ public:
 	* \brief Called every frame to update the module
 	* \param dt The delta time since last frame
 	*/
-	virtual void Update(sf::Time dt) {}
+	virtual void Update(float dt) {}
 	/**
 	* \brief Called directly after the physics finished his job
 	*/

@@ -96,7 +96,7 @@ void SpriteManager::Init()
 
 }
 
-void SpriteManager::Update(sf::Time dt)
+void SpriteManager::Update(float dt)
 {
 
 }

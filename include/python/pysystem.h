@@ -31,7 +31,9 @@ namespace sfge
 {
 class PySystem : public System
 {
-  
+	void Init() override;
+	void Update(float dt) override;
+
 };
 }
 #endif

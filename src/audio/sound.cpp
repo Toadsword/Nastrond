@@ -254,7 +254,7 @@ void SoundBufferManager::Clear()
 void SoundBufferManager::Collect()
 {
 	std::list<SoundBufferId> unusedTextureIds;
-	for (auto i = 0ll; i < m_SoundBufferCountRefs.size(); i++)
+	for (auto i = 0U; i < m_SoundBufferCountRefs.size(); i++)
 	{
 		if (m_SoundBuffers[i] && m_SoundBufferCountRefs[i] == 0U)
 		{

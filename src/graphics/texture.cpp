@@ -197,7 +197,7 @@ void TextureManager::Clear()
 void TextureManager::Collect()
 {
 	std::list<TextureId> unusedTextureIds;
-	for (auto i = 0ll; i < m_TextureIdsRefCounts.size(); i++)
+	for (auto i = 0U; i < m_TextureIdsRefCounts.size(); i++)
 	{
 		if(m_Textures[i] && m_TextureIdsRefCounts[i] == 0U )
 		{
