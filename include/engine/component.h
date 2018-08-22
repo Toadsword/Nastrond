@@ -38,6 +38,8 @@ SOFTWARE.
 namespace sfge
 {
 
+
+
 enum class ComponentType : int
 {
   	NONE = 0,
@@ -63,6 +65,7 @@ public:
 	virtual ~ComponentManager()
 	{
 		m_Components.clear();
+		m_ComponentsInfo.clear();
 	};
 
 	T & GetComponent(Entity entity)
@@ -100,6 +103,12 @@ public:
 	std::vector<T>& GetComponents()
 	{
 		return m_Components;
+	}
+
+	void OnNotifyNewSize(size_t newSize)
+	{
+		m_Components.resize(newSize);
+		m_ComponentsInfo.resize(newSize);
 	}
 
 	virtual void CreateComponent(json& componentJson, Entity entity) = 0;

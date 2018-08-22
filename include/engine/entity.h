@@ -28,12 +28,15 @@ SOFTWARE.
 #include <vector>
 #include <engine/system.h>
 #include <engine/editor.h>
-#include "globals.h"
+#include <engine/globals.h>
+#include <engine/component.h>
+#include <any>
 
 namespace sfge
 {
-
 enum class ComponentType : int;
+template<class T, class TInfo>
+class ComponentManager;
 /**
  * \brief Entity index number, starting from 1U
  */
@@ -65,9 +68,14 @@ public:
 	void RemoveComponentType(Entity entity, ComponentType componentType);
 	editor::EntityInfo& GetEntityInfo(Entity entity);
 
+	void ResizeEntityNmb(size_t newSize);
+	template<class T, class TInfo>
+	void AddObserver(ComponentManager<T, TInfo>* componentManager);
+
 private:
-	std::vector<EntityMask> MaskArray{INIT_ENTITY_NMB};
+	std::vector<EntityMask> m_MaskArray{INIT_ENTITY_NMB};
 	std::vector<editor::EntityInfo> m_EntityInfos{INIT_ENTITY_NMB};
+	std::vector<ComponentManager<std::any, std::any>*> m_ResizeObsververs;
 };
 }
 

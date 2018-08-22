@@ -84,11 +84,13 @@ void editor::SpriteInfo::DrawOnInspector()
 }
 
 SpriteManager::SpriteManager(Engine& engine):
+	ComponentManager<sfge::Sprite, sfge::editor::SpriteInfo>(),
 	System(engine),
 	m_GraphicsManager(m_Engine.GetGraphicsManager()),
-	m_EntityManager(m_Engine.GetEntityManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager())
+	m_Transform2dManager(m_Engine.GetTransform2dManager()),
+	m_EntityManager(m_Engine.GetEntityManager())
 {
+	m_EntityManager.AddObserver(dynamic_cast<ComponentManager<std::any, std::any>*>(this));
 }
 
 void SpriteManager::Init()

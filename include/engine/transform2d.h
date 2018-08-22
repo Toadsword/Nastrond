@@ -37,7 +37,7 @@ class Transform2dManager :
 	public ComponentManager<Transform2d, editor::Transform2dInfo>, public System
 {
 public:
-	using System::System;
+	Transform2dManager(Engine& engine);
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
