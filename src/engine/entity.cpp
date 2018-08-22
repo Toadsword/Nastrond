@@ -94,9 +94,9 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 	m_MaskArray.resize(newSize);
 	m_EntityInfos.resize(newSize);
 }
-template<class T, class TInfo>
-void EntityManager::AddObserver(ComponentManager<T, TInfo>* componentManager)
+
+void EntityManager::AddObserver(ResizeObserver* resizeObserver)
 {
-	m_ResizeObsververs.push_back(componentManager);
+	m_ResizeObsververs.push_back(resizeObserver);
 }
 }

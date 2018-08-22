@@ -144,16 +144,19 @@ std::deque<b2Vec2>& editor::Body2dInfo::GetVelocities()
 
 
 Body2dManager::Body2dManager(Engine& engine):
-	ComponentManager<sfge::Body2d, sfge::editor::Body2dInfo>(),
-	System(engine), 
+	ComponentManager<Body2d, editor::Body2dInfo>(),
+	System(engine),
+	ResizeObserver(),
 	m_EntityManager(m_Engine.GetEntityManager()),
 	m_Transform2dManager(m_Engine.GetTransform2dManager())
+
 {
-	m_EntityManager.AddObserver(this);
 }
 
 void Body2dManager::Init()
 {
+
+	m_EntityManager.AddObserver(this);
 	m_Components = std::vector<Body2d>(INIT_ENTITY_NMB, { nullptr, sf::Vector2f() });
 	m_ComponentsInfo = std::vector<editor::Body2dInfo>{ INIT_ENTITY_NMB };
 	m_WorldPtr = m_Engine.GetPhysicsManager().GetWorld();
@@ -210,5 +213,10 @@ void Body2dManager::DestroyComponent(Entity entity)
 {
 }
 
+void Body2dManager::OnResize(size_t new_size)
+{
+	m_Components.resize(new_size);
+	m_ComponentsInfo.resize(new_size);
+}
 }
 

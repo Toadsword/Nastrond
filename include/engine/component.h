@@ -84,7 +84,7 @@ public:
 		}
 		return m_ComponentsInfo[entity - 1];
 	}
-	T* GetComponentPtr(Entity entity)
+	virtual T* GetComponentPtr(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
 		{
@@ -123,6 +123,8 @@ protected:
 	std::vector<T> m_Components;
 	std::vector<TInfo> m_ComponentsInfo;
 };
+
+
 
 
 class LayerComponent
