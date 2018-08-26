@@ -26,6 +26,7 @@
 #define SFGE_PYENGINE_H
 
 #include <map>
+#include <list>
 #include <pybind11/functional.h>
 
 #include <engine/system.h>

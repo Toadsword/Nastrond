@@ -41,7 +41,7 @@ SOFTWARE.
 #include <imgui-SFML.h>
 
 
-#define GAMEOBJECTS_NMB 100000
+#define GAMEOBJECTS_NMB 100'000
 #define WINDOW_SIZE_X 800
 #define WINDOW_SIZE_Y 800
 #define GAMEOBJECT_SIZE 10
