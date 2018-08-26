@@ -44,7 +44,7 @@ void Physics2dManager::Init()
 	m_BodyManager.Init();
 }
 
-void Physics2dManager::Update(sf::Time dt)
+void Physics2dManager::Update(float dt)
 {
 	
 }

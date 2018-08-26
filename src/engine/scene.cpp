@@ -139,6 +139,11 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
+		const auto entityNmb = sceneJson["entites"].size();
+		if(entityNmb > INIT_ENTITY_NMB)
+		{
+			m_EntityManager.ResizeEntityNmb(entityNmb);
+		}
 		for(auto& entityJson : sceneJson["entities"])
 		{
 			Entity entity = INVALID_ENTITY;
@@ -156,6 +161,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 			if (entity != INVALID_ENTITY && 
 				CheckJsonExists(entityJson, "components"))
 			{
+				
 				for (auto& componentJson : entityJson["components"])
 				{
 					if (CheckJsonExists(componentJson, "type"))
@@ -210,7 +216,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 									std::string path = componentJson["script_path"];
 									const ModuleId moduleId = pythonEngine.LoadPyModule(path);
 									if(moduleId != INVALID_MODULE)
-										const InstanceId instanceId = pythonEngine.LoadPyComponent(moduleId, entity);
+										const InstanceId instanceId = pythonEngine.LoadPyClass(moduleId, entity);
 								}
 								break;
 							}

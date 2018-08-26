@@ -44,4 +44,10 @@ void IterateDirectory(std::string & dirname, std::function<void(std::string)> fu
 	}
 }
 
+std::ifstream::pos_type CalculateFileSize(const std::string& filename)
+{
+	std::ifstream in(filename, std::ifstream::binary | std::ifstream::ate);
+	return in.tellg();
+}
+
 }

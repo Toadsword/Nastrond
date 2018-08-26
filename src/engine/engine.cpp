@@ -90,7 +90,12 @@ void Engine::InitModules()
 	{
 		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
 	}
-	m_ThreadPool.resize(THREAD_NMB);
+    {
+        std::ostringstream oss;
+        oss << "Number of cores on machine: "<<std::thread::hardware_concurrency ();
+        Log::GetInstance ()->Msg (oss.str ());
+    }
+    m_ThreadPool.resize(std::thread::hardware_concurrency ()-1);
 
 
 
@@ -133,7 +138,7 @@ void Engine::Start()
 			continue;
 		}
 		
-		m_InputManager.Update(dt);
+		m_InputManager.Update(dt.asSeconds());
 		sf::Time fixedUpdateTime = globalClock.getElapsedTime() + deltaFixedUpdateTime - previousFixedUpdateTime;
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
@@ -143,13 +148,13 @@ void Engine::Start()
 			m_PythonEngine.FixedUpdate();
 			m_SceneManager.FixedUpdate();
 		}
-		m_PythonEngine.Update(dt);
+		m_PythonEngine.Update(dt.asSeconds());
 
-		m_SceneManager.Update(dt);
+		m_SceneManager.Update(dt.asSeconds());
 
-		m_Editor.Update(dt);
+		m_Editor.Update(dt.asSeconds());
 
-		m_GraphicsManager.Update(dt);
+		m_GraphicsManager.Update(dt.asSeconds());
 		m_Editor.Draw();
 		m_GraphicsManager.Display();
 	}

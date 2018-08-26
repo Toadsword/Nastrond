@@ -84,19 +84,20 @@ void editor::SpriteInfo::DrawOnInspector()
 }
 
 SpriteManager::SpriteManager(Engine& engine):
+	ComponentManager<Sprite, editor::SpriteInfo>(),
 	System(engine),
 	m_GraphicsManager(m_Engine.GetGraphicsManager()),
-	m_EntityManager(m_Engine.GetEntityManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager())
+	m_Transform2dManager(m_Engine.GetTransform2dManager()),
+	m_EntityManager(m_Engine.GetEntityManager())
 {
 }
 
 void SpriteManager::Init()
 {
-
+	m_EntityManager.AddObserver(this);
 }
 
-void SpriteManager::Update(sf::Time dt)
+void SpriteManager::Update(float dt)
 {
 
 }
@@ -177,4 +178,9 @@ void SpriteManager::DestroyComponent(Entity entity)
 {
 }
 
+void SpriteManager::OnResize(size_t new_size)
+{
+	m_Components.resize(new_size);
+	m_ComponentsInfo.resize(new_size);
+}
 }

@@ -28,12 +28,20 @@ SOFTWARE.
 #include <vector>
 #include <engine/system.h>
 #include <engine/editor.h>
-#include "globals.h"
+#include <engine/globals.h>
+#include <engine/component.h>
+#include <any>
 
 namespace sfge
 {
-
 enum class ComponentType : int;
+template<class T, class TInfo>
+class ComponentManager;
+class ResizeObserver
+{
+public:
+	virtual void OnResize(size_t new_size) = 0;
+};
 /**
  * \brief Entity index number, starting from 1U
  */
@@ -59,16 +67,28 @@ public:
 	void Clear() override;
 
 	EntityMask GetMask(Entity entity);
-	Entity CreateEntity(Entity entity = INVALID_ENTITY);
+	Entity CreateEntity(Entity wantedEntity = INVALID_ENTITY);
 	bool HasComponent(Entity entity, ComponentType componentType);
 	void AddComponentType(Entity entity, ComponentType componentType);
 	void RemoveComponentType(Entity entity, ComponentType componentType);
 	editor::EntityInfo& GetEntityInfo(Entity entity);
 
+	void ResizeEntityNmb(size_t newSize);
+	void AddObserver(ResizeObserver* resizeObserver);
+
 private:
-	std::vector<EntityMask> MaskArray{INIT_ENTITY_NMB};
-	std::vector<editor::EntityInfo> m_EntityInfos{INIT_ENTITY_NMB};
+	std::vector<EntityMask> m_MaskArray{ INIT_ENTITY_NMB };
+	std::vector<editor::EntityInfo> m_EntityInfos{ INIT_ENTITY_NMB };
+	std::vector<ResizeObserver*> m_ResizeObsververs{10, nullptr};
 };
+/*
+template <>
+void EntityManager::AddObserver(ComponentManager<std::any, std::any>* componentManager)
+{
+	m_ResizeObsververs.push_back(componentManager);
+}
+*/
+
 }
 
 #endif 

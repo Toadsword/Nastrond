@@ -53,7 +53,7 @@ public:
 	virtual ~Shape();
 	void Draw(sf::RenderWindow& window) const;
 	void SetFillColor(sf::Color color) const;
-	void Update(sf::Time dt) const;
+	void Update(float dt) const;
 protected:
 	std::unique_ptr<sf::Shape> m_Shape = nullptr;
 };
@@ -94,28 +94,34 @@ struct ShapeInfo : ComponentInfo
 struct CircleShapeInfo : ShapeInfo
 {
 	void DrawOnInspector() override;
-	std::weak_ptr<Circle> circlePtr;
+	Circle* circlePtr;
 }; 
 struct RectShapeInfo : ShapeInfo
 {
 	void DrawOnInspector() override;
-	std::weak_ptr<Rectangle> rectanglePtr;
+	Rectangle* rectanglePtr;
 }; 
 }
 
 class ShapeManager : 
-	public ComponentManager<std::shared_ptr<Shape>, std::shared_ptr<editor::ShapeInfo>>, public System
+	public ComponentManager<std::unique_ptr<Shape>, std::unique_ptr<editor::ShapeInfo>>, 
+	public System,
+	public ResizeObserver
 {
 
 public:
 	ShapeManager(Engine& engine);
 	void Init() override;
 	void Draw(sf::RenderWindow& window);
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 	void Clear() override;
 
+	Shape* GetShapePtr(Entity entity);
+	editor::ShapeInfo* GetShapeInfoPtr(Entity entity);
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
+
+	void OnResize(size_t new_size) override;
 protected:
 	Transform2dManager& m_Transform2dManager;
 	EntityManager& m_EntityManager;

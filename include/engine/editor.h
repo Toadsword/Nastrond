@@ -58,7 +58,7 @@ public:
 	* \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed
 	* \param dt Delta time since last frame
 	*/
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 	void ProcessEvent(sf::Event& event) const;
 	void Draw();
 	/**

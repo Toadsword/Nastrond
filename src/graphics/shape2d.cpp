@@ -58,7 +58,7 @@ void Shape::SetFillColor(sf::Color color) const
 		m_Shape->setFillColor(color);
 }
 
-void Shape::Update(sf::Time dt) const
+void Shape::Update(float dt) const
 {
 	if(m_Shape and m_Transform)
 	{
@@ -93,8 +93,8 @@ Polygon::Polygon(Transform2d* transform, sf::Vector2f offset, std::list<sf::Vect
 
 ShapeManager::ShapeManager(Engine& engine):
 	System(engine),
-	m_EntityManager(m_Engine.GetEntityManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager())
+	m_Transform2dManager(m_Engine.GetTransform2dManager()),
+	m_EntityManager(m_Engine.GetEntityManager())
 {
 }
 
@@ -102,7 +102,7 @@ void editor::CircleShapeInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Circle Shape");
-	auto circle = circlePtr.lock();
+	const auto circle = circlePtr;
 	if (circle)
 	{
 		float offset[2] =
@@ -118,7 +118,7 @@ void editor::RectShapeInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Rectangle Shape");
-	auto rect = rectanglePtr.lock();
+	const auto rect = rectanglePtr;
 	if (rect)
 	{
 		float offset[2] =
@@ -133,6 +133,8 @@ void editor::RectShapeInfo::DrawOnInspector()
 
 void ShapeManager::Init()
 {
+
+	m_EntityManager.AddObserver(this);
 }
 
 
@@ -150,7 +152,7 @@ void ShapeManager::Draw(sf::RenderWindow& window)
 	
 }
 
-void ShapeManager::Update(sf::Time dt)
+void ShapeManager::Update(float dt)
 {
 	
 	for (int i = 0; i < m_Components.size(); i++)
@@ -165,7 +167,25 @@ void ShapeManager::Update(sf::Time dt)
 
 void ShapeManager::Clear()
 {
-	m_Components = std::vector<std::shared_ptr<Shape>>{ INIT_ENTITY_NMB };
+	m_Components = std::vector<std::unique_ptr<Shape>>{ INIT_ENTITY_NMB };
+}
+
+Shape* ShapeManager::GetShapePtr(Entity entity)
+{
+	if (entity == INVALID_ENTITY)
+	{
+		Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
+	}
+	return m_Components[entity - 1].get();
+}
+
+editor::ShapeInfo* ShapeManager::GetShapeInfoPtr(Entity entity)
+{
+	if (entity == INVALID_ENTITY)
+	{
+		Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
+	}
+	return m_ComponentsInfo[entity - 1].get();
 }
 
 
@@ -190,14 +210,15 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			{
 				radius = componentJson["radius"];
 			}
-			auto circle = std::make_shared<Circle>(
+			auto circle = std::make_unique<Circle>(
 				m_Transform2dManager.GetComponentPtr(entity),
 				offset,
 				radius);
-			m_Components[entity - 1] = circle;
-			auto circleShapeInfo = std::make_shared<editor::CircleShapeInfo>();
-			circleShapeInfo->circlePtr = circle;
-			m_ComponentsInfo[entity - 1] = circleShapeInfo;
+
+			auto circleShapeInfo = std::unique_ptr<editor::CircleShapeInfo>();
+			circleShapeInfo->circlePtr = circle.get();
+			m_Components[entity - 1] = std::move(circle);
+			m_ComponentsInfo[entity - 1] = std::move(circleShapeInfo);
 		}
 			break;
 		case ShapeType::RECTANGLE:
@@ -212,14 +233,16 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			{
 				size = GetVectorFromJson(componentJson, "size");
 			}
-			auto rect = std::make_shared<Rectangle>(
+			auto rect = std::make_unique<Rectangle>(
 				m_Transform2dManager.GetComponentPtr(entity),
 				offset,
 				size);
-			m_Components[entity - 1] = rect;
-			auto rectShapeInfo = std::make_shared<editor::RectShapeInfo>();
-			rectShapeInfo->rectanglePtr = rect;
-			m_ComponentsInfo[entity - 1] = rectShapeInfo;
+
+			auto rectShapeInfo = std::unique_ptr<editor::RectShapeInfo>();
+
+			rectShapeInfo->rectanglePtr = rect.get();
+			m_Components[entity - 1] = std::move(rect);
+			m_ComponentsInfo[entity - 1] = std::move(rectShapeInfo);
 			
 			}
 			break;
@@ -242,9 +265,11 @@ void ShapeManager::DestroyComponent(Entity entity)
 {
 }
 
-
-
-
+void ShapeManager::OnResize(size_t new_size)
+{
+	m_Components.resize(new_size);
+	m_ComponentsInfo.resize(new_size);
+}
 }
 
 

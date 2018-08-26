@@ -36,6 +36,7 @@ SOFTWARE.
 
 
 #include <engine/system.h>
+#include "engine/globals.h"
 
 namespace sfge
 {
@@ -67,19 +68,21 @@ public:
 	* \param text_id The texture id striclty positive
 	* \return The pointer to the texture in memory
 	*/
-	sf::Texture* GetTexture(unsigned int text_id);
+	sf::Texture* GetTexture(TextureId textureId);
 	
 	void Clear() override;
 
 	void Collect() override;
 
 
+
 private:
+  	bool HasValidExtension(std::string filename);
 	void LoadTextures(std::string dataDirname);
 
-	std::map<std::string, TextureId> m_NameIdsMap;
-	std::map<TextureId, size_t> m_IdsRefCountMap;
-	std::map<TextureId, sf::Texture*> m_TexturesMap;
+	std::vector<std::string> m_TexturePaths {INIT_ENTITY_NMB * 4};
+	std::vector<std::unique_ptr<sf::Texture>> m_Textures { INIT_ENTITY_NMB * 4 };
+	std::vector<size_t> m_TextureIdsRefCounts = std::vector<size_t>(INIT_ENTITY_NMB * 4, 0 );
 	TextureId m_IncrementId = 0U;
 
 };

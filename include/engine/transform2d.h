@@ -34,13 +34,13 @@ struct Transform2dInfo : ComponentInfo
 }
 
 class Transform2dManager :
-	public ComponentManager<Transform2d, editor::Transform2dInfo>, public System
+	public ComponentManager<Transform2d, editor::Transform2dInfo>, public System, public ResizeObserver
 {
 public:
-	using System::System;
+	Transform2dManager(Engine& engine);
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
-
+	void OnResize(size_t new_size) override;
 };
 
 class TransformRequiredComponent

@@ -40,7 +40,7 @@ struct KeyPressedStatus { bool previousKeyPressed; bool keyPressed; };
 class KeyboardManager
 {
 public:
-	void Update(sf::Time dt);
+	void Update(float dt);
 	bool IsKeyHeld(sf::Keyboard::Key key) const;
 	bool IsKeyDown(sf::Keyboard::Key key) const;
 	bool IsKeyUp(sf::Keyboard::Key key) const;
@@ -73,7 +73,7 @@ public:
 	 * \brief Update called each frame to report input status
 	 * \param dt Delta time since last frame
 	 */
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 	void Destroy() override;
 
 	void Clear() override;

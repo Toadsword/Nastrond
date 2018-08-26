@@ -72,17 +72,17 @@ public:
 	* \brief Update the audioManager, called only in play mode
 	* \ param dt The delta time since last frame
 	*/
-	void Update(sf::Time dt) override;
-	/**
-	* \brief delete the AudioManager
-	*/
+	void Update(float dt) override;
+
 	SoundManager& GetSoundManager();
 	MusicManager& GetMusicManager();
+	SoundBufferManager& GetSoundBufferManager();
 	void Destroy() override;
 	void Clear() override;
 	void Collect() override;
 protected:
 	SoundManager m_SoundManager;
+	SoundBufferManager m_SoundBufferManager{ m_Engine };
 	MusicManager m_MusicManager;
 };
 }

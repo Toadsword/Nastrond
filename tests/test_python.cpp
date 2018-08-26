@@ -27,8 +27,9 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <graphics/shape2d.h>
 #include <engine/scene.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestPyComponent, TestPyComponent)
 {
 	sfge::Engine engine;
 	engine.Init();
@@ -40,19 +41,19 @@ int main()
 	{"components",
 	{
 		{
-			{"type", (int)sfge::ComponentType::TRANSFORM2D}
+			{"type", static_cast<int>(sfge::ComponentType::TRANSFORM2D)}
 		},
 		{
-			{"type", (int)sfge::ComponentType::PYCOMPONENT },
+			{"type", static_cast<int>(sfge::ComponentType::PYCOMPONENT) },
 			{"script_path", "scripts/component_test.py" }
 		},
 		{
-			{ "type", (int)sfge::ComponentType::PYCOMPONENT },
+			{ "type", static_cast<int>(sfge::ComponentType::PYCOMPONENT) },
 			{ "script_path", "scripts/sprite_test.py" }
 		},
 		{
-			{"type", (int)sfge::ComponentType::SHAPE2D },
-			{"shape_type",(int)sfge::ShapeType::CIRCLE},
+			{"type", static_cast<int>(sfge::ComponentType::SHAPE2D) },
+			{"shape_type",static_cast<int>(sfge::ShapeType::CIRCLE)},
 			{"offset",{ 100,300 }},
 			{ "radius", 500.0 }
 		}
@@ -63,9 +64,4 @@ int main()
 	sceneManager.LoadSceneFromJson(sceneJson);
 	
 	engine.Start();
-
-#ifdef WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
 }

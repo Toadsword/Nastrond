@@ -65,7 +65,7 @@ private:
 };
 }
 
-class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System
+class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System, public ResizeObserver
 {
 public:
 	Body2dManager(Engine& engine);
@@ -74,6 +74,8 @@ public:
 
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
+
+	void OnResize(size_t new_size) override;
 
 private:
 	EntityManager& m_EntityManager;

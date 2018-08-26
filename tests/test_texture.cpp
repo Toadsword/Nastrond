@@ -23,11 +23,18 @@ SOFTWARE.
 */
 #include <sstream>
 #include <engine/engine.h>
+#include <engine/config.h>
 #include <graphics/texture.h>
 #include <engine/log.h>
-int main()
+#include <gtest/gtest.h>
+
+TEST(TextureTest, BadTexture)
 {
 	sfge::Engine engine;
+	auto config = std::make_unique<sfge::Configuration>();
+	config->devMode = false;
+	engine.Init (std::move (config));
+
 	auto& textureManager = engine.GetGraphicsManager().GetTextureManager();
 
 	const std::string goodTextPath = "data/sprites/other_play.png";
@@ -39,6 +46,11 @@ int main()
 	const sfge::TextureId badTextExtId = textureManager.LoadTexture(badTextPathWithoutExtension);
 
 	sf::Sprite sprite;
+
+	ASSERT_EQ (badTextId, sfge::INVALID_TEXTURE);
+	ASSERT_EQ (badTextExtId, sfge::INVALID_TEXTURE);
+	ASSERT_NE (goodTextId, sfge::INVALID_TEXTURE);
+
 	if (badTextId != sfge::INVALID_TEXTURE)
 	{
 		sfge::Log::GetInstance()->Msg("Loading Bad File");
@@ -86,8 +98,5 @@ int main()
 		// end the current frame
 		window.display();
 	}
-#if WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
+	engine.Destroy ();
 }

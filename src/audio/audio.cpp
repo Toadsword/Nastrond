@@ -34,7 +34,7 @@ void AudioManager::Init()
 {
 
 };
-void AudioManager::Update(sf::Time dt)
+void AudioManager::Update(float dt)
 {
 
 };
@@ -48,6 +48,12 @@ MusicManager&  AudioManager::GetMusicManager()
 {
 	return m_MusicManager;
 }
+
+SoundBufferManager& AudioManager::GetSoundBufferManager()
+{
+	return m_SoundBufferManager;
+}
+
 void AudioManager::Clear()
 {
 	m_SoundManager.Reset();

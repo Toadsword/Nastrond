@@ -38,6 +38,8 @@ SOFTWARE.
 namespace sfge
 {
 
+
+
 enum class ComponentType : int
 {
   	NONE = 0,
@@ -63,6 +65,7 @@ public:
 	virtual ~ComponentManager()
 	{
 		m_Components.clear();
+		m_ComponentsInfo.clear();
 	};
 
 	T & GetComponent(Entity entity)
@@ -81,7 +84,7 @@ public:
 		}
 		return m_ComponentsInfo[entity - 1];
 	}
-	T* GetComponentPtr(Entity entity)
+	virtual T* GetComponentPtr(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
 		{
@@ -102,13 +105,26 @@ public:
 		return m_Components;
 	}
 
+	void OnNotifyNewSize(size_t newSize)
+	{
+		m_Components.resize(newSize);
+		m_ComponentsInfo.resize(newSize);
+	}
+
 	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
+	virtual void CreateEmptyComponent(Entity entity)
+	{
+		json emptyComponent;
+		CreateComponent (emptyComponent, entity);
+	};
 	virtual void DestroyComponent(Entity entity) = 0;
 
 protected:
 	std::vector<T> m_Components;
 	std::vector<TInfo> m_ComponentsInfo;
 };
+
+
 
 
 class LayerComponent

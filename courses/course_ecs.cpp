@@ -53,12 +53,12 @@ SOFTWARE.
 #define PHYSICS_UPDATE_DELTATIME 0.02f
 
 #define DT_AVG_NMB 60
-#define THREAD_POOL_NMB 4
+#define THREAD_POOL_NMB 7
 
 //#define USE_B2
 //#define OOP
 #define ECS
-//#define THREAD_ECS
+#define THREAD_ECS
 
 #ifdef USE_B2
 static b2World world(b2Vec2(0.0f, 0.0f));

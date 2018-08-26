@@ -31,7 +31,6 @@
 
 #define PATH_LIMIT 4096
 #define INIT_ENTITY_NMB 100
-#define THREAD_NMB 4
 
 #define SFGE_VERSION 0.2
 
@@ -49,6 +48,5 @@ enum class ModuleType
 
 
 
-typedef unsigned Id;
 
 #endif //SFGE_GLOBALS_H

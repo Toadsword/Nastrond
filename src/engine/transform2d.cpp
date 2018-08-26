@@ -5,9 +5,10 @@
  *      Author: efarhan
  */
 
+
 #include <engine/transform2d.h>
 #include <imgui.h>
-
+#include <engine/engine.h>
 namespace sfge
 {
 void editor::Transform2dInfo::DrawOnInspector()
@@ -20,6 +21,15 @@ void editor::Transform2dInfo::DrawOnInspector()
 	float scale[2] = { transform->Scale.x, transform->Scale.y };
 	ImGui::InputFloat2("Scale", scale);
 	ImGui::InputFloat("Angle", &transform->EulerAngle);
+}
+
+Transform2dManager::Transform2dManager(Engine& engine):
+	ComponentManager<sfge::Transform2d, sfge::editor::Transform2dInfo>(), 
+	System(engine),
+	ResizeObserver()
+{
+
+	m_Engine.GetEntityManager().AddObserver(this);
 }
 
 void Transform2dManager::CreateComponent(json& componentJson, Entity entity)
@@ -38,6 +48,12 @@ void Transform2dManager::CreateComponent(json& componentJson, Entity entity)
 
 void Transform2dManager::DestroyComponent(Entity entity)
 {
+}
+
+void Transform2dManager::OnResize(size_t new_size)
+{
+	m_Components.resize(new_size);
+	m_ComponentsInfo.resize(new_size);
 }
 
 TransformRequiredComponent::TransformRequiredComponent(Transform2d* transform) : 

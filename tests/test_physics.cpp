@@ -23,19 +23,16 @@ SOFTWARE.
 */
 #include <engine/engine.h>
 #include <engine/scene.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestPhysics, TestPhysics)
 {
 	sfge::Engine engine;
 	engine.Init();
 
-	if (auto sceneManager = engine.GetSceneManager().lock())
-	{
-		sceneManager->LoadSceneFromPath("data/scenes/test_physics.scene");
-		engine.Start();
-	}
-#if WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
+	auto sceneManager = engine.GetSceneManager();
+
+	sceneManager.LoadSceneFromPath("data/scenes/test_physics.scene");
+	engine.Start();
+
 }
