@@ -3,7 +3,8 @@ import math
 from SFGE import *
 
 body2d_manager = physics2d_manager.body2d_manager
-
+sprite_manager = graphics2d_manager.sprite_manager
+texture_manager = graphics2d_manager.texture_manager
 
 class PlanetSystem(System):
     screen_size: Vector2f
@@ -24,6 +25,10 @@ class PlanetSystem(System):
 
             body2d = body2d_manager.add_component(new_entity)  # type: Body2d
             body2d.velocity = self.calculate_init_speed(transform)
+
+            texture = texture_manager.load_texture("data/sprites/round.png")
+            sprite = sprite_manager.add_component(new_entity)
+            sprite.set_texture(texture)
 
     def calculate_init_speed(self, transform):
         delta_to_center = self.screen_size / 2.0 - transform.position

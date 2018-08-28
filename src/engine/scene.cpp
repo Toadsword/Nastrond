@@ -200,7 +200,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						}
 						case ComponentType::SHAPE2D:
 						{
-							auto& graphicsManager = m_Engine.GetGraphicsManager();
+							auto& graphicsManager = m_Engine.GetGraphics2dManager();
 							auto& shapeManager = graphicsManager.GetShapeManager();
 							shapeManager.CreateComponent(componentJson, entity);
 							m_EntityManager.AddComponentType(entity, ComponentType::SHAPE2D);
@@ -216,7 +216,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						}
 						case ComponentType::SPRITE2D:
 						{
-							auto& graphicsManager = m_Engine.GetGraphicsManager();
+							auto& graphicsManager = m_Engine.GetGraphics2dManager();
 							auto& spriteManager = graphicsManager.GetSpriteManager();
 							spriteManager.CreateComponent(componentJson, entity);
 							m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);

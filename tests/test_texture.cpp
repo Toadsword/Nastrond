@@ -24,6 +24,7 @@ SOFTWARE.
 #include <sstream>
 #include <engine/engine.h>
 #include <engine/config.h>
+#include <graphics/graphics2d.h>
 #include <graphics/texture.h>
 #include <engine/log.h>
 #include <gtest/gtest.h>
@@ -35,7 +36,7 @@ TEST(TextureTest, BadTexture)
 	config->devMode = false;
 	engine.Init (std::move (config));
 
-	auto& textureManager = engine.GetGraphicsManager().GetTextureManager();
+	auto& textureManager = engine.GetGraphics2dManager().GetTextureManager();
 
 	const std::string goodTextPath = "data/sprites/other_play.png";
 	const std::string badTextPath = "fake/path/prout.jpg";

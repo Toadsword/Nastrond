@@ -88,7 +88,7 @@ public:
 	*/
 	std::weak_ptr<Configuration> GetConfig() const;
 
-	Graphics2dManager& GetGraphicsManager();
+	Graphics2dManager& GetGraphics2dManager();
 	AudioManager& GetAudioManager();
 	SceneManager& GetSceneManager();
 	InputManager& GetInputManager();
@@ -108,7 +108,7 @@ protected:
 
 
 	//module
-	Graphics2dManager m_GraphicsManager {*this};
+	Graphics2dManager m_Graphics2dManager {*this};
 	AudioManager m_AudioManager {*this};
 	SceneManager m_SceneManager {*this};
 	InputManager m_InputManager {*this};

@@ -35,6 +35,8 @@
 #include <audio/audio.h>
 #include <graphics/shape2d.h>
 #include <graphics/sprite2d.h>
+#include <graphics/texture.h>
+#include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
 #include <python/pycomponent.h>
 #include <python/pysystem.h>
@@ -49,6 +51,7 @@ namespace sfge
 PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
 
+	py::class_<sf::Texture> texture(m, "sfTexture");
 
 	py::class_<Engine> engine(m, "Engine");
 	engine
@@ -109,10 +112,23 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Body2dManager> body2dManager(m, "Body2dManager");
 	body2dManager
-	    .def("create_component", &Body2dManager::CreateEmptyComponent)
+	    .def("add_component", &Body2dManager::AddComponent, py::return_value_policy::reference)
 	    .def("get_component", &Body2dManager::GetComponentRef, py::return_value_policy::reference);
 
-
+	py::class_<Graphics2dManager> graphics2dManager(m, "Graphics2dManager");
+	graphics2dManager
+		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager)
+		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager);
+	py::class_<TextureManager> textureManager(m, "TextureManager");
+	textureManager
+		.def("load_texture", [](TextureManager* textureManager, std::string name)
+		{
+			const auto textureId = textureManager->LoadTexture(name);
+			return textureManager->GetTexture(textureId);
+		});
+	py::class_<SpriteManager> spriteManager(m, "SpriteManager");
+	spriteManager
+		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 
 	py::class_<Component, PyComponent> component(m, "Component");
@@ -178,6 +194,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);
 	py::class_<Sprite, std::unique_ptr<Sprite, py::nodelete>> sprite(m, "Sprite");
+	sprite
+		.def("set_texture", &Sprite::SetTexture);
 	//Utility
 	py::class_<sf::Color> color(m, "Color");
 	color
@@ -276,6 +294,8 @@ void PythonEngine::Init()
 		sfgeModule.attr("physics2d_manager") = py::cast(m_Engine.GetPhysicsManager(), py::return_value_policy::reference);
 		sfgeModule.attr("transform2d_manager") = py::cast(m_Engine.GetTransform2dManager(), py::return_value_policy::reference);
 		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
+
+		sfgeModule.attr("graphics2d_manager") = py::cast(m_Engine.GetGraphics2dManager(), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{

@@ -39,7 +39,6 @@ TEST(TestSprite, TestSprite)
 {
 	sfge::Engine engine;
 	engine.Init();
-	auto spriteManager = engine.GetGraphicsManager().GetSpriteManager();
 	json sceneJson;
 	json entityJson;
 	json spriteJson;

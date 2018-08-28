@@ -130,13 +130,13 @@ void PyComponent::Update(float dt)
 			break;
 		case ComponentType::SHAPE2D:
 			{
-				auto& graphicsManager = m_Engine.GetGraphicsManager();
+				auto& graphicsManager = m_Engine.GetGraphics2dManager();
 				const auto shape = graphicsManager.GetShapeManager().GetShapePtr(m_Entity);
 				return py::cast(shape, py::return_value_policy::reference);
 			}
 		case ComponentType::SPRITE2D:
 			{
-				auto& graphicsManager = m_Engine.GetGraphicsManager();
+				auto& graphicsManager = m_Engine.GetGraphics2dManager();
 				auto& sprite = graphicsManager.GetSpriteManager().GetComponentRef(m_Entity);
 				return py::cast(sprite, py::return_value_policy::reference);
 			}

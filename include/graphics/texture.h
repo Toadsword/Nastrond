@@ -36,11 +36,10 @@ SOFTWARE.
 
 
 #include <engine/system.h>
-#include "engine/globals.h"
+#include <engine/globals.h>
 
 namespace sfge
 {
-class GraphicsManager;
 
 using TextureId = unsigned;
 const TextureId INVALID_TEXTURE = 0U;
