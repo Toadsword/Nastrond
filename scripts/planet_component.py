@@ -8,6 +8,7 @@ class PlanetComponent(Component):
     def init(self):
         self.body = self.get_component(Component.Body)
         self.transform = self.get_component(Component.Transform2d)
+        self.screen_size = engine.config.screen_size
 
     def update(self, dt):
         pass
