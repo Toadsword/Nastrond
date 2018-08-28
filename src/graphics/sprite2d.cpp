@@ -92,6 +92,11 @@ SpriteManager::SpriteManager(Engine& engine):
 {
 }
 
+Sprite* SpriteManager::AddComponent(Entity entity)
+{
+	return nullptr;
+}
+
 void SpriteManager::Init()
 {
 	System::Init();

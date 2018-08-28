@@ -73,17 +73,18 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
 
 bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 {
-	return (m_MaskArray[entity - 1] & (int)componentType) == (int)componentType;
+	return (m_MaskArray[entity - 1] & static_cast<int>(componentType)) == static_cast<int>(componentType);
 }
 
 void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
 {
 
-	m_MaskArray[entity - 1] = m_MaskArray[entity - 1] | (int)componentType;
+	m_MaskArray[entity - 1] = m_MaskArray[entity - 1] | static_cast<int>(componentType);
 }
 
 void EntityManager::RemoveComponentType(Entity entity, ComponentType componentType)
 {
+	m_MaskArray[entity - 1] &= ~static_cast<int>(componentType);
 }
 
 editor::EntityInfo& EntityManager::GetEntityInfo(Entity entity)

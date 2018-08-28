@@ -192,6 +192,11 @@ editor::ShapeInfo* ShapeManager::GetShapeInfoPtr(Entity entity)
 	return m_ComponentsInfo[entity - 1].get();
 }
 
+std::unique_ptr<Shape>* ShapeManager::AddComponent(Entity entity)
+{
+	return nullptr;
+}
+
 
 void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 {

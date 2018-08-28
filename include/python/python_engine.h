@@ -77,7 +77,8 @@ public:
 
 	ModuleId LoadPyModule(std::string& moduleFilename);
 
-	InstanceId LoadPyClass(ModuleId moduleId, Entity entity);
+	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
+	InstanceId LoadPySystem(ModuleId moduleId);
 
 	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 	/**

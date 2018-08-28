@@ -113,6 +113,11 @@ sf::SoundBuffer* SoundManager::GetSoundBuffer(unsigned int sound_buffer_id)
 
 }
 
+Sound* SoundManager::AddComponent(Entity entity)
+{
+	return nullptr;
+}
+
 void SoundManager::CreateComponent(json & componentJson, Entity entity)
 {
 }

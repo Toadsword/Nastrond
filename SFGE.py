@@ -4,8 +4,17 @@
 class Vector2f:
     """SFML and default SFGE Vector type when not working on the physic"""
     def __init__(self):
+        self.x = 0.0
+        self.y = 0.0
+        self.magnitude = 0.0
+
+
+class Vector2i:
+    """SFML and default SFGE Vector type when not working on the physic"""
+    def __init__(self):
         self.x = 0
         self.y = 0
+        self.magnitude = 0.0
 
 
 class b2Vec2:
@@ -13,6 +22,7 @@ class b2Vec2:
     def __init__(self):
         self.x = 0.0
         self.y = 0.0
+        self.magnitude = 0.0
 
 
 class Timer:
@@ -53,7 +63,7 @@ class System:
         pass
 
 class ComponentManager():
-    def create_component(self, entity):
+    def add_component(self, entity):
         pass
 
     def destroy_component(self, entity):
@@ -189,4 +199,5 @@ scene_manager = SceneManager()
 transform2d_manager = Transform2dManager()
 entity_manager = EntityManager()
 physics2d_manager = Physics2dManager()
+body2d_manager = Body2dManager()
 

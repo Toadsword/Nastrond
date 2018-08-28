@@ -118,6 +118,7 @@ public:
 
 	Shape* GetShapePtr(Entity entity);
 	editor::ShapeInfo* GetShapeInfoPtr(Entity entity);
+	std::unique_ptr<Shape>* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 

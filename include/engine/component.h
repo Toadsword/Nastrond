@@ -102,7 +102,7 @@ public:
 		m_Components.resize(newSize);
 		m_ComponentsInfo.resize(newSize);
 	}
-
+	virtual T* AddComponent(Entity entity) = 0;
 	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
 	virtual void CreateEmptyComponent(Entity entity)
 	{
@@ -115,7 +115,6 @@ protected:
 	std::vector<T> m_Components;
 	std::vector<TInfo> m_ComponentsInfo;
 };
-
 
 
 

@@ -62,8 +62,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_property_readonly("screen_size", [](Configuration* config) {return sf::Vector2f(config->screenResolution.x, config->screenResolution.y); });
 	py::class_<System, PySystem> system(m, "System");
 	system
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def("init", &System::Init)
-		.def("update", &System::Update);
+		.def("update", &System::Update)
+		.def("fixed_update", &System::FixedUpdate);
 
 	py::class_<SceneManager> sceneManager(m, "SceneManager");
 	sceneManager
@@ -208,7 +210,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		return oss.str();
 	});
 
-
 	py::class_<sf::Vector2f> vector2f(m, "Vector2f");
 	vector2f
 		.def(py::init<float, float>())
@@ -292,6 +293,11 @@ void PythonEngine::InitPyComponent()
 		if(pyComponent != nullptr)
 			pyComponent->Init();
 	}
+	for (auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->Init();
+	}
 }
 
 
@@ -302,6 +308,11 @@ void PythonEngine::Update(float dt)
 		if(pyComponent != nullptr)
 			pyComponent->Update(dt);
 	}
+	for (auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->Update(dt);
+	}
 }
 
 void PythonEngine::FixedUpdate()
@@ -311,6 +322,11 @@ void PythonEngine::FixedUpdate()
 	{
 		if (pyComponent != nullptr)
 			pyComponent->FixedUpdate(config->fixedDeltaTime);
+	}
+	for(auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->FixedUpdate();
 	}
 }
 
@@ -389,7 +405,7 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 }
 
 
-InstanceId PythonEngine::LoadPyClass(ModuleId moduleId, Entity entity)
+InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 {
 	std::string className = m_PyClassNames[moduleId];
 	try
@@ -397,67 +413,33 @@ InstanceId PythonEngine::LoadPyClass(ModuleId moduleId, Entity entity)
 		auto globals = py::globals ();
 		auto moduleName = m_PyModuleNames[moduleId];
 		auto moduleObj = py::module(m_PyModuleObjs[moduleId]);
-		auto sfgeModule = py::module::import("SFGE");
-		//Check if class is subclass of Component
-		std::ostringstream oss;
-		oss << "issubclass(" << className << ", Component)";
-
-		py::dict locals;
-		locals[py::str(className)] = moduleObj.attr(className.c_str());
-		locals[py::str("Component")] = sfgeModule.attr("Component");
-		const bool isComponent = py::eval(oss.str(), py::globals(), locals).cast<bool>();
+		
 
 		const auto pyInstanceId = m_IncrementalInstanceId;
-		if (isComponent)
-		{
-			//Load PyComponent
-			m_PythonInstances[pyInstanceId] =
-				moduleObj.attr(className.c_str())(m_Engine, entity);
+		
+		//Load PyComponent
+		m_PythonInstances[pyInstanceId] =
+			moduleObj.attr(className.c_str())(m_Engine, entity);
 
-			const auto pyComponent = GetPyComponentFromInstanceId(pyInstanceId);
-			if (pyComponent != nullptr)
-			{
-				m_PyComponents.push_back(pyComponent);
-				auto pyInfo = editor::PyComponentInfo();
-				pyInfo.name = className;
-				pyInfo.path = m_PythonModulePaths[moduleId];
-				pyInfo.pyComponent = pyComponent;
-				m_PyComponentsInfo.push_back(pyInfo);
-				m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::PYCOMPONENT);
-			}
-			else
-			{
-				std::ostringstream oss;
-				oss << "[Python Error] Could not load the PyComponent* out of the instance";
-				Log::GetInstance()->Error(oss.str());
-				return INVALID_INSTANCE;
-			}
+		const auto pyComponent = GetPyComponentFromInstanceId(pyInstanceId);
+		if (pyComponent != nullptr)
+		{
+			m_PyComponents.push_back(pyComponent);
+			auto pyInfo = editor::PyComponentInfo();
+			pyInfo.name = className;
+			pyInfo.path = m_PythonModulePaths[moduleId];
+			pyInfo.pyComponent = pyComponent;
+			m_PyComponentsInfo.push_back(pyInfo);
+			m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::PYCOMPONENT);
 		}
 		else
 		{
-			//Load PySystem
-			m_PythonInstances[pyInstanceId] =
-				moduleObj.attr(className.c_str())(m_Engine);
-			const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
-			if (pySystem != nullptr)
-			{
-				m_PySystems.push_back(pySystem);
-				
-				/*auto pyInfo = editor::PyComponentInfo();
-				pyInfo.name = className;
-				pyInfo.path = m_PythonModulePaths[moduleId];
-				pyInfo.pyComponent = pySystem;
-				m_PyComponentsInfo.push_back(pyInfo);
-				*/
-			}
-			else
-			{
-				std::ostringstream oss;
-				oss << "[Python Error] Could not load the PyComponent* out of the instance";
-				Log::GetInstance()->Error(oss.str());
-				return INVALID_INSTANCE;
-			}
+			std::ostringstream oss;
+			oss << "[Python Error] Could not load the PyComponent* out of the instance";
+			Log::GetInstance()->Error(oss.str());
+			return INVALID_INSTANCE;
 		}
+		
 		m_IncrementalInstanceId++;
 		return pyInstanceId;
 	}
@@ -470,6 +452,54 @@ InstanceId PythonEngine::LoadPyClass(ModuleId moduleId, Entity entity)
 	
 	return INVALID_INSTANCE;
 	
+}
+
+InstanceId PythonEngine::LoadPySystem(ModuleId moduleId)
+{
+	std::string className = m_PyClassNames[moduleId];
+	try
+	{
+		auto globals = py::globals();
+		auto moduleName = m_PyModuleNames[moduleId];
+		auto moduleObj = py::module(m_PyModuleObjs[moduleId]);
+
+		const auto pyInstanceId = m_IncrementalInstanceId;
+		//Load PySystem
+		m_PythonInstances[pyInstanceId] =
+			moduleObj.attr(className.c_str())(m_Engine);
+		const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
+		if (pySystem != nullptr)
+		{
+			m_PySystems.push_back(pySystem);
+
+			/* TODO editor info on system
+			 *
+			 *auto pyInfo = editor::PyComponentInfo();
+			pyInfo.name = className;
+			pyInfo.path = m_PythonModulePaths[moduleId];
+			pyInfo.pyComponent = pySystem;
+			m_PyComponentsInfo.push_back(pyInfo);
+			*/
+		}
+		else
+		{
+			std::ostringstream oss;
+			oss << "[Python Error] Could not load the PyComponent* out of the instance";
+			Log::GetInstance()->Error(oss.str());
+			return INVALID_INSTANCE;
+		}
+		
+		m_IncrementalInstanceId++;
+		return pyInstanceId;
+	}
+	catch (std::runtime_error& e)
+	{
+		std::stringstream oss;
+		oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what() << "\n" << py::str(py::globals());
+		Log::GetInstance()->Error(oss.str());
+	}
+
+	return INVALID_INSTANCE;
 }
 
 std::list<editor::PyComponentInfo> PythonEngine::GetPyComponentsInfoFromEntity(Entity entity)

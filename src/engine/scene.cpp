@@ -137,6 +137,20 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		oss << "Loading scene: " << sceneInfo->name;
 		Log::GetInstance()->Msg(oss.str());
 	}
+	if (CheckJsonParameter(sceneJson, "systems", json::value_t::array))
+	{
+		for (auto& systemJson : sceneJson["systems"])
+		{
+			auto& pythonEngine = m_Engine.GetPythonEngine();
+			if (CheckJsonExists(systemJson, "script_path"))
+			{
+				std::string path = systemJson["script_path"];
+				const ModuleId moduleId = pythonEngine.LoadPyModule(path);
+				if (moduleId != INVALID_MODULE)
+					const InstanceId instanceId = pythonEngine.LoadPySystem(moduleId);
+			}
+		}
+	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
 		const auto entityNmb = sceneJson["entities"].size();
@@ -223,7 +237,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 									std::string path = componentJson["script_path"];
 									const ModuleId moduleId = pythonEngine.LoadPyModule(path);
 									if(moduleId != INVALID_MODULE)
-										const InstanceId instanceId = pythonEngine.LoadPyClass(moduleId, entity);
+										const InstanceId instanceId = pythonEngine.LoadPyComponent(moduleId, entity);
 								}
 								break;
 							}

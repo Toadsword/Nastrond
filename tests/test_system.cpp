@@ -90,14 +90,39 @@ TEST(TestSystem, PlanetPyComponent)
 	engine.Start();
 }
 
-TEST(TestSystem, PlanetePySystem)
+TEST(TestSystem, PlanetPySystem)
 {
 	sfge::Engine engine;
-	engine.Init();
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+	json sceneJson = {
+		{ "name", "Test Planet Component" } };
+	json systemJson = {
+		{"script_path", "scripts/planet_system.py"}
+	};
+	sceneJson["systems"] = json::array({ systemJson });
+	auto& sceneManager = engine.GetSceneManager();
+	sceneManager.LoadSceneFromJson(sceneJson);
+
+	engine.Start();
 }
 
-TEST(TestSystem, PlanetePySystemCpp)
+TEST(TestSystem, PlanetPySystemCpp)
 {
 	sfge::Engine engine;
 	engine.Init();
+	json sceneJson = {
+		{ "name", "Test Planet Component" } };
+	json systemJson = {
+		{ "script_path", "scripts/planet_system_cpp.py" }
+	};
+
+	sceneJson["systems"] = json::array({ systemJson });
+	auto& sceneManager = engine.GetSceneManager();
+	sceneManager.LoadSceneFromJson(sceneJson);
+
+	engine.Start();
 }

@@ -89,7 +89,7 @@ public:
 
 	void Reset();
 	void Collect() override;
-
+	Sprite* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
