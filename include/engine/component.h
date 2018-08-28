@@ -68,14 +68,6 @@ public:
 		m_ComponentsInfo.clear();
 	};
 
-	T & GetComponent(Entity entity)
-	{
-		if(entity == INVALID_ENTITY)
-		{
-			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
-		}
-		return m_Components[entity-1];
-	}
 	TInfo& GetComponentInfo(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)

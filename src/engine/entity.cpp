@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <engine/engine.h>
+#include <engine/config.h>
 #include <engine/entity.h>
 #include <engine/globals.h>
 
@@ -93,6 +95,14 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 {
 	m_MaskArray.resize(newSize);
 	m_EntityInfos.resize(newSize);
+	for (auto* resizeObserver : m_ResizeObsververs)
+	{
+		resizeObserver->OnResize(newSize);
+	}
+	if(auto config = m_Engine.GetConfig().lock())
+	{
+		config->currentEntitiesNmb = newSize;
+	}
 }
 
 void EntityManager::AddObserver(ResizeObserver* resizeObserver)

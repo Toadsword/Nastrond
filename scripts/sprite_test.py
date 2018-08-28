@@ -3,7 +3,7 @@ import sys
 
 
 class SpriteTest(Component):
-    transform: Transform
+    transform: Transform2d
     speed: float
     direction: Vector2f
 

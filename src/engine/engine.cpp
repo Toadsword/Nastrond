@@ -139,11 +139,10 @@ void Engine::Start()
 		}
 		
 		m_InputManager.Update(dt.asSeconds());
-		sf::Time fixedUpdateTime = globalClock.getElapsedTime() + deltaFixedUpdateTime - previousFixedUpdateTime;
+		sf::Time fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
 			m_PhysicsManager.FixedUpdate();
-			deltaFixedUpdateTime = fixedUpdateTime - sf::seconds(m_Config->fixedDeltaTime);
 			previousFixedUpdateTime = globalClock.getElapsedTime();
 			m_PythonEngine.FixedUpdate();
 			m_SceneManager.FixedUpdate();

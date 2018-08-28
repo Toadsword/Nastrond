@@ -46,6 +46,7 @@ namespace sfge
 */
 struct Configuration 
 {
+	~Configuration();
 	bool devMode = true;
 	bool editor = true;
 	bool windowLess = false;
@@ -62,7 +63,7 @@ struct Configuration
 	float fixedDeltaTime = 0.02f;
 	int velocityIterations = 8;
 	int positionIterations = 2;
-	int currentEntitiesNmb = INIT_ENTITY_NMB;
+	size_t currentEntitiesNmb = INIT_ENTITY_NMB;
 
 
 	std::string scriptsDirname = "scripts/";

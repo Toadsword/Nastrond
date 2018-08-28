@@ -43,7 +43,7 @@ Body2d::Body2d(Transform2d * transform, sf::Vector2f offset) :
 
 b2Vec2 Body2d::GetLinearVelocity()
 {
-	if (m_Body)
+	if (m_Body != nullptr)
 		return m_Body->GetLinearVelocity();
 		
 	return b2Vec2();
@@ -51,14 +51,14 @@ b2Vec2 Body2d::GetLinearVelocity()
 
 void Body2d::SetLinearVelocity(b2Vec2 velocity)
 {
-	if (m_Body)
+	if (m_Body != nullptr)
 		m_Body->SetLinearVelocity(velocity);
 
 }
 
 void Body2d::ApplyForce(b2Vec2 force)
 {
-	if (m_Body)
+	if (m_Body != nullptr)
 		m_Body->ApplyForceToCenter(force, true);
 }
 
@@ -146,7 +146,6 @@ std::deque<b2Vec2>& editor::Body2dInfo::GetVelocities()
 Body2dManager::Body2dManager(Engine& engine):
 	ComponentManager<Body2d, editor::Body2dInfo>(),
 	System(engine),
-	ResizeObserver(),
 	m_EntityManager(m_Engine.GetEntityManager()),
 	m_Transform2dManager(m_Engine.GetTransform2dManager())
 
@@ -167,12 +166,12 @@ void Body2dManager::FixedUpdate()
 	
 		for (int i = 0; i < m_Components.size(); i++)
 		{
-			Entity entity = i + 1;
+			const Entity entity = i + 1;
 			if (m_EntityManager.HasComponent(entity, ComponentType::BODY2D) &&
 				m_EntityManager.HasComponent(entity, ComponentType::TRANSFORM2D))
 			{
-				auto & transform = m_Transform2dManager.GetComponent(entity);
-				auto & body2d = GetComponent(entity);
+				auto & transform = m_Transform2dManager.GetComponentRef(entity);
+				auto & body2d = GetComponentRef(entity);
 				m_ComponentsInfo[i].AddVelocity(body2d.GetLinearVelocity());
 				transform.Position = meter2pixel(body2d.GetBody()->GetPosition()) - body2d.GetOffset();
 			}
@@ -182,7 +181,7 @@ void Body2dManager::FixedUpdate()
 
 void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 {
-	Log::GetInstance()->Msg("Create component Transform");
+	//Log::GetInstance()->Msg("Create component Transform");
 	if (auto world = m_WorldPtr.lock())
 	{
 		b2BodyDef bodyDef;
@@ -195,15 +194,15 @@ void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 			bodyDef.gravityScale = componentJson["gravity_scale"];
 		}
 
-
-		auto offset = GetVectorFromJson(componentJson, "offset");
+		const auto offset = GetVectorFromJson(componentJson, "offset");
 		
 		
-		auto& transform = m_Transform2dManager.GetComponentRef(entity);
-		bodyDef.position = pixel2meter(transform.Position + offset);
+		auto transform = m_Transform2dManager.GetComponentPtr(entity);
+		auto pos = transform->Position + offset;
+		bodyDef.position.Set(pixel2meter(pos.x), pixel2meter(pos.y));
 		
 		auto* body = world->CreateBody(&bodyDef);
-		m_Components[entity - 1] = Body2d(&transform, offset);
+		m_Components[entity - 1] = Body2d(transform, offset);
 		m_Components[entity - 1].SetBody(body);
 		m_ComponentsInfo[entity - 1].body = &m_Components[entity - 1];
 	}

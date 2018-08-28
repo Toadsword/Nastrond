@@ -139,7 +139,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
-		const auto entityNmb = sceneJson["entites"].size();
+		const auto entityNmb = sceneJson["entities"].size();
 		if(entityNmb > INIT_ENTITY_NMB)
 		{
 			m_EntityManager.ResizeEntityNmb(entityNmb);
@@ -148,6 +148,13 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		{
 			Entity entity = INVALID_ENTITY;
 			entity = m_EntityManager.CreateEntity();
+			if(entity == INVALID_ENTITY)
+			{
+				std::ostringstream oss;
+				oss << "[Error] Scene: not enough entities left";
+				Log::GetInstance()->Error(oss.str());
+				continue;
+			}
 			if(CheckJsonExists(entityJson, "name"))
 			{
 				m_EntityManager.GetEntityInfo(entity).name = entityJson["name"].get<std::string>();
@@ -247,7 +254,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		Log::GetInstance()->Error(oss.str());
 	}
 
-	//TODO remove previous scene
+	//remove previous scene assets
 
 	m_Engine.Collect();
 

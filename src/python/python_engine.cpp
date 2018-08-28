@@ -30,6 +30,7 @@
 #include <engine/log.h>
 #include <engine/scene.h>
 #include <engine/engine.h>
+#include <engine/config.h>
 #include <input/input.h>
 #include <audio/audio.h>
 #include <graphics/shape2d.h>
@@ -50,7 +51,15 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 
 	py::class_<Engine> engine(m, "Engine");
+	engine
+		.def_property_readonly("config", [](Engine* engine)
+	{
+		return engine->GetConfig().lock();
+	}, py::return_value_policy::reference);
 
+	py::class_<Configuration, std::unique_ptr<Configuration, py::nodelete>> config(m, "Configuration");
+	config
+		.def_property_readonly("screen_size", [](Configuration* config) {return sf::Vector2f(config->screenResolution.x, config->screenResolution.y); });
 	py::class_<System, PySystem> system(m, "System");
 	system
 		.def("init", &System::Init)
@@ -90,7 +99,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
 	physics2dManager
-	    .def_property_readonly ("body_manager", &Physics2dManager::GetBodyManager, py::return_value_policy::reference);
+	    .def_property_readonly ("body_manager", &Physics2dManager::GetBodyManager, py::return_value_policy::reference)
+		.def("pixel2meter", [](float v) {return pixel2meter(v); })
+		.def("pixel2meter", [](sf::Vector2f v) {return pixel2meter(v); })
+		.def("meter2pixel", [](float v) {return meter2pixel(v); })
+		.def("meter2pixel", [](b2Vec2 v) {return meter2pixel(v); });
 
 	py::class_<Body2dManager> body2dManager(m, "Body2dManager");
 	body2dManager
@@ -123,7 +136,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Transform2d", ComponentType::TRANSFORM2D)
 		.export_values();
 
-	py::class_<Transform2d> transform(m, "Transform");
+	py::class_<Transform2d> transform(m, "Transform2d");
 	transform
 		.def_readwrite("euler_angle", &Transform2d::EulerAngle)
 		.def_readwrite("position", &Transform2d::Position)
@@ -195,6 +208,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		return oss.str();
 	});
 
+
 	py::class_<sf::Vector2f> vector2f(m, "Vector2f");
 	vector2f
 		.def(py::init<float, float>())
@@ -204,14 +218,19 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def(py::self - py::self)
 		.def(py::self -= py::self)
 		.def(py::self * float())
+		.def(py::self / float())
+		.def_property_readonly("magnitude", [](const sf::Vector2f & vec)
+		{
+			return sqrtf(vec.x*vec.x + vec.y*vec.y);
+		})
 		.def_readwrite("x", &sf::Vector2f::x)
 		.def_readwrite("y", &sf::Vector2f::y)
 		.def("__repr__", [](const sf::Vector2f &vec)
-	{
-		std::ostringstream oss;
-		oss << "(" << vec.x << ", " << vec.y << ")";
-		return oss.str();
-	});
+		{
+			std::ostringstream oss;
+			oss << "(" << vec.x << ", " << vec.y << ")";
+			return oss.str();
+		});
 
 	py::class_<b2Vec2> b2vec2(m, "b2Vec2");
 	b2vec2
@@ -221,14 +240,29 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_readwrite("y", &b2Vec2::y)
 		.def(py::self += py::self)
 		.def(py::self -= py::self)
-		.def(py::self *= float());
+		.def(py::self *= float())
+		.def_property_readonly("magnitude", [](const b2Vec2 & vec)
+		{
+			return sqrtf(vec.x*vec.x + vec.y*vec.y);
+		})
+		.def("__repr__", [](const b2Vec2 &vec)
+		{
+			std::ostringstream oss;
+			oss << "(" << vec.x << ", " << vec.y << ")";
+			return oss.str();
+		});
 		
 }
 
 void PythonEngine::Init()
 {
-	Log::GetInstance()->Msg("Initialise the python embed interpretor");
 
+	Log::GetInstance()->Msg("Initialise the python embed interpretor");
+	System::Init();
+
+	OnResize(INIT_ENTITY_NMB);
+
+	m_Engine.GetEntityManager().AddObserver(this);
 	py::initialize_interpreter();
 	//Adding reference to c++ engine modules
 
@@ -270,10 +304,20 @@ void PythonEngine::Update(float dt)
 	}
 }
 
+void PythonEngine::FixedUpdate()
+{
+	const auto config = m_Engine.GetConfig().lock();
+	for (auto pyComponent : m_PyComponents)
+	{
+		if (pyComponent != nullptr)
+			pyComponent->FixedUpdate(config->fixedDeltaTime);
+	}
+}
+
 
 void PythonEngine::Destroy()
 {
-	Clear ();
+	System::Destroy();
 	Log::GetInstance()->Msg("Finalize the python embed interpretor");
 	py::finalize_interpreter();
 }
@@ -282,8 +326,7 @@ void PythonEngine::Clear()
 {
 	m_PythonInstances.clear();
 	m_PyComponents.clear ();
-	m_PyComponents.reserve (INIT_ENTITY_NMB * 4);
-	m_PySystems.reserve(INIT_ENTITY_NMB * 4);
+	OnResize(INIT_ENTITY_NMB);
 }
 
 ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
@@ -326,11 +369,11 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 				m_PyClassNames[moduleId] = className;
 
 				m_IncrementalModuleId++;
-				{
+				/*{
 					std::ostringstream oss;
 					oss << "Loading module: " << moduleName << " with class: " << className << ",\n";
 					Log::GetInstance()->Msg(oss.str());
-				}
+				}*/
 			}
 			catch (const std::runtime_error& e)
 			{
@@ -353,11 +396,16 @@ InstanceId PythonEngine::LoadPyClass(ModuleId moduleId, Entity entity)
 	{
 		auto globals = py::globals ();
 		auto moduleName = m_PyModuleNames[moduleId];
-		auto moduleObj = m_PyModuleObjs[moduleId];
+		auto moduleObj = py::module(m_PyModuleObjs[moduleId]);
+		auto sfgeModule = py::module::import("SFGE");
 		//Check if class is subclass of Component
 		std::ostringstream oss;
-		oss << "issubclassof(" << py::str(moduleObj.attr(className.c_str())) << ")";
-		const auto isComponent = py::eval(oss.str()).cast<bool>();
+		oss << "issubclass(" << className << ", Component)";
+
+		py::dict locals;
+		locals[py::str(className)] = moduleObj.attr(className.c_str());
+		locals[py::str("Component")] = sfgeModule.attr("Component");
+		const bool isComponent = py::eval(oss.str(), py::globals(), locals).cast<bool>();
 
 		const auto pyInstanceId = m_IncrementalInstanceId;
 		if (isComponent)
@@ -488,7 +536,7 @@ void PythonEngine::LoadScripts(std::string dirname)
 
 PyComponent* PythonEngine::GetPyComponentFromInstanceId(InstanceId instanceId)
 {
-	if (instanceId >= m_IncrementalInstanceId)
+	if (instanceId > m_IncrementalInstanceId)
 	{
 		std::ostringstream oss;
 		oss << "[Python Error] Could not find instance Id: " << instanceId << " in the pythonInstanceMap";
@@ -501,7 +549,7 @@ PyComponent* PythonEngine::GetPyComponentFromInstanceId(InstanceId instanceId)
 
 PySystem* PythonEngine::GetPySystemFromInstanceId(InstanceId instanceId)
 {
-	if (instanceId >= m_IncrementalInstanceId)
+	if (instanceId > m_IncrementalInstanceId)
 	{
 		std::ostringstream oss;
 		oss << "[Python Error] Could not find instance Id: " << instanceId << " in the pythonInstanceMap";
@@ -524,6 +572,22 @@ py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)
 		}
 	}
 	return py::none();
+}
+
+void PythonEngine::OnResize(size_t new_size)
+{
+	m_PythonModulePaths.resize(new_size * 4 );
+	m_PyClassNames.resize(new_size * 4 );
+	m_PyModuleNames.resize(new_size * 4);
+	m_PyModuleObjs.resize(new_size * 4);
+
+	
+
+	m_PythonInstances.resize(new_size * 4);
+	
+	m_PyComponents.resize(new_size * 4);
+	m_PySystems.resize(new_size * 4);
+	m_PyComponentsInfo.resize(new_size * 4);
 }
 
 void PythonEngine::OnTriggerEnter(Entity entity, ColliderData * colliderData)

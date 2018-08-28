@@ -45,7 +45,7 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 	Log::GetInstance()->Msg("Create component Collider");
 	if (m_EntityManager.HasComponent(entity, ComponentType::BODY2D))
 	{
-		auto & body = m_BodyManager.GetComponent(entity);
+		auto & body = m_BodyManager.GetComponentRef(entity);
 
 		b2FixtureDef fixtureDef;
 

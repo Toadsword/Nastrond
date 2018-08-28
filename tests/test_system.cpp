@@ -23,12 +23,81 @@ SOFTWARE.
 */
 
 #include <engine/engine.h>
+#include <engine/config.h>
 #include <engine/scene.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
 
+static const int entityNmb = 10'000;
 
-TEST(TestScene, PlaneteComponent)
+TEST(TestSystem, PlanetPyComponent)
 {
+	sfge::Engine engine;
 
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	const auto config = engine.GetConfig().lock();
+	json sceneJson = {
+		{ "name", "Test Planet Component" } };
+	json entitiesArray = json::array();
+	for (int i = 0; i < entityNmb; i++)
+	{
+		//Adding transform
+		json transformJson =
+		{
+			{ "position", { rand() % config->screenResolution.x, rand() % config->screenResolution.y } },
+			{ "angle", 0.0f },
+			{ "type", static_cast<int>(sfge::ComponentType::TRANSFORM2D) },
+		};
+
+		json rectShapeJson =
+		{
+			{ "radius", 5.0f },
+			{ "type", static_cast<int>(sfge::ComponentType::SHAPE2D) },
+			{ "shape_type", static_cast<int>(sfge::ShapeType::CIRCLE) }
+		};
+
+		json pyComponentJson =
+		{
+			{"type", static_cast<int>(sfge::ComponentType::PYCOMPONENT)},
+			{"script_path", "scripts/planet_component.py"}
+		};
+		json bodyJson =
+		{
+			{"type", static_cast<int>(sfge::ComponentType::BODY2D)},
+			{"body_type", b2_dynamicBody}
+		};
+		std::ostringstream oss;
+		oss << "Entity " << i;
+		const json entityJson =
+		{
+			{ "name", oss.str() },
+			{ "components",{
+				transformJson, rectShapeJson, bodyJson, pyComponentJson
+			}
+		}
+		};
+		entitiesArray.push_back(entityJson);
+	}
+	sceneJson["entities"] = entitiesArray;
+	auto& sceneManager = engine.GetSceneManager();
+	sceneManager.LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+TEST(TestSystem, PlanetePySystem)
+{
+	sfge::Engine engine;
+	engine.Init();
+}
+
+TEST(TestSystem, PlanetePySystemCpp)
+{
+	sfge::Engine engine;
+	engine.Init();
 }

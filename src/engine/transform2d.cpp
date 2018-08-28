@@ -35,8 +35,8 @@ Transform2dManager::Transform2dManager(Engine& engine):
 void Transform2dManager::CreateComponent(json& componentJson, Entity entity)
 {
 
-	Log::GetInstance()->Msg("Create component Transform");
-	auto& transform = GetComponent(entity);
+	//Log::GetInstance()->Msg("Create component Transform");
+	auto& transform = GetComponentRef(entity);
 	if (CheckJsonExists(componentJson, "position"))
 		transform.Position = GetVectorFromJson(componentJson, "position");
 	if (CheckJsonExists(componentJson, "scale"))

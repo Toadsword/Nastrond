@@ -89,6 +89,8 @@ void PyComponent::Update(float dt)
 
 	void PyComponent::FixedUpdate(float fixedDeltaTime)
 	{
+		try
+		{
         py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
@@ -97,6 +99,13 @@ void PyComponent::Update(float dt)
 			FixedUpdate,
 			fixedDeltaTime
 		);
+		}
+		catch (std::runtime_error& e)
+		{
+			std::stringstream oss;
+			oss << "Python error on PyComponent FixedUpdate\n" << e.what();
+			Log::GetInstance()->Error(oss.str());
+		}
 	}
 
 	py::object Component::GetComponent(ComponentType componentType) const
@@ -108,13 +117,13 @@ void PyComponent::Update(float dt)
 			
 			{
 				auto& transformManager = m_Engine.GetTransform2dManager();
-				auto& transform = transformManager.GetComponent(m_Entity);
+				auto& transform = transformManager.GetComponentRef(m_Entity);
 				return py::cast(transform, py::return_value_policy::reference);
 			}
 		case ComponentType::BODY2D:
 			{
 				auto& physicsManager = m_Engine.GetPhysicsManager();
-				auto& body = physicsManager.GetBodyManager().GetComponent(m_Entity);
+				auto& body = physicsManager.GetBodyManager().GetComponentRef(m_Entity);
 				return py::cast(body, py::return_value_policy::reference);
 			}
 		case ComponentType::COLLIDER2D:
@@ -128,7 +137,7 @@ void PyComponent::Update(float dt)
 		case ComponentType::SPRITE2D:
 			{
 				auto& graphicsManager = m_Engine.GetGraphicsManager();
-				auto& sprite = graphicsManager.GetSpriteManager().GetComponent(m_Entity);
+				auto& sprite = graphicsManager.GetSpriteManager().GetComponentRef(m_Entity);
 				return py::cast(sprite, py::return_value_policy::reference);
 			}
 			break;

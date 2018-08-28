@@ -15,10 +15,16 @@ System::System(const System& system) :
 {
 }
 
+void System::Init()
+{
+	m_Initialized = true;
+}
+
 void System::Destroy()
 {
 	Clear();
 	Collect();
+	m_Initialized = false;
 }
 
 
@@ -35,5 +41,10 @@ bool System::GetEnable() const
 Engine& System::GetEngine() const
 {
 	return m_Engine;
+}
+
+bool System::GetInitlialized() const
+{
+	return m_Initialized;
 }
 }

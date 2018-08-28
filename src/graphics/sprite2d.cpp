@@ -94,6 +94,7 @@ SpriteManager::SpriteManager(Engine& engine):
 
 void SpriteManager::Init()
 {
+	System::Init();
 	m_EntityManager.AddObserver(this);
 }
 

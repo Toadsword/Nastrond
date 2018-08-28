@@ -51,7 +51,7 @@ const InstanceId INVALID_INSTANCE = 0U;
 /**
 * \brief Manage the python interpreter
 */
-class PythonEngine : public System, public LayerComponentManager<PyComponent*>
+class PythonEngine : public System, public LayerComponentManager<PyComponent*>, public ResizeObserver
 {
 public:
 	using System::System;
@@ -66,7 +66,7 @@ public:
 	* \param dt The delta time since last frame
 	*/
 	void Update(float dt) override;
-
+	void FixedUpdate() override;
 	/**
 	* \brief Finalize the python interpreter
 	*/
@@ -88,6 +88,8 @@ public:
 	PyComponent* GetPyComponentFromInstanceId(InstanceId instanceId);
 	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
 	py::object GetPyComponentFromType(py::object type, Entity entity);
+
+	void OnResize(size_t new_size) override;
 	/*
 	*/
 	void OnTriggerEnter(Entity entity, ColliderData* colliderData);

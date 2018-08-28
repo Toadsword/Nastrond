@@ -133,6 +133,7 @@ class Component:
     def get_component(self, type):
         pass
 
+
 class Transform2d():
     """Mandatory Component attached to the GameObject containing all the geometric important data of the GameObject"""
     def __init__(self):
@@ -140,11 +141,14 @@ class Transform2d():
         self.scale = Vector2f()
         self.angle = 0.0
 
+
 class Body2d:
     def __init__(self):
         self.velocity = b2Vec2()
+        self.magnitude = 0.0
 
-
+    def apply_force(self, force:b2Vec2):
+        pass
 
 class KeyboardManager:
     class Key:

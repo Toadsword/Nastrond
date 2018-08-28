@@ -60,9 +60,16 @@ void Shape::SetFillColor(sf::Color color) const
 
 void Shape::Update(float dt) const
 {
-	if(m_Shape and m_Transform)
+	sf::Vector2f newPosition = m_Offset;
+
+	if(m_Transform != nullptr)
 	{
-		m_Shape->setPosition(m_Transform->Position + m_Offset);
+		newPosition += m_Transform->Position;
+	}
+
+	if(m_Shape != nullptr)
+	{
+		m_Shape->setPosition(newPosition);
 	}
 }
 
@@ -71,8 +78,8 @@ Circle::Circle(Transform2d* transform, sf::Vector2f offset, float radius) : Shap
 	m_Radius = radius;
 	m_Shape = std::make_unique<sf::CircleShape>(m_Radius);
 	m_Shape->setOrigin(radius, radius);
-	if(transform)
-	m_Shape->setPosition(transform->Position + offset);
+
+	Update(0.0f);
 }
 
 Rectangle::Rectangle(Transform2d* transform, sf::Vector2f offset, sf::Vector2f size) : Shape(transform, offset)
@@ -81,8 +88,8 @@ Rectangle::Rectangle(Transform2d* transform, sf::Vector2f offset, sf::Vector2f s
 	m_Size = size;
 	m_Shape = std::make_unique<sf::RectangleShape>(m_Size);
 	m_Shape->setOrigin(size / 2.0f);
-	if(transform)
-		m_Shape->setPosition(transform->Position + offset);
+
+	Update(0.0f);
 }
 
 
@@ -133,31 +140,28 @@ void editor::RectShapeInfo::DrawOnInspector()
 
 void ShapeManager::Init()
 {
-
+	System::Init();
 	m_EntityManager.AddObserver(this);
 }
 
 
 void ShapeManager::Draw(sf::RenderWindow& window)
 {
-
-	
-		for(int i = 0; i < m_Components.size(); i++)
+	for(int i = 0; i < m_Components.size(); i++)
+	{
+		if(m_Components[i] != nullptr and m_EntityManager.HasComponent(i + 1, ComponentType::SHAPE2D))
 		{
-			if(m_Components[i] and m_EntityManager.HasComponent(i + 1, ComponentType::SHAPE2D))
-			{
-				m_Components[i]->Draw(window);
-			}
+			m_Components[i]->Draw(window);
 		}
-	
+	}
 }
 
-void ShapeManager::Update(float dt)
+void ShapeManager::Update(const float dt)
 {
 	
 	for (int i = 0; i < m_Components.size(); i++)
 	{
-		if (m_Components[i] and m_EntityManager.HasComponent(i+1, ComponentType::SHAPE2D))
+		if (m_Components[i] != nullptr  and m_EntityManager.HasComponent(i + 1, ComponentType::SHAPE2D))
 		{
 			m_Components[i]->Update(dt);
 		}
@@ -191,7 +195,7 @@ editor::ShapeInfo* ShapeManager::GetShapeInfoPtr(Entity entity)
 
 void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 {
-	Log::GetInstance()->Msg("Create component Shape");
+	//Log::GetInstance()->Msg("Create component Shape");
 	
 	if (CheckJsonNumber(componentJson, "shape_type"))
 	{
@@ -215,7 +219,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 				offset,
 				radius);
 
-			auto circleShapeInfo = std::unique_ptr<editor::CircleShapeInfo>();
+			auto circleShapeInfo = std::make_unique<editor::CircleShapeInfo>();
 			circleShapeInfo->circlePtr = circle.get();
 			m_Components[entity - 1] = std::move(circle);
 			m_ComponentsInfo[entity - 1] = std::move(circleShapeInfo);
@@ -238,7 +242,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 				offset,
 				size);
 
-			auto rectShapeInfo = std::unique_ptr<editor::RectShapeInfo>();
+			auto rectShapeInfo = std::make_unique<editor::RectShapeInfo>();
 
 			rectShapeInfo->rectanglePtr = rect.get();
 			m_Components[entity - 1] = std::move(rect);
