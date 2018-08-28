@@ -41,6 +41,8 @@
 #include <python/pycomponent.h>
 #include <python/pysystem.h>
 
+#include <SFML/Graphics/Texture.hpp>
+
 #include <utility/file_utility.h>
 #include <utility/time_utility.h>
 
@@ -51,7 +53,6 @@ namespace sfge
 PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
 
-	py::class_<sf::Texture> texture(m, "sfTexture");
 
 	py::class_<Engine> engine(m, "Engine");
 	engine
@@ -94,7 +95,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Transform2dManager> transform2dManager(m , "Transform2dManager");
 	transform2dManager
-	    .def("create_component", &Transform2dManager::CreateEmptyComponent)
+	    .def("add_component", &Transform2dManager::AddComponent, py::return_value_policy::reference)
 	    .def("get_component", &Transform2dManager::GetComponentRef, py::return_value_policy::reference);
 
 	py::class_<EntityManager> entityManager(m, "EntityManager");
@@ -117,16 +118,19 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Graphics2dManager> graphics2dManager(m, "Graphics2dManager");
 	graphics2dManager
-		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager)
-		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager);
+		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
+		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference);
+
 	py::class_<TextureManager> textureManager(m, "TextureManager");
 	textureManager
 		.def("load_texture", [](TextureManager* textureManager, std::string name)
 		{
 			const auto textureId = textureManager->LoadTexture(name);
 			return textureManager->GetTexture(textureId);
-		});
-	py::class_<SpriteManager> spriteManager(m, "SpriteManager");
+		}, py::return_value_policy::reference);
+  py::class_<sf::Texture, std::unique_ptr<sf::Texture, py::nodelete>> sfTexture(m, "sfTexture");
+
+  py::class_<SpriteManager> spriteManager(m, "SpriteManager");
 	spriteManager
 		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
@@ -190,10 +194,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("play", &Sound::Play)
 		.def("stop", &Sound::Stop);
 	
-	py::class_<Shape, std::unique_ptr<Shape, py::nodelete>> shape(m, "Shape");
+	py::class_<Shape> shape(m, "Shape");
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);
-	py::class_<Sprite, std::unique_ptr<Sprite, py::nodelete>> sprite(m, "Sprite");
+	py::class_<Sprite> sprite(m, "Sprite");
 	sprite
 		.def("set_texture", &Sprite::SetTexture);
 	//Utility

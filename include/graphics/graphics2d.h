@@ -40,6 +40,8 @@ class Graphics2dManager : public System
 {
 public:
 	using System::System;
+
+	  Graphics2dManager& operator=(const Graphics2dManager&) = delete;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/

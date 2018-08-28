@@ -126,7 +126,7 @@ LIST(APPEND SFGE_LIBRARIES
 
 #PYBIND11
 
-set(PYBIND11_PYTHON_VERSION 3)
+set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
 set(PYBIND11_DIR ${EXTERNAL_DIR}/pybind11/)
 add_subdirectory(${PYBIND11_DIR})
 include_directories(${PYBIND11_DIR})
