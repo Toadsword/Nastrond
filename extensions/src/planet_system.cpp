@@ -27,6 +27,8 @@ SOFTWARE.
 #include <engine/config.h>
 #include <graphics/graphics2d.h>
 
+
+
 namespace sfge::ext
 {
 
@@ -34,6 +36,9 @@ PlanetSystem::PlanetSystem(Engine& engine): System(engine),
 	m_Transform2DManager(m_Engine.GetTransform2dManager()),
 	m_Body2DManager(m_Engine.GetPhysicsManager().GetBodyManager()),
 	m_TextureManager(m_Engine.GetGraphics2dManager().GetTextureManager()),
+#ifdef WITH_VERTEXARRAY
+	m_Graphics2DManager(m_Engine.GetGraphics2dManager()),
+#endif
 	m_SpriteManager(m_Engine.GetGraphics2dManager().GetSpriteManager())
 {
 }
@@ -41,38 +46,81 @@ PlanetSystem::PlanetSystem(Engine& engine): System(engine),
 void PlanetSystem::Init()
 {
 	auto config = m_Engine.GetConfig().lock();
+	fixedDeltaTime = config->fixedDeltaTime;
 	screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 	auto& entityManager = m_Engine.GetEntityManager();
 	entityManager.ResizeEntityNmb(entitiesNmb);
+
+#ifdef WITH_VERTEXARRAY
+	const auto textureId = m_TextureManager.LoadTexture("data/sprites/round.png");
+	texture = m_TextureManager.GetTexture(textureId);
+	textureSize = sf::Vector2f(texture->getSize().x, texture->getSize().y);
+	m_VertexArray.setPrimitiveType(sf::Quads);
+	m_VertexArray.resize(4 * entitiesNmb);
+#endif
+
 	for (int i = 0; i < entitiesNmb; i++)
 	{
 		const auto newEntity = entityManager.CreateEntity(i + 1);
 		auto transformPtr = m_Transform2DManager.AddComponent(newEntity);
 		transformPtr->Position = sf::Vector2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
-
+#ifdef WITH_PHYSICS
 		auto body = m_Body2DManager.AddComponent(newEntity);
 		body->SetLinearVelocity(CalculateInitSpeed(transformPtr));
-
+#else
+		velocity[i] = meter2pixel(CalculateInitSpeed(transformPtr));
+#endif
+		
+#ifndef WITH_VERTEXARRAY
 		const auto textureId = m_TextureManager.LoadTexture("data/sprites/round.png");
 		const auto texture = m_TextureManager.GetTexture(textureId);
 
 		auto sprite = m_SpriteManager.AddComponent(newEntity);
 		sprite->SetTexture(texture);
+#else
+		m_VertexArray[4 * i].texCoords = sf::Vector2f(0, 0);
+		m_VertexArray[4 * i + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+		m_VertexArray[4 * i + 2].texCoords = textureSize;
+		m_VertexArray[4 * i + 3].texCoords = sf::Vector2f(0, textureSize.y);
+#endif
+
 	}
 }
 
 void PlanetSystem::Update(float dt)
 {
+#ifdef WITH_VERTEXARRAY
+	for(int i = 0; i < entitiesNmb;i++)
+	{
+		auto transformPtr = m_Engine.GetTransform2dManager().GetComponentPtr(i + 1);
+		auto pos = transformPtr->Position;
+		m_VertexArray[4 * i].position = transformPtr->Position - textureSize / 2.0f;
+		m_VertexArray[4 * i + 1].position = transformPtr->Position + sf::Vector2f( textureSize.x / 2.0f, -textureSize.y / 2.0f);
+		m_VertexArray[4 * i + 2].position = transformPtr->Position + textureSize / 2.0f;
+		m_VertexArray[4 * i + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+	}
+	auto window = m_Graphics2DManager.GetWindow();
+	window->draw(m_VertexArray, texture);
+#endif
 }
 
 void PlanetSystem::FixedUpdate()
 {
 	for(int i = 0; i < entitiesNmb;i++)
 	{
+
+#ifdef WITH_PHYSICS
 		auto transformPtr = m_Engine.GetTransform2dManager().GetComponentPtr(i + 1);
 		auto bodyPtr = m_Engine.GetPhysicsManager().GetBodyManager().GetComponentPtr(i + 1);
 		bodyPtr->ApplyForce(CalculateNewForce(transformPtr));
+#else
+		auto transformPtr = m_Engine.GetTransform2dManager().GetComponentPtr(i + 1);
+		auto force = meter2pixel(CalculateNewForce(transformPtr));
+		velocity[i] += force / planetMass * fixedDeltaTime;
+		transformPtr->Position += velocity[i] * fixedDeltaTime;
+#endif
 	}
+
 }
 
 b2Vec2 PlanetSystem::CalculateInitSpeed(Transform2d* transformPtr)

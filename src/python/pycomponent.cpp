@@ -48,7 +48,7 @@ void PyComponent::Init()
 	try
 	{
         
-        py::gil_scoped_release release;
+        //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
@@ -70,7 +70,7 @@ void PyComponent::Update(float dt)
 	
 	try
 	{
-        py::gil_scoped_release release;
+        //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
@@ -91,7 +91,6 @@ void PyComponent::Update(float dt)
 	{
 		try
 		{
-        py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			PyComponent,

@@ -27,6 +27,7 @@ SOFTWARE.
 #include <engine/system.h>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <Box2D/Common/b2Math.h>
+#include "graphics/graphics2d.h"
 
 
 namespace sfge
@@ -41,6 +42,8 @@ namespace sfge::ext
 {
 
 
+//#define WITH_PHYSICS
+#define WITH_VERTEXARRAY
 
 class PlanetSystem : public System
 {
@@ -64,12 +67,23 @@ private:
 	TextureManager& m_TextureManager;
 	SpriteManager& m_SpriteManager;
 
+	float fixedDeltaTime = 0.0f;
 	const float gravityConst = 1000.0f;
 	const float centerMass = 1000.0f;
 	const float planetMass = 1.0f;
 	const int entitiesNmb = 10'000;
+
+#ifndef WITH_PHYSICS
+	std::vector<sf::Vector2f> velocity{entitiesNmb};
+#endif
+
 	sf::Vector2f screenSize;
+#ifdef WITH_VERTEXARRAY
 	sf::VertexArray m_VertexArray;
+	Graphics2dManager& m_Graphics2DManager;
+	sf::Texture* texture = nullptr;
+	sf::Vector2f textureSize;
+#endif
 
 };
 
