@@ -158,8 +158,12 @@ if(NOT WIN32 AND NOT APPLE)
 	LIST(APPEND SFGE_LIBRARIES
 		stdc++fs)
 ENDIF()
-add_library(SFGE_COMMON STATIC ${SFGE_SRC})
+
+file(GLOB_RECURSE SFGE_EXTENSIONS_SRC extensions/src/*.cpp extensions/include/*.h)
+source_group("Extensions"            FILES ${SFGE_EXTENSIONS_SRC})
+add_library(SFGE_COMMON STATIC ${SFGE_SRC} ${SFGE_EXTENSIONS_SRC})
 include_directories(include/)
+include_directories(extensions/include/)
 target_link_libraries(SFGE_COMMON PUBLIC ${SFGE_LIBRARIES})
 set_property(TARGET SFGE_COMMON PROPERTY CXX_STANDARD 17)
 if(APPLE)
@@ -190,22 +194,11 @@ foreach(course_file ${COURSE_FILES} )
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
   ENDIF()
 endforeach()
-#SFGE EXTENSIONS
-file(GLOB_RECURSE SFGE_EXTENSIONS_SRC extensions/src/*.cpp extensions/include/*.h)
-add_library(SFGE_EXTENSIONS STATIC ${SFGE_EXTENSIONS_SRC})
-include_directories(extensions/include/)
-target_link_libraries(SFGE_EXTENSIONS PUBLIC SFGE_COMMON)
-set_property(TARGET SFGE_EXTENSIONS PROPERTY CXX_STANDARD 17)
-if(APPLE)
-set_target_properties(SFGE_EXTENSIONS PROPERTIES
-ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
-ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-ENDIF()
 #SFGE TEST
 SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )
 add_executable(SFGE_TEST ${TEST_FILES} )
-target_link_libraries(SFGE_TEST gtest SFGE_COMMON SFGE_EXTENSIONS)
+target_link_libraries(SFGE_TEST gtest SFGE_COMMON)
 if(APPLE )
 	set_target_properties(SFGE_TEST PROPERTIES
 		ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
@@ -220,7 +213,7 @@ endif()
 add_executable(SFGE src/main.cpp)
 
 
-target_link_libraries(SFGE PUBLIC SFGE_COMMON SFGE_EXTENSIONS)
+target_link_libraries(SFGE PUBLIC SFGE_COMMON)
 set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
 if(APPLE)
 	set_target_properties(SFGE PROPERTIES

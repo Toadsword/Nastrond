@@ -67,7 +67,7 @@ public:
 	void Clear() override;
 
 	EntityMask GetMask(Entity entity);
-	Entity CreateEntity(Entity wantedEntity = INVALID_ENTITY);
+	Entity CreateEntity(Entity wantedEntity);
 	bool HasComponent(Entity entity, ComponentType componentType);
 	void AddComponentType(Entity entity, ComponentType componentType);
 	void RemoveComponentType(Entity entity, ComponentType componentType);

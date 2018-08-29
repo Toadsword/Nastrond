@@ -28,10 +28,10 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
 
-static const int entityNmb = 10'000;
 
 TEST(TestSystem, PlanetPyComponent)
 {
+	const int entityNmb = 1'000;
 	sfge::Engine engine;
 
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
@@ -99,7 +99,8 @@ TEST(TestSystem, PlanetPySystem)
 	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 	json sceneJson = {
-		{ "name", "Test Planet Component" } };
+		{ "name", "Test Planet Component" } 
+	};
 	json systemJson = {
 		{"script_path", "scripts/planet_system.py"}
 	};
@@ -113,11 +114,15 @@ TEST(TestSystem, PlanetPySystem)
 TEST(TestSystem, PlanetPySystemCpp)
 {
 	sfge::Engine engine;
-	engine.Init();
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
 	json sceneJson = {
 		{ "name", "Test Planet Component" } };
 	json systemJson = {
-		{ "script_path", "scripts/planet_system_cpp.py" }
+		{ "systemClassName", "PlanetSystem" }
 	};
 
 	sceneJson["systems"] = json::array({ systemJson });

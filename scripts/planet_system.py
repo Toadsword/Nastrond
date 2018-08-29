@@ -6,6 +6,7 @@ body2d_manager = physics2d_manager.body2d_manager
 sprite_manager = graphics2d_manager.sprite_manager
 texture_manager = graphics2d_manager.texture_manager
 
+
 class PlanetSystem(System):
     screen_size: Vector2f
     entity_nmb = None  # type: int
@@ -17,8 +18,9 @@ class PlanetSystem(System):
         self.entity_nmb = 1000
         self.screen_size = engine.config.screen_size
         entity_manager.resize(self.entity_nmb)
+
         for i in range(self.entity_nmb):
-            new_entity = entity_manager.create_entity()
+            new_entity = entity_manager.create_entity(i+1)
 
             transform = transform2d_manager.add_component(new_entity)  # type: Transform2d
             transform.position = Vector2f(random.randint(0, self.screen_size.x), random.randint(0, self.screen_size.y))

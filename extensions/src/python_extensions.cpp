@@ -23,19 +23,21 @@ SOFTWARE.
 */
 
 #include <engine/system.h>
-#include <python/pysystem.h>
-#include <utility/python_utility.h>
+#include <engine/engine.h>
+
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
+
 #include <extensions/python_extensions.h>
+#include <extensions/planet_system.h>
 namespace sfge::ext
 {
-PYBIND11_EMBEDDED_MODULE(SFGE_Extensions, m)
+
+void ExtendPython(py::module& m)
 {
-	py::class_<System, PySystem> system(m, "System");
-	system
-		.def("init", &System::Init)
-		.def("update", &System::Update)
-		.def("fixed_update", &System::FixedUpdate);
+	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
+	planetSystem
+		.def(py::init<Engine&>());
 }
+
 }

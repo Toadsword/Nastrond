@@ -103,7 +103,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	auto textureId = INVALID_TEXTURE;
 	for (TextureId checkedId = 1U; checkedId <= m_IncrementId; checkedId++)
 	{
-		if (filename == m_TexturePaths[checkedId])
+		if (filename == m_TexturePaths[checkedId-1])
 		{
 			textureId = checkedId;
 		}
@@ -132,32 +132,30 @@ TextureId TextureManager::LoadTexture(std::string filename)
 			return m_IncrementId;
 		}
 	}
-	else
+	//Texture was never loaded
+	if (FileExists(filename))
 	{
-		//Texture was never loaded
-		if (FileExists(filename))
-		{
-			TextureId textureId = m_IncrementId;
-			auto& texture = m_Textures[textureId-1] ;
-			if (!texture.loadFromFile(filename))
-			{
-				std::ostringstream oss;
-				oss << "[ERROR] Could not load texture file: " << filename;
-				Log::GetInstance()->Error(oss.str());
-				return INVALID_TEXTURE;
-			}
-
-			m_IncrementId++;
-			m_TexturePaths[textureId-1] = filename;
-			m_TextureIdsRefCounts[textureId-1] = 1U;
-			return textureId;
-		}
-		else
+		textureId = m_IncrementId+1;
+		auto& texture = m_Textures[textureId-1] ;
+		if (!texture.loadFromFile(filename))
 		{
 			std::ostringstream oss;
 			oss << "[ERROR] Could not load texture file: " << filename;
 			Log::GetInstance()->Error(oss.str());
+			return INVALID_TEXTURE;
 		}
+
+		m_TexturePaths[textureId-1] = filename;
+		m_TextureIdsRefCounts[textureId-1] = 1U;
+
+		m_IncrementId++;
+		return textureId;
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "[ERROR] Could not load texture file: " << filename;
+		Log::GetInstance()->Error(oss.str());
 	}
 	return INVALID_TEXTURE;
 }

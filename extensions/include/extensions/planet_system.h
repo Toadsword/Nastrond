@@ -26,22 +26,49 @@ SOFTWARE.
 
 #include <engine/system.h>
 #include <SFML/Graphics/VertexArray.hpp>
+#include <Box2D/Common/b2Math.h>
 
+
+namespace sfge
+{
+class Transform2d;
+class Transform2dManager;
+class Body2dManager;
+class TextureManager;
+class SpriteManager;
+}
 namespace sfge::ext
 {
+
+
 
 class PlanetSystem : public System
 {
 public:
-	using System::System;
+	PlanetSystem(Engine& engine);
 
 	void Init() override;
 
 	void Update(float dt) override;
+
 	void FixedUpdate() override;
 
 private:
+	b2Vec2 CalculateInitSpeed(Transform2d* transformPtr);
+	b2Vec2 CalculateNewForce(Transform2d* transformPtr);
+	float Magnitude(sf::Vector2f v);
+	float Magnitude(b2Vec2 v);
 
+	Transform2dManager& m_Transform2DManager;
+	Body2dManager& m_Body2DManager;
+	TextureManager& m_TextureManager;
+	SpriteManager& m_SpriteManager;
+
+	const float gravityConst = 1000.0f;
+	const float centerMass = 1000.0f;
+	const float planetMass = 1.0f;
+	const int entitiesNmb = 10'000;
+	sf::Vector2f screenSize;
 	sf::VertexArray m_VertexArray;
 
 };

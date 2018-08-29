@@ -23,8 +23,12 @@ SOFTWARE.
 */
 #ifndef SFGE_EXT_PYTHON_H
 #define SFGE_EXT_PYTHON_H
+
+
+#include <utility/python_utility.h>
+
 namespace sfge::ext
 {
-
+void ExtendPython(py::module& m);
 }
 #endif

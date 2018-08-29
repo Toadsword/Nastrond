@@ -80,8 +80,10 @@ class TextureManager(System):
     pass    
 
 
-class GraphicsManager(System):
-    pass
+class Graphics2dManager(System):
+    def __init__(self):
+        self.texture_manager = TextureManager()
+        self.sprite_manager = SpriteManager()
 
 
 class SceneManager(System):
@@ -200,4 +202,4 @@ transform2d_manager = Transform2dManager()
 entity_manager = EntityManager()
 physics2d_manager = Physics2dManager()
 body2d_manager = Body2dManager()
-
+graphics2d_manager = Graphics2dManager()

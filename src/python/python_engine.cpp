@@ -45,6 +45,7 @@
 
 #include <utility/file_utility.h>
 #include <utility/time_utility.h>
+#include <extensions/python_extensions.h>
 
 
 namespace sfge
@@ -101,11 +102,12 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<EntityManager> entityManager(m, "EntityManager");
 	entityManager
 	    .def("create_entity", &EntityManager::CreateEntity)
-	    .def("has_component", &EntityManager::HasComponent);
+	    .def("has_component", &EntityManager::HasComponent)
+		.def("resize", &EntityManager::ResizeEntityNmb);
 
 	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
 	physics2dManager
-	    .def_property_readonly ("body_manager", &Physics2dManager::GetBodyManager, py::return_value_policy::reference)
+	    .def_property_readonly ("body2d_manager", &Physics2dManager::GetBodyManager, py::return_value_policy::reference)
 		.def("pixel2meter", [](float v) {return pixel2meter(v); })
 		.def("pixel2meter", [](sf::Vector2f v) {return pixel2meter(v); })
 		.def("meter2pixel", [](float v) {return meter2pixel(v); })
@@ -122,7 +124,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
 
-	py::class_<TextureManager, std::unique_ptr<TextureManager, py::nodelete>, System> textureManager(m, "TextureManager");
+	py::class_<TextureManager, std::unique_ptr<TextureManager, py::nodelete>> textureManager(m, "TextureManager");
 	textureManager
 		.def("load_texture", [](TextureManager* textureManager, std::string name)
 		{
@@ -276,7 +278,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			oss << "(" << vec.x << ", " << vec.y << ")";
 			return oss.str();
 		});
-		
+
+		ext::ExtendPython(m);
 }
 
 void PythonEngine::Init()
@@ -526,6 +529,28 @@ InstanceId PythonEngine::LoadPySystem(ModuleId moduleId)
 	}
 
 	return INVALID_INSTANCE;
+}
+
+void PythonEngine::LoadCppExtensionSystem(std::string systemClassName)
+{
+	const auto pyInstanceId = m_IncrementalInstanceId;
+	try
+	{
+		py::module sfge = py::module::import("SFGE");
+		m_PythonInstances[pyInstanceId] = sfge.attr(systemClassName.c_str())(m_Engine);
+		const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
+		if (pySystem != nullptr)
+		{
+			m_PySystems.push_back(pySystem);
+		}
+		m_IncrementalInstanceId++;
+	}
+	catch(std::runtime_error& e)
+	{
+		std::stringstream oss;
+		oss << "[PYTHON ERROR] trying to instantiate System from C++: " << systemClassName << "\n" << e.what() << "\n";
+		Log::GetInstance()->Error(oss.str());
+	}
 }
 
 std::list<editor::PyComponentInfo> PythonEngine::GetPyComponentsInfoFromEntity(Entity entity)

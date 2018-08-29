@@ -149,6 +149,11 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 				if (moduleId != INVALID_MODULE)
 					const InstanceId instanceId = pythonEngine.LoadPySystem(moduleId);
 			}
+			if(CheckJsonExists(systemJson, "systemClassName"))
+			{
+				const std::string systemClassName = systemJson["systemClassName"];
+				pythonEngine.LoadCppExtensionSystem(systemClassName);
+			}
 		}
 	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
@@ -161,7 +166,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		for(auto& entityJson : sceneJson["entities"])
 		{
 			Entity entity = INVALID_ENTITY;
-			entity = m_EntityManager.CreateEntity();
+			entity = m_EntityManager.CreateEntity(INVALID_ENTITY);
 			if(entity == INVALID_ENTITY)
 			{
 				std::ostringstream oss;

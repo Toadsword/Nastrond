@@ -65,7 +65,12 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
     {
         if(m_MaskArray[wantedEntity-1] == INVALID_ENTITY)
         {
-            return wantedEntity;
+			{
+				std::ostringstream oss;
+				oss << "Entity: " << wantedEntity;
+				m_EntityInfos[wantedEntity - 1].name = oss.str();
+			}
+        	return wantedEntity;
         }
     }
 	return INVALID_ENTITY;
@@ -100,7 +105,7 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 	{
 		resizeObserver->OnResize(newSize);
 	}
-	if(auto config = m_Engine.GetConfig().lock())
+	if(const auto config = m_Engine.GetConfig().lock())
 	{
 		config->currentEntitiesNmb = newSize;
 	}

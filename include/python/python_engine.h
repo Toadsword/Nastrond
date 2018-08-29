@@ -80,6 +80,8 @@ public:
 	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
 	InstanceId LoadPySystem(ModuleId moduleId);
 
+	void LoadCppExtensionSystem(std::string moduleName);
+
 	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 	/**
 	 * \brief Get a python component object

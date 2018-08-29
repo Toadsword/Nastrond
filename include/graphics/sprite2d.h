@@ -50,10 +50,8 @@ public:
 	Sprite(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
-	
+	void Update();
 	void Draw(sf::RenderWindow& window);
-
-
 	void SetTexture(sf::Texture* newTexture);
 
 

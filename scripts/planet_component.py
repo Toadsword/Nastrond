@@ -1,6 +1,7 @@
 from SFGE import *
 import math
 
+
 class PlanetComponent(Component):
     gravity_const = 1000.0
     planet_mass: float
