@@ -135,8 +135,8 @@ void Editor::Update(float dt)
 				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
 					auto& shapeManager = m_GraphicsManager.GetShapeManager();
-					auto* shapeInfo = shapeManager.GetShapeInfoPtr(selectedEntity);
-					shapeInfo->DrawOnInspector();
+					auto shapeInfo = shapeManager.GetComponentInfo (selectedEntity);
+					shapeInfo.DrawOnInspector();
 				}
 				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
 				{

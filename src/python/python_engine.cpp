@@ -119,9 +119,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<Graphics2dManager, std::unique_ptr<Graphics2dManager, py::nodelete>> graphics2dManager(m, "Graphics2dManager");
 	graphics2dManager
 		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
-		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference);
+		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
+		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
 
-	py::class_<TextureManager, std::unique_ptr<TextureManager, py::nodelete>> textureManager(m, "TextureManager");
+	py::class_<TextureManager, std::unique_ptr<TextureManager, py::nodelete>, System> textureManager(m, "TextureManager");
 	textureManager
 		.def("load_texture", [](TextureManager* textureManager, std::string name)
 		{
@@ -133,6 +134,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<SpriteManager> spriteManager(m, "SpriteManager");
 	spriteManager
 		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
+	py::class_<ShapeManager> shapeManager(m, "ShapeManager");
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 
 	py::class_<Component, PyComponent> component(m, "Component");
@@ -299,7 +301,7 @@ void PythonEngine::Init()
 		sfgeModule.attr("transform2d_manager") = py::cast(m_Engine.GetTransform2dManager(), py::return_value_policy::reference);
 		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
 
-		sfgeModule.attr("graphics2d_manager") = py::cast(m_Engine.GetGraphics2dManager(), py::return_value_policy::reference);
+		sfgeModule.attr("graphics2d_manager") = py::cast(&(m_Engine.GetGraphics2dManager()), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{

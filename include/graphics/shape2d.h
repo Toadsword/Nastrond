@@ -49,40 +49,18 @@ enum class ShapeType
 class Shape : public Offsetable, public TransformRequiredComponent
 {
 public:
+  	Shape();
 	Shape(Transform2d* transform, sf::Vector2f offset);
-	virtual ~Shape();
+  	Shape ( Shape && ) = default;
+  	Shape ( const Shape & ) = delete;
+  	virtual ~Shape();
 	void Draw(sf::RenderWindow& window) const;
 	void SetFillColor(sf::Color color) const;
 	void Update(float dt) const;
+	void SetShape(std::unique_ptr<sf::Shape> shape);
+	sf::Shape* GetShape();
 protected:
 	std::unique_ptr<sf::Shape> m_Shape = nullptr;
-};
-
-class Circle : public Shape
-{
-public:
-	Circle(Transform2d* transform, sf::Vector2f offset, float radius);
-
-protected:
-	float m_Radius;
-};
-
-class Rectangle : public Shape
-{
-public:
-	Rectangle(Transform2d* transform, sf::Vector2f offset, sf::Vector2f size);
-protected:
-	sf::Vector2f m_Size;
-
-};
-
-
-class Polygon : public Shape
-{
-public:
-	Polygon(Transform2d* transform, sf::Vector2f offset, std::list<sf::Vector2f>& points);
-protected:
-	
 };
 
 namespace editor
@@ -90,35 +68,28 @@ namespace editor
 
 struct ShapeInfo : ComponentInfo
 {
+
+	void DrawOnInspector() override;
+	Shape* shapePtr;
 };
-struct CircleShapeInfo : ShapeInfo
-{
-	void DrawOnInspector() override;
-	Circle* circlePtr;
-}; 
-struct RectShapeInfo : ShapeInfo
-{
-	void DrawOnInspector() override;
-	Rectangle* rectanglePtr;
-}; 
+
 }
 
-class ShapeManager : 
-	public ComponentManager<std::unique_ptr<Shape>, std::unique_ptr<editor::ShapeInfo>>, 
+class ShapeManager :
+	public ComponentManager<Shape, editor::ShapeInfo>,
 	public System,
 	public ResizeObserver
 {
 
 public:
 	ShapeManager(Engine& engine);
+	ShapeManager(ShapeManager&& shapeManager) = default;
 	void Init() override;
 	void Draw(sf::RenderWindow& window);
 	void Update(float dt) override;
 	void Clear() override;
 
-	Shape* GetShapePtr(Entity entity);
-	editor::ShapeInfo* GetShapeInfoPtr(Entity entity);
-	std::unique_ptr<Shape>* AddComponent(Entity entity) override;
+	Shape* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 

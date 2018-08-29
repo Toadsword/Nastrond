@@ -70,4 +70,12 @@ TransformRequiredComponent::TransformRequiredComponent(Transform2d* transform) :
 	m_Transform(transform)
 {
 }
+void TransformRequiredComponent::SetTransform (Transform2d *transform)
+{
+	m_Transform = transform;
+}
+Transform2d *TransformRequiredComponent::GetTransform ()
+{
+	return m_Transform;
+}
 }

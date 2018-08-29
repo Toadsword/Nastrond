@@ -125,7 +125,9 @@ LIST(APPEND SFGE_LIBRARIES
 #LIST(APPEND SFGE_LIBRARIES ${PYTHON_LIBRARY})
 
 #PYBIND11
-
+if(UNIX AND NOT APPLE)
+	set(PYTHON_EXECUTABLE "/usr/bin/python3")
+endif()
 set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
 set(PYBIND11_DIR ${EXTERNAL_DIR}/pybind11/)
 add_subdirectory(${PYBIND11_DIR})

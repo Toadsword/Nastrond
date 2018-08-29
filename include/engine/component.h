@@ -62,6 +62,9 @@ public:
 		m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
 	};
 
+  	ComponentManager(ComponentManager&& componentManager) = default;
+  	ComponentManager(const ComponentManager& componentManager) = delete;
+
 	virtual ~ComponentManager()
 	{
 		m_Components.clear();
