@@ -116,21 +116,21 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	    .def("add_component", &Body2dManager::AddComponent, py::return_value_policy::reference)
 	    .def("get_component", &Body2dManager::GetComponentRef, py::return_value_policy::reference);
 
-	py::class_<Graphics2dManager> graphics2dManager(m, "Graphics2dManager");
+	py::class_<Graphics2dManager, std::unique_ptr<Graphics2dManager, py::nodelete>> graphics2dManager(m, "Graphics2dManager");
 	graphics2dManager
 		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference);
 
-	py::class_<TextureManager> textureManager(m, "TextureManager");
+	py::class_<TextureManager, std::unique_ptr<TextureManager, py::nodelete>> textureManager(m, "TextureManager");
 	textureManager
 		.def("load_texture", [](TextureManager* textureManager, std::string name)
 		{
 			const auto textureId = textureManager->LoadTexture(name);
 			return textureManager->GetTexture(textureId);
 		}, py::return_value_policy::reference);
-  py::class_<sf::Texture, std::unique_ptr<sf::Texture, py::nodelete>> sfTexture(m, "sfTexture");
+	py::class_<sf::Texture, std::unique_ptr<sf::Texture, py::nodelete>> sfTexture(m, "sfTexture");
 
-  py::class_<SpriteManager> spriteManager(m, "SpriteManager");
+	py::class_<SpriteManager> spriteManager(m, "SpriteManager");
 	spriteManager
 		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
@@ -199,7 +199,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("set_fill_color", &Shape::SetFillColor);
 	py::class_<Sprite> sprite(m, "Sprite");
 	sprite
-		.def("set_texture", &Sprite::SetTexture);
+		.def("set_texture", &Sprite::SetTexture, py::return_value_policy::reference);
 	//Utility
 	py::class_<sf::Color> color(m, "Color");
 	color

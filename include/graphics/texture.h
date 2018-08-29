@@ -51,6 +51,8 @@ class TextureManager : public System
 {
 public:
 	using System::System;
+
+	TextureManager& operator=(const TextureManager&) = delete;
 	/**
 	 * \brief Load all the textures in the data in Shipping mode
 	 */

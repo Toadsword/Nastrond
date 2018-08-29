@@ -83,6 +83,7 @@ class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>,
 {
 public:
 	SpriteManager(Engine& engine);
+	SpriteManager& operator=(const SpriteManager&) = delete;
 	void Init() override;
 	void Update(float dt) override;
 	void Draw(sf::RenderWindow& window);
