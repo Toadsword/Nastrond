@@ -70,7 +70,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def("init", &System::Init)
 		.def("update", &System::Update)
-		.def("fixed_update", &System::FixedUpdate);
+		.def("fixed_update", &System::FixedUpdate)
+		.def("draw", &System::Draw);
 
 	py::class_<SceneManager> sceneManager(m, "SceneManager");
 	sceneManager
@@ -356,6 +357,15 @@ void PythonEngine::FixedUpdate()
 	{
 		if (pySystem != nullptr)
 			pySystem->FixedUpdate();
+	}
+}
+
+void PythonEngine::Draw()
+{
+	for (auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->Draw();
 	}
 }
 

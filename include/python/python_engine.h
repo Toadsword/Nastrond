@@ -67,6 +67,7 @@ public:
 	*/
 	void Update(float dt) override;
 	void FixedUpdate() override;
+	void Draw() override;
 	/**
 	* \brief Finalize the python interpreter
 	*/

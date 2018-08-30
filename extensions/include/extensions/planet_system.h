@@ -27,12 +27,12 @@ SOFTWARE.
 #include <engine/system.h>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <Box2D/Common/b2Math.h>
-#include "graphics/graphics2d.h"
+#include <graphics/graphics2d.h>
 
 
 namespace sfge
 {
-class Transform2d;
+struct Transform2d;
 class Transform2dManager;
 class Body2dManager;
 class TextureManager;
@@ -56,11 +56,13 @@ public:
 
 	void FixedUpdate() override;
 
+	void Draw() override;
+
 private:
-	b2Vec2 CalculateInitSpeed(Transform2d* transformPtr);
-	b2Vec2 CalculateNewForce(Transform2d* transformPtr);
-	float Magnitude(sf::Vector2f v);
-	float Magnitude(b2Vec2 v);
+	b2Vec2 CalculateInitSpeed(Transform2d* transformPtr) const;
+	b2Vec2 CalculateNewForce(Transform2d* transformPtr) const;
+	static float Magnitude(sf::Vector2f v);
+	static float Magnitude(b2Vec2 v);
 
 	Transform2dManager& m_Transform2DManager;
 	Body2dManager& m_Body2DManager;
@@ -79,7 +81,7 @@ private:
 
 	sf::Vector2f screenSize;
 #ifdef WITH_VERTEXARRAY
-	sf::VertexArray m_VertexArray;
+	sf::VertexArray m_VertexArray{sf::Quads, 4*entitiesNmb};
 	Graphics2dManager& m_Graphics2DManager;
 	sf::Texture* texture = nullptr;
 	sf::Vector2f textureSize;

@@ -67,12 +67,33 @@ void PySystem::FixedUpdate()
 			System,
 			"fixed_update",
 			FixedUpdate,
-		);
+			);
 	}
 	catch (std::runtime_error& e)
 	{
 		std::stringstream oss;
 		oss << "Python error on PySystem FixedUpdate\n" << e.what();
+		Log::GetInstance()->Error(oss.str());
+	}
+}
+
+void PySystem::Draw()
+{
+	try
+	{
+
+		py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
+			void,
+			System,
+			"draw",
+			Draw,
+			);
+	}
+	catch (std::runtime_error& e)
+	{
+		std::stringstream oss;
+		oss << "Python error on PySystem Draw\n" << e.what();
 		Log::GetInstance()->Error(oss.str());
 	}
 }

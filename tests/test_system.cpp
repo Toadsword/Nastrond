@@ -31,7 +31,7 @@ SOFTWARE.
 
 TEST(TestSystem, PlanetPyComponent)
 {
-	const int entityNmb = 1'000;
+	const int entityNmb = 10'000;
 	sfge::Engine engine;
 
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
@@ -54,11 +54,10 @@ TEST(TestSystem, PlanetPyComponent)
 			{ "type", static_cast<int>(sfge::ComponentType::TRANSFORM2D) },
 		};
 
-		json rectShapeJson =
+		json spriteJson =
 		{
-			{ "radius", 5.0f },
-			{ "type", static_cast<int>(sfge::ComponentType::SHAPE2D) },
-			{ "shape_type", static_cast<int>(sfge::ShapeType::CIRCLE) }
+			{ "path", "data/sprites/round.png" },
+			{ "type", static_cast<int>(sfge::ComponentType::SPRITE2D) }
 		};
 
 		json pyComponentJson =
@@ -77,7 +76,7 @@ TEST(TestSystem, PlanetPyComponent)
 		{
 			{ "name", oss.str() },
 			{ "components",{
-				transformJson, rectShapeJson, bodyJson, pyComponentJson
+				transformJson, spriteJson, bodyJson, pyComponentJson
 			}
 		}
 		};

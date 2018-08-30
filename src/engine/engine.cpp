@@ -154,6 +154,7 @@ void Engine::Start()
 		m_Editor.Update(dt.asSeconds());
 
 		m_Graphics2dManager.Update(dt.asSeconds());
+		m_PythonEngine.Draw();
 		m_Editor.Draw();
 		m_Graphics2dManager.Display();
 	}

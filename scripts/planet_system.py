@@ -15,7 +15,7 @@ class PlanetSystem(System):
     gravity_const = 1000.0
 
     def init(self):
-        self.entity_nmb = 1000
+        self.entity_nmb = 10000
         self.screen_size = engine.config.screen_size
         entity_manager.resize(self.entity_nmb)
 

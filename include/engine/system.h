@@ -54,6 +54,8 @@ public:
 	* \brief Called directly after the physics finished his job
 	*/
 	virtual void FixedUpdate() {}
+
+	virtual void Draw(){}
 	/**
 	* \brief Used instead of the destructor to delete all heap created structure and finalize
 	*/
