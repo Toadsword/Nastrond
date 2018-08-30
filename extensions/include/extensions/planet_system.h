@@ -76,12 +76,12 @@ private:
 	const int entitiesNmb = 10'000;
 
 #ifndef WITH_PHYSICS
-	std::vector<sf::Vector2f> velocity{entitiesNmb};
+	std::vector<sf::Vector2f> velocity{(unsigned long) entitiesNmb};
 #endif
 
 	sf::Vector2f screenSize;
 #ifdef WITH_VERTEXARRAY
-	sf::VertexArray m_VertexArray{sf::Quads, 4*entitiesNmb};
+	sf::VertexArray m_VertexArray{sf::Quads, static_cast<size_t>(4 * entitiesNmb)};
 	Graphics2dManager& m_Graphics2DManager;
 	sf::Texture* texture = nullptr;
 	sf::Vector2f textureSize;

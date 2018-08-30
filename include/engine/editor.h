@@ -60,7 +60,7 @@ public:
 	*/
 	void Update(float dt) override;
 	void ProcessEvent(sf::Event& event) const;
-	void Draw();
+	void Draw() override;
 	/**
 	* \brief Finalize and delete everything created in the SceneManager
 	*/

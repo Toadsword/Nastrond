@@ -208,7 +208,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 
 			auto circleShape = std::make_unique <sf::CircleShape>();
 			circleShape->setRadius (radius);
-			circleShape->setOrigin (radius/2.0f, radius/2.0f);
+			circleShape->setOrigin (radius, radius);
 			shape.SetShape (std::move(circleShape));
 			shape.Update (0.0f);
 		}
@@ -228,7 +228,8 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			auto rect = std::make_unique<sf::RectangleShape>();
 			rect->setSize (size);
 			rect->setOrigin (size.x/2.0f, size.y/2.0f);
-
+            shape.SetShape (std::move (rect));
+            shape.Update (0.0f);
 			
 		}
 			break;

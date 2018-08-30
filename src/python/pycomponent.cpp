@@ -93,7 +93,7 @@ void PyComponent::Update(float dt)
 		{
 		PYBIND11_OVERLOAD_NAME(
 			void,
-			PyComponent,
+			Component,
 			"fixed_update",
 			FixedUpdate,
 			fixedDeltaTime

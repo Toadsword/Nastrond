@@ -34,6 +34,7 @@ TEST(TextureTest, BadTexture)
 	sfge::Engine engine;
 	auto config = std::make_unique<sfge::Configuration>();
 	config->devMode = false;
+	config->windowLess = true;
 	engine.Init (std::move (config));
 
 	auto& textureManager = engine.GetGraphics2dManager().GetTextureManager();
