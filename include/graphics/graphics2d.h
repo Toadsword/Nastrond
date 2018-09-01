@@ -40,6 +40,10 @@ class Graphics2dManager : public System
 {
 public:
 	using System::System;
+
+  	Graphics2dManager& operator=(const Graphics2dManager&) = delete;
+
+  	Graphics2dManager(Graphics2dManager&& graphics2dManager) = default;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/

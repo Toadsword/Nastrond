@@ -36,11 +36,10 @@ SOFTWARE.
 
 
 #include <engine/system.h>
-#include "engine/globals.h"
+#include <engine/globals.h>
 
 namespace sfge
 {
-class GraphicsManager;
 
 using TextureId = unsigned;
 const TextureId INVALID_TEXTURE = 0U;
@@ -52,6 +51,8 @@ class TextureManager : public System
 {
 public:
 	using System::System;
+
+	TextureManager& operator=(const TextureManager&) = delete;
 	/**
 	 * \brief Load all the textures in the data in Shipping mode
 	 */
@@ -81,7 +82,7 @@ private:
 	void LoadTextures(std::string dataDirname);
 
 	std::vector<std::string> m_TexturePaths {INIT_ENTITY_NMB * 4};
-	std::vector<std::unique_ptr<sf::Texture>> m_Textures { INIT_ENTITY_NMB * 4 };
+	std::vector<sf::Texture> m_Textures { INIT_ENTITY_NMB * 4 };
 	std::vector<size_t> m_TextureIdsRefCounts = std::vector<size_t>(INIT_ENTITY_NMB * 4, 0 );
 	TextureId m_IncrementId = 0U;
 

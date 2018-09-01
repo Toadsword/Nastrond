@@ -116,9 +116,10 @@ public:
 	*/
 	sf::SoundBuffer* GetSoundBuffer(unsigned int sound_buffer_id);
 
+	Sound* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
-
+	
 	void Reset();
 
 	void Collect();

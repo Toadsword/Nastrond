@@ -44,7 +44,7 @@ public:
 	/**
 	* \brief Called to initialize the module
 	*/
-	virtual void Init() {}
+	virtual void Init();
 	/**
 	* \brief Called every frame to update the module
 	* \param dt The delta time since last frame
@@ -54,6 +54,8 @@ public:
 	* \brief Called directly after the physics finished his job
 	*/
 	virtual void FixedUpdate() {}
+
+	virtual void Draw(){}
 	/**
 	* \brief Used instead of the destructor to delete all heap created structure and finalize
 	*/
@@ -71,10 +73,11 @@ public:
 	bool GetEnable() const;
 
 	Engine& GetEngine() const;
-
+	bool GetInitlialized() const;
 protected:
 	bool m_Enable = true;
 	Engine& m_Engine;
+	bool m_Initialized = false;
 };
 }
 #endif //SFGE_SYSTEM_H

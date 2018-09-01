@@ -32,11 +32,11 @@ namespace sfge
 {
 py::object import(const std::string& module, const std::string& path, py::object& globals)
 {
-	{
+	/*{
 		std::ostringstream oss;
 		oss << "Loading python module: " << module << " with globals: " << py::str(globals).cast<std::string>();
 		sfge::Log::GetInstance()->Msg(oss.str());
-	}
+	}*/
 
 	const py::dict locals;
 	locals["module_name"] = py::cast(module); // have to cast the std::string first

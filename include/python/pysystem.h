@@ -31,8 +31,12 @@ namespace sfge
 {
 class PySystem : public System
 {
+public:
+	using System::System;
 	void Init() override;
 	void Update(float dt) override;
+	void FixedUpdate() override;
+	void Draw() override;
 
 };
 }

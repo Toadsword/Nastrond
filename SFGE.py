@@ -4,8 +4,17 @@
 class Vector2f:
     """SFML and default SFGE Vector type when not working on the physic"""
     def __init__(self):
+        self.x = 0.0
+        self.y = 0.0
+        self.magnitude = 0.0
+
+
+class Vector2i:
+    """SFML and default SFGE Vector type when not working on the physic"""
+    def __init__(self):
         self.x = 0
         self.y = 0
+        self.magnitude = 0.0
 
 
 class b2Vec2:
@@ -13,6 +22,7 @@ class b2Vec2:
     def __init__(self):
         self.x = 0.0
         self.y = 0.0
+        self.magnitude = 0.0
 
 
 class Timer:
@@ -53,7 +63,7 @@ class System:
         pass
 
 class ComponentManager():
-    def create_component(self, entity):
+    def add_component(self, entity):
         pass
 
     def destroy_component(self, entity):
@@ -70,8 +80,10 @@ class TextureManager(System):
     pass    
 
 
-class GraphicsManager(System):
-    pass
+class Graphics2dManager(System):
+    def __init__(self):
+        self.texture_manager = TextureManager()
+        self.sprite_manager = SpriteManager()
 
 
 class SceneManager(System):
@@ -133,6 +145,7 @@ class Component:
     def get_component(self, type):
         pass
 
+
 class Transform2d():
     """Mandatory Component attached to the GameObject containing all the geometric important data of the GameObject"""
     def __init__(self):
@@ -140,11 +153,14 @@ class Transform2d():
         self.scale = Vector2f()
         self.angle = 0.0
 
+
 class Body2d:
     def __init__(self):
         self.velocity = b2Vec2()
+        self.magnitude = 0.0
 
-
+    def apply_force(self, force:b2Vec2):
+        pass
 
 class KeyboardManager:
     class Key:
@@ -185,4 +201,5 @@ scene_manager = SceneManager()
 transform2d_manager = Transform2dManager()
 entity_manager = EntityManager()
 physics2d_manager = Physics2dManager()
-
+body2d_manager = Body2dManager()
+graphics2d_manager = Graphics2dManager()

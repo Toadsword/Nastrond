@@ -41,7 +41,7 @@ namespace sfge
 {
 Editor::Editor(Engine& engine):
 	System(engine),
-	m_GraphicsManager(m_Engine.GetGraphicsManager()),
+	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
 	m_SceneManager(m_Engine.GetSceneManager()),
 	m_EntityManager(m_Engine.GetEntityManager()),
 	m_TransformManager(m_Engine.GetTransform2dManager()),
@@ -135,8 +135,8 @@ void Editor::Update(float dt)
 				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
 					auto& shapeManager = m_GraphicsManager.GetShapeManager();
-					auto* shapeInfo = shapeManager.GetShapeInfoPtr(selectedEntity);
-					shapeInfo->DrawOnInspector();
+					auto shapeInfo = shapeManager.GetComponentInfo (selectedEntity);
+					shapeInfo.DrawOnInspector();
 				}
 				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
 				{

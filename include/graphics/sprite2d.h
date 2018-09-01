@@ -50,10 +50,8 @@ public:
 	Sprite(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
-	
+	void Update();
 	void Draw(sf::RenderWindow& window);
-
-
 	void SetTexture(sf::Texture* newTexture);
 
 
@@ -83,13 +81,14 @@ class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>,
 {
 public:
 	SpriteManager(Engine& engine);
+	SpriteManager& operator=(const SpriteManager&) = delete;
 	void Init() override;
 	void Update(float dt) override;
 	void Draw(sf::RenderWindow& window);
 
 	void Reset();
 	void Collect() override;
-
+	Sprite* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 

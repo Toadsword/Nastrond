@@ -52,7 +52,7 @@ namespace sfge
 	instance = this;
 	m_EntityManager = std::make_shared<EntityManager>();
 	m_Transform2dManager = std::make_shared<Transform2dManager>();
-	m_GraphicsManager = std::make_shared<Graphics2dManager>();
+	m_Graphics2dManager = std::make_shared<Graphics2dManager>();
 	m_AudioManager = std::make_shared<AudioManager>();
 	m_SceneManager = std::make_shared<SceneManager>();
 	m_InputManager = std::make_shared<InputManager>();
@@ -100,7 +100,7 @@ void Engine::InitModules()
 
 
 	m_EntityManager.Init();
-	m_GraphicsManager.Init();
+	m_Graphics2dManager.Init();
 	m_AudioManager.Init();
 	m_SceneManager.Init();
 	m_InputManager.Init();
@@ -108,7 +108,7 @@ void Engine::InitModules()
 	m_PhysicsManager.Init();
 	m_Editor.Init();
 
-	m_Window = m_GraphicsManager.GetWindow();
+	m_Window = m_Graphics2dManager.GetWindow();
 	running = true;
 }
 
@@ -139,11 +139,10 @@ void Engine::Start()
 		}
 		
 		m_InputManager.Update(dt.asSeconds());
-		sf::Time fixedUpdateTime = globalClock.getElapsedTime() + deltaFixedUpdateTime - previousFixedUpdateTime;
+		sf::Time fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
 			m_PhysicsManager.FixedUpdate();
-			deltaFixedUpdateTime = fixedUpdateTime - sf::seconds(m_Config->fixedDeltaTime);
 			previousFixedUpdateTime = globalClock.getElapsedTime();
 			m_PythonEngine.FixedUpdate();
 			m_SceneManager.FixedUpdate();
@@ -154,9 +153,10 @@ void Engine::Start()
 
 		m_Editor.Update(dt.asSeconds());
 
-		m_GraphicsManager.Update(dt.asSeconds());
+		m_Graphics2dManager.Update(dt.asSeconds());
+		m_PythonEngine.Draw();
 		m_Editor.Draw();
-		m_GraphicsManager.Display();
+		m_Graphics2dManager.Display();
 	}
 	Destroy();
 }
@@ -164,7 +164,7 @@ void Engine::Start()
 void Engine::Destroy() 
 {
 	m_EntityManager.Destroy();
-	m_GraphicsManager.Destroy();
+	m_Graphics2dManager.Destroy();
 	m_AudioManager.Destroy();
 	m_SceneManager.Destroy();
 	m_InputManager.Destroy();
@@ -177,7 +177,7 @@ void Engine::Destroy()
 void Engine::Clear() 
 {
 	m_EntityManager.Clear();
-	m_GraphicsManager.Clear();
+	m_Graphics2dManager.Clear();
 	m_AudioManager.Clear();
 	m_SceneManager.Clear();
 	m_InputManager.Clear();
@@ -190,7 +190,7 @@ void Engine::Collect()
 {
 
 	m_EntityManager.Collect();
-	m_GraphicsManager.Collect();
+	m_Graphics2dManager.Collect();
 	m_AudioManager.Collect();
 	m_SceneManager.Collect();
 	m_InputManager.Collect();
@@ -205,9 +205,9 @@ std::weak_ptr<Configuration> Engine::GetConfig() const
 	return std::weak_ptr<Configuration>(m_Config);
 }
 
-Graphics2dManager& Engine::GetGraphicsManager() 
+Graphics2dManager& Engine::GetGraphics2dManager() 
 {
-	return (m_GraphicsManager);
+	return (m_Graphics2dManager);
 }
 
 AudioManager& Engine::GetAudioManager() 

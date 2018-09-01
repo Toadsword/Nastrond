@@ -31,6 +31,9 @@ SOFTWARE.
 
 namespace sfge
 {
+Configuration::~Configuration()
+{
+}
 std::unique_ptr<Configuration> Configuration::LoadConfig(std::string configFilename)
 {
 	{

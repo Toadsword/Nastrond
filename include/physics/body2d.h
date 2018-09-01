@@ -71,7 +71,7 @@ public:
 	Body2dManager(Engine& engine);
 	void Init() override;
 	void FixedUpdate() override;
-
+	Body2d* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 

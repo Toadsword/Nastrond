@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <engine/engine.h>
+#include <engine/config.h>
 #include <engine/entity.h>
 #include <engine/globals.h>
 
@@ -63,7 +65,12 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
     {
         if(m_MaskArray[wantedEntity-1] == INVALID_ENTITY)
         {
-            return wantedEntity;
+			{
+				std::ostringstream oss;
+				oss << "Entity: " << wantedEntity;
+				m_EntityInfos[wantedEntity - 1].name = oss.str();
+			}
+        	return wantedEntity;
         }
     }
 	return INVALID_ENTITY;
@@ -71,17 +78,18 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
 
 bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 {
-	return (m_MaskArray[entity - 1] & (int)componentType) == (int)componentType;
+	return (m_MaskArray[entity - 1] & static_cast<int>(componentType)) == static_cast<int>(componentType);
 }
 
 void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
 {
 
-	m_MaskArray[entity - 1] = m_MaskArray[entity - 1] | (int)componentType;
+	m_MaskArray[entity - 1] = m_MaskArray[entity - 1] | static_cast<int>(componentType);
 }
 
 void EntityManager::RemoveComponentType(Entity entity, ComponentType componentType)
 {
+	m_MaskArray[entity - 1] &= ~static_cast<int>(componentType);
 }
 
 editor::EntityInfo& EntityManager::GetEntityInfo(Entity entity)
@@ -93,6 +101,14 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 {
 	m_MaskArray.resize(newSize);
 	m_EntityInfos.resize(newSize);
+	for (auto* resizeObserver : m_ResizeObsververs)
+	{
+		resizeObserver->OnResize(newSize);
+	}
+	if(const auto config = m_Engine.GetConfig().lock())
+	{
+		config->currentEntitiesNmb = newSize;
+	}
 }
 
 void EntityManager::AddObserver(ResizeObserver* resizeObserver)

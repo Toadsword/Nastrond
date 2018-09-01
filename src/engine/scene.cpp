@@ -137,9 +137,28 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		oss << "Loading scene: " << sceneInfo->name;
 		Log::GetInstance()->Msg(oss.str());
 	}
+	if (CheckJsonParameter(sceneJson, "systems", json::value_t::array))
+	{
+		for (auto& systemJson : sceneJson["systems"])
+		{
+			auto& pythonEngine = m_Engine.GetPythonEngine();
+			if (CheckJsonExists(systemJson, "script_path"))
+			{
+				std::string path = systemJson["script_path"];
+				const ModuleId moduleId = pythonEngine.LoadPyModule(path);
+				if (moduleId != INVALID_MODULE)
+					const InstanceId instanceId = pythonEngine.LoadPySystem(moduleId);
+			}
+			if(CheckJsonExists(systemJson, "systemClassName"))
+			{
+				const std::string systemClassName = systemJson["systemClassName"];
+				pythonEngine.LoadCppExtensionSystem(systemClassName);
+			}
+		}
+	}
 	if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
 	{
-		const auto entityNmb = sceneJson["entites"].size();
+		const auto entityNmb = sceneJson["entities"].size();
 		if(entityNmb > INIT_ENTITY_NMB)
 		{
 			m_EntityManager.ResizeEntityNmb(entityNmb);
@@ -147,7 +166,14 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		for(auto& entityJson : sceneJson["entities"])
 		{
 			Entity entity = INVALID_ENTITY;
-			entity = m_EntityManager.CreateEntity();
+			entity = m_EntityManager.CreateEntity(INVALID_ENTITY);
+			if(entity == INVALID_ENTITY)
+			{
+				std::ostringstream oss;
+				oss << "[Error] Scene: not enough entities left";
+				Log::GetInstance()->Error(oss.str());
+				continue;
+			}
 			if(CheckJsonExists(entityJson, "name"))
 			{
 				m_EntityManager.GetEntityInfo(entity).name = entityJson["name"].get<std::string>();
@@ -179,7 +205,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						}
 						case ComponentType::SHAPE2D:
 						{
-							auto& graphicsManager = m_Engine.GetGraphicsManager();
+							auto& graphicsManager = m_Engine.GetGraphics2dManager();
 							auto& shapeManager = graphicsManager.GetShapeManager();
 							shapeManager.CreateComponent(componentJson, entity);
 							m_EntityManager.AddComponentType(entity, ComponentType::SHAPE2D);
@@ -195,7 +221,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						}
 						case ComponentType::SPRITE2D:
 						{
-							auto& graphicsManager = m_Engine.GetGraphicsManager();
+							auto& graphicsManager = m_Engine.GetGraphics2dManager();
 							auto& spriteManager = graphicsManager.GetSpriteManager();
 							spriteManager.CreateComponent(componentJson, entity);
 							m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
@@ -216,7 +242,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 									std::string path = componentJson["script_path"];
 									const ModuleId moduleId = pythonEngine.LoadPyModule(path);
 									if(moduleId != INVALID_MODULE)
-										const InstanceId instanceId = pythonEngine.LoadPyClass(moduleId, entity);
+										const InstanceId instanceId = pythonEngine.LoadPyComponent(moduleId, entity);
 								}
 								break;
 							}
@@ -247,7 +273,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		Log::GetInstance()->Error(oss.str());
 	}
 
-	//TODO remove previous scene
+	//remove previous scene assets
 
 	m_Engine.Collect();
 

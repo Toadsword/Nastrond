@@ -66,7 +66,7 @@ public:
 	void Clear() override;
 
 	EntityMask GetMask(Entity entity);
-	Entity CreateEntity(Entity wantedEntity = INVALID_ENTITY);
+	Entity CreateEntity(Entity wantedEntity);
 	bool HasComponent(Entity entity, ComponentType componentType);
 	void AddComponentType(Entity entity, ComponentType componentType);
 	void RemoveComponentType(Entity entity, ComponentType componentType);
@@ -78,7 +78,7 @@ public:
 private:
 	std::vector<EntityMask> m_MaskArray{ INIT_ENTITY_NMB };
 	std::vector<editor::EntityInfo> m_EntityInfos{ INIT_ENTITY_NMB };
-	std::vector<ResizeObserver*> m_ResizeObsververs{10, nullptr};
+	std::vector<ResizeObserver*> m_ResizeObsververs;
 };
 /*
 template <>

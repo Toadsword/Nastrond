@@ -56,6 +56,7 @@ static std::set<std::string> imgExtensionSet
 
 void TextureManager::Init()
 {
+	System::Init();
 	if(const auto config = m_Engine.GetConfig().lock())
 	{
 		if(config->devMode)
@@ -102,7 +103,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	auto textureId = INVALID_TEXTURE;
 	for (TextureId checkedId = 1U; checkedId <= m_IncrementId; checkedId++)
 	{
-		if (filename == m_TexturePaths[checkedId])
+		if (filename == m_TexturePaths[checkedId-1])
 		{
 			textureId = checkedId;
 		}
@@ -112,15 +113,15 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	{
 		
 		//Check if the texture was destroyed
-		if (m_Textures[textureId-1] != nullptr)
+		if (m_Textures[textureId - 1].getNativeHandle () != 0U)
 		{
 			m_TextureIdsRefCounts[textureId-1]++;
 			return textureId;
 		}
 		else
 		{
-			auto texture = std::make_unique<sf::Texture>();
-			if (!texture->loadFromFile(filename))
+			auto& texture = m_Textures[textureId-1];
+			if (!texture.loadFromFile(filename))
 			{
 				std::ostringstream oss;
 				oss << "[ERROR] Could not load texture file: " << filename;
@@ -128,44 +129,40 @@ TextureId TextureManager::LoadTexture(std::string filename)
 				return INVALID_TEXTURE;
 			}
 			m_TextureIdsRefCounts[textureId-1] = 1U;
-			m_Textures[textureId-1] = std::move(texture);
 			return m_IncrementId;
 		}
 	}
-	else
+	//Texture was never loaded
+	if (FileExists(filename))
 	{
-		//Texture was never loaded
-		if (FileExists(filename))
-		{
-
-			auto texture = std::make_unique<sf::Texture>();
-			if (!texture->loadFromFile(filename))
-			{
-				std::ostringstream oss;
-				oss << "[ERROR] Could not load texture file: " << filename;
-				Log::GetInstance()->Error(oss.str());
-				return INVALID_TEXTURE;
-			}
-
-			m_IncrementId++;
-			m_TexturePaths[m_IncrementId-1] = filename;
-			m_TextureIdsRefCounts[m_IncrementId-1] = 1U;
-			m_Textures[m_IncrementId-1] = std::move(texture);
-			return m_IncrementId;
-		}
-		else
+		textureId = m_IncrementId+1;
+		auto& texture = m_Textures[textureId-1] ;
+		if (!texture.loadFromFile(filename))
 		{
 			std::ostringstream oss;
 			oss << "[ERROR] Could not load texture file: " << filename;
 			Log::GetInstance()->Error(oss.str());
+			return INVALID_TEXTURE;
 		}
+
+		m_TexturePaths[textureId-1] = filename;
+		m_TextureIdsRefCounts[textureId-1] = 1U;
+
+		m_IncrementId++;
+		return textureId;
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "[ERROR] Could not load texture file: " << filename;
+		Log::GetInstance()->Error(oss.str());
 	}
 	return INVALID_TEXTURE;
 }
 
 sf::Texture* TextureManager::GetTexture(TextureId textureId)
 {
-	return m_Textures[textureId-1].get();
+	return &m_Textures[textureId-1];
 }
 
 bool TextureManager::HasValidExtension(std::string filename)
@@ -199,14 +196,14 @@ void TextureManager::Collect()
 	std::list<TextureId> unusedTextureIds;
 	for (auto i = 0U; i < m_TextureIdsRefCounts.size(); i++)
 	{
-		if(m_Textures[i] && m_TextureIdsRefCounts[i] == 0U )
+		if(m_Textures[i].getNativeHandle () != 0U && m_TextureIdsRefCounts[i] == 0U )
 		{
 			unusedTextureIds.push_back(i+1);
 		}
 	}
 	for (auto unusedTextureId : unusedTextureIds)
 	{
-		m_Textures[unusedTextureId-1] = nullptr;
+		m_Textures[unusedTextureId-1] = sf::Texture();
 	}
 }
 
