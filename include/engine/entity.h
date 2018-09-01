@@ -30,7 +30,6 @@ SOFTWARE.
 #include <engine/editor.h>
 #include <engine/globals.h>
 #include <engine/component.h>
-#include <any>
 
 namespace sfge
 {

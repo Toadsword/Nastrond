@@ -13,13 +13,8 @@ namespace sfge
 {
 bool FileExists(std::string & filename)
 {
-#ifndef __APPLE__
 	fs::path p = filename;
 	return fs::exists(p);
-#else
-    std::ifstream infile(filename);
-    return infile.good();
-#endif
 }
 bool IsRegularFile(std::string& filename)
 {
