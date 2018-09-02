@@ -17,7 +17,7 @@ void PySystem::Init()
 {
 	try
 	{
-		py::gil_scoped_release release;
+		//py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			System,
@@ -39,7 +39,7 @@ void PySystem::Update(float dt)
 	try
 	{
 
-		py::gil_scoped_release release;
+		//py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			System,
@@ -61,7 +61,7 @@ void PySystem::FixedUpdate()
 	try
 	{
 
-		py::gil_scoped_release release;
+		//py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			System,
@@ -82,7 +82,7 @@ void PySystem::Draw()
 	try
 	{
 
-		py::gil_scoped_release release;
+		//py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			System,

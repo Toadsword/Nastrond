@@ -44,7 +44,7 @@ Component::Component(Engine& engine, Entity entity) :
 }
 void PyComponent::Init()
 {
-	Log::GetInstance()->Msg("Init PyComponent from C++");
+	//Log::GetInstance()->Msg("Init PyComponent from C++");
 	try
 	{
         
@@ -91,13 +91,15 @@ void PyComponent::Update(float dt)
 	{
 		try
 		{
-		PYBIND11_OVERLOAD_NAME(
-			void,
-			Component,
-			"fixed_update",
-			FixedUpdate,
-			fixedDeltaTime
-		);
+
+			//py::gil_scoped_release release;
+			PYBIND11_OVERLOAD_NAME(
+				void,
+				Component,
+				"fixed_update",
+				FixedUpdate,
+				fixedDeltaTime
+			);
 		}
 		catch (std::runtime_error& e)
 		{
@@ -158,7 +160,7 @@ void PyComponent::OnCollisionEnter(ColliderData * collider)
 	{
 	try
 	{
-        py::gil_scoped_release release;
+        //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
@@ -178,7 +180,7 @@ void PyComponent::OnTriggerEnter(ColliderData * collider)
 {
 	try
 	{
-        py::gil_scoped_release release;
+        //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
@@ -198,7 +200,7 @@ void PyComponent::OnCollisionExit(ColliderData * collider)
 {
 	try
 	{
-        py::gil_scoped_release release;
+        //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
@@ -218,7 +220,7 @@ void PyComponent::OnTriggerExit(ColliderData * collider)
 {
 	try
 	{
-        py::gil_scoped_release release;
+        //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,

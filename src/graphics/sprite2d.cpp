@@ -156,9 +156,8 @@ void SpriteManager::Collect()
 
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 {
-
-	Sprite newSprite;
-	editor::SpriteInfo newSpriteInfo;
+	auto & newSprite = m_Components[entity - 1];
+	auto& newSpriteInfo = m_ComponentsInfo[entity - 1];
 	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		std::string path = componentJson["path"].get<std::string>();
@@ -170,13 +169,14 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 			const TextureId textureId = textureManager.LoadTexture(path);
 			if (textureId != INVALID_TEXTURE)
 			{
-				{
+				/*{
 					std::ostringstream oss;
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
-				}
+				}*/
 				texture = textureManager.GetTexture(textureId);
 				newSprite.SetTexture(texture);
+				newSprite.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
 				newSpriteInfo.textureId = textureId;
 			}
 			else
@@ -201,8 +201,7 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 	{
 		newSprite.SetLayer(componentJson["layer"]);
 	}
-	m_Components[entity - 1] = newSprite;
-	m_ComponentsInfo[entity - 1] = newSpriteInfo;
+
 }
 
 void SpriteManager::DestroyComponent(Entity entity)
