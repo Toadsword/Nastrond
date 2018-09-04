@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <editor/editor_info.h>
+#include <editor/profiler.h>
 
 namespace sfge
 {
@@ -80,7 +81,7 @@ protected:
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;
-
+	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};
 	Entity selectedEntity = INVALID_ENTITY;
 };
 

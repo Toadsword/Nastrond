@@ -203,7 +203,7 @@ endforeach()
 SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )
 add_executable(SFGE_TEST ${TEST_FILES} )
-target_link_libraries(SFGE_TEST gtest SFGE_COMMON)
+target_link_libraries(SFGE_TEST gtest gtest_main SFGE_COMMON)
 if(APPLE )
 	set_target_properties(SFGE_TEST PROPERTIES
 		ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}

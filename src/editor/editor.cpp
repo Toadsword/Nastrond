@@ -149,6 +149,7 @@ void Editor::Update(float dt)
 
 			}
 			ImGui::End();
+			m_ProfilerWindow.Update();
 		}
 		
 	}

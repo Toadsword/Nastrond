@@ -123,11 +123,11 @@ void PlanetSystem::UpdateRange(int startIndex, int endIndex)
 void PlanetSystem::FixedUpdate()
 {
 #ifdef MULTI_THREAD
-	auto& threadPool = m_Engine.GetThreadPool ();
-	int coreNmb = threadPool.size ();
+	auto& threadPool = m_Engine.GetThreadPool();
+	const auto coreNmb = threadPool.size();
 
-	std::future<void> joinFutures[coreNmb];
-	for(int threadIndex = 0; threadIndex<coreNmb;threadIndex++)
+	std::vector<std::future<void>> joinFutures(coreNmb);
+	for(int threadIndex = 0; threadIndex < coreNmb;threadIndex++)
 	{
 		int start = (threadIndex + 1)*entitiesNmb/ (coreNmb + 1);
 		int end = (threadIndex + 2)*entitiesNmb / (coreNmb + 1)-1;

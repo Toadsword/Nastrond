@@ -21,9 +21,48 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#include <iostream>
+#include <fstream>
+#include <xxhash.hpp>
 #include <gtest/gtest.h>
 
-int main(int argc, char **argv) {
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+TEST(TestAsset, AssetImport)
+{
+	std::vector<std::string> filenames{
+		"data/sprites/other_play.png",
+		"data/editor/play.png",
+		"data/editor/star.png",
+		"fake/path/file.png",
+		"other/fake/path/file.png",
+	};
+	for (auto& filename : filenames)
+	{
+		xxh::hash_state_t<64> hash_stream(0);
+		hash_stream.update(filename);
+		if (std::ifstream input{ filename , std::ios::binary })
+		{
+			input.unsetf(std::ios::skipws);
+			input.seekg(0, std::ios::end);
+			auto fileSize = input.tellg();
+			input.seekg(0, std::ios::beg);
+			std::vector<char> content;
+			content.reserve(fileSize);
+
+			// read the data:
+			content.insert(content.begin(),
+				std::istream_iterator<char>(input),
+				std::istream_iterator<char>());
+			hash_stream.update(content);
+		}
+		else
+		{
+			std::cerr << "Could not open filename: " << filename << "\n";
+		}
+		xxh::hash_t<64> final_hash = hash_stream.digest();
+		std::cout << "Filename: " << filename << " Hash: " << final_hash << "\n";
+	}
+	
+#ifdef WIN32
+	system("pause");
+#endif
 }
