@@ -44,6 +44,7 @@ SOFTWARE.
 #include <engine/entity.h>
 #include <engine/transform2d.h>
 #include <editor/editor.h>
+#include <editor/profiler.h>
 
 namespace sfge
 {
@@ -99,8 +100,7 @@ public:
 	Editor& GetEditor();
 
 	ctpl::thread_pool& GetThreadPool();
-	sf::Time GetFixedUpdateTime();
-	sf::Time GetUpdateTime();
+	ProfilerFrameData& GetProfilerFrameData();
 	bool running = false;
 protected:
 	void InitModules();
@@ -120,7 +120,7 @@ protected:
 	EntityManager m_EntityManager {*this};
 	Transform2dManager m_TransformManager {*this};
 
-  	sf::Time fixedUpdateTime = sf::Time();
+  	ProfilerFrameData m_FrameData;
 
 };
 

@@ -25,12 +25,27 @@ SOFTWARE.
 #ifndef SFGE_PROFILER_H
 #define SFGE_PROFILER_H
 
+#include <SFML/System/Time.hpp>
+
+namespace sfge
+{
+class Engine;
 struct ProfilerFrameData
 {
     sf::Time frameTotalTime;
     sf::Time frameFixedUpdate;
     sf::Time graphicsTime;
-    sf::Time editorTime;
 };
-
+namespace editor
+{
+class ProfilerEditorWindow
+{
+public:
+    ProfilerEditorWindow(Engine& engine);
+    void Update ();
+private:
+  ProfilerFrameData& m_ProfilerFrameData;
+};
+}
+}
 #endif

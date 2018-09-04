@@ -117,12 +117,13 @@ void Engine::Start()
 	sf::Clock globalClock;
 	sf::Clock updateClock;
 	sf::Clock fixedUpdateClock;
+	sf::Clock graphicsUpdateClock;
 	sf::Time previousFixedUpdateTime = globalClock.getElapsedTime();
 	sf::Time deltaFixedUpdateTime = sf::Time();
-
+	sf::Time dt = sf::Time();
 	while (running && m_Window != nullptr)
 	{
-		const sf::Time dt = updateClock.restart();
+		bool isFixedUpdateFrame = false;
 		sf::Event event{};
 		while (m_Window != nullptr && 
 			m_Window->pollEvent(event))
@@ -149,18 +150,27 @@ void Engine::Start()
 			previousFixedUpdateTime = globalClock.getElapsedTime();
 			m_PythonEngine.FixedUpdate();
 			m_SceneManager.FixedUpdate();
-			fixedUpdateTime = fixedUpdateClock.getElapsedTime ();
+			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime ();
+			m_FrameData.frameFixedUpdate = deltaFixedUpdateTime;
+			isFixedUpdateFrame = true;
 		}
 		m_PythonEngine.Update(dt.asSeconds());
 
 		m_SceneManager.Update(dt.asSeconds());
 
 		m_Editor.Update(dt.asSeconds());
-
+		graphicsUpdateClock.restart ();
 		m_Graphics2dManager.Update(dt.asSeconds());
 		m_PythonEngine.Draw();
 		m_Editor.Draw();
 		m_Graphics2dManager.Display();
+		sf::Time graphicsDt = graphicsUpdateClock.getElapsedTime ();
+		dt = updateClock.restart();
+		if(isFixedUpdateFrame)
+		{
+			m_FrameData.graphicsTime = graphicsDt;
+			m_FrameData.frameTotalTime = dt;
+		}
 	}
 	Destroy();
 }
@@ -257,6 +267,11 @@ Editor& Engine::GetEditor()
 ctpl::thread_pool & Engine::GetThreadPool()
 {
 	return m_ThreadPool;
+}
+
+ProfilerFrameData& Engine::GetProfilerFrameData()
+{
+    return m_FrameData;
 }
 
 }
