@@ -38,7 +38,7 @@ SOFTWARE.
 #include <python/python_engine.h>
 #include <engine/config.h>
 #include <audio/audio.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 #include <engine/transform2d.h>
 #include <physics/physics2d.h>
 #include <engine/log.h>
@@ -116,8 +116,10 @@ void Engine::Start()
 {
 	sf::Clock globalClock;
 	sf::Clock updateClock;
+	sf::Clock fixedUpdateClock;
 	sf::Time previousFixedUpdateTime = globalClock.getElapsedTime();
 	sf::Time deltaFixedUpdateTime = sf::Time();
+
 	while (running && m_Window != nullptr)
 	{
 		const sf::Time dt = updateClock.restart();
@@ -142,10 +144,12 @@ void Engine::Start()
 		sf::Time fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
+			fixedUpdateClock.restart ();
 			m_PhysicsManager.FixedUpdate();
 			previousFixedUpdateTime = globalClock.getElapsedTime();
 			m_PythonEngine.FixedUpdate();
 			m_SceneManager.FixedUpdate();
+			fixedUpdateTime = fixedUpdateClock.getElapsedTime ();
 		}
 		m_PythonEngine.Update(dt.asSeconds());
 

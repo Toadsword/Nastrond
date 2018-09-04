@@ -31,7 +31,7 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <engine/editor_info.h>
+#include <editor/editor_info.h>
 
 namespace sfge
 {

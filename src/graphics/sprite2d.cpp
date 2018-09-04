@@ -157,7 +157,7 @@ void SpriteManager::Collect()
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 {
 	auto & newSprite = m_Components[entity - 1];
-	auto& newSpriteInfo = m_ComponentsInfo[entity - 1];
+	auto & newSpriteInfo = m_ComponentsInfo[entity - 1];
 	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		std::string path = componentJson["path"].get<std::string>();

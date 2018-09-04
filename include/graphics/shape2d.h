@@ -30,7 +30,7 @@ SOFTWARE.
 #include <engine/system.h>
 #include <engine/component.h>
 #include <engine/transform2d.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 //Externals
 #include <SFML/Graphics.hpp>
 

@@ -43,7 +43,7 @@ SOFTWARE.
 #include <physics/physics2d.h>
 #include <engine/entity.h>
 #include <engine/transform2d.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 
 namespace sfge
 {
@@ -99,6 +99,8 @@ public:
 	Editor& GetEditor();
 
 	ctpl::thread_pool& GetThreadPool();
+	sf::Time GetFixedUpdateTime();
+	sf::Time GetUpdateTime();
 	bool running = false;
 protected:
 	void InitModules();
@@ -117,6 +119,8 @@ protected:
 	Editor m_Editor {*this};
 	EntityManager m_EntityManager {*this};
 	Transform2dManager m_TransformManager {*this};
+
+  	sf::Time fixedUpdateTime = sf::Time();
 
 };
 

@@ -26,7 +26,7 @@
 #include <engine/scene.h>
 #include <engine/log.h>
 #include <utility/json_utility.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 #include <engine/config.h>
 #include <utility/file_utility.h>
 #include <engine/entity.h>

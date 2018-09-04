@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include <SFML/Audio.hpp>
 #include <engine/component.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 
 namespace sfge
 {

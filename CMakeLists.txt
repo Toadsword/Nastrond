@@ -39,6 +39,7 @@ include_directories(include ${CMAKE_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE SFGE_AUDIO_SRC src/audio/*.cpp include/audio/*.h)
 file(GLOB_RECURSE SFGE_ENGINE_SRC src/engine/*.cpp include/engine/*.h)
+file(GLOB_RECURSE SFGE_EDITOR_SRC src/editor/*.cpp include/editor/*.h)
 file(GLOB_RECURSE SFGE_GRAPHICS_SRC src/graphics/*.cpp include/graphics/*.h)
 file(GLOB_RECURSE SFGE_INPUT_SRC src/input/*.cpp include/input/*.h)
 file(GLOB_RECURSE SFGE_PHYSICS_SRC src/physics/*.cpp include/physics/*.h)
@@ -51,12 +52,13 @@ SET_SOURCE_FILES_PROPERTIES( ${SFGE_SRC} PROPERTIES
 
 source_group("Audio"            FILES ${SFGE_AUDIO_SRC})
 source_group("Engine"            FILES ${SFGE_ENGINE_SRC})
+source_group("Editor"            FILES ${SFGE_EDITOR_SRC})
 source_group("Graphics"            FILES ${SFGE_GRAPHICS_SRC})
 source_group("Input"            FILES ${SFGE_INPUT_SRC})
 source_group("Physics"            FILES ${SFGE_PHYSICS_SRC})
 source_group("Python"            FILES ${SFGE_PYTHON_SRC})
 source_group("Utility"            FILES ${SFGE_UTILITY_SRC})
-List(APPEND SFGE_SRC  ${SFGE_AUDIO_SRC} ${SFGE_ENGINE_SRC} ${SFGE_GRAPHICS_SRC} 
+List(APPEND SFGE_SRC  ${SFGE_AUDIO_SRC} ${SFGE_ENGINE_SRC} ${SFGE_EDITOR_SRC} ${SFGE_GRAPHICS_SRC}
 ${SFGE_INPUT_SRC} ${SFGE_PHYSICS_SRC}  ${SFGE_PYTHON_SRC} ${SFGE_UTILITY_SRC})
 
 #Google Test

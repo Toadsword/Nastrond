@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <vector>
 #include <engine/system.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 #include <engine/globals.h>
 #include <engine/component.h>
 

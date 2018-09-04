@@ -28,7 +28,7 @@ SOFTWARE.
 #include <imgui-SFML.h>
 
 
-#include <engine/editor.h>
+#include <editor/editor.h>
 #include <engine/globals.h>
 #include <engine/engine.h>
 #include <engine/log.h>

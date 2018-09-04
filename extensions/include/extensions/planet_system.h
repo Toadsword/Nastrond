@@ -44,6 +44,7 @@ namespace sfge::ext
 
 //#define WITH_PHYSICS
 #define WITH_VERTEXARRAY
+#define MULTI_THREAD
 
 class PlanetSystem : public System
 {
@@ -59,8 +60,10 @@ public:
 	void Draw() override;
 
 private:
-	b2Vec2 CalculateInitSpeed(Transform2d* transformPtr) const;
-	b2Vec2 CalculateNewForce(Transform2d* transformPtr) const;
+
+  	void UpdateRange(int startIndex, int endIndex);
+	b2Vec2 CalculateInitSpeed(sf::Vector2f position) const;
+	b2Vec2 CalculateNewForce(sf::Vector2f position) const;
 	static float Magnitude(sf::Vector2f v);
 	static float Magnitude(b2Vec2 v);
 
@@ -76,7 +79,7 @@ private:
 	const int entitiesNmb = 10'000;
 
 #ifndef WITH_PHYSICS
-	std::vector<sf::Vector2f> velocity{(unsigned long) entitiesNmb};
+	std::vector<sf::Vector2f> m_Velocities{(unsigned long) entitiesNmb};
 #endif
 
 	sf::Vector2f screenSize;
@@ -85,6 +88,11 @@ private:
 	Graphics2dManager& m_Graphics2DManager;
 	sf::Texture* texture = nullptr;
 	sf::Vector2f textureSize;
+#endif
+#ifdef MULTI_THREAD
+
+	  std::vector<sf::Vector2f> m_Positions{(unsigned long) entitiesNmb};
+
 #endif
 
 };
