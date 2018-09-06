@@ -45,7 +45,7 @@ class AudioManager : public System
 public:
 	using System::System;
 
-	AudioManager(const AudioManager&) = delete;
+	//AudioManager(const AudioManager&) = delete;
 	/**
 	* \brief Initialize SoundManager class, SoundBuffer class and MusicManager class
 	*/
@@ -65,7 +65,7 @@ public:
 protected:
 	SoundManager m_SoundManager;
 	SoundBufferManager m_SoundBufferManager{ m_Engine };
-	MusicManager m_MusicManager{m_Engine};
+	MusicManager m_MusicManager;
 };
 }
 #endif // !SFGE_AUDIO

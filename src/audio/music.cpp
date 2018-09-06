@@ -61,24 +61,13 @@ Entity Music::GetEntity()
 }
 
 
-MusicManager::MusicManager(Engine& engine) :
-	System(engine), 
-	m_EntityManager(engine.GetEntityManager())
-
-{
-}
-
-void MusicManager::Init()
-{
-	m_EntityManager.AddObserver(this);
-}
 
 MusicId MusicManager::LoadMusic(const std::string& filename)
 {
 	const auto pathIterator = std::find(m_MusicPaths.cbegin(), m_MusicPaths.cend(), filename);
-	if (pathIterator != m_MusicPaths.cend())
+	if (pathIterator != m_MusicPaths.end())
 	{
-		const MusicId musicId = pathIterator - m_MusicPaths.cbegin()+1;
+		const MusicId musicId = pathIterator - m_MusicPaths.cbegin() + 1;
 		return musicId;
 		
 	}
@@ -109,12 +98,6 @@ Music * sfge::MusicManager::GetMusic(MusicId musicId)
 	if (musicId == INVALID_MUSIC_ID)
 		return nullptr;
 	return &m_Musics[musicId-1];
-}
-
-void sfge::MusicManager::OnResize(size_t new_size)
-{
-	m_MusicPaths.resize(new_size);
-	m_Musics.resize(new_size);
 }
 
 }

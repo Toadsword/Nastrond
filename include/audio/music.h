@@ -41,7 +41,11 @@ class Music
 public:
 	Music() = default;
 
+	Music(const Music&) = delete;
 	Music& operator=(const Music&) = delete;
+	Music(Music&&) = default;
+	Music& operator = (Music &&) = default;
+
 	void SetPath(std::string path);
 	void SetEntity(Entity entity);
 	bool Load();
@@ -56,16 +60,14 @@ private:
 	Entity m_Entity = INVALID_ENTITY;
 };
 
-class MusicManager : 
-	public System, 
-	public ResizeObserver
+class MusicManager
 {
 public:
-	MusicManager(Engine& engine);
-	~MusicManager() = default;
-
+	MusicManager() = default;
+	MusicManager(const MusicManager&) = delete;
 	MusicManager& operator=(const MusicManager&) = delete;
-	void Init() override;
+	MusicManager(MusicManager&&) = default;
+	MusicManager& operator = (MusicManager &&) = default;
 	/**
 	* \brief open a music from a path file, put it on MusicMap and return the matchin id
 	* \param filename The filename of the music file
@@ -77,12 +79,10 @@ public:
 	*/
 	Music* GetMusic(MusicId musicId);
 
-	void OnResize(size_t new_size) override;
 
 protected:
 	std::vector<Music> m_Musics{INIT_ENTITY_NMB};
 	std::vector<std::string> m_MusicPaths{INIT_ENTITY_NMB};
-	EntityManager& m_EntityManager;
 	MusicId incrementId = 1U;
 };
 
