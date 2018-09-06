@@ -34,36 +34,18 @@ SOFTWARE.
 
 #include <engine/system.h>
 #include <audio/sound.h>
+#include <audio/music.h>
 
 namespace sfge
 {
-
-class MusicManager 
-{
-public:
-	MusicManager();
-	~MusicManager() = default;
-	/**
-	* \brief open a music from a path file, put it on MusicMap and return the matchin id
-	* \param filename The filename of the music file
-	*/
-	unsigned int LoadMusic(std::string filename);
-	/**
-	* \brief return the music attached to the given musicId on MusicMap
-	* \param musicId the id key of the music
-	*/
-	std::shared_ptr<sf::Music> GetMusic(unsigned int musicId);
-protected:
-	std::map< std::string , unsigned int> musicPathId;
-	std::map<unsigned int, std::shared_ptr<sf::Music>> musicMap;
-	unsigned int incrementId = 0;
-};
 
 class AudioManager : public System
 {
 
 public:
 	using System::System;
+
+	AudioManager(const AudioManager&) = delete;
 	/**
 	* \brief Initialize SoundManager class, SoundBuffer class and MusicManager class
 	*/
@@ -83,7 +65,7 @@ public:
 protected:
 	SoundManager m_SoundManager;
 	SoundBufferManager m_SoundBufferManager{ m_Engine };
-	MusicManager m_MusicManager;
+	MusicManager m_MusicManager{m_Engine};
 };
 }
 #endif // !SFGE_AUDIO
