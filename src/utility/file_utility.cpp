@@ -11,7 +11,7 @@ namespace fs = std::experimental::filesystem;
 
 namespace sfge
 {
-bool FileExists(std::string & filename)
+bool FileExists(const std::string & filename)
 {
 	fs::path p = filename;
 	return fs::exists(p);
