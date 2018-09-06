@@ -38,6 +38,8 @@ SOFTWARE.
 namespace sfge
 {
 
+
+
 enum class ComponentType : int
 {
   	NONE = 0,
@@ -60,19 +62,15 @@ public:
 		m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
 	};
 
+  	ComponentManager(ComponentManager&& componentManager) = default;
+  	ComponentManager(const ComponentManager& componentManager) = delete;
+
 	virtual ~ComponentManager()
 	{
 		m_Components.clear();
+		m_ComponentsInfo.clear();
 	};
 
-	T & GetComponent(Entity entity)
-	{
-		if(entity == INVALID_ENTITY)
-		{
-			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
-		}
-		return m_Components[entity-1];
-	}
 	TInfo& GetComponentInfo(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
@@ -81,7 +79,7 @@ public:
 		}
 		return m_ComponentsInfo[entity - 1];
 	}
-	T* GetComponentPtr(Entity entity)
+	virtual T* GetComponentPtr(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
 		{
@@ -102,13 +100,25 @@ public:
 		return m_Components;
 	}
 
+	void OnNotifyNewSize(size_t newSize)
+	{
+		m_Components.resize(newSize);
+		m_ComponentsInfo.resize(newSize);
+	}
+	virtual T* AddComponent(Entity entity) = 0;
 	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
+	virtual void CreateEmptyComponent(Entity entity)
+	{
+		json emptyComponent;
+		CreateComponent (emptyComponent, entity);
+	};
 	virtual void DestroyComponent(Entity entity) = 0;
 
 protected:
 	std::vector<T> m_Components;
 	std::vector<TInfo> m_ComponentsInfo;
 };
+
 
 
 class LayerComponent

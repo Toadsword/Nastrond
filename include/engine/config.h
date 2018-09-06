@@ -46,13 +46,14 @@ namespace sfge
 */
 struct Configuration 
 {
+	~Configuration();
 	bool devMode = true;
 	bool editor = true;
 	bool windowLess = false;
 	/**
 	 * \brief The screen resolution used for the editor
 	 */
-	sf::Vector2i screenResolution = sf::Vector2i(800, 600);
+	sf::Vector2i screenResolution = sf::Vector2i(1280, 720);
 
 	b2Vec2 gravity = b2Vec2(0.0f, 9.81f);
 	/**
@@ -62,7 +63,7 @@ struct Configuration
 	float fixedDeltaTime = 0.02f;
 	int velocityIterations = 8;
 	int positionIterations = 2;
-	int currentEntitiesNmb = INIT_ENTITY_NMB;
+	size_t currentEntitiesNmb = INIT_ENTITY_NMB;
 
 
 	std::string scriptsDirname = "scripts/";

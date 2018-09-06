@@ -66,7 +66,7 @@ void Graphics2dManager::Init()
 
 }
 
-void Graphics2dManager::Update(sf::Time dt)
+void Graphics2dManager::Update(float dt)
 {
 	if (!m_Windowless)
 	{

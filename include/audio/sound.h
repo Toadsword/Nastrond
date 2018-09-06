@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include <SFML/Audio.hpp>
 #include <engine/component.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 
 namespace sfge
 {
@@ -37,6 +37,11 @@ class SoundManager;
 
 using SoundId = unsigned int;
 #define INVALID_SOUND_ID 0U;
+
+using SoundBufferId = unsigned;
+const SoundBufferId INVALID_SOUND_BUFFER = 0U;
+
+const auto MAX_SOUND_BUFFER_SIZE = 1'000'000ll;
 
 namespace editor
 {
@@ -67,6 +72,34 @@ protected:
 	sf::Sound m_Sound;
 };
 
+class SoundBufferManager : public System
+{
+public:
+
+	using System::System;
+
+	~SoundBufferManager();
+
+	void Init() override;
+
+	void LoadSoundBuffers(std::string filename);
+
+	void Clear() override;
+	
+	void Collect() override;
+
+	SoundBufferId LoadSoundBuffer(std::string filename);
+	sf::SoundBuffer* GetSoundBuffer(SoundBufferId soundBufferId);
+private:
+
+  	bool HasValidExtension(std::string filename);
+	std::vector<std::string> m_SoundBufferPaths{ INIT_ENTITY_NMB };
+	std::vector<unsigned int> m_SoundBufferCountRefs{ INIT_ENTITY_NMB };
+	std::vector<std::unique_ptr<sf::SoundBuffer>> m_SoundBuffers{INIT_ENTITY_NMB};
+	SoundBufferId m_IncrementId = 0U;
+
+};
+
 class SoundManager : public ComponentManager<Sound, editor::SoundInfo>
 {
 public:
@@ -83,9 +116,10 @@ public:
 	*/
 	sf::SoundBuffer* GetSoundBuffer(unsigned int sound_buffer_id);
 
+	Sound* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
-
+	
 	void Reset();
 
 	void Collect();

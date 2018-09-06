@@ -39,6 +39,7 @@ include_directories(include ${CMAKE_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE SFGE_AUDIO_SRC src/audio/*.cpp include/audio/*.h)
 file(GLOB_RECURSE SFGE_ENGINE_SRC src/engine/*.cpp include/engine/*.h)
+file(GLOB_RECURSE SFGE_EDITOR_SRC src/editor/*.cpp include/editor/*.h)
 file(GLOB_RECURSE SFGE_GRAPHICS_SRC src/graphics/*.cpp include/graphics/*.h)
 file(GLOB_RECURSE SFGE_INPUT_SRC src/input/*.cpp include/input/*.h)
 file(GLOB_RECURSE SFGE_PHYSICS_SRC src/physics/*.cpp include/physics/*.h)
@@ -51,13 +52,22 @@ SET_SOURCE_FILES_PROPERTIES( ${SFGE_SRC} PROPERTIES
 
 source_group("Audio"            FILES ${SFGE_AUDIO_SRC})
 source_group("Engine"            FILES ${SFGE_ENGINE_SRC})
+source_group("Editor"            FILES ${SFGE_EDITOR_SRC})
 source_group("Graphics"            FILES ${SFGE_GRAPHICS_SRC})
 source_group("Input"            FILES ${SFGE_INPUT_SRC})
 source_group("Physics"            FILES ${SFGE_PHYSICS_SRC})
 source_group("Python"            FILES ${SFGE_PYTHON_SRC})
 source_group("Utility"            FILES ${SFGE_UTILITY_SRC})
-List(APPEND SFGE_SRC  ${SFGE_AUDIO_SRC} ${SFGE_ENGINE_SRC} ${SFGE_GRAPHICS_SRC} 
+List(APPEND SFGE_SRC  ${SFGE_AUDIO_SRC} ${SFGE_ENGINE_SRC} ${SFGE_EDITOR_SRC} ${SFGE_GRAPHICS_SRC}
 ${SFGE_INPUT_SRC} ${SFGE_PHYSICS_SRC}  ${SFGE_PYTHON_SRC} ${SFGE_UTILITY_SRC})
+
+#Google Test
+set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest)
+add_subdirectory(${GOOGLE_TEST_DIR})
+include_directories(${GOOGLE_TEST_DIR}/include)
+set_target_properties (gtest gtest_main PROPERTIES
+    FOLDER GTest
+)
 #SFML
 set(SFML_DIR ${EXTERNAL_DIR}/SFML)
 set(SFML_BUILD_EXAMPLES FALSE)
@@ -92,6 +102,8 @@ include_directories(${BOX2D_DIR}/Box2D/)
 LIST(APPEND SFGE_LIBRARIES
 	Box2D)
 
+
+
 #PYTHON
 #IF(NOT WIN32)
 #	add_definitions(-Wall -Wextra -pedantic -std=c++11)
@@ -115,7 +127,13 @@ LIST(APPEND SFGE_LIBRARIES
 #LIST(APPEND SFGE_LIBRARIES ${PYTHON_LIBRARY})
 
 #PYBIND11
-set(PYBIND11_PYTHON_VERSION 3)
+if(UNIX AND NOT APPLE)
+	set(PYTHON_EXECUTABLE "/usr/bin/python3")
+elseif(APPLE)
+
+	set(PYTHON_EXECUTABLE "/usr/local/bin/python3")
+endif()
+set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
 set(PYBIND11_DIR ${EXTERNAL_DIR}/pybind11/)
 add_subdirectory(${PYBIND11_DIR})
 include_directories(${PYBIND11_DIR})
@@ -145,53 +163,68 @@ if(NOT WIN32 AND NOT APPLE)
 	LIST(APPEND SFGE_LIBRARIES
 		stdc++fs)
 ENDIF()
-add_library(SFGE_COMMON STATIC ${SFGE_SRC})
+
+file(GLOB_RECURSE SFGE_EXTENSIONS_SRC extensions/src/*.cpp extensions/include/*.h)
+source_group("Extensions"            FILES ${SFGE_EXTENSIONS_SRC})
+add_library(SFGE_COMMON STATIC ${SFGE_SRC} ${SFGE_EXTENSIONS_SRC})
 include_directories(include/)
+include_directories(extensions/include/)
 target_link_libraries(SFGE_COMMON PUBLIC ${SFGE_LIBRARIES})
 set_property(TARGET SFGE_COMMON PROPERTY CXX_STANDARD 17)
 if(APPLE)
 set_target_properties(SFGE_COMMON PROPERTIES
 ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-ENDIF(APPLE)
+ENDIF()
 
-#SFGE_TEST
-SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
-file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )
-foreach(test_file ${TEST_FILES} )
+#SFGE COURSES
+SET(SFGE_COURSE_DIR ${CMAKE_SOURCE_DIR}/courses)
+file(GLOB COURSE_FILES ${SFGE_COURSE_DIR}/*.cpp )
+foreach(course_file ${COURSE_FILES} )
     # I used a simple string replace, to cut off .cpp.
-    file(RELATIVE_PATH test_relative_path ${SFGE_TEST_DIR} ${test_file})
-    string( REPLACE ".cpp" "" test_name ${test_relative_path} )
-    add_executable(${test_name} ${SFGE_TEST_DIR}/${test_relative_path})
+    file(RELATIVE_PATH course_relative_path ${SFGE_COURSE_DIR} ${course_file})
+    string( REPLACE ".cpp" "" course_name ${course_relative_path} )
+    add_executable(${course_name} ${SFGE_COURSE_DIR}/${course_relative_path})
     # Make sure YourLib is linked to each app
-    target_link_libraries(${test_name} PUBLIC SFGE_COMMON)
-	set_property(TARGET ${test_name} PROPERTY CXX_STANDARD 17)
+    target_link_libraries(${course_name} PUBLIC SFGE_COMMON)
+	set_property(TARGET ${course_name} PROPERTY CXX_STANDARD 17)
 	IF(UNIX)
-		set_target_properties(${test_name} PROPERTIES COMPILE_FLAGS "-save-temps")
+		set_target_properties(${course_name} PROPERTIES COMPILE_FLAGS "-save-temps")
 	ENDIF(UNIX)
+	set_target_properties (${course_name} PROPERTIES
+    FOLDER Courses)
   IF(APPLE)
-    set_target_properties(${test_name} PROPERTIES
+    set_target_properties(${course_name} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-  ENDIF(APPLE)
+  ENDIF()
 endforeach()
-
+#SFGE TEST
+SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
+file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )
+add_executable(SFGE_TEST ${TEST_FILES} )
+target_link_libraries(SFGE_TEST gtest gtest_main SFGE_COMMON)
+if(APPLE )
+	set_target_properties(SFGE_TEST PROPERTIES
+		ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+		ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+ENDIF()
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}" )
+	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}" )
 elseif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -masm=intel" )
 endif()
 #SFGE
 add_executable(SFGE src/main.cpp)
 
-MESSAGE("SFGE_COMMON: " ${SFGE_COMMON})
 
 target_link_libraries(SFGE PUBLIC SFGE_COMMON)
 set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
 if(APPLE)
-  set_target_properties(SFGE PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
-  RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-ENDIF(APPLE)
+	set_target_properties(SFGE PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+ENDIF()
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
+

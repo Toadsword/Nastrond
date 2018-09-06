@@ -32,7 +32,7 @@ SOFTWARE.
 //Engine
 #include <engine/component.h>
 #include <engine/transform2d.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 #include <graphics/texture.h>
 
 namespace sfge
@@ -50,10 +50,8 @@ public:
 	Sprite(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
-	
+	void Update();
 	void Draw(sf::RenderWindow& window);
-
-
 	void SetTexture(sf::Texture* newTexture);
 
 
@@ -79,20 +77,22 @@ struct SpriteInfo : ComponentInfo
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
 class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>, 
-	public LayerComponentManager<Sprite>, public System
+	public LayerComponentManager<Sprite>, public System, public ResizeObserver
 {
 public:
 	SpriteManager(Engine& engine);
+	SpriteManager& operator=(const SpriteManager&) = delete;
 	void Init() override;
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 	void Draw(sf::RenderWindow& window);
 
 	void Reset();
 	void Collect() override;
-
+	Sprite* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
+	void OnResize(size_t new_size) override;
 protected:
 	Graphics2dManager& m_GraphicsManager;
 	Transform2dManager& m_Transform2dManager;

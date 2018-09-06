@@ -30,19 +30,22 @@
 #include <engine/log.h>
 #include <engine/scene.h>
 #include <engine/engine.h>
+#include <engine/config.h>
 #include <input/input.h>
 #include <audio/audio.h>
 #include <graphics/shape2d.h>
 #include <graphics/sprite2d.h>
+#include <graphics/texture.h>
+#include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
 #include <python/pycomponent.h>
+#include <python/pysystem.h>
+
+#include <SFML/Graphics/Texture.hpp>
 
 #include <utility/file_utility.h>
 #include <utility/time_utility.h>
-
-
-
-
+#include <extensions/python_extensions.h>
 
 
 namespace sfge
@@ -53,8 +56,22 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 
 	py::class_<Engine> engine(m, "Engine");
+	engine
+		.def_property_readonly("config", [](Engine* engine)
+	{
+		return engine->GetConfig().lock();
+	}, py::return_value_policy::reference);
 
-	py::class_<System> module(m, "Module");
+	py::class_<Configuration, std::unique_ptr<Configuration, py::nodelete>> config(m, "Configuration");
+	config
+		.def_property_readonly("screen_size", [](Configuration* config) {return sf::Vector2f(config->screenResolution.x, config->screenResolution.y); });
+	py::class_<System, PySystem> system(m, "System");
+	system
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
+		.def("init", &System::Init)
+		.def("update", &System::Update)
+		.def("fixed_update", &System::FixedUpdate)
+		.def("draw", &System::Draw);
 
 	py::class_<SceneManager> sceneManager(m, "SceneManager");
 	sceneManager
@@ -64,7 +81,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager
 		.def_property_readonly("keyboard", &InputManager::GetKeyboardManager, py::return_value_policy::reference);
-	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
 	py::class_<KeyboardManager> keyboardManager(m, "KeyboardManager");
 	keyboardManager
 		.def("is_key_held", &KeyboardManager::IsKeyHeld)
@@ -79,6 +95,49 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Right", sf::Keyboard::Right)
 		.export_values();
 
+	py::class_<Transform2dManager> transform2dManager(m , "Transform2dManager");
+	transform2dManager
+	    .def("add_component", &Transform2dManager::AddComponent, py::return_value_policy::reference)
+	    .def("get_component", &Transform2dManager::GetComponentRef, py::return_value_policy::reference);
+
+	py::class_<EntityManager> entityManager(m, "EntityManager");
+	entityManager
+	    .def("create_entity", &EntityManager::CreateEntity)
+	    .def("has_component", &EntityManager::HasComponent)
+		.def("resize", &EntityManager::ResizeEntityNmb);
+
+	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
+	physics2dManager
+	    .def_property_readonly ("body2d_manager", &Physics2dManager::GetBodyManager, py::return_value_policy::reference)
+		.def("pixel2meter", [](float v) {return pixel2meter(v); })
+		.def("pixel2meter", [](sf::Vector2f v) {return pixel2meter(v); })
+		.def("meter2pixel", [](float v) {return meter2pixel(v); })
+		.def("meter2pixel", [](b2Vec2 v) {return meter2pixel(v); });
+
+	py::class_<Body2dManager> body2dManager(m, "Body2dManager");
+	body2dManager
+	    .def("add_component", &Body2dManager::AddComponent, py::return_value_policy::reference)
+	    .def("get_component", &Body2dManager::GetComponentRef, py::return_value_policy::reference);
+
+	py::class_<Graphics2dManager, std::unique_ptr<Graphics2dManager, py::nodelete>> graphics2dManager(m, "Graphics2dManager");
+	graphics2dManager
+		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
+		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
+		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
+
+	py::class_<TextureManager, std::unique_ptr<TextureManager, py::nodelete>> textureManager(m, "TextureManager");
+	textureManager
+		.def("load_texture", [](TextureManager* textureManager, std::string name)
+		{
+			const auto textureId = textureManager->LoadTexture(name);
+			return textureManager->GetTexture(textureId);
+		}, py::return_value_policy::reference);
+	py::class_<sf::Texture, std::unique_ptr<sf::Texture, py::nodelete>> sfTexture(m, "sfTexture");
+
+	py::class_<SpriteManager> spriteManager(m, "SpriteManager");
+	spriteManager
+		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
+	py::class_<ShapeManager> shapeManager(m, "ShapeManager");
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 
 	py::class_<Component, PyComponent> component(m, "Component");
@@ -86,6 +145,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def(py::init<Engine&, Entity>(), py::return_value_policy::reference)
 		.def("init", &Component::Init)
 		.def("update", &Component::Update)
+		.def("fixed_update", &Component::FixedUpdate)
 		.def_property_readonly("entity", &Component::GetEntity)
 		.def("get_component", &Component::GetComponent)
 		.def("get_component", &Component::GetPyComponent)
@@ -101,10 +161,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Body", ComponentType::BODY2D)
 		.value("Sprite", ComponentType::SPRITE2D)
 		.value("Sound", ComponentType::SOUND)
-		.value("Transform", ComponentType::TRANSFORM2D)
+		.value("Transform2d", ComponentType::TRANSFORM2D)
 		.export_values();
 
-	py::class_<Transform2d> transform(m, "Transform");
+	py::class_<Transform2d> transform(m, "Transform2d");
 	transform
 		.def_readwrite("euler_angle", &Transform2d::EulerAngle)
 		.def_readwrite("position", &Transform2d::Position)
@@ -140,10 +200,12 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("play", &Sound::Play)
 		.def("stop", &Sound::Stop);
 	
-	py::class_<Shape, std::unique_ptr<Shape, py::nodelete>> shape(m, "Shape");
+	py::class_<Shape> shape(m, "Shape");
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);
-	py::class_<Sprite, std::unique_ptr<Sprite, py::nodelete>> sprite(m, "Sprite");
+	py::class_<Sprite> sprite(m, "Sprite");
+	sprite
+		.def("set_texture", &Sprite::SetTexture, py::return_value_policy::reference);
 	//Utility
 	py::class_<sf::Color> color(m, "Color");
 	color
@@ -185,14 +247,19 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def(py::self - py::self)
 		.def(py::self -= py::self)
 		.def(py::self * float())
+		.def(py::self / float())
+		.def_property_readonly("magnitude", [](const sf::Vector2f & vec)
+		{
+			return sqrtf(vec.x*vec.x + vec.y*vec.y);
+		})
 		.def_readwrite("x", &sf::Vector2f::x)
 		.def_readwrite("y", &sf::Vector2f::y)
 		.def("__repr__", [](const sf::Vector2f &vec)
-	{
-		std::ostringstream oss;
-		oss << "(" << vec.x << ", " << vec.y << ")";
-		return oss.str();
-	});
+		{
+			std::ostringstream oss;
+			oss << "(" << vec.x << ", " << vec.y << ")";
+			return oss.str();
+		});
 
 	py::class_<b2Vec2> b2vec2(m, "b2Vec2");
 	b2vec2
@@ -202,18 +269,32 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_readwrite("y", &b2Vec2::y)
 		.def(py::self += py::self)
 		.def(py::self -= py::self)
-		.def(py::self *= float());
-		
+		.def(py::self *= float())
+		.def_property_readonly("magnitude", [](const b2Vec2 & vec)
+		{
+			return sqrtf(vec.x*vec.x + vec.y*vec.y);
+		})
+		.def("__repr__", [](const b2Vec2 &vec)
+		{
+			std::ostringstream oss;
+			oss << "(" << vec.x << ", " << vec.y << ")";
+			return oss.str();
+		});
+
+		ext::ExtendPython(m);
 }
 
 void PythonEngine::Init()
 {
 
-	m_PyComponents.reserve(INIT_ENTITY_NMB * 4);
-	m_PyComponentsInfo.reserve(INIT_ENTITY_NMB * 4);
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
+	System::Init();
+
+	OnResize(INIT_ENTITY_NMB);
+
+	m_Engine.GetEntityManager().AddObserver(this);
 	py::initialize_interpreter();
-	//Adding refecrence to c++ engine modules
+	//Adding reference to c++ engine modules
 
 	py::module sfgeModule = py::module::import("SFGE");
 	try
@@ -222,6 +303,10 @@ void PythonEngine::Init()
 		sfgeModule.attr("scene_manager") = py::cast(m_Engine.GetSceneManager(), py::return_value_policy::reference);
 		sfgeModule.attr("input_manager") = py::cast(m_Engine.GetInputManager(), py::return_value_policy::reference);
 		sfgeModule.attr("physics2d_manager") = py::cast(m_Engine.GetPhysicsManager(), py::return_value_policy::reference);
+		sfgeModule.attr("transform2d_manager") = py::cast(m_Engine.GetTransform2dManager(), py::return_value_policy::reference);
+		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
+
+		sfgeModule.attr("graphics2d_manager") = py::cast(&(m_Engine.GetGraphics2dManager()), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{
@@ -239,31 +324,65 @@ void PythonEngine::InitPyComponent()
 		if(pyComponent != nullptr)
 			pyComponent->Init();
 	}
+	for (auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->Init();
+	}
 }
 
 
-void PythonEngine::Update(sf::Time dt)
+void PythonEngine::Update(float dt)
 {
 	for (auto pyComponent : m_PyComponents)
 	{
 		if(pyComponent != nullptr)
-			pyComponent->Update(dt.asSeconds());
+			pyComponent->Update(dt);
+	}
+	for (auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->Update(dt);
+	}
+}
+
+void PythonEngine::FixedUpdate()
+{
+	const auto config = m_Engine.GetConfig().lock();
+	for (auto pyComponent : m_PyComponents)
+	{
+		if (pyComponent != nullptr)
+			pyComponent->FixedUpdate(config->fixedDeltaTime);
+	}
+	for(auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->FixedUpdate();
+	}
+}
+
+void PythonEngine::Draw()
+{
+	for (auto pySystem : m_PySystems)
+	{
+		if (pySystem != nullptr)
+			pySystem->Draw();
 	}
 }
 
 
 void PythonEngine::Destroy()
 {
-	Clear ();
+	System::Destroy();
 	Log::GetInstance()->Msg("Finalize the python embed interpretor");
 	py::finalize_interpreter();
 }
 
 void PythonEngine::Clear()
 {
-	m_PythonInstanceMap.clear();
+	m_PythonInstances.clear();
 	m_PyComponents.clear ();
-	m_PyComponents.reserve (INIT_ENTITY_NMB*4);
+	OnResize(INIT_ENTITY_NMB);
 }
 
 ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
@@ -271,37 +390,46 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 	const auto folderLastIndex = moduleFilename.find_last_of('/');
 	std::string filename = moduleFilename.substr(folderLastIndex + 1, moduleFilename.size());
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	if(filenameExtensionIndex > moduleFilename.size())
+	{
+		std::ostringstream oss;
+		oss << "Python script: " << moduleFilename << " has not a correct extension";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_MODULE;
+	}
 	std::string moduleName = filename.substr(0, filenameExtensionIndex);
 	const std::string extension = filename.substr(filenameExtensionIndex);
 	const std::string className = module2class(moduleName);
 	if (IsRegularFile(moduleFilename) && extension == ".py")
 	{
-		if (m_PythonModuleIdMap.find(moduleFilename) != m_PythonModuleIdMap.end())
+		ModuleId moduleId = INVALID_MODULE;
+		for(ModuleId testedModuleId = 1U; testedModuleId < m_IncrementalModuleId; testedModuleId++)
 		{
-			const ModuleId moduleId = m_PythonModuleIdMap[moduleFilename];
-			if (moduleId == INVALID_MODULE)
+			if(m_PythonModulePaths[testedModuleId-1] == moduleFilename)
 			{
-				std::ostringstream oss;
-				oss << "Python script: " << moduleFilename << " has id 0";
-				Log::GetInstance()->Error(oss.str());
+				moduleId = testedModuleId;
 			}
+		}
+		if (moduleId != INVALID_MODULE)
+		{
 			return moduleId;
 		}
 		else
 		{
 			try
 			{
-
+				moduleId = m_IncrementalModuleId;
                 py::dict globals = py::globals ();
-				m_PyModuleObjMap[m_IncrementalModuleId] = import(moduleName, moduleFilename, globals);
-				m_PyModuleNameMap[m_IncrementalModuleId] = moduleName;
-				m_PythonModuleIdMap[moduleFilename] = m_IncrementalModuleId;
-				m_PyComponentClassNameMap[m_IncrementalModuleId] = className;
-				{
+				m_PyModuleObjs[moduleId] = import(moduleName, moduleFilename, globals);
+				m_PyModuleNames[moduleId] = moduleName;
+				m_PyClassNames[moduleId] = className;
+
+				m_IncrementalModuleId++;
+				/*{
 					std::ostringstream oss;
-					oss << "Loading module: " << moduleName << " with Component: " << className << ",\n";
+					oss << "Loading module: " << moduleName << " with class: " << className << ",\n";
 					Log::GetInstance()->Msg(oss.str());
-				}
+				}*/
 			}
 			catch (const std::runtime_error& e)
 			{
@@ -310,8 +438,7 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_MODULE;
 			}
-			m_IncrementalModuleId++;
-			return m_IncrementalModuleId - 1;
+			return moduleId;
 		}
 	}
 	return INVALID_MODULE;
@@ -320,59 +447,121 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 
 InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 {
-	std::string className = m_PyComponentClassNameMap[moduleId];
-	if(m_PyComponentClassNameMap.find(moduleId) != m_PyComponentClassNameMap.end())
+	std::string className = m_PyClassNames[moduleId];
+	try
 	{
+		auto globals = py::globals ();
+		auto moduleName = m_PyModuleNames[moduleId];
+		auto moduleObj = py::module(m_PyModuleObjs[moduleId]);
 		
-		try
+
+		const auto pyInstanceId = m_IncrementalInstanceId;
+		
+		//Load PyComponent
+		m_PythonInstances[pyInstanceId] =
+			moduleObj.attr(className.c_str())(m_Engine, entity);
+
+		const auto pyComponent = GetPyComponentFromInstanceId(pyInstanceId);
+		if (pyComponent != nullptr)
 		{
-			auto globals = py::globals ();
-			auto moduleName = m_PyModuleNameMap[moduleId];
-			auto moduleObj = m_PyModuleObjMap[moduleId];
-			m_PythonInstanceMap[m_IncrementalInstanceId] = 
-				moduleObj.attr(className.c_str())(m_Engine, entity);
-			//Adding the important components
-
-
-			const auto pyComponent = GetPyComponentFromInstanceId(m_IncrementalInstanceId);
-			if (pyComponent != nullptr)
-			{
-				m_PyComponents.push_back(pyComponent);
-				auto pyInfo = editor::PyComponentInfo();
-				pyInfo.name = className;
-				for(auto& pair : m_PythonModuleIdMap)
-				{
-					const auto path = pair.first;
-					const auto tmpModuleId = pair.second;
-					if(tmpModuleId == moduleId)
-					{
-						pyInfo.path = path;
-						break;
-					}
-				}
-				pyInfo.pyComponent = pyComponent;
-				m_PyComponentsInfo.push_back(pyInfo);
-				m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::PYCOMPONENT);
-			}
-			else
-			{
-				std::ostringstream oss;
-				oss << "[Python Error] Could not load the PyComponent* out of the instance";
-				Log::GetInstance()->Error(oss.str());
-                return INVALID_INSTANCE;
-			}
-			m_IncrementalInstanceId++;
-			return m_IncrementalInstanceId - 1;
+			m_PyComponents.push_back(pyComponent);
+			auto pyInfo = editor::PyComponentInfo();
+			pyInfo.name = className;
+			pyInfo.path = m_PythonModulePaths[moduleId];
+			pyInfo.pyComponent = pyComponent;
+			m_PyComponentsInfo.push_back(pyInfo);
+			m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::PYCOMPONENT);
 		}
-		catch(std::runtime_error& e)
+		else
 		{
-			std::stringstream oss;
-			oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what()<<"\n"<<py::str(py::globals ());
+			std::ostringstream oss;
+			oss << "[Python Error] Could not load the PyComponent* out of the instance";
 			Log::GetInstance()->Error(oss.str());
+			return INVALID_INSTANCE;
 		}
+		
+		m_IncrementalInstanceId++;
+		return pyInstanceId;
 	}
-	return 0U;
+	catch(std::runtime_error& e)
+	{
+		std::stringstream oss;
+		oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what()<<"\n"<<py::str(py::globals ());
+		Log::GetInstance()->Error(oss.str());
+	}
 	
+	return INVALID_INSTANCE;
+	
+}
+
+InstanceId PythonEngine::LoadPySystem(ModuleId moduleId)
+{
+	std::string className = m_PyClassNames[moduleId];
+	try
+	{
+		auto globals = py::globals();
+		auto moduleName = m_PyModuleNames[moduleId];
+		auto moduleObj = py::module(m_PyModuleObjs[moduleId]);
+
+		const auto pyInstanceId = m_IncrementalInstanceId;
+		//Load PySystem
+		m_PythonInstances[pyInstanceId] =
+			moduleObj.attr(className.c_str())(m_Engine);
+		const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
+		if (pySystem != nullptr)
+		{
+			m_PySystems.push_back(pySystem);
+
+			/* TODO editor info on system
+			 *
+			 *auto pyInfo = editor::PyComponentInfo();
+			pyInfo.name = className;
+			pyInfo.path = m_PythonModulePaths[moduleId];
+			pyInfo.pyComponent = pySystem;
+			m_PyComponentsInfo.push_back(pyInfo);
+			*/
+		}
+		else
+		{
+			std::ostringstream oss;
+			oss << "[Python Error] Could not load the PyComponent* out of the instance";
+			Log::GetInstance()->Error(oss.str());
+			return INVALID_INSTANCE;
+		}
+		
+		m_IncrementalInstanceId++;
+		return pyInstanceId;
+	}
+	catch (std::runtime_error& e)
+	{
+		std::stringstream oss;
+		oss << "[PYTHON ERROR] trying to instantiate class: " << className << "\n" << e.what() << "\n" << py::str(py::globals());
+		Log::GetInstance()->Error(oss.str());
+	}
+
+	return INVALID_INSTANCE;
+}
+
+void PythonEngine::LoadCppExtensionSystem(std::string systemClassName)
+{
+	const auto pyInstanceId = m_IncrementalInstanceId;
+	try
+	{
+		py::module sfge = py::module::import("SFGE");
+		m_PythonInstances[pyInstanceId] = sfge.attr(systemClassName.c_str())(m_Engine);
+		const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
+		if (pySystem != nullptr)
+		{
+			m_PySystems.push_back(pySystem);
+		}
+		m_IncrementalInstanceId++;
+	}
+	catch(std::runtime_error& e)
+	{
+		std::stringstream oss;
+		oss << "[PYTHON ERROR] trying to instantiate System from C++: " << systemClassName << "\n" << e.what() << "\n";
+		Log::GetInstance()->Error(oss.str());
+	}
 }
 
 std::list<editor::PyComponentInfo> PythonEngine::GetPyComponentsInfoFromEntity(Entity entity)
@@ -415,47 +604,52 @@ void PythonEngine::LoadScripts(std::string dirname)
 	};
 	IterateDirectory(dirname, LoadAllPyModules);
 	//Spread the class name in all the scripts
-	for(auto& pyModuleObjPair : m_PyModuleNameMap)
+	for(ModuleId moduleId = 1U; moduleId < m_IncrementalModuleId; moduleId++)
 	{
-		const auto pyModuleId = pyModuleObjPair.first;
-		auto pyModuleName = pyModuleObjPair.second;
-		for(auto& importedClassNamePair : m_PyComponentClassNameMap)
+		for (ModuleId otherModuleId = 1U; otherModuleId < m_IncrementalModuleId; otherModuleId++)
 		{
-			const auto importedModuleId = importedClassNamePair.first;
-			const auto importedClassName = importedClassNamePair.second;
-			if(importedModuleId != pyModuleId)
+			if(moduleId == otherModuleId) continue;
+			try
 			{
-				try
-				{
-					auto moduleObj = m_PyModuleObjMap[pyModuleId];
-					auto importedModuleObj = m_PyModuleObjMap[importedModuleId];
-					moduleObj.attr(py::str(importedClassName)) = importedModuleObj.attr(py::str(importedClassName));
-				}
-				catch(std::runtime_error& e)
-				{
-					std::ostringstream oss;
-					oss << "[PYTHON ERROR] Could not import class: " << importedClassName << " into module: " << pyModuleId << " with error: " << e.what();
-					Log::GetInstance()->Error(oss.str());
-				}
+			m_PyModuleObjs[moduleId].attr(py::str(m_PyClassNames[otherModuleId])) = 
+				m_PyModuleObjs[otherModuleId].attr(py::str(m_PyClassNames[otherModuleId]));
+			}
+			catch (std::runtime_error& e)
+			{
+				std::ostringstream oss;
+				oss << "[PYTHON ERROR] Could not import class: " << m_PyClassNames[otherModuleId] << " into module: " << moduleId << " with error: " << e.what();
+				Log::GetInstance()->Error(oss.str());
 			}
 		}
+		
 	}
 }
 
 
 PyComponent* PythonEngine::GetPyComponentFromInstanceId(InstanceId instanceId)
 {
-	if(m_PythonInstanceMap.find(instanceId) != m_PythonInstanceMap.end())
-	{
-		return m_PythonInstanceMap[instanceId].cast<PyComponent*>();
-	}
-	else
+	if (instanceId > m_IncrementalInstanceId)
 	{
 		std::ostringstream oss;
 		oss << "[Python Error] Could not find instance Id: " << instanceId << " in the pythonInstanceMap";
 		Log::GetInstance()->Error(oss.str());
+
+		return nullptr;
 	}
-	return nullptr;
+	return m_PythonInstances[instanceId].cast<PyComponent*>();
+}
+
+PySystem* PythonEngine::GetPySystemFromInstanceId(InstanceId instanceId)
+{
+	if (instanceId > m_IncrementalInstanceId)
+	{
+		std::ostringstream oss;
+		oss << "[Python Error] Could not find instance Id: " << instanceId << " in the pythonInstanceMap";
+		Log::GetInstance()->Error(oss.str());
+
+		return nullptr;
+	}
+	return m_PythonInstances[instanceId].cast<PySystem*>();
 }
 
 py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)
@@ -470,6 +664,22 @@ py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)
 		}
 	}
 	return py::none();
+}
+
+void PythonEngine::OnResize(size_t new_size)
+{
+	m_PythonModulePaths.resize(new_size * 4 );
+	m_PyClassNames.resize(new_size * 4 );
+	m_PyModuleNames.resize(new_size * 4);
+	m_PyModuleObjs.resize(new_size * 4);
+
+	
+
+	m_PythonInstances.resize(new_size * 4);
+	
+	m_PyComponents.resize(new_size * 4);
+	m_PySystems.resize(new_size * 4);
+	m_PyComponentsInfo.resize(new_size * 4);
 }
 
 void PythonEngine::OnTriggerEnter(Entity entity, ColliderData * colliderData)

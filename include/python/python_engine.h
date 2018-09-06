@@ -28,12 +28,12 @@
 #include <list>
 #include <map>
 #include <list>
-#include <pybind11/functional.h>
 
 #include <engine/system.h>
 #include <utility/python_utility.h>
 #include <engine/component.h>
 #include <python/pycomponent.h>
+#include "pysystem.h"
 
 namespace sfge
 {
@@ -45,14 +45,14 @@ class PyComponent;
 struct ColliderData;
 
 using ModuleId = unsigned;
-const unsigned INVALID_MODULE = 0U;
+const ModuleId INVALID_MODULE = 0U;
 using InstanceId = unsigned;
-const unsigned INVALID_INSTANCE = 0U;
+const InstanceId INVALID_INSTANCE = 0U;
 
 /**
 * \brief Manage the python interpreter
 */
-class PythonEngine : public System, public LayerComponentManager<PyComponent*>
+class PythonEngine : public System, public LayerComponentManager<PyComponent*>, public ResizeObserver
 {
 public:
 	using System::System;
@@ -66,8 +66,9 @@ public:
 	* \brief Update the python interpreter, called only in play mode
 	* \param dt The delta time since last frame
 	*/
-	void Update(sf::Time dt) override;
-
+	void Update(float dt) override;
+	void FixedUpdate() override;
+	void Draw() override;
 	/**
 	* \brief Finalize the python interpreter
 	*/
@@ -79,6 +80,9 @@ public:
 	ModuleId LoadPyModule(std::string& moduleFilename);
 
 	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
+	InstanceId LoadPySystem(ModuleId moduleId);
+
+	void LoadCppExtensionSystem(std::string moduleName);
 
 	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 	/**
@@ -87,7 +91,10 @@ public:
 	 * \return pyComponent PyComponent pointer that interacts with the python script
 	 */
 	PyComponent* GetPyComponentFromInstanceId(InstanceId instanceId);
+	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
 	py::object GetPyComponentFromType(py::object type, Entity entity);
+
+	void OnResize(size_t new_size) override;
 	/*
 	*/
 	void OnTriggerEnter(Entity entity, ColliderData* colliderData);
@@ -100,16 +107,18 @@ private:
 	 */
 	void LoadScripts(std::string dirname = "scripts/");
 
-	std::map<std::string, ModuleId> m_PythonModuleIdMap;
-	std::map<ModuleId, std::string> m_PyComponentClassNameMap;
-	std::map<ModuleId, std::string> m_PyModuleNameMap;
-	std::map<ModuleId, py::object> m_PyModuleObjMap;
-	Id m_IncrementalModuleId = 1U;
+	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * 4 };
+	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * 4 };
+	std::vector<std::string> m_PyModuleNames{ INIT_ENTITY_NMB * 4 };
+	std::vector<py::object> m_PyModuleObjs{INIT_ENTITY_NMB*4};
 
-	std::map<InstanceId, py::object> m_PythonInstanceMap;
+	ModuleId m_IncrementalModuleId = 1U;
+
+	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * 4 };
 	InstanceId m_IncrementalInstanceId = 1U;
-	std::vector<PyComponent*> m_PyComponents{};
-	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{};
+	std::vector<PyComponent*> m_PyComponents{ INIT_ENTITY_NMB * 4 };
+	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * 4 };
+	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{ INIT_ENTITY_NMB * 4 };
 };
 
 }

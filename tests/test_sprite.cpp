@@ -32,13 +32,13 @@ SOFTWARE.
 #include <engine/scene.h>
 //Dependencies
 #include <SFML/Graphics.hpp>
+#include <gtest/gtest.h>
 
 
-int main()
+TEST(TestSprite, TestSprite)
 {
 	sfge::Engine engine;
 	engine.Init();
-	auto spriteManager = engine.GetGraphicsManager().GetSpriteManager();
 	json sceneJson;
 	json entityJson;
 	json spriteJson;
@@ -58,8 +58,4 @@ int main()
 	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
 	
 	engine.Start();
-#if WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
 }

@@ -31,7 +31,7 @@ namespace sfge
 
 class Engine;
 /**
-* \brief Module are classes used by the Engine to init and update features
+* \brief Systems are classes used by the Engine to init and update features, new features can be added through PySystem
 */
 class System
 {
@@ -39,21 +39,23 @@ public:
 	System(Engine& engine);
 
 	virtual ~System() = default;
-	//System& operator=(const System&) = delete;
+	System& operator=(const System&) = delete;
 	explicit System(const System & system);
 	/**
 	* \brief Called to initialize the module
 	*/
-	virtual void Init() {}
+	virtual void Init();
 	/**
 	* \brief Called every frame to update the module
 	* \param dt The delta time since last frame
 	*/
-	virtual void Update(sf::Time dt) {}
+	virtual void Update(float dt) {}
 	/**
 	* \brief Called directly after the physics finished his job
 	*/
 	virtual void FixedUpdate() {}
+
+	virtual void Draw(){}
 	/**
 	* \brief Used instead of the destructor to delete all heap created structure and finalize
 	*/
@@ -71,10 +73,11 @@ public:
 	bool GetEnable() const;
 
 	Engine& GetEngine() const;
-
+	bool GetInitlialized() const;
 protected:
 	bool m_Enable = true;
 	Engine& m_Engine;
+	bool m_Initialized = false;
 };
 }
 #endif //SFGE_SYSTEM_H

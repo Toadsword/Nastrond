@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <engine/engine.h>
+#include <engine/config.h>
 #include <engine/entity.h>
 #include <engine/globals.h>
 
@@ -39,21 +41,21 @@ void EntityManager::Init()
 
 void EntityManager::Clear()
 {
-	MaskArray = std::vector<EntityMask>(INIT_ENTITY_NMB, INVALID_ENTITY);
+	m_MaskArray = std::vector<EntityMask>(INIT_ENTITY_NMB, INVALID_ENTITY);
 }
 
 EntityMask EntityManager::GetMask(Entity entity)
 {
-	return MaskArray[entity-1];
+	return m_MaskArray[entity-1];
 }
 
 Entity EntityManager::CreateEntity(Entity wantedEntity)
 {
     if(wantedEntity == INVALID_ENTITY)
     {
-        for (Entity entity = 1U; entity <= MaskArray.size(); entity++)
+        for (Entity entity = 1U; entity <= m_MaskArray.size(); entity++)
         {
-            if(MaskArray[entity-1] == INVALID_ENTITY)
+            if(m_MaskArray[entity-1] == INVALID_ENTITY)
             {
                 return entity;
             }
@@ -61,9 +63,14 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
     }
     else
     {
-        if(MaskArray[wantedEntity-1] == INVALID_ENTITY)
+        if(m_MaskArray[wantedEntity-1] == INVALID_ENTITY)
         {
-            return wantedEntity;
+			{
+				std::ostringstream oss;
+				oss << "Entity: " << wantedEntity;
+				m_EntityInfos[wantedEntity - 1].name = oss.str();
+			}
+        	return wantedEntity;
         }
     }
 	return INVALID_ENTITY;
@@ -71,21 +78,41 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
 
 bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 {
-	return (MaskArray[entity - 1] & (int)componentType) == (int)componentType;
+	return (m_MaskArray[entity - 1] & static_cast<int>(componentType)) == static_cast<int>(componentType);
 }
 
 void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
 {
 
-	MaskArray[entity - 1] = MaskArray[entity - 1] | (int)componentType;
+	m_MaskArray[entity - 1] = m_MaskArray[entity - 1] | static_cast<int>(componentType);
 }
 
 void EntityManager::RemoveComponentType(Entity entity, ComponentType componentType)
 {
+	m_MaskArray[entity - 1] &= ~static_cast<int>(componentType);
 }
 
 editor::EntityInfo& EntityManager::GetEntityInfo(Entity entity)
 {
 	return m_EntityInfos[entity - 1];
+}
+
+void EntityManager::ResizeEntityNmb(size_t newSize)
+{
+	m_MaskArray.resize(newSize);
+	m_EntityInfos.resize(newSize);
+	for (auto* resizeObserver : m_ResizeObsververs)
+	{
+		resizeObserver->OnResize(newSize);
+	}
+	if(const auto config = m_Engine.GetConfig().lock())
+	{
+		config->currentEntitiesNmb = newSize;
+	}
+}
+
+void EntityManager::AddObserver(ResizeObserver* resizeObserver)
+{
+	m_ResizeObsververs.push_back(resizeObserver);
 }
 }

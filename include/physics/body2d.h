@@ -29,7 +29,7 @@ SOFTWARE.
 #include <Box2D/Box2D.h>
 #include <engine/component.h>
 #include <engine/transform2d.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 
 namespace sfge
 {
@@ -65,15 +65,17 @@ private:
 };
 }
 
-class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System
+class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System, public ResizeObserver
 {
 public:
 	Body2dManager(Engine& engine);
 	void Init() override;
 	void FixedUpdate() override;
-
+	Body2d* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
+
+	void OnResize(size_t new_size) override;
 
 private:
 	EntityManager& m_EntityManager;

@@ -38,7 +38,7 @@ SOFTWARE.
 #include <python/python_engine.h>
 #include <engine/config.h>
 #include <audio/audio.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
 #include <engine/transform2d.h>
 #include <physics/physics2d.h>
 #include <engine/log.h>
@@ -52,7 +52,7 @@ namespace sfge
 	instance = this;
 	m_EntityManager = std::make_shared<EntityManager>();
 	m_Transform2dManager = std::make_shared<Transform2dManager>();
-	m_GraphicsManager = std::make_shared<Graphics2dManager>();
+	m_Graphics2dManager = std::make_shared<Graphics2dManager>();
 	m_AudioManager = std::make_shared<AudioManager>();
 	m_SceneManager = std::make_shared<SceneManager>();
 	m_InputManager = std::make_shared<InputManager>();
@@ -100,7 +100,7 @@ void Engine::InitModules()
 
 
 	m_EntityManager.Init();
-	m_GraphicsManager.Init();
+	m_Graphics2dManager.Init();
 	m_AudioManager.Init();
 	m_SceneManager.Init();
 	m_InputManager.Init();
@@ -108,7 +108,7 @@ void Engine::InitModules()
 	m_PhysicsManager.Init();
 	m_Editor.Init();
 
-	m_Window = m_GraphicsManager.GetWindow();
+	m_Window = m_Graphics2dManager.GetWindow();
 	running = true;
 }
 
@@ -116,11 +116,14 @@ void Engine::Start()
 {
 	sf::Clock globalClock;
 	sf::Clock updateClock;
+	sf::Clock fixedUpdateClock;
+	sf::Clock graphicsUpdateClock;
 	sf::Time previousFixedUpdateTime = globalClock.getElapsedTime();
 	sf::Time deltaFixedUpdateTime = sf::Time();
+	sf::Time dt = sf::Time();
 	while (running && m_Window != nullptr)
 	{
-		const sf::Time dt = updateClock.restart();
+		bool isFixedUpdateFrame = false;
 		sf::Event event{};
 		while (m_Window != nullptr && 
 			m_Window->pollEvent(event))
@@ -138,25 +141,36 @@ void Engine::Start()
 			continue;
 		}
 		
-		m_InputManager.Update(dt);
-		sf::Time fixedUpdateTime = globalClock.getElapsedTime() + deltaFixedUpdateTime - previousFixedUpdateTime;
+		m_InputManager.Update(dt.asSeconds());
+		sf::Time fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
+			fixedUpdateClock.restart ();
 			m_PhysicsManager.FixedUpdate();
-			deltaFixedUpdateTime = fixedUpdateTime - sf::seconds(m_Config->fixedDeltaTime);
 			previousFixedUpdateTime = globalClock.getElapsedTime();
 			m_PythonEngine.FixedUpdate();
 			m_SceneManager.FixedUpdate();
+			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime ();
+			m_FrameData.frameFixedUpdate = deltaFixedUpdateTime;
+			isFixedUpdateFrame = true;
 		}
-		m_PythonEngine.Update(dt);
+		m_PythonEngine.Update(dt.asSeconds());
 
-		m_SceneManager.Update(dt);
+		m_SceneManager.Update(dt.asSeconds());
 
-		m_Editor.Update(dt);
-
-		m_GraphicsManager.Update(dt);
+		m_Editor.Update(dt.asSeconds());
+		graphicsUpdateClock.restart ();
+		m_Graphics2dManager.Update(dt.asSeconds());
+		m_PythonEngine.Draw();
 		m_Editor.Draw();
-		m_GraphicsManager.Display();
+		m_Graphics2dManager.Display();
+		sf::Time graphicsDt = graphicsUpdateClock.getElapsedTime ();
+		dt = updateClock.restart();
+		if(isFixedUpdateFrame)
+		{
+			m_FrameData.graphicsTime = graphicsDt;
+			m_FrameData.frameTotalTime = dt;
+		}
 	}
 	Destroy();
 }
@@ -164,7 +178,7 @@ void Engine::Start()
 void Engine::Destroy() 
 {
 	m_EntityManager.Destroy();
-	m_GraphicsManager.Destroy();
+	m_Graphics2dManager.Destroy();
 	m_AudioManager.Destroy();
 	m_SceneManager.Destroy();
 	m_InputManager.Destroy();
@@ -177,7 +191,7 @@ void Engine::Destroy()
 void Engine::Clear() 
 {
 	m_EntityManager.Clear();
-	m_GraphicsManager.Clear();
+	m_Graphics2dManager.Clear();
 	m_AudioManager.Clear();
 	m_SceneManager.Clear();
 	m_InputManager.Clear();
@@ -190,7 +204,7 @@ void Engine::Collect()
 {
 
 	m_EntityManager.Collect();
-	m_GraphicsManager.Collect();
+	m_Graphics2dManager.Collect();
 	m_AudioManager.Collect();
 	m_SceneManager.Collect();
 	m_InputManager.Collect();
@@ -205,9 +219,9 @@ std::weak_ptr<Configuration> Engine::GetConfig() const
 	return std::weak_ptr<Configuration>(m_Config);
 }
 
-Graphics2dManager& Engine::GetGraphicsManager() 
+Graphics2dManager& Engine::GetGraphics2dManager() 
 {
-	return (m_GraphicsManager);
+	return (m_Graphics2dManager);
 }
 
 AudioManager& Engine::GetAudioManager() 
@@ -253,6 +267,11 @@ Editor& Engine::GetEditor()
 ctpl::thread_pool & Engine::GetThreadPool()
 {
 	return m_ThreadPool;
+}
+
+ProfilerFrameData& Engine::GetProfilerFrameData()
+{
+    return m_FrameData;
 }
 
 }

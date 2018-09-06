@@ -3,14 +3,14 @@ import sys
 
 
 class SpriteTest(Component):
-    transform: Transform
+    transform: Transform2d
     speed: float
     direction: Vector2f
 
     def init(self):
         self.speed = 4.0
         self.direction = Vector2f(2.0, 4.0)
-        self.transform = self.get_component(Component.Transform)
+        self.transform = self.get_component(Component.Transform2d)
         sprite_test = self.get_component(ComponentTest)
         if sprite_test:
             print("Youpi " + str(sprite_test))

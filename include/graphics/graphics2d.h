@@ -40,6 +40,10 @@ class Graphics2dManager : public System
 {
 public:
 	using System::System;
+
+  	Graphics2dManager& operator=(const Graphics2dManager&) = delete;
+
+  	Graphics2dManager(Graphics2dManager&& graphics2dManager) = default;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/
@@ -49,7 +53,7 @@ public:
 		* \brief Update the Graphics Manager and prepare for the rendering
 		* \param dt Delta time since last frame
 		*/
-	void Update(sf::Time dt) override;
+	void Update(float dt) override;
 
 	void Display();
 	/**

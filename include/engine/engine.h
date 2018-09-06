@@ -43,7 +43,8 @@ SOFTWARE.
 #include <physics/physics2d.h>
 #include <engine/entity.h>
 #include <engine/transform2d.h>
-#include <engine/editor.h>
+#include <editor/editor.h>
+#include <editor/profiler.h>
 
 namespace sfge
 {
@@ -52,15 +53,6 @@ namespace sfge
 * Prototypes declarations
 */
 struct Configuration;
-class Graphics2dManager;
-class AudioManager;
-class SceneManager;
-class InputManager;
-class PythonEngine;
-class Physics2dManager;
-class Editor;
-class EntityManager;
-class Transform2dManager;
 
 /**
 * \brief The main Engine class to centralise the frame process and the references
@@ -97,7 +89,7 @@ public:
 	*/
 	std::weak_ptr<Configuration> GetConfig() const;
 
-	Graphics2dManager& GetGraphicsManager();
+	Graphics2dManager& GetGraphics2dManager();
 	AudioManager& GetAudioManager();
 	SceneManager& GetSceneManager();
 	InputManager& GetInputManager();
@@ -108,6 +100,7 @@ public:
 	Editor& GetEditor();
 
 	ctpl::thread_pool& GetThreadPool();
+	ProfilerFrameData& GetProfilerFrameData();
 	bool running = false;
 protected:
 	void InitModules();
@@ -117,7 +110,7 @@ protected:
 
 
 	//module
-	Graphics2dManager m_GraphicsManager {*this};
+	Graphics2dManager m_Graphics2dManager {*this};
 	AudioManager m_AudioManager {*this};
 	SceneManager m_SceneManager {*this};
 	InputManager m_InputManager {*this};
@@ -126,6 +119,8 @@ protected:
 	Editor m_Editor {*this};
 	EntityManager m_EntityManager {*this};
 	Transform2dManager m_TransformManager {*this};
+
+  	ProfilerFrameData m_FrameData;
 
 };
 

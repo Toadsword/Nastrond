@@ -13,13 +13,8 @@ namespace sfge
 {
 bool FileExists(std::string & filename)
 {
-#ifndef __APPLE__
 	fs::path p = filename;
 	return fs::exists(p);
-#else
-    std::ifstream infile(filename);
-    return infile.good();
-#endif
 }
 bool IsRegularFile(std::string& filename)
 {
@@ -42,6 +37,12 @@ void IterateDirectory(std::string & dirname, std::function<void(std::string)> fu
 			func(p.path().generic_string());
 		}
 	}
+}
+
+std::ifstream::pos_type CalculateFileSize(const std::string& filename)
+{
+	std::ifstream in(filename, std::ifstream::binary | std::ifstream::ate);
+	return in.tellg();
 }
 
 }

@@ -37,9 +37,18 @@ SOFTWARE.
 
 namespace sfge
 {
+
+Sprite::Sprite() :
+	TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+{
+}
+
+Sprite::Sprite(Transform2d* transform, sf::Vector2f offset)
+	: TransformRequiredComponent(transform), Offsetable(offset)
+{
+}
 void Sprite::Draw(sf::RenderWindow& window)
 {
-	sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width, sprite.getLocalBounds().height) / 2.0f);
 	/*sprite.setPosition(m_GameObject->GetTransform()->GetPosition()+m_Offset);
 	sprite.setScale(m_GameObject->GetTransform()->GetScale());
 	sprite.setRotation(m_GameObject->GetTransform()->GetEulerAngle());*/
@@ -49,20 +58,23 @@ void Sprite::Draw(sf::RenderWindow& window)
 void Sprite::SetTexture(sf::Texture* newTexture)
 {
 	sprite.setTexture(*newTexture);
+
+	sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width, sprite.getLocalBounds().height) / 2.0f);
 }
 
-Sprite::Sprite() : 
-	TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
-{
-}
-
-Sprite::Sprite(Transform2d* transform, sf::Vector2f offset)
-	: TransformRequiredComponent(transform), Offsetable(offset)
-{
-}
 
 void Sprite::Init()
 {
+}
+
+void Sprite::Update()
+{
+	sf::Vector2f pos = m_Offset;
+	if(m_Transform != nullptr)
+	{
+		pos += m_Transform->Position;
+	}
+	sprite.setPosition(pos);
 }
 
 
@@ -84,21 +96,41 @@ void editor::SpriteInfo::DrawOnInspector()
 }
 
 SpriteManager::SpriteManager(Engine& engine):
+	ComponentManager<Sprite, editor::SpriteInfo>(),
 	System(engine),
-	m_GraphicsManager(m_Engine.GetGraphicsManager()),
-	m_EntityManager(m_Engine.GetEntityManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager())
+	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
+	m_Transform2dManager(m_Engine.GetTransform2dManager()),
+	m_EntityManager(m_Engine.GetEntityManager())
 {
+}
+
+Sprite* SpriteManager::AddComponent(Entity entity)
+{
+	auto& sprite = GetComponentRef(entity);
+	auto& spriteInfo = GetComponentInfo(entity);
+
+	sprite.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
+	spriteInfo.sprite = &sprite;
+
+	m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
+	return &sprite;
 }
 
 void SpriteManager::Init()
 {
-
+	System::Init();
+	m_EntityManager.AddObserver(this);
 }
 
-void SpriteManager::Update(sf::Time dt)
+void SpriteManager::Update(float dt)
 {
-
+	for(int i = 0; i < m_Components.size();i++)
+	{
+		if(m_EntityManager.HasComponent(i+1, ComponentType::SPRITE2D))
+		{
+			m_Components[i].Update();
+		}
+	}
 }
 
 
@@ -107,7 +139,7 @@ void SpriteManager::Draw(sf::RenderWindow& window)
 	
 	for (int i = 0; i<m_Components.size();i++)
 	{
-		if(m_EntityManager.HasComponent(i+1, ComponentType::SPRITE2D))
+		if(m_EntityManager.HasComponent(i + 1, ComponentType::SPRITE2D))
 			m_Components[i].Draw(window);
 	}
 	
@@ -124,9 +156,8 @@ void SpriteManager::Collect()
 
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 {
-
-	Sprite newSprite;
-	editor::SpriteInfo newSpriteInfo;
+	auto & newSprite = m_Components[entity - 1];
+	auto & newSpriteInfo = m_ComponentsInfo[entity - 1];
 	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		std::string path = componentJson["path"].get<std::string>();
@@ -138,13 +169,14 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 			const TextureId textureId = textureManager.LoadTexture(path);
 			if (textureId != INVALID_TEXTURE)
 			{
-				{
+				/*{
 					std::ostringstream oss;
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
-				}
+				}*/
 				texture = textureManager.GetTexture(textureId);
 				newSprite.SetTexture(texture);
+				newSprite.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
 				newSpriteInfo.textureId = textureId;
 			}
 			else
@@ -169,12 +201,16 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 	{
 		newSprite.SetLayer(componentJson["layer"]);
 	}
-	m_Components[entity - 1] = newSprite;
-	m_ComponentsInfo[entity - 1] = newSpriteInfo;
+
 }
 
 void SpriteManager::DestroyComponent(Entity entity)
 {
 }
 
+void SpriteManager::OnResize(size_t new_size)
+{
+	m_Components.resize(new_size);
+	m_ComponentsInfo.resize(new_size);
+}
 }
