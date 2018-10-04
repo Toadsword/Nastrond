@@ -203,7 +203,13 @@ void SoundBufferManager::Collect()
 
 SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 {
-
+	if(!FileExists (filename))
+	{
+		std::ostringstream oss;
+		oss << "[ERROR] Sound buffer path: " << filename << " does not exist";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_SOUND_BUFFER;
+	}
 	if (!HasValidExtension(filename))
 	{
 		std::ostringstream oss;

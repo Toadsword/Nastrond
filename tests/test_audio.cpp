@@ -24,6 +24,7 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/config.h>
 #include <gtest/gtest.h>
+#include <audio/sound.h>
 
 TEST(TestAudio, SoundBuffer)
 {
@@ -37,5 +38,10 @@ TEST(TestAudio, SoundBuffer)
 	auto& soundBufferManager = audioManager.GetSoundBufferManager();
 
 	sfge::SoundId badSoundId = soundBufferManager.LoadSoundBuffer("bad/file/path");
+	sfge::SoundId badExtSoundId = soundBufferManager.LoadSoundBuffer("data/sprites/other_play.png");
+	sfge::SoundId goodSoundId = soundBufferManager.LoadSoundBuffer("data/sounds/doorClose_1.ogg");
 
+	ASSERT_EQ (badSoundId, sfge::INVALID_SOUND_BUFFER);
+	ASSERT_EQ (badExtSoundId, sfge::INVALID_SOUND_BUFFER);
+	ASSERT_NE (goodSoundId, sfge::INVALID_SOUND_BUFFER);
 }

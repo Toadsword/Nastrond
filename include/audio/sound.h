@@ -37,7 +37,7 @@ namespace sfge
 class SoundManager;
 
 using SoundId = unsigned int;
-#define INVALID_SOUND_ID 0U;
+const SoundId INVALID_SOUND_ID = 0U;
 
 using SoundBufferId = unsigned;
 const SoundBufferId INVALID_SOUND_BUFFER = 0U;
