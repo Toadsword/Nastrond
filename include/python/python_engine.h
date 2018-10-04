@@ -26,14 +26,13 @@
 #define SFGE_PYENGINE_H
 
 #include <list>
-#include <map>
 #include <list>
 
 #include <engine/system.h>
 #include <utility/python_utility.h>
 #include <engine/component.h>
 #include <python/pycomponent.h>
-#include "pysystem.h"
+#include <python/pysystem.h>
 
 namespace sfge
 {

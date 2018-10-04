@@ -28,12 +28,14 @@ SOFTWARE.
 #include <audio/sound.h>
 #include <engine/log.h>
 #include <gtest/gtest.h>
-TEST(TestSoundBuffer, TestSoundBuffer)
+
+TEST(TestAudio, TestSoundBuffer)
 {
 	sfge::Engine engine;
 
 	auto config = std::make_unique<sfge::Configuration>();
 	config->devMode = false;
+	config->windowLess = true;
 	engine.Init (std::move (config));
 
 	auto& soundBufferManager = engine.GetAudioManager().GetSoundBufferManager();
@@ -52,7 +54,7 @@ TEST(TestSoundBuffer, TestSoundBuffer)
 	ASSERT_NE (goodSndBufferId, sfge::INVALID_SOUND_BUFFER);
 
 	sf::Sound sound;
-	if (badSndBufferId != sfge::INVALID_TEXTURE)
+	if (badSndBufferId != sfge::INVALID_SOUND_BUFFER)
 	{
 		sfge::Log::GetInstance()->Error("Loading Bad File");
 		sound.setBuffer(*soundBufferManager.GetSoundBuffer(badSndBufferId));
@@ -63,7 +65,7 @@ TEST(TestSoundBuffer, TestSoundBuffer)
 		oss << "Bad file: " << badTextPath << " could not be loaded";
 		sfge::Log::GetInstance()->Error(oss.str());
 	}
-	if (goodSndBufferId != sfge::INVALID_TEXTURE)
+	if (goodSndBufferId != sfge::INVALID_SOUND_BUFFER)
 	{
 
 		sfge::Log::GetInstance()->Msg("Loading Good File");

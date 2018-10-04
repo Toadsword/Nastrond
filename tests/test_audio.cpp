@@ -25,8 +25,9 @@ SOFTWARE.
 #include <engine/config.h>
 #include <gtest/gtest.h>
 #include <audio/sound.h>
+#include <SFML/Audio.hpp>
 
-TEST(TestAudio, SoundBuffer)
+TEST(TestAudio, Sound)
 {
 	sfge::Engine engine;
 	auto config = std::make_unique<sfge::Configuration>();
@@ -34,14 +35,5 @@ TEST(TestAudio, SoundBuffer)
 	config->windowLess = true;
 	engine.Init(std::move(config));
 
-	auto& audioManager = engine.GetAudioManager();
-	auto& soundBufferManager = audioManager.GetSoundBufferManager();
-
-	sfge::SoundId badSoundId = soundBufferManager.LoadSoundBuffer("bad/file/path");
-	sfge::SoundId badExtSoundId = soundBufferManager.LoadSoundBuffer("data/sprites/other_play.png");
-	sfge::SoundId goodSoundId = soundBufferManager.LoadSoundBuffer("data/sounds/doorClose_1.ogg");
-
-	ASSERT_EQ (badSoundId, sfge::INVALID_SOUND_BUFFER);
-	ASSERT_EQ (badExtSoundId, sfge::INVALID_SOUND_BUFFER);
-	ASSERT_NE (goodSoundId, sfge::INVALID_SOUND_BUFFER);
+	engine.Destroy();
 }

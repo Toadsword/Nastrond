@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 #include <sstream>
+#include <list>
 
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
@@ -54,7 +55,7 @@ namespace sfge
 PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
 
-
+	
 	py::class_<Engine> engine(m, "Engine");
 	engine
 		.def_property_readonly("config", [](Engine* engine)
@@ -195,11 +196,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("DYNAMIC_BODY", b2_dynamicBody)
 		.export_values();
 		
-	/*py::class_<Sound> sound(m, "Sound");
+	py::class_<Sound> sound(m, "Sound");
 	sound
 		.def("play", &Sound::Play)
 		.def("stop", &Sound::Stop);
-	*/
+	
 	py::class_<Shape> shape(m, "Shape");
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);
@@ -281,7 +282,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			return oss.str();
 		});
 
-		ext::ExtendPython(m);
+	ext::ExtendPython(m);
+	
 }
 
 void PythonEngine::Init()
@@ -389,7 +391,7 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 {
 	const auto folderLastIndex = moduleFilename.find_last_of('/');
 	std::string filename = moduleFilename.substr(folderLastIndex + 1, moduleFilename.size());
-	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
+	const auto filenameExtensionIndex = filename.find_last_of('.');
 	if(filenameExtensionIndex > moduleFilename.size())
 	{
 		std::ostringstream oss;
