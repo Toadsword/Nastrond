@@ -76,7 +76,7 @@ private:
 	const float gravityConst = 1000.0f;
 	const float centerMass = 1000.0f;
 	const float planetMass = 1.0f;
-	const int entitiesNmb = 10'000;
+	const int entitiesNmb = 1'000'000;
 
 #ifndef WITH_PHYSICS
 	std::vector<sf::Vector2f> m_Velocities{(unsigned long) entitiesNmb};

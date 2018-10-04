@@ -23,6 +23,7 @@ SOFTWARE.
 */
 #include <sstream>
 #include <list>
+#include <set>
 #include <audio/sound.h>
 #include <audio/audio.h>
 #include <engine/log.h>
@@ -40,78 +41,6 @@ static std::set<std::string> sndExtensionSet
 	".ogg",
 	".flac"
 };
-unsigned int SoundManager::LoadSoundBuffer(std::string filename)
-{
-	//If already loaded
-	if (idsPathMap.find(filename) != idsPathMap.end())
-	{
-		const unsigned int soundBufferId = idsPathMap[filename];
-
-		if (soundBufferMap.find(soundBufferId) != soundBufferMap.end())
-		{
-			return idsPathMap[filename];
-		}
-		else
-		{
-
-
-			sf::SoundBuffer* soundBuffer = new sf::SoundBuffer();
-			if (!soundBuffer->loadFromFile(filename))
-			{
-				{
-					std::ostringstream oss;
-					oss << "Error with loading sound: " << filename;
-					sfge::Log::GetInstance()->Error(oss.str());
-				}
-				return 0U;
-			}
-
-			incrementId++;
-			idsPathMap[filename] = incrementId;
-			idsRefCountMap[incrementId] = 1U;
-			soundBufferMap[incrementId] = soundBuffer;
-			return incrementId;
-		}
-	}
-	else if (FileExists(filename))
-	{
-		sf::SoundBuffer* soundBuffer = new sf::SoundBuffer();
-
-		if (!soundBuffer->loadFromFile(filename))
-		{
-			{
-				std::ostringstream oss;
-				oss << "Error with loading sound: " << filename;
-				sfge::Log::GetInstance()->Error(oss.str());
-			}
-			return 0U;
-		}
-		{
-			std::ostringstream oss;
-			oss << "Loading Sound Buffer for: " << filename;
-			sfge::Log::GetInstance()->Msg(oss.str());
-		}
-		incrementId++;
-		idsPathMap[filename] = incrementId;
-
-		idsRefCountMap[incrementId] = 1U;
-		soundBufferMap[incrementId] = soundBuffer;
-		return incrementId;
-	}
-
-	return 0U;
-}
-
-
-sf::SoundBuffer* SoundManager::GetSoundBuffer(unsigned int sound_buffer_id)
-{
-	if (soundBufferMap.find(sound_buffer_id) != soundBufferMap.end())
-	{
-		return soundBufferMap[sound_buffer_id];
-	}
-	return nullptr;
-
-}
 
 Sound* SoundManager::AddComponent(Entity entity)
 {

@@ -195,11 +195,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("DYNAMIC_BODY", b2_dynamicBody)
 		.export_values();
 		
-	py::class_<Sound> sound(m, "Sound");
+	/*py::class_<Sound> sound(m, "Sound");
 	sound
 		.def("play", &Sound::Play)
 		.def("stop", &Sound::Stop);
-	
+	*/
 	py::class_<Shape> shape(m, "Shape");
 	shape
 		.def("set_fill_color", &Shape::SetFillColor);

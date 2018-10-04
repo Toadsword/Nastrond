@@ -22,9 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <engine/engine.h>
+#include <engine/config.h>
 #include <gtest/gtest.h>
 
-TEST(TestAudio, BadMusic)
+TEST(TestAudio, SoundBuffer)
 {
-	
+	sfge::Engine engine;
+	auto config = std::make_unique<sfge::Configuration>();
+	config->devMode = false;
+	config->windowLess = true;
+	engine.Init(std::move(config));
+
+	auto& audioManager = engine.GetAudioManager();
+	auto& soundBufferManager = audioManager.GetSoundBufferManager();
+
+	sfge::SoundId badSoundId = soundBufferManager.LoadSoundBuffer("bad/file/path");
+
 }

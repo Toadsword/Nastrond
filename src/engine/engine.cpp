@@ -164,7 +164,7 @@ void Engine::Start()
 		m_PythonEngine.Draw();
 		m_Editor.Draw();
 		m_Graphics2dManager.Display();
-		sf::Time graphicsDt = graphicsUpdateClock.getElapsedTime ();
+		const sf::Time graphicsDt = graphicsUpdateClock.getElapsedTime ();
 		dt = updateClock.restart();
 		if(isFixedUpdateFrame)
 		{

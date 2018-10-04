@@ -26,6 +26,7 @@ SOFTWARE.
 #ifndef SFGE_SOUND_H
 #define SFGE_SOUND_H
 #include <map>
+#include <vector>
 
 #include <SFML/Audio.hpp>
 #include <engine/component.h>
@@ -105,16 +106,7 @@ class SoundManager : public ComponentManager<Sound, editor::SoundInfo>
 public:
 	SoundManager();
 	~SoundManager();
-	/**
-	* \brief load a sf::SoundBuffer, put it on soundBufferMap and return the matchin id
-	* \param filename The filename of the buffer file
-	*/
-	unsigned int LoadSoundBuffer(std::string filename);
-	/**
-	* \brief return the sf::SoundBuffer attached to the given sound_buffer_id on the soundBufferMap
-	* \param sound_buffer_id The id key of the soundBuffer
-	*/
-	sf::SoundBuffer* GetSoundBuffer(unsigned int sound_buffer_id);
+
 
 	Sound* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
