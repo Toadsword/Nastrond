@@ -25,6 +25,7 @@
 #ifndef SFGE_PYENGINE_H
 #define SFGE_PYENGINE_H
 
+#include <list>
 #include <map>
 #include <list>
 
@@ -43,9 +44,9 @@ struct PyComponentInfo;
 class PyComponent;
 struct ColliderData;
 
-typedef unsigned ModuleId;
+using ModuleId = unsigned;
 const ModuleId INVALID_MODULE = 0U;
-typedef unsigned InstanceId;
+using InstanceId = unsigned;
 const InstanceId INVALID_INSTANCE = 0U;
 
 /**

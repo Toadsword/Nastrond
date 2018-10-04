@@ -69,62 +69,6 @@ void AudioManager::Destroy()
 	Collect();
 }
 
-MusicManager::MusicManager()
-{
-}
-unsigned int MusicManager::LoadMusic(std::string filename)
-{
-	if (musicPathId.find(filename) != musicPathId.end())
-	{
-		auto musicId = musicPathId[filename];
-		auto checkMusic = musicMap.find(musicId);
-
-		if (checkMusic != musicMap.end())
-		{
-			std::cout << "music return";
-			return musicPathId[filename];
-		}
-		else
-		{
-			std::shared_ptr<sf::Music> music = std::make_shared<sf::Music>();
-			if (!music->openFromFile(filename))
-			{
-				std::cout << "music not open from file";
-				return 0U;
-			}
-			musicPathId[filename] = incrementId;
-			musicMap[incrementId] = music;
-			return incrementId;
-		}
-	}
-	else
-	{
-		if (FileExists(filename))
-		{
-			incrementId++;
-			auto music = std::make_shared<sf::Music>();
-
-			if (!music->openFromFile(filename))
-			{
-				std::cout << "music not open from file but exist";
-				return 0U;
-			}
-			musicPathId[filename] = incrementId;
-			musicMap[incrementId] = music;
-			return incrementId;
-		}
-	}
-	return 0U;
-}
-
-std::shared_ptr<sf::Music> MusicManager::GetMusic(unsigned int musicId)
-{
-	if (musicMap.find(musicId) != musicMap.end())
-	{
-		return musicMap[musicId];
-	}
-	return nullptr;
-}
 
 
 
