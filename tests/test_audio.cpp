@@ -35,5 +35,28 @@ TEST(TestAudio, Sound)
 	config->windowLess = true;
 	engine.Init(std::move(config));
 
-	engine.Destroy();
+	json sceneJson;
+	json entityJson;
+	json soundJson;
+	soundJson["path"] = "data/sounds/doorClose_1.ogg";
+	soundJson["type"] = static_cast<int>(sfge::ComponentType::SOUND);
+	
+
+	json playSoundScriptJson;
+	playSoundScriptJson["script_path"] = "scripts/play_sound.py";
+	playSoundScriptJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson["components"] = json::array({ soundJson, playSoundScriptJson });
+
+	json fakeEntityJson;
+	json fakeSoundJson;
+	fakeSoundJson["path"] = "fake/path/prout.wav";
+	fakeSoundJson["type"] = static_cast<int>(sfge::ComponentType::SOUND);
+	fakeEntityJson["components"] = json::array({ fakeSoundJson });
+
+
+	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
+	sceneJson["name"] = "Test Sound";
+	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
+
+	engine.Start();
 }

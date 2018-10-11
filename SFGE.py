@@ -124,6 +124,9 @@ class Component:
     Sound = 0
     Transform2d = 0
 
+    def init(self):
+        pass
+
     def update(self, dt):
         pass
 
@@ -153,6 +156,12 @@ class Transform2d():
         self.scale = Vector2f()
         self.angle = 0.0
 
+class Sound:
+    def play(self):
+        pass
+
+    def stop(self):
+        pass
 
 class Body2d:
     def __init__(self):

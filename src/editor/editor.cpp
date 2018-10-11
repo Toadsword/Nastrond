@@ -33,7 +33,7 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/log.h>
 #include <engine/config.h>
-#include <engine/scene.h>
+#include <audio/sound.h>
 #include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
 
@@ -45,7 +45,8 @@ Editor::Editor(Engine& engine):
 	m_SceneManager(m_Engine.GetSceneManager()),
 	m_EntityManager(m_Engine.GetEntityManager()),
 	m_TransformManager(m_Engine.GetTransform2dManager()),
-	m_PhysicsManager(m_Engine.GetPhysicsManager())
+	m_PhysicsManager(m_Engine.GetPhysicsManager()),
+	m_SoundManager(m_Engine.GetAudioManager().GetSoundManager())
 {
 }
 
@@ -135,8 +136,14 @@ void Editor::Update(float dt)
 				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
 					auto& shapeManager = m_GraphicsManager.GetShapeManager();
-					auto shapeInfo = shapeManager.GetComponentInfo (selectedEntity);
+					auto& shapeInfo = shapeManager.GetComponentInfo (selectedEntity);
 					shapeInfo.DrawOnInspector();
+				}
+
+				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::SOUND))
+				{
+					auto& soundInfo = m_SoundManager.GetComponentInfo(selectedEntity);
+					soundInfo.DrawOnInspector();
 				}
 				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
 				{

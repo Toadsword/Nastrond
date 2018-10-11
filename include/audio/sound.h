@@ -25,7 +25,6 @@ SOFTWARE.
 
 #ifndef SFGE_SOUND_H
 #define SFGE_SOUND_H
-#include <map>
 #include <vector>
 
 #include <SFML/Audio.hpp>
@@ -34,7 +33,9 @@ SOFTWARE.
 
 namespace sfge
 {
+class EntityManager;
 class SoundManager;
+class Sound;
 
 using SoundId = unsigned int;
 const SoundId INVALID_SOUND_ID = 0U;
@@ -46,9 +47,12 @@ const auto MAX_SOUND_BUFFER_SIZE = 1'000'000ll;
 
 namespace editor
 {
-class SoundInfo : public ComponentInfo, PathEditorComponent
+struct SoundInfo : ComponentInfo, PathEditorComponent
 {
 	void DrawOnInspector() override;
+	SoundBufferId SoundBufferId = INVALID_SOUND_BUFFER;
+	Sound* Sound = nullptr;
+	std::string bufferPath = "";
 };
 }
 /**
@@ -95,16 +99,16 @@ private:
 
   	bool HasValidExtension(std::string filename);
 	std::vector<std::string> m_SoundBufferPaths{ INIT_ENTITY_NMB };
-	std::vector<unsigned int> m_SoundBufferCountRefs{ INIT_ENTITY_NMB };
+	std::vector<size_t> m_SoundBufferCountRefs{ INIT_ENTITY_NMB };
 	std::vector<std::unique_ptr<sf::SoundBuffer>> m_SoundBuffers{INIT_ENTITY_NMB};
 	SoundBufferId m_IncrementId = 0U;
 
 };
 
-class SoundManager : public ComponentManager<Sound, editor::SoundInfo>
+class SoundManager : public ComponentManager<Sound, editor::SoundInfo>, System
 {
 public:
-	SoundManager();
+	SoundManager(Engine& engine);
 	~SoundManager();
 
 
@@ -117,11 +121,9 @@ public:
 	void Collect();
 
 protected:
-
-	std::map<std::string, SoundId> idsPathMap;
-	std::map<SoundId, unsigned int> idsRefCountMap;
-	std::map<SoundId, sf::SoundBuffer*> soundBufferMap;
-	SoundId incrementId = INVALID_SOUND_ID;
+	EntityManager& m_EntityManager;
+	SoundBufferManager& m_SoundBufferManager;
+	std::vector<std::string> m_TexturePaths{ INIT_ENTITY_NMB };
 };
 }
 #endif

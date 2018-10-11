@@ -44,6 +44,7 @@ class Transform2dManager;
 class EntityManager;
 class SceneManager;
 class Physics2dManager;
+class SoundManager;
 
 
 
@@ -78,6 +79,7 @@ protected:
 	EntityManager& m_EntityManager;
 	Transform2dManager& m_TransformManager;
 	Physics2dManager& m_PhysicsManager;
+	SoundManager& m_SoundManager;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;

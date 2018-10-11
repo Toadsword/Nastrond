@@ -219,6 +219,14 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 
 							break;
 						}
+						case ComponentType::SOUND:
+						{
+							auto& audioManager = m_Engine.GetAudioManager();
+							auto& soundManager = audioManager.GetSoundManager();
+							soundManager.CreateComponent(componentJson, entity);
+							m_EntityManager.AddComponentType(entity, ComponentType::SOUND);
+							break;
+						}
 						case ComponentType::SPRITE2D:
 						{
 							auto& graphicsManager = m_Engine.GetGraphics2dManager();

@@ -26,7 +26,6 @@ SOFTWARE.
 #define SFGE_TEXTURE_H_
 
 //STL
-#include <map>
 #include <string>
 #include <memory>
 

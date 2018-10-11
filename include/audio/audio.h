@@ -63,7 +63,7 @@ public:
 	void Clear() override;
 	void Collect() override;
 protected:
-	SoundManager m_SoundManager;
+	SoundManager m_SoundManager {m_Engine};
 	SoundBufferManager m_SoundBufferManager{ m_Engine };
 	MusicManager m_MusicManager;
 };

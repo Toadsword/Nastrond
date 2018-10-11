@@ -141,9 +141,12 @@ void PyComponent::Update(float dt)
 				auto& sprite = graphicsManager.GetSpriteManager().GetComponentRef(m_Entity);
 				return py::cast(sprite, py::return_value_policy::reference);
 			}
-			break;
 		case ComponentType::SOUND:
-			break;
+			{
+				auto& soundManager = m_Engine.GetAudioManager().GetSoundManager();
+				auto& sound = soundManager.GetComponentRef(m_Entity);
+				return py::cast(sound, py::return_value_policy::reference);
+			}
 		default:
 			return py::none();
 		}

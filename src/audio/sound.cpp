@@ -22,14 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <sstream>
+#include <string>
 #include <list>
 #include <set>
+
 #include <audio/sound.h>
 #include <audio/audio.h>
 #include <engine/log.h>
 #include <engine/engine.h>
 #include <engine/config.h>
 #include <utility/file_utility.h>
+#include "imgui.h"
 
 
 namespace sfge
@@ -44,11 +47,57 @@ static std::set<std::string> sndExtensionSet
 
 Sound* SoundManager::AddComponent(Entity entity)
 {
-	return nullptr;
+	auto& sound = GetComponentRef(entity);
+	auto& soundInfo = GetComponentInfo(entity);
+
+	
+	soundInfo.Sound = &sound;
+	m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
+	return &sound;
 }
 
 void SoundManager::CreateComponent(json & componentJson, Entity entity)
 {
+	auto & newSound = m_Components[entity - 1];
+	auto & newSoundInfo = m_ComponentsInfo[entity - 1];
+	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
+	{
+		auto path = componentJson["path"].get<std::string>();
+		newSoundInfo.path = path;
+		sf::SoundBuffer* soundBuffer = nullptr;
+		if (FileExists(path))
+		{
+			const SoundBufferId soundBufferId = m_SoundBufferManager.LoadSoundBuffer(path);
+			if (soundBufferId != INVALID_TEXTURE)
+			{
+				/*{
+					std::ostringstream oss;
+					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
+					sfge::Log::GetInstance()->Msg(oss.str());
+				}*/
+				soundBuffer = m_SoundBufferManager.GetSoundBuffer(soundBufferId);
+				newSound.SetBuffer(soundBuffer);
+				newSoundInfo.SoundBufferId = soundBufferId;
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "Sound file " << path << " cannot be loaded";
+				Log::GetInstance()->Error(oss.str());
+			}
+		}
+		else
+		{
+			std::ostringstream oss;
+			oss << "Sound file " << path << " does not exist";
+			Log::GetInstance()->Error(oss.str());
+		}
+	}
+	else
+	{
+		Log::GetInstance()->Error("[Error] No Path for Sound");
+	}
+
 }
 
 void SoundManager::DestroyComponent(Entity entity)
@@ -69,39 +118,19 @@ void Sound::SetBuffer(sf::SoundBuffer* buffer)
 {
 	m_Sound.setBuffer(*buffer);
 }
-SoundManager::SoundManager(): ComponentManager()
+SoundManager::SoundManager(Engine& engine):
+System(engine), m_EntityManager(engine.GetEntityManager()), m_SoundBufferManager(engine.GetAudioManager().GetSoundBufferManager())
 {
 
 }
 void SoundManager::Reset()
 {
-	for (auto idRefCountPair : idsRefCountMap)
-	{
-		idsRefCountMap[idRefCountPair.first] = 0U;
-	}
+
 }
 
 void SoundManager::Collect()
 {
-	std::list<unsigned int> unusedIds;
-	for (auto idRefCountPair : idsRefCountMap)
-	{
-		const SoundId& soundId = idRefCountPair.first;
-		const int& soundIdCount = idRefCountPair.second;
-		if (soundIdCount == 0U)
-		{
-			unusedIds.push_back(soundId);
-		}
-	}
-	for (unsigned int soundBufferId : unusedIds)
-	{
-		idsRefCountMap.erase(soundBufferId);
-		soundBufferMap.erase(soundBufferId);
-	}
-	for (auto sound : m_Components)
-	{
-	}
-	m_Components.clear();
+
 }
 
 void Sound::Play()
@@ -170,11 +199,7 @@ bool SoundBufferManager::HasValidExtension(std::string filename)
 
 	//Check extension first
 	const std::string extension = filename.substr(filenameExtensionIndex);
-	if (sndExtensionSet.find(extension) == sndExtensionSet.end())
-	{
-		return false;
-	}
-	return true;
+	return sndExtensionSet.find(extension) != sndExtensionSet.end();
 }
 
 void SoundBufferManager::Clear()
@@ -187,15 +212,15 @@ void SoundBufferManager::Clear()
 
 void SoundBufferManager::Collect()
 {
-	std::list<SoundBufferId> unusedTextureIds;
+	std::list<SoundBufferId> unusedBufferIds;
 	for (auto i = 0U; i < m_SoundBufferCountRefs.size(); i++)
 	{
 		if (m_SoundBuffers[i] && m_SoundBufferCountRefs[i] == 0U)
 		{
-			unusedTextureIds.push_back(i + 1);
+			unusedBufferIds.push_back(i + 1);
 		}
 	}
-	for (auto unusedTextureId : unusedTextureIds)
+	for (auto unusedTextureId : unusedBufferIds)
 	{
 		m_SoundBuffers[unusedTextureId] = nullptr;
 	}
@@ -263,7 +288,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 			if (!soundBuffer->loadFromFile(filename))
 			{
 				std::ostringstream oss;
-				oss << "[ERROR] Could not load texture file: " << filename;
+				oss << "[ERROR] Could not load sound file: " << filename;
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_TEXTURE;
 			}
@@ -277,7 +302,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 		else
 		{
 			std::ostringstream oss;
-			oss << "[ERROR] Could not load texture file: " << filename;
+			oss << "[ERROR] Could not load sound file: " << filename;
 			Log::GetInstance()->Error(oss.str());
 		}
 	}
@@ -291,16 +316,15 @@ sf::SoundBuffer* SoundBufferManager::GetSoundBuffer(SoundBufferId soundBufferId)
 
 SoundManager::~SoundManager()
 {
-	for (auto sound : m_Components)
-	{
-	}
-	for (auto soundBuffer : soundBufferMap)
-	{
-		delete(soundBuffer.second);
-	}
+	
 }
 }
 
 void sfge::editor::SoundInfo::DrawOnInspector()
 {
+	ImGui::Separator();
+	ImGui::Text("Sound");
+	ImGui::LabelText("Sound Path", path.c_str());
+	ImGui::InputInt("Sound Id", reinterpret_cast<int*>(&SoundBufferId));
+	
 }
