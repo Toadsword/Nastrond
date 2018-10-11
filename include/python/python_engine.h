@@ -25,65 +25,99 @@
 #ifndef SFGE_PYENGINE_H
 #define SFGE_PYENGINE_H
 
-#include <engine/engine.h>
-#include <engine/component.h>
+#include <list>
+#include <list>
+
+#include <engine/system.h>
 #include <utility/python_utility.h>
-#include <pybind11/functional.h>
+#include <engine/component.h>
+#include <python/pycomponent.h>
+#include <python/pysystem.h>
 
 namespace sfge
 {
+namespace editor
+{
+struct PyComponentInfo;
+}
 class PyComponent;
+struct ColliderData;
+
+using ModuleId = unsigned;
+const ModuleId INVALID_MODULE = 0U;
+using InstanceId = unsigned;
+const InstanceId INVALID_INSTANCE = 0U;
+
 /**
 * \brief Manage the python interpreter
 */
-class PythonManager : public Module
+class PythonEngine : public System, public LayerComponentManager<PyComponent*>, public ResizeObserver
 {
 public:
-	using Module::Module;
+	using System::System;
 	/**
 	* \brief Initialize the python interpreter
 	*/
 	void Init() override;
+
+	void InitPyComponent();
 	/**
 	* \brief Update the python interpreter, called only in play mode
 	* \param dt The delta time since last frame
 	*/
-	void Update(sf::Time dt) override;
-
+	void Update(float dt) override;
+	void FixedUpdate() override;
+	void Draw() override;
 	/**
 	* \brief Finalize the python interpreter
 	*/
 	void Destroy() override;
 
 	void Collect() override;
-	void Reset() override;
-	/**
-	 * \brief Load a python script and return a python object of it
-	 * \param script_name
-	 * \param gameObject
-	 * \return scriptInstanceId The id of the loaded instance
-	 */
-	unsigned int LoadPyComponentFile(std::string script_path, GameObject* gameObject);
+	void Clear() override;
+
+	ModuleId LoadPyModule(std::string& moduleFilename);
+
+	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
+	InstanceId LoadPySystem(ModuleId moduleId);
+
+	void LoadCppExtensionSystem(std::string moduleName);
+
+	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 	/**
 	 * \brief Get a python component object
-	 * \param scriptId
-	 * \return pyComponent PyComponent pointer that interacts with the python
+	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
+	 * \return pyComponent PyComponent pointer that interacts with the python script
 	 */
-	PyComponent* GetPyComponent(unsigned int scriptInstanceId);
+	PyComponent* GetPyComponentFromInstanceId(InstanceId instanceId);
+	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
+	py::object GetPyComponentFromType(py::object type, Entity entity);
+
+	void OnResize(size_t new_size) override;
+	/*
+	*/
+	void OnTriggerEnter(Entity entity, ColliderData* colliderData);
+	void OnTriggerExit(Entity entity, ColliderData* colliderData);
+	void OnCollisionEnter(Entity entity, ColliderData* colliderData);
+	void OnCollisionExit(Entity entity, ColliderData* colliderData);
 private:
 	/**
 	 * \brief Load all the python scripts at initialization or reset
 	 */
-	void LoadScripts();
+	void LoadScripts(std::string dirname = "scripts/");
 
-	std::map<std::string, unsigned int> pythonModuleIdMap;
-	std::map<unsigned int, py::object> pythonModuleObjectMap;
-	unsigned int incrementalScriptId = 1U;
+	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * 4 };
+	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * 4 };
+	std::vector<std::string> m_PyModuleNames{ INIT_ENTITY_NMB * 4 };
+	std::vector<py::object> m_PyModuleObjs{INIT_ENTITY_NMB*4};
 
-	std::map<unsigned int, py::object> pythonInstanceMap;
-	unsigned int incrementalInstanceId = 1U;
-	std::vector<PyComponent*> pyComponents;
+	ModuleId m_IncrementalModuleId = 1U;
 
+	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * 4 };
+	InstanceId m_IncrementalInstanceId = 1U;
+	std::vector<PyComponent*> m_PyComponents{ INIT_ENTITY_NMB * 4 };
+	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * 4 };
+	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{ INIT_ENTITY_NMB * 4 };
 };
 
 }

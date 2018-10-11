@@ -1,6 +1,5 @@
 /*
 * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
-* Copyright (c) 2015, Justin Hoffman https://github.com/skitzoid
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -127,13 +126,13 @@ stored in a single array since multiple arrays lead to multiple misses.
 2D Rotation
 
 R = [cos(theta) -sin(theta)]
-[sin(theta) cos(theta) ]
+    [sin(theta) cos(theta) ]
 
 thetaDot = omega
 
 Let q1 = cos(theta), q2 = sin(theta).
 R = [q1 -q2]
-[q2  q1]
+    [q2  q1]
 
 q1Dot = -thetaDot * q2
 q2Dot = thetaDot * q1
@@ -146,11 +145,6 @@ This might be faster than computing sin+cos.
 However, we can compute sin+cos of the same angle fast.
 */
 
-b2Island::b2Island()
-{
-    m_allocator = nullptr;
-}
-
 b2Island::b2Island(
 	int32 bodyCapacity,
 	int32 contactCapacity,
@@ -160,7 +154,7 @@ b2Island::b2Island(
 {
 	m_bodyCapacity = bodyCapacity;
 	m_contactCapacity = contactCapacity;
-	m_jointCapacity = jointCapacity;
+	m_jointCapacity	 = jointCapacity;
 	m_bodyCount = 0;
 	m_contactCount = 0;
 	m_jointCount = 0;
@@ -176,46 +170,14 @@ b2Island::b2Island(
 	m_positions = (b2Position*)m_allocator->Allocate(m_bodyCapacity * sizeof(b2Position));
 }
 
-b2Island::b2Island(
-	int32 bodyCount,
-	int32 contactCount,
-	int32 jointCount,
-	b2Body** bodies,
-	b2Contact** contacts,
-	b2Joint** joints,
-	b2Velocity* velocities,
-	b2Position* positions,
-	b2ContactListener* listener)
-{
-	m_bodyCapacity = bodyCount;
-	m_contactCapacity = contactCount;
-	m_jointCapacity = jointCount;
-	m_bodyCount = bodyCount;
-	m_contactCount = contactCount;
-	m_jointCount = jointCount;
-
-	m_allocator = nullptr;
-	m_listener = listener;
-
-	m_bodies = bodies;
-	m_contacts = contacts;
-	m_joints = joints;
-
-	m_velocities = velocities;
-	m_positions = positions;
-}
-
 b2Island::~b2Island()
 {
-	if (m_allocator)
-	{
-		// Warning: the order should reverse the constructor order.
-		m_allocator->Free(m_positions);
-		m_allocator->Free(m_velocities);
-		m_allocator->Free(m_joints);
-		m_allocator->Free(m_contacts);
-		m_allocator->Free(m_bodies);
-	}
+	// Warning: the order should reverse the constructor order.
+	m_allocator->Free(m_positions);
+	m_allocator->Free(m_velocities);
+	m_allocator->Free(m_joints);
+	m_allocator->Free(m_contacts);
+	m_allocator->Free(m_bodies);
 }
 
 void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& gravity, bool allowSleep)
@@ -285,7 +247,7 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 	{
 		contactSolver.WarmStart();
 	}
-
+	
 	for (int32 i = 0; i < m_jointCount; ++i)
 	{
 		m_joints[i]->InitVelocityConstraints(solverData);
@@ -368,14 +330,11 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 	for (int32 i = 0; i < m_bodyCount; ++i)
 	{
 		b2Body* body = m_bodies[i];
-		if (body->GetType() != b2_staticBody)
-		{
-			body->m_sweep.c = m_positions[i].c;
-			body->m_sweep.a = m_positions[i].a;
-			body->m_linearVelocity = m_velocities[i].v;
-			body->m_angularVelocity = m_velocities[i].w;
-			body->SynchronizeTransform();
-		}
+		body->m_sweep.c = m_positions[i].c;
+		body->m_sweep.a = m_positions[i].a;
+		body->m_linearVelocity = m_velocities[i].v;
+		body->m_angularVelocity = m_velocities[i].w;
+		body->SynchronizeTransform();
 	}
 
 	profile->solvePosition = timer.GetMilliseconds();
@@ -566,7 +525,7 @@ void b2Island::Report(const b2ContactVelocityConstraint* constraints)
 		b2Contact* c = m_contacts[i];
 
 		const b2ContactVelocityConstraint* vc = constraints + i;
-
+		
 		b2ContactImpulse impulse;
 		impulse.count = vc->pointCount;
 		for (int32 j = 0; j < vc->pointCount; ++j)

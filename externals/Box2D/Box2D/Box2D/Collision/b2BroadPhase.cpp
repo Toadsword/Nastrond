@@ -1,6 +1,5 @@
 /*
 * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
-* Copyright (c) 2015, Justin Hoffman https://github.com/skitzoid
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -23,15 +22,19 @@ b2BroadPhase::b2BroadPhase()
 {
 	m_proxyCount = 0;
 
-	for (int32 i = 0; i < b2_maxThreads; ++i)
-	{
-		m_perThreadData[i].m_queryProxyId = -1;
-	}
+	m_pairCapacity = 16;
+	m_pairCount = 0;
+	m_pairBuffer = (b2Pair*)b2Alloc(m_pairCapacity * sizeof(b2Pair));
+
+	m_moveCapacity = 16;
+	m_moveCount = 0;
+	m_moveBuffer = (int32*)b2Alloc(m_moveCapacity * sizeof(int32));
 }
 
 b2BroadPhase::~b2BroadPhase()
 {
-
+	b2Free(m_moveBuffer);
+	b2Free(m_pairBuffer);
 }
 
 int32 b2BroadPhase::CreateProxy(const b2AABB& aabb, void* userData)
@@ -65,20 +68,26 @@ void b2BroadPhase::TouchProxy(int32 proxyId)
 
 void b2BroadPhase::BufferMove(int32 proxyId)
 {
-	int32 threadId = b2GetThreadId();
+	if (m_moveCount == m_moveCapacity)
+	{
+		int32* oldBuffer = m_moveBuffer;
+		m_moveCapacity *= 2;
+		m_moveBuffer = (int32*)b2Alloc(m_moveCapacity * sizeof(int32));
+		memcpy(m_moveBuffer, oldBuffer, m_moveCount * sizeof(int32));
+		b2Free(oldBuffer);
+	}
 
-	m_perThreadData[threadId].m_moveBuffer.Push(proxyId);
+	m_moveBuffer[m_moveCount] = proxyId;
+	++m_moveCount;
 }
 
 void b2BroadPhase::UnBufferMove(int32 proxyId)
 {
-	b2BroadPhasePerThreadData* td = m_perThreadData + b2GetThreadId();
-
-	for (int32 i = 0; i < td->m_moveBuffer.GetCount(); ++i)
+	for (int32 i = 0; i < m_moveCount; ++i)
 	{
-		if (td->m_moveBuffer.At(i) == proxyId)
+		if (m_moveBuffer[i] == proxyId)
 		{
-			td->m_moveBuffer.At(i) = e_nullProxy;
+			m_moveBuffer[i] = e_nullProxy;
 		}
 	}
 }
@@ -86,19 +95,25 @@ void b2BroadPhase::UnBufferMove(int32 proxyId)
 // This is called from b2DynamicTree::Query when we are gathering pairs.
 bool b2BroadPhase::QueryCallback(int32 proxyId)
 {
-	b2BroadPhasePerThreadData* td = m_perThreadData + b2GetThreadId();
-
 	// A proxy cannot form a pair with itself.
-	if (proxyId == td->m_queryProxyId)
+	if (proxyId == m_queryProxyId)
 	{
 		return true;
 	}
 
-	b2Pair pair;
-	pair.proxyIdA = b2Min(proxyId, td->m_queryProxyId);
-	pair.proxyIdB = b2Max(proxyId, td->m_queryProxyId);
+	// Grow the pair buffer as needed.
+	if (m_pairCount == m_pairCapacity)
+	{
+		b2Pair* oldBuffer = m_pairBuffer;
+		m_pairCapacity *= 2;
+		m_pairBuffer = (b2Pair*)b2Alloc(m_pairCapacity * sizeof(b2Pair));
+		memcpy(m_pairBuffer, oldBuffer, m_pairCount * sizeof(b2Pair));
+		b2Free(oldBuffer);
+	}
 
-	td->m_pairBuffer.Push(pair);
+	m_pairBuffer[m_pairCount].proxyIdA = b2Min(proxyId, m_queryProxyId);
+	m_pairBuffer[m_pairCount].proxyIdB = b2Max(proxyId, m_queryProxyId);
+	++m_pairCount;
 
 	return true;
 }

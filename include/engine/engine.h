@@ -25,41 +25,36 @@ SOFTWARE.
 #ifndef SFGE_ENGINE_H
 #define SFGE_ENGINE_H
 
-#include <SFML/Graphics/RenderWindow.hpp>
+
 
 #include <memory>
-#include <engine/config.h>
+#include <string>
+#include <ctpl_stl.h>
 
 
+#include <utility/json_utility.h>
+#include <graphics/graphics2d.h>
+#include <audio/audio.h>
+#include <engine/scene.h>
+#include <input/input.h>
+#include <python/python_engine.h>
+#include <physics/physics2d.h>
+#include <engine/entity.h>
+#include <engine/transform2d.h>
+#include <editor/editor.h>
+#include <editor/profiler.h>
+namespace sf
+{
+class sf::RenderWindow;
+}
 namespace sfge
 {
 
 /**
 * Prototypes declarations
 */
-class Module;
-class GraphicsManager;
-class AudioManager;
-class PythonManager;
-class InputManager;
-class SceneManager;
-class SpriteManager;
-class TextureManager;
-class PhysicsManager;
-class EntityManager;
-class Editor;
 
-enum class EngineModule
-{
-	GRAPHICS_MANAGER,
-	AUDIO_MANAGER,
-	INPUT_MANAGER,
-	PYTHON_MANAGER,
-	SCENE_MANAGER,
-	EDITOR,
-	PHYSICS_MANAGER,
-	LENGTH
-};
+struct Configuration;
 
 /**
 * \brief The main Engine class to centralise the frame process and the references
@@ -67,11 +62,13 @@ enum class EngineModule
 class Engine
 {
 public:
-
+	Engine() = default;
 	/**
 	* \brief Initialize all the modules of the Game Engine, reading the config file too
 	*/
-	void Init(bool windowless=false, bool editor=false);
+	void Init(std::string configFilename="data/config.json");
+	void Init(json& configJson);
+	void Init(std::unique_ptr<Configuration> config);
 	/**
 	* \brief Starting the Game Engine after the Init()
 	*/
@@ -81,7 +78,7 @@ public:
 	 * \brief Destroy all the modules
 	 */
 	void Destroy();
-	void Reset();
+	void Clear();
 	/**
 	* \brief Reload is used after loading a new scene
 	*/
@@ -92,74 +89,43 @@ public:
 	* \brief A getter of the Configuration
 	* \return The Configuration struct got by the Engine
 	*/
-	std::shared_ptr<Configuration> GetConfig();
-	
-	GraphicsManager& GetGraphicsManager() const;
-	AudioManager& GetAudioManager() const;
-	SceneManager& GetSceneManager() const;
-	InputManager& GetInputManager() const;
-	PythonManager& GetPythonManager() const;
-	PhysicsManager& GetPhysicsManager() const;
-	EntityManager& GetEntityManager() const;
+	std::weak_ptr<Configuration> GetConfig() const;
 
+	Graphics2dManager& GetGraphics2dManager();
+	AudioManager& GetAudioManager();
+	SceneManager& GetSceneManager();
+	InputManager& GetInputManager();
+	PythonEngine& GetPythonEngine();
+	Physics2dManager& GetPhysicsManager();
+	EntityManager& GetEntityManager();
+	Transform2dManager& GetTransform2dManager();
+	Editor& GetEditor();
+
+	ctpl::thread_pool& GetThreadPool();
+	ProfilerFrameData& GetProfilerFrameData();
 	bool running = false;
 protected:
-	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
+	void InitModules();
+	ctpl::thread_pool m_ThreadPool;
+	std::shared_ptr<sf::RenderWindow> m_Window;
 	std::shared_ptr<Configuration> m_Config = nullptr;
 
+
 	//module
-	std::unique_ptr<GraphicsManager> m_GraphicsManager;
-	std::unique_ptr<AudioManager> m_AudioManager;
-	std::unique_ptr<SceneManager> m_SceneManager;
-	std::unique_ptr<InputManager> m_InputManager;
-	std::unique_ptr<PythonManager> m_PythonManager;
-	std::unique_ptr<PhysicsManager> m_PhysicsManager;
-	std::unique_ptr<Editor> m_Editor;
-	std::unique_ptr<EntityManager> m_EntityManager;
+	Graphics2dManager m_Graphics2dManager {*this};
+	AudioManager m_AudioManager {*this};
+	SceneManager m_SceneManager {*this};
+	InputManager m_InputManager {*this};
+	PythonEngine m_PythonEngine {*this};
+	Physics2dManager m_PhysicsManager {*this};
+	Editor m_Editor {*this};
+	EntityManager m_EntityManager {*this};
+	Transform2dManager m_TransformManager {*this};
+
+  	ProfilerFrameData m_FrameData;
+
 };
 
-/**
-* \brief Module are classes used by the Engine to init and update features
-*/
-class Module
-{
-public:
-	Module(Engine& engine, bool enable);
-
-	virtual ~Module() = default;
-	/**
-	* \brief Called to initialize the module
-	*/
-	virtual void Init() = 0;
-	/**
-	* \brief Called every frame to update the module
-	* \param dt The delta time since last frame
-	*/
-	virtual void Update(sf::Time dt) = 0;
-	/**
-	 * \brief Called directly after the physics finished his job
-	 */
-	virtual void FixedUpdate() {}
-	/**
-	* \brief Used instead of the destructor to delete all heap created structure and finalize
-	*/
-	virtual void Destroy() = 0;
-	/**
-	* \brief Called before we load a scene
-	*/
-	virtual void Reset() = 0;
-	/**
-	* \brief Called after we load a scene
-	*/
-	virtual void Collect() = 0;
-
-	void SetEnable(bool enable);
-	bool GetEnable();
-
-protected:
-	bool m_Enable = true;
-	Engine& m_Engine;
-};
 
 }
 

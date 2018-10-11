@@ -25,46 +25,78 @@
 #ifndef SFGE_PYCOMPONENT_H_
 #define SFGE_PYCOMPONENT_H_
 
-#include <engine/entity.h>
 
+#include <memory>
+
+#include <engine/entity.h>
+#include <python/python_engine.h>
 #include <utility/python_utility.h>
 //STL
-#include <memory>
+#include <engine/component.h>
 
 namespace sfge
 {
-	class Collider;
 
+struct ColliderData;
+
+class Component : LayerComponent
+{
+public:
+    Component(Engine& engine, Entity entity);
+    ~Component() = default;
+    
+    virtual void Init() {};
+    virtual void Update(float dt) {};
+    virtual void FixedUpdate(float fixedDeltaTime) {};
+    
+    virtual void OnCollisionEnter(ColliderData* collider) {};
+    virtual void OnTriggerEnter(ColliderData * collider) {};
+    virtual  void OnCollisionExit(ColliderData* collider) {};
+    virtual void OnTriggerExit(ColliderData * collider) {};
+    
+    
+    py::object GetComponent(ComponentType componentType) const;
+	py::object GetPyComponent(py::object type);
+
+
+    Entity GetEntity();
+    
+    unsigned int GetInstanceId() const;
+    void SetInstanceId(unsigned int instanceId = 0U);
+protected:
+    unsigned int m_InstanceId = 0U;
+    Entity m_Entity = 0U;
+	Engine& m_Engine;
+};
+    
 	/**
  * \brief Python abstraction of Component
  */
-class PyComponent
+class PyComponent : public Component
 {
 public:
-	PyComponent();
-	~PyComponent();
-
-	void Init();
-	void Update(float dt);
-	void FixedUpdate();
-
-	void OnCollisionEnter(Collider* collider);
-	void OnTriggerEnter(Collider * collider);
-	void OnCollisionExit(Collider* collider);
-	void OnTriggerExit(Collider * collider);
-
-	Entity GetEntity();
-
-
-	unsigned int GetInstanceId() const;
-	void SetInstanceId(unsigned int instanceId = 0U);
-
-private:
-	unsigned int instanceId = 0U;
-	Entity entity;
+    using Component::Component; 
+    void Init() override;
+    void Update(float dt)  override;
+    void FixedUpdate(float fixedDeltaTime) override;
+    
+    void OnCollisionEnter(ColliderData* collider)  override;
+    void OnTriggerEnter(ColliderData * collider) override;
+    void OnCollisionExit(ColliderData* collider) override;
+    void OnTriggerExit(ColliderData * collider) override;
 };
+
+namespace editor
+{
+struct PyComponentInfo : NamableEditorComponent, PathEditorComponent, IDrawableInspector
+{
+	void DrawOnInspector() override;
+
+	PyComponent* pyComponent = nullptr;
+};
+}
 
 }
 
 
-#endif /* INCLUDE_PYTHON_PYCOMPONENT_H_ */
+#endif 

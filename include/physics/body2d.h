@@ -23,34 +23,67 @@ SOFTWARE.
 */
 
 #ifndef SFGE_BODY2D_H
-#define SFGE_BODY2D_G
+#define SFGE_BODY2D_H
 
-#include <engine/log.h>
-#include <utility/json_utility.h>
 
 #include <Box2D/Box2D.h>
+#include <engine/component.h>
+#include <engine/transform2d.h>
+#include <editor/editor.h>
 
 namespace sfge
 {
 
-class Body2d 
+class Body2d: public TransformRequiredComponent, public Offsetable
 {
 public:
+	Body2d();
+	Body2d(Transform2d* transform, sf::Vector2f offset);
 
-	b2Body* GetBody();
-
-	void SetVelocity(b2Vec2 v);
-	b2Vec2 GetVelocity();
-
-	b2BodyType GetBodyType();
-
+	b2Vec2 GetLinearVelocity();
+	void SetLinearVelocity(b2Vec2 velocity);
+	void ApplyForce(b2Vec2 force);
+	b2BodyType GetType();
 	float GetMass();
-
-	void AddForce(b2Vec2 f);
-
-protected:
+	void SetBody(b2Body* body);
+	b2Body* GetBody();
+private:
 	b2Body * m_Body = nullptr;
 };
+
+namespace editor
+{
+struct Body2dInfo : ComponentInfo
+{
+	void DrawOnInspector() override;
+	void AddVelocity(b2Vec2 velocity);
+	std::deque<b2Vec2>& GetVelocities();
+	Body2d* body = nullptr;
+private:
+	std::deque<b2Vec2> m_Velocities;
+	const int m_VelocitiesMaxSize = 120;
+};
+}
+
+class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System, public ResizeObserver
+{
+public:
+	Body2dManager(Engine& engine);
+	void Init() override;
+	void FixedUpdate() override;
+	Body2d* AddComponent(Entity entity) override;
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
+
+	void OnResize(size_t new_size) override;
+
+private:
+	EntityManager& m_EntityManager;
+	Transform2dManager& m_Transform2dManager;
+	std::weak_ptr<b2World> m_WorldPtr;
+};
+
+
 
 }
 

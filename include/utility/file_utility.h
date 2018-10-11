@@ -23,9 +23,10 @@
  */
 #ifndef SFGE_FILE_UTILITY_H
 #define SFGE_FILE_UTILITY_H
+#include <functional>
 
 #ifdef WIN32
-#include <filesystem>
+#include <experimental/filesystem>
 // for convenience
 namespace fs = std::experimental::filesystem;
 #endif
@@ -33,10 +34,13 @@ namespace fs = std::experimental::filesystem;
 #include <fstream>
 
 namespace sfge
-{
+{	
 
-	bool FileExists(std::string& filename);
-    bool IsRegularFile(std::string& filename);
+bool FileExists(const std::string& filename);
+bool IsRegularFile(std::string& filename);
+bool IsDirectory(std::string& filename);
+void IterateDirectory(std::string& dirname, std::function<void(std::string)>);
+std::ifstream::pos_type CalculateFileSize(const std::string& filename);
 }
 
 #endif

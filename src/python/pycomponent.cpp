@@ -22,21 +22,34 @@
  SOFTWARE.
  */
 
+#include <sstream>
 
 #include <python/pycomponent.h>
 #include <python/python_engine.h>
 #include <engine/log.h>
-#include <physics/collider.h>
+#include <physics/physics2d.h>
+#include <graphics/graphics2d.h>
+#include <engine/engine.h>
+#include <utility/python_utility.h>
+#include <imgui.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 namespace sfge
 {
-
+Component::Component(Engine& engine, Entity entity) :
+	m_Engine(engine)
+{
+	m_Entity = entity;
+}
 void PyComponent::Init()
 {
-	Log::GetInstance()->Msg("Init PyComponent from C++");
+	//Log::GetInstance()->Msg("Init PyComponent from C++");
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        
+        //py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
 			"init",
@@ -54,14 +67,11 @@ void PyComponent::Init()
 
 void PyComponent::Update(float dt)
 {
-	/*{
-		std::ostringstream oss;
-		oss << "Update PyComponent with dt:  " << dt;
-		Log::GetInstance()->Msg(oss.str());
-	}*/
+	
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        //py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
 			"update",
@@ -77,49 +87,84 @@ void PyComponent::Update(float dt)
 	}
 }
 
-
-PyComponent::~PyComponent()
-{
-	Log::GetInstance()->Msg("Destroying PyComponent");
-
-}
-
-
-PyComponent* PyComponent::LoadPythonScript(Engine& engine, json& componentJson, GameObject* gameObject)
-{
-	auto pythonManager = engine.GetPythonManager();
-	if(CheckJsonParameter(componentJson, "script_path", json::value_t::string))
+	void PyComponent::FixedUpdate(float fixedDeltaTime)
 	{
-		unsigned int componentInstanceId = pythonManager.LoadPyComponentFile(componentJson["script_path"], gameObject);
-		if(componentInstanceId != 0U)
+		try
 		{
-			{
-				std::ostringstream oss;
-				oss << "PyComponent instance has id: " << componentInstanceId;
-				Log::GetInstance()->Msg(oss.str());
-			}
-			auto pyComponent = pythonManager.GetPyComponent(componentInstanceId);
-			pyComponent->SetInstanceId(componentInstanceId);
+
+			//py::gil_scoped_release release;
+			PYBIND11_OVERLOAD_NAME(
+				void,
+				Component,
+				"fixed_update",
+				FixedUpdate,
+				fixedDeltaTime
+			);
+		}
+		catch (std::runtime_error& e)
+		{
+			std::stringstream oss;
+			oss << "Python error on PyComponent FixedUpdate\n" << e.what();
+			Log::GetInstance()->Error(oss.str());
+		}
+	}
+
+	py::object Component::GetComponent(ComponentType componentType) const
+	{
+		
+		switch (componentType)
+		{
+		case ComponentType::TRANSFORM2D:
 			
-			return pyComponent;
+			{
+				auto& transformManager = m_Engine.GetTransform2dManager();
+				auto& transform = transformManager.GetComponentRef(m_Entity);
+				return py::cast(transform, py::return_value_policy::reference);
+			}
+		case ComponentType::BODY2D:
+			{
+				auto& physicsManager = m_Engine.GetPhysicsManager();
+				auto& body = physicsManager.GetBodyManager().GetComponentRef(m_Entity);
+				return py::cast(body, py::return_value_policy::reference);
+			}
+		case ComponentType::COLLIDER2D:
+			break;
+		case ComponentType::SHAPE2D:
+			{
+				auto& graphicsManager = m_Engine.GetGraphics2dManager();
+				const auto shape = graphicsManager.GetShapeManager().GetComponentPtr (m_Entity);
+				return py::cast(shape, py::return_value_policy::reference);
+			}
+		case ComponentType::SPRITE2D:
+			{
+				auto& graphicsManager = m_Engine.GetGraphics2dManager();
+				auto& sprite = graphicsManager.GetSpriteManager().GetComponentRef(m_Entity);
+				return py::cast(sprite, py::return_value_policy::reference);
+			}
+		case ComponentType::SOUND:
+			{
+				auto& soundManager = m_Engine.GetAudioManager().GetSoundManager();
+				auto& sound = soundManager.GetComponentRef(m_Entity);
+				return py::cast(sound, py::return_value_policy::reference);
+			}
+		default:
+			return py::none();
+		}
+		return py::none();
+	}
 
-		}
-		else
-		{
-			Log::GetInstance()->Error("Loaded python script has no script ID");
-		}
-	}
-	else
+	py::object Component::GetPyComponent(py::object type)
 	{
-		Log::GetInstance()->Error("No script path given for the PyComponent");
+		return m_Engine.GetPythonEngine().GetPyComponentFromType(type, m_Entity);
 	}
-	return nullptr;
-}
-void PyComponent::OnCollisionEnter(Collider * collider)
-{
+
+	
+void PyComponent::OnCollisionEnter(ColliderData * collider)
+	{
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        //py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
 			"on_collision_enter",
@@ -134,11 +179,12 @@ void PyComponent::OnCollisionEnter(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerEnter(Collider * collider)
+void PyComponent::OnTriggerEnter(ColliderData * collider)
 {
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        //py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
 			"on_trigger_enter",
@@ -153,11 +199,12 @@ void PyComponent::OnTriggerEnter(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnCollisionExit(Collider * collider)
+void PyComponent::OnCollisionExit(ColliderData * collider)
 {
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        //py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
 			"on_collision_exit",
@@ -172,11 +219,12 @@ void PyComponent::OnCollisionExit(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerExit(Collider * collider)
+void PyComponent::OnTriggerExit(ColliderData * collider)
 {
 	try
 	{
-		PYBIND11_OVERLOAD_PURE_NAME(
+        //py::gil_scoped_release release;
+		PYBIND11_OVERLOAD_NAME(
 			void,
 			Component,
 			"on_trigger_exit",
@@ -191,13 +239,43 @@ void PyComponent::OnTriggerExit(Collider * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-unsigned int PyComponent::GetInstanceId() const
+
+
+
+Entity Component::GetEntity()
 {
-	return instanceId;
+	return m_Entity;
+}
+unsigned int Component::GetInstanceId() const
+{
+	return m_InstanceId;
 }
 
-void PyComponent::SetInstanceId(unsigned int instanceId)
+void Component::SetInstanceId(unsigned int instanceId)
 {
-	this->instanceId = instanceId;
+	m_InstanceId = instanceId;
+}
+
+void editor::PyComponentInfo::DrawOnInspector()
+{
+	ImGui::Separator();
+	ImGui::Text("PyComponent");
+
+	ImGui::LabelText("Name", name.c_str());
+	ImGui::LabelText("Path", path.c_str());
+	if (pyComponent != nullptr)
+	{
+		//TODO check all variables from the cpp
+		std::ostringstream oss;
+		const auto pyCompObj = py::cast(pyComponent);
+		py::dict pyCompAttrDict = pyCompObj.attr("__dict__");
+		for(auto& elem : pyCompAttrDict)
+		{
+			std::string key = py::str(elem.first);
+			std::string value = py::str(elem.second);
+			ImGui::LabelText(key.c_str(), value.c_str());
+		}
+		Log::GetInstance()->Msg(oss.str());
+	}
 }
 }

@@ -24,67 +24,38 @@ SOFTWARE.
 
 //Engine
 #include <engine/engine.h>
-#include <graphics/sprite.h>
-#include <engine/game_object.h>
-#include <engine/transform.h>
+#include <graphics/sprite2d.h>
+#include <engine/transform2d.h>
 #include <utility/json_utility.h>
 #include <engine/log.h>
-#include <engine/modules.h>
-
+#include <engine/config.h>
+#include <engine/scene.h>
 //Dependencies
 #include <SFML/Graphics.hpp>
+#include <gtest/gtest.h>
 
 
-int main()
+TEST(TestSprite, TestSprite)
 {
 	sfge::Engine engine;
-	engine.Init(true);
-
-	json gameObjectJson;
+	engine.Init();
+	json sceneJson;
+	json entityJson;
 	json spriteJson;
-	spriteJson["path"] = "data/sprites/boss_01_dialog_pose_001_b.png";
-	spriteJson["type"] = (int)sfge::ComponentType::SPRITE;
-	gameObjectJson["components"] = json::array({ spriteJson });
+	spriteJson["path"] = "data/sprites/roguelikeDungeon_transparent.png";
+	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	entityJson["components"] = json::array({ spriteJson });
 
-	sfge::GameObject* gameObject = sfge::GameObject::LoadGameObject(engine, gameObjectJson);
-	gameObject->GetTransform()->SetPosition(sf::Vector2f(400, 300));
-	auto sprite = gameObject->GetComponent<sfge::Sprite>();
-	if (sprite != nullptr)
-	{
-		// create the window
-		sf::RenderWindow window(sf::VideoMode(800, 600), "Test Sprite");
+	json fakeEntityJson;
+	json fakeSpriteJson;
+	fakeSpriteJson["path"] = "fake/path/prout.jpg";
+	fakeSpriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	fakeEntityJson["components"] = json::array({ fakeSpriteJson });
 
 
-		sf::Clock clock;
-		// run the program as long as the window is open
-		while (window.isOpen())
-		{
-			sf::Time dt = clock.restart();
-			// check all the window's events that were triggered since the last iteration of the loop
-			sf::Event event;
-			while (window.pollEvent(event))
-			{
-				// "close requested" event: we close the window
-				if (event.type == sf::Event::Closed)
-					window.close();
-			}
-			gameObject->GetTransform()->SetPosition(gameObject->GetTransform()->GetPosition() + sf::Vector2f(10.f, 10.f)*dt.asSeconds());
-			// clear the window with black color
-			window.clear(sf::Color::Black);
-
-			sprite->Draw(window);
-
-			// end the current frame
-			window.display();
-		}
-	}
-	else
-	{
-		sfge::Log::GetInstance()->Error("COULD NOT LOAD SPRITE");
-	}
-	engine.Destroy();
-#if WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
+	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
+	sceneJson["name"] = "Test Sprite";
+	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
+	
+	engine.Start();
 }

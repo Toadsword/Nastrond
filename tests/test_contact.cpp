@@ -23,18 +23,15 @@ SOFTWARE.
 */
 
 #include <engine/engine.h>
-#include <engine/modules.h>
+#include <engine/scene.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestContact, LinkPythonWithPhysics)
 {
 	sfge::Engine engine;
-	engine.Init(false, true);
-
-	engine.GetSceneManager().SetCurrentScene("data/scenes/test_contact.scene");
+	engine.Init();
+	auto& sceneManager = engine.GetSceneManager();
+	sceneManager.LoadSceneFromName("ContactTestScene");
 
 	engine.Start();
-#if WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
 }

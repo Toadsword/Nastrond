@@ -1,6 +1,5 @@
 /*
 * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
-* Copyright (c) 2015, Justin Hoffman https://github.com/skitzoid
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -77,8 +76,8 @@ b2WheelJoint::b2WheelJoint(const b2WheelJointDef* def)
 
 void b2WheelJoint::InitVelocityConstraints(const b2SolverData& data)
 {
-	m_indexA = m_bodyA->GetIslandIndex();
-	m_indexB = m_bodyB->GetIslandIndex();
+	m_indexA = m_bodyA->m_islandIndex;
+	m_indexB = m_bodyB->m_islandIndex;
 	m_localCenterA = m_bodyA->m_sweep.localCenter;
 	m_localCenterB = m_bodyB->m_sweep.localCenter;
 	m_invMassA = m_bodyA->m_invMass;
@@ -438,8 +437,8 @@ float32 b2WheelJoint::GetMotorTorque(float32 inv_dt) const
 
 void b2WheelJoint::Dump()
 {
-	int32 indexA = m_bodyA->GetIslandIndex();
-	int32 indexB = m_bodyB->GetIslandIndex();
+	int32 indexA = m_bodyA->m_islandIndex;
+	int32 indexB = m_bodyB->m_islandIndex;
 
 	b2Log("  b2WheelJointDef jd;\n");
 	b2Log("  jd.bodyA = bodies[%d];\n", indexA);

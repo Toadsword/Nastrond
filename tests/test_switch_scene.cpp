@@ -22,26 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <engine/modules.h>
+#include <engine/engine.h>
+#include <engine/scene.h>
 #include <utility/json_utility.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestScene, TestSwitchScene)
 {
 	{
 		sfge::Engine engine;
-		engine.Init(false, true);
+		engine.Init();
 
-		auto sceneManager = engine.GetSceneManager();
-		sceneManager.SetCurrentScene(sceneManager.LoadSceneFromName("data/scenes/test_switch.scene"));
+		engine.GetSceneManager().LoadSceneFromPath("data/scenes/test_switch.scene");
 
 
 		engine.Start(); 
 	}
 
 
-#ifdef WIN32
-
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
 }

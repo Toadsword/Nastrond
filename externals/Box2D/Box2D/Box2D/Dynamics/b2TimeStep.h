@@ -27,14 +27,11 @@ struct b2Profile
 	float32 step;
 	float32 collide;
 	float32 solve;
-	float32 solveTraversal;
 	float32 solveInit;
 	float32 solveVelocity;
 	float32 solvePosition;
-	float32 solveTOI;
 	float32 broadphase;
-	float32 broadphaseSyncFixtures;
-	float32 broadphaseFindContacts;
+	float32 solveTOI;
 };
 
 /// This is an internal structure.

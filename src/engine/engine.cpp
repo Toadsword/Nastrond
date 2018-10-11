@@ -30,68 +30,105 @@ SOFTWARE.
 
 
 #include <engine/engine.h>
+#include <engine/entity.h>
+#include <engine/globals.h>
 #include <engine/scene.h>
-#include <graphics/graphics.h>
+#include <graphics/graphics2d.h>
 #include <input/input.h>
 #include <python/python_engine.h>
 #include <engine/config.h>
 #include <audio/audio.h>
-#include <engine/editor.h>
-#include <graphics/sprite.h>
-#include <physics/physics.h>
+#include <editor/editor.h>
+#include <engine/transform2d.h>
+#include <physics/physics2d.h>
 #include <engine/log.h>
 
 
 namespace sfge
 {
 
-
-void Engine::Init(bool windowless, bool editor)
+/*Engine::Engine()
 {
-	m_Config = std::move(Configuration::LoadConfig());
+	instance = this;
+	m_EntityManager = std::make_shared<EntityManager>();
+	m_Transform2dManager = std::make_shared<Transform2dManager>();
+	m_Graphics2dManager = std::make_shared<Graphics2dManager>();
+	m_AudioManager = std::make_shared<AudioManager>();
+	m_SceneManager = std::make_shared<SceneManager>();
+	m_InputManager = std::make_shared<InputManager>();
+	m_PythonEngine = std::make_shared<PythonEngine>();
+	m_PhysicsManager = std::make_shared<Physics2dManager>();
+	m_Editor = std::make_shared<Editor>();
+}*/
+
+void Engine::Init(std::string configFilename)
+{
+	const auto configJsonPtr = LoadJson(configFilename);
+	if (configJsonPtr)
+		Init(*configJsonPtr);
+}
+
+void Engine::Init(json& configJson)
+{
+	m_Config = Configuration::LoadConfig(configJson);
+	InitModules();
+}
+
+void Engine::Init(std::unique_ptr<Configuration> config)
+{
+	m_Config = std::move(config);
+	InitModules();
+}
+
+void Engine::InitModules()
+{
 	if (m_Config == nullptr)
 	{
-		Log::GetInstance()->Error("[Error] Game Engine is null");
+		Log::GetInstance()->Error("[Error] Game Engine Configuration");
 	}
 	else
 	{
 		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
 	}
+    {
+        std::ostringstream oss;
+        oss << "Number of cores on machine: "<<std::thread::hardware_concurrency ();
+        Log::GetInstance ()->Msg (oss.str ());
+    }
+    m_ThreadPool.resize(std::thread::hardware_concurrency ()-1);
 
-	m_GraphicsManager = std::make_unique<GraphicsManager>(*this, true, windowless);
-	m_AudioManager = std::make_unique<AudioManager>(*this, true);
-	m_SceneManager = std::make_unique<SceneManager>(*this, true);
-	m_InputManager = std::make_unique<InputManager>(*this, true);
-	m_PythonManager = std::make_unique<PythonManager>(*this, true);
-	m_PhysicsManager = std::make_unique<PhysicsManager>(*this, true);
-	m_Editor = std::make_unique<Editor>(*this, editor);
-	m_EntityManager = std::make_unique<EntityManager>();
 
-	m_GraphicsManager->Init();
-	m_AudioManager->Init();
-	m_SceneManager->Init();
-	m_InputManager->Init();
-	m_PythonManager->Init();
-	m_PhysicsManager->Init();
-	m_Editor->Init();
 
-	m_Window = m_GraphicsManager->GetWindow();
+	m_EntityManager.Init();
+	m_Graphics2dManager.Init();
+	m_AudioManager.Init();
+	m_SceneManager.Init();
+	m_InputManager.Init();
+	m_PythonEngine.Init();
+	m_PhysicsManager.Init();
+	m_Editor.Init();
+
+	m_Window = m_Graphics2dManager.GetWindow();
 	running = true;
-
-
 }
 
 void Engine::Start()
 {
+	sf::Clock globalClock;
 	sf::Clock updateClock;
 	sf::Clock fixedUpdateClock;
+	sf::Clock graphicsUpdateClock;
+	sf::Time previousFixedUpdateTime = globalClock.getElapsedTime();
+	sf::Time deltaFixedUpdateTime = sf::Time();
+	sf::Time dt = sf::Time();
 	while (running && m_Window != nullptr)
 	{
-		const sf::Time dt = updateClock.restart();
+		bool isFixedUpdateFrame = false;
 		sf::Event event{};
-		while (m_Window != nullptr && m_Window->pollEvent(event))
+		while (m_Window != nullptr && 
+			m_Window->pollEvent(event))
 		{
-			m_Editor->ProcessEvent(event);
+			m_Editor.ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 			{
 				running = false;
@@ -104,116 +141,137 @@ void Engine::Start()
 			continue;
 		}
 		
-		m_InputManager->Update(dt);
-		if (fixedUpdateClock.getElapsedTime().asSeconds() < m_Config->fixedDeltaTime)
+		m_InputManager.Update(dt.asSeconds());
+		sf::Time fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
+		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
-			m_PhysicsManager->Update(dt);
-			fixedUpdateClock.restart();
-			m_PythonManager->FixedUpdate();
-			m_SceneManager->FixedUpdate();
+			fixedUpdateClock.restart ();
+			m_PhysicsManager.FixedUpdate();
+			previousFixedUpdateTime = globalClock.getElapsedTime();
+			m_PythonEngine.FixedUpdate();
+			m_SceneManager.FixedUpdate();
+			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime ();
+			m_FrameData.frameFixedUpdate = deltaFixedUpdateTime;
+			isFixedUpdateFrame = true;
 		}
-		m_PythonManager->Update(dt);
+		m_PythonEngine.Update(dt.asSeconds());
 
-		m_SceneManager->Update(dt);
+		m_SceneManager.Update(dt.asSeconds());
 
-		m_Editor->Update(dt);
-		if (m_SceneManager->IsSwitching())
+		m_Editor.Update(dt.asSeconds());
+		graphicsUpdateClock.restart ();
+		m_Graphics2dManager.Update(dt.asSeconds());
+		m_PythonEngine.Draw();
+		m_Editor.Draw();
+		m_Graphics2dManager.Display();
+		const sf::Time graphicsDt = graphicsUpdateClock.getElapsedTime ();
+		dt = updateClock.restart();
+		if(isFixedUpdateFrame)
 		{
-			Collect();
+			m_FrameData.graphicsTime = graphicsDt;
+			m_FrameData.frameTotalTime = dt;
 		}
-		m_GraphicsManager->Update(dt);
-		m_Editor->Draw();
-		m_GraphicsManager->Display();
 	}
 	Destroy();
 }
 
-void Engine::Destroy()
+void Engine::Destroy() 
 {
-	m_GraphicsManager->Destroy();
-	m_AudioManager->Destroy();
-	m_SceneManager->Destroy();
-	m_InputManager->Destroy();
-	m_PythonManager->Destroy();
-	m_Editor->Destroy();
-	m_PhysicsManager->Destroy();
-	m_Window = nullptr;
+	m_EntityManager.Destroy();
+	m_Graphics2dManager.Destroy();
+	m_AudioManager.Destroy();
+	m_SceneManager.Destroy();
+	m_InputManager.Destroy();
+	m_Editor.Destroy();
+	m_PhysicsManager.Destroy();
+
+	m_PythonEngine.Destroy();
 }
 
-void Engine::Reset()
+void Engine::Clear() 
 {
-	m_GraphicsManager->Reset();
-	m_AudioManager->Reset();
-	m_SceneManager->Reset();
-	m_InputManager->Reset();
-	m_PythonManager->Reset();
-	m_Editor->Reset();
-	m_PhysicsManager->Reset();
+	m_EntityManager.Clear();
+	m_Graphics2dManager.Clear();
+	m_AudioManager.Clear();
+	m_SceneManager.Clear();
+	m_InputManager.Clear();
+	m_PythonEngine.Clear();
+	m_Editor.Clear();
+	m_PhysicsManager.Clear();
 }
 
-void Engine::Collect()
+void Engine::Collect() 
 {
-	m_GraphicsManager->Collect();
-	m_AudioManager->Collect();
-	m_SceneManager->Collect();
-	m_InputManager->Collect();
-	m_PythonManager->Collect();
-	m_Editor->Collect();
-	m_PhysicsManager->Collect();
-}
 
-
-	std::shared_ptr<Configuration> Engine::GetConfig()
-{
-	return m_Config;
-}
-
-GraphicsManager & Engine::GetGraphicsManager() const
-{
-	return *m_GraphicsManager;
-}
-
-AudioManager & Engine::GetAudioManager() const
-{
-	return *m_AudioManager;
-}
-
-SceneManager & Engine::GetSceneManager() const
-{
-	return *m_SceneManager;
-}
-
-InputManager & Engine::GetInputManager() const
-{
-	return *m_InputManager;
-}
-
-PythonManager & Engine::GetPythonManager() const
-{
-	return *m_PythonManager;
-}
-
-PhysicsManager & Engine::GetPhysicsManager() const
-{
-	return *m_PhysicsManager;
+	m_EntityManager.Collect();
+	m_Graphics2dManager.Collect();
+	m_AudioManager.Collect();
+	m_SceneManager.Collect();
+	m_InputManager.Collect();
+	m_PythonEngine.Collect();
+	m_Editor.Collect();
+	m_PhysicsManager.Collect();
 }
 
 
-Module::Module(Engine& engine, bool enable=true) :
-		m_Engine(engine)
+std::weak_ptr<Configuration> Engine::GetConfig() const
 {
-	m_Enable = enable;
-
+	return std::weak_ptr<Configuration>(m_Config);
 }
 
-void Module::SetEnable(bool enable)
+Graphics2dManager& Engine::GetGraphics2dManager() 
 {
+	return (m_Graphics2dManager);
 }
 
-bool Module::GetEnable()
+AudioManager& Engine::GetAudioManager() 
 {
-	return false;
+	return (m_AudioManager);
 }
 
+SceneManager& Engine::GetSceneManager() 
+{
+	return (m_SceneManager);
+}
+
+InputManager& Engine::GetInputManager() 
+{
+	return (m_InputManager);
+}
+
+PythonEngine& Engine::GetPythonEngine() 
+{
+	return (m_PythonEngine);
+}
+
+Physics2dManager& Engine::GetPhysicsManager() 
+{
+	return (m_PhysicsManager);
+}
+
+EntityManager& Engine::GetEntityManager() 
+{
+	return (m_EntityManager);
+}
+
+Transform2dManager& Engine::GetTransform2dManager() 
+{
+	return (m_TransformManager);
+}
+
+Editor& Engine::GetEditor() 
+{
+	return (m_Editor);
+}
+
+ctpl::thread_pool & Engine::GetThreadPool()
+{
+	return m_ThreadPool;
+}
+
+ProfilerFrameData& Engine::GetProfilerFrameData()
+{
+    return m_FrameData;
+}
 
 }

@@ -26,93 +26,61 @@
 #ifndef SFGE_SCENE_H
 #define SFGE_SCENE_H
 
-
+#include <memory>
+#include <string>
 #include <list>
 
-#include <engine/engine.h>
+#include <engine/system.h>
 #include <utility/json_utility.h>
-#include "transform.h"
+#include <engine/transform2d.h>
 
 namespace sfge
 {
 
-class GameObject;
-class Scene;
+namespace editor
+{
+struct SceneInfo;
+}
 
 /**
 * \brief The Scene Manager do the transition between two scenes, read from the Engine Configuration the scenes build list
 */
-class SceneManager : public Module
+class SceneManager : public System
 {
 public:
-	using Module::Module;
-	/**
-	* \brief Initialize the SceneManager, get the Configuration from Engine and save the Scene lists from it
-	*/
+	SceneManager(Engine& engine);
+	~SceneManager() = default;
 	void Init() override;
-	/**
-	* \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed
-	* \param dt Delta time since last frame
-	*/
-	void Update(sf::Time dt) override;
+
+	void SearchScenes(std::string& dataDirname);
 	/**
 	* \brief Finalize and delete everything created in the SceneManager
 	*/
-	void Destroy() override;
-	void LoadScene(std::string sceneName);
+	void LoadSceneFromName(const std::string& sceneName);
+	/**
+	* \brief Load a Scene and create all its GameObject
+	* \param scenePath the scene path given by the configuration
+	* \return the heap Scene that is automatically destroyed when not used
+	*/
+	void LoadSceneFromPath(const std::string& scenePath) const;
 	/**
 	* \brief Load a Scene and create all its GameObject
 	* \param sceneName the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
-	std::shared_ptr<Scene> LoadSceneFromName(std::string sceneName);
+	void LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo = nullptr) const;
 	/**
-	* \brief Load a Scene and create all its GameObject
-	* \param sceneName the scene path given by the configuration
-	* \return the heap Scene that is automatically destroyed when not used
-	*/
-	std::shared_ptr<Scene> LoadSceneFromJson(json& sceneJson);
-
-	void SetCurrentScene(std::string sceneName);
-
-	void SetCurrentScene(std::shared_ptr<Scene> scene);
-
-	void Reset() override;
-	void Collect() override;
-	bool IsSwitching();
-	std::shared_ptr<Scene> GetCurrentScene();
+	 * \brief Return a list of all the scenes available in the data folder, pretty useful for python and the editor
+	 * \return the list of scenes in the data folder
+	 */
+	std::list<std::string> GetAllScenes();
 private:
-	std::shared_ptr<Scene> m_PreviousScene = nullptr;
-	std::shared_ptr<Scene> m_CurrentScene = nullptr;
-	std::unique_ptr<Transform2dManager> m_TransformManager = nullptr;
 
-	bool m_Switching = false;
-};
+	EntityManager& m_EntityManager;
 
-/**
-* \brief The Scene includes GameObjects that are loaded from a JSON file
-*
-*/
-class Scene
-{
-public:
-	Scene(SceneManager* sceneManager);
-	/**
-	* \brief Update the Scene, mostly updating the GameObjects and doing the transition when needed
-	* \param dt Delta time since last frame
-	*/
-	void Update(sf::Time dt);
-	/**
-	* \brief Destroy all the GameObjects of the scene
-	*/
-	~Scene();
+	std::map<std::string, std::string> m_ScenePathMap;
 
-	std::list<GameObject*>& GetGameObjects();
-protected:
-	std::string name;
-	std::list<GameObject*> m_GameObjects;
-	SceneManager* m_SceneManager;
-	friend class SceneManager;
 };
 }
+
 #endif

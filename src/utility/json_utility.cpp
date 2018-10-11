@@ -34,7 +34,7 @@ bool CheckJsonNumber(const json& jsonObject, std::string parameterName)
 
 sf::Vector2f GetVectorFromJson(const json & jsonObject, std::string parameterName)
 {
-	sf::Vector2f vector;
+	sf::Vector2f vector = sf::Vector2f();
 	if (CheckJsonParameter(jsonObject, parameterName, json::value_t::array))
 	{
 		if (jsonObject[parameterName].size() == 2)
@@ -72,7 +72,7 @@ std::unique_ptr<json> LoadJson(std::string jsonPath)
 	{
 		{
 			std::ostringstream oss;
-			oss << "[JSON ERROR] EMPTY SCENE FILE at: " << jsonPath;
+			oss << "[JSON ERROR] EMPTY JSON FILE at: " << jsonPath;
 			Log::GetInstance()->Error(oss.str());
 		}
 		return nullptr;
@@ -86,7 +86,7 @@ std::unique_ptr<json> LoadJson(std::string jsonPath)
 	{
 		{
 			std::ostringstream oss;
-			oss << "THE SCENE FILE: " << jsonPath << " IS NOT JSON\n" << e.what();
+			oss << "THE FILE: " << jsonPath << " IS NOT JSON\n" << e.what();
 			Log::GetInstance()->Error(oss.str());
 		}
 		return nullptr;

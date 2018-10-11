@@ -22,22 +22,67 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <engine/modules.h>
+#include <engine/engine.h>
+#include <engine/config.h>
+#include <engine/scene.h>
 #include <utility/json_utility.h>
+#include <gtest/gtest.h>
 
-int main()
+TEST(TestScene, TestLoadScene)
 {
 	sfge::Engine engine;
-	engine.Init(false, true);
+	engine.Init();
 
-	auto sceneManager = engine.GetSceneManager();
-	sceneManager.SetCurrentScene(sceneManager.LoadSceneFromName("data/scenes/test.scene"));
+	auto& sceneManager = engine.GetSceneManager();
+	sceneManager.LoadSceneFromPath ("data/scenes/test.scene");
 
 
 	engine.Start();
 
-#ifdef WIN32
-	system("pause");
-#endif
-	return EXIT_SUCCESS;
+}
+
+TEST(TestScene, TestLotOfEntites)
+{
+	const int entityNmb = 10'000;
+	
+	sfge::Engine engine;
+	engine.Init();
+	const auto config = engine.GetConfig().lock();
+	json sceneJson = {
+		{"name", "Lot Of Entities Scene"}};
+	json entitiesArray = json::array();
+	for(int i = 0; i < entityNmb;i++)
+	{
+		//Adding transform
+		json transformJson = 
+		{
+			{"position", {rand() % config->screenResolution.x, rand() % config->screenResolution.y}},
+			{"angle", {rand() % 360}},
+			{"type", static_cast<int>(sfge::ComponentType::TRANSFORM2D)},
+		};
+
+		json rectShapeJson = 
+		{
+			{"size", {10,10}},
+			{"type", static_cast<int>(sfge::ComponentType::SHAPE2D)},
+			{"shape_type", static_cast<int>(sfge::ShapeType::RECTANGLE)}
+		};
+
+		std::ostringstream oss;
+		oss << "Entity " << i;
+		const json entityJson = 
+		{
+			{"name", oss.str()},
+			{"components", {
+				transformJson, rectShapeJson
+			}
+			}
+		};
+		entitiesArray.push_back(entityJson);
+	}
+	sceneJson["entities"] = entitiesArray;
+	auto& sceneManager = engine.GetSceneManager();
+	sceneManager.LoadSceneFromJson(sceneJson);
+
+	engine.Start();
 }

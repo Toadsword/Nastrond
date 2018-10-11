@@ -1,24 +1,29 @@
 from SFGE import *
 import sys
-import random
+
+from SFGE import Timer
+
 
 class ComponentTest(Component):
 
+    timer: Timer
+
     def init(self):
-        #print("Init ComponentTest with "+str(self.game_object))
-        self.timer = Timer(1.0,1.0)
-        pycomponents = self.game_object.get_components(ComponentTest.PyComponent)
-        for c in pycomponents:
-            print(str(c)+" is of type: "+str(type(c)))
-            if type(c) is SpriteTest:
-                print("Youpi")
+        self.timer = Timer(1.0, 1.0)
+        sprite_test = self.get_component(SpriteTest)
+        if sprite_test:
+            print("Youpi "+str(sprite_test))
+        else:
+            sys.stderr.write("No Sprite Test from Component Test\n")
+            sys.stderr.flush()
+
     def update(self, dt):
-        print("Hello update from Python with dt: "+str(dt))
+        print("Hello update from Python with dt: " + str(dt))
         self.timer.update(dt)
-        if(self.timer.is_over()):
+        if self.timer.is_over():
             print("Timer over, reset")
             self.timer.reset()
-    
+
     def __del__(self):
         sys.stderr.write("DELETING COMPONENT TEST PYTHON\n")
         sys.stderr.flush()
