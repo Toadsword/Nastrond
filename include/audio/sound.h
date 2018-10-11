@@ -35,26 +35,16 @@ namespace sfge
 {
 class EntityManager;
 class SoundManager;
-class Sound;
 
 using SoundId = unsigned int;
 const SoundId INVALID_SOUND_ID = 0U;
 
-using SoundBufferId = unsigned;
+using SoundBufferId = unsigned int;
 const SoundBufferId INVALID_SOUND_BUFFER = 0U;
 
 const auto MAX_SOUND_BUFFER_SIZE = 1'000'000ll;
 
-namespace editor
-{
-struct SoundInfo : ComponentInfo, PathEditorComponent
-{
-	void DrawOnInspector() override;
-	SoundBufferId SoundBufferId = INVALID_SOUND_BUFFER;
-	Sound* Sound = nullptr;
-	std::string bufferPath = "";
-};
-}
+
 /**
 * \brief Sound class child is a Component
 */
@@ -104,6 +94,17 @@ private:
 	SoundBufferId m_IncrementId = 0U;
 
 };
+
+namespace editor
+{
+struct SoundInfo : ComponentInfo, PathEditorComponent
+{
+	void DrawOnInspector() override;
+	sfge::SoundBufferId SoundBufferId = sfge::INVALID_SOUND_BUFFER;
+	sfge::Sound* Sound = nullptr;
+	std::string bufferPath = "";
+};
+}
 
 class SoundManager : public ComponentManager<Sound, editor::SoundInfo>, System
 {

@@ -73,6 +73,7 @@ void Sprite::Update()
 	if(m_Transform != nullptr)
 	{
 		pos += m_Transform->Position;
+		sprite.setRotation(m_Transform->EulerAngle);
 	}
 	sprite.setPosition(pos);
 }

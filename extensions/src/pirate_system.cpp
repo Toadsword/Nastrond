@@ -22,28 +22,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <engine/system.h>
-#include <engine/engine.h>
-
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-
-#include <extensions/python_extensions.h>
-#include <extensions/planet_system.h>
 #include <extensions/pirate_system.h>
 
-namespace sfge::ext
-{
-
-void ExtendPython(py::module& m)
-{
-	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
-	planetSystem
-		.def(py::init<Engine&>());
-	
-	py::class_<PirateSystem, System> pirateSystem(m, "PirateSystem");
-	pirateSystem
-			.def(py::init<Engine&>());
-}
-
-}
