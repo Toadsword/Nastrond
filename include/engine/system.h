@@ -24,7 +24,6 @@
 
 #ifndef SFGE_SYSTEM_H
 #define SFGE_SYSTEM_H
-#include <SFML/System/Time.hpp>
 
 namespace sfge
 {

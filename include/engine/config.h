@@ -34,7 +34,7 @@ SOFTWARE.
 #include <Box2D/Box2D.h>
 //Engine include
 #include <utility/json_utility.h>
-#include "globals.h"
+#include <engine/globals.h>
 
 namespace sfge
 {

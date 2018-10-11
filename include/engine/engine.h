@@ -31,10 +31,8 @@ SOFTWARE.
 #include <string>
 #include <ctpl_stl.h>
 
-#include <SFML/Graphics.hpp>
 
 #include <utility/json_utility.h>
-#include <utility/singleton.h>
 #include <graphics/graphics2d.h>
 #include <audio/audio.h>
 #include <engine/scene.h>
@@ -45,13 +43,17 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <editor/editor.h>
 #include <editor/profiler.h>
-
+namespace sf
+{
+class sf::RenderWindow;
+}
 namespace sfge
 {
 
 /**
 * Prototypes declarations
 */
+
 struct Configuration;
 
 /**
