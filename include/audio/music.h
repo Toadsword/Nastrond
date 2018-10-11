@@ -32,33 +32,9 @@ SOFTWARE.
 #include <engine/system.h>
 namespace sfge
 {
-using MusicId = unsigned;
+
+using MusicId = unsigned int;
 const MusicId INVALID_MUSIC_ID = 0U;
-
-
-class Music
-{
-public:
-	Music() = default;
-
-	Music(const Music&) = delete;
-	Music& operator=(const Music&) = delete;
-	Music(Music&&) = default;
-	Music& operator = (Music &&) = default;
-
-	void SetPath(std::string path);
-	void SetEntity(Entity entity);
-	bool Load();
-	void Play();
-	void Stop();
-
-	Entity GetEntity();
-private:
-	MusicId musicId = INVALID_MUSIC_ID;
-	std::string m_Path = "";
-	sf::Music m_Music;
-	Entity m_Entity = INVALID_ENTITY;
-};
 
 class MusicManager
 {
@@ -68,22 +44,11 @@ public:
 	MusicManager& operator=(const MusicManager&) = delete;
 	MusicManager(MusicManager&&) = default;
 	MusicManager& operator = (MusicManager &&) = default;
-	/**
-	* \brief open a music from a path file, put it on MusicMap and return the matchin id
-	* \param filename The filename of the music file
-	*/
-	MusicId LoadMusic(const std::string& filename);
-	/**
-	* \brief return the music attached to the given musicId on MusicMap
-	* \param musicId the id key of the music
-	*/
-	Music* GetMusic(MusicId musicId);
 
+	void Play(const std::string& musicPath);
 
 protected:
-	std::vector<Music> m_Musics{INIT_ENTITY_NMB};
-	std::vector<std::string> m_MusicPaths{INIT_ENTITY_NMB};
-	MusicId incrementId = 1U;
+	sf::Music m_Music;
 };
 
 }
