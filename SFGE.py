@@ -25,6 +25,10 @@ class b2Vec2:
         self.magnitude = 0.0
 
 
+class Sprite:
+    def set_texture(self, texture):
+        pass
+
 class Timer:
     """Timer used for update loop and """
     def __init__(self, time, period):
@@ -73,7 +77,8 @@ class ComponentManager():
         pass
 
 class SpriteManager(System):
-    pass
+    def add_component(self, entity):
+        return Sprite()
 
 
 class TextureManager(System):
@@ -159,7 +164,7 @@ class Transform2d():
     def __init__(self):
         self.position = Vector2f()
         self.scale = Vector2f()
-        self.angle = 0.0
+        self.euler_angle = 0.0
 
 
 class Sound:

@@ -60,6 +60,7 @@ public:
 	*/
 	void Init() override;
 
+
 	void InitPyComponent();
 	/**
 	* \brief Update the python interpreter, called only in play mode
@@ -100,11 +101,15 @@ public:
 	void OnTriggerExit(Entity entity, ColliderData* colliderData);
 	void OnCollisionEnter(Entity entity, ColliderData* colliderData);
 	void OnCollisionExit(Entity entity, ColliderData* colliderData);
+
+
+    void SpreadClasses();
 private:
 	/**
 	 * \brief Load all the python scripts at initialization or reset
 	 */
 	void LoadScripts(std::string dirname = "scripts/");
+
 
 	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * 4 };
 	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * 4 };

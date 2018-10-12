@@ -41,7 +41,7 @@ TEST(TestPirate, PyPirate)
             { "name", "Test Pirate Component" }
     };
     json systemJson = {
-            {"script_path", "scripts/pirate_system.py"}
+            {"script_path", "scripts/pirate_manager.py"}
     };
     sceneJson["systems"] = json::array({ systemJson });
     auto& sceneManager = engine.GetSceneManager();

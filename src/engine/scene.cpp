@@ -147,7 +147,15 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 				std::string path = systemJson["script_path"];
 				const ModuleId moduleId = pythonEngine.LoadPyModule(path);
 				if (moduleId != INVALID_MODULE)
+				{
 					const InstanceId instanceId = pythonEngine.LoadPySystem(moduleId);
+				}
+				else
+				{
+					std::ostringstream oss;
+					oss << "Could not load PySystem at "<<path;
+					Log::GetInstance()->Error(oss.str());
+				}
 			}
 			if(CheckJsonExists(systemJson, "systemClassName"))
 			{

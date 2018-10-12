@@ -23,6 +23,7 @@
  */
 #include <sstream>
 #include <list>
+#include <cmath>
 
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
@@ -144,8 +145,9 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("load_pycomponent", [](PythonEngine* pythonEngineInstance, Entity entity, std::string scriptPath){
 			auto moduleId = pythonEngineInstance->LoadPyModule(scriptPath);
 			auto pyComponentId = pythonEngineInstance->LoadPyComponent(moduleId, entity);
+			pythonEngineInstance->SpreadClasses();
 			return py::cast(pythonEngineInstance->GetPyComponentFromInstanceId(pyComponentId));
-		});
+		}, py::return_value_policy::reference);
 
 	py::class_<Component, PyComponent> component(m, "Component");
 	component
@@ -259,6 +261,24 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		{
 			return sqrtf(vec.x*vec.x + vec.y*vec.y);
 		})
+		.def_static("dot", [](const sf::Vector2f& v1, const sf::Vector2f& v2)
+		{
+		    return v1.x*v2.x+v1.y*v2.y;
+		})
+		.def_static("angle_between", [](const sf::Vector2f& v1, const sf::Vector2f& v2)
+		{
+		    float dot = v1.x*v2.x+v1.y*v2.y;
+		    return (dot==0.0f ? 0.0f : dot/fabs(dot)) * acos(dot)/M_PI*180.0f;
+
+		})
+		.def("rotate", [](sf::Vector2f& v1, float angle){
+		    float radianAngle = (angle+360.0f)/180.0f*M_PI;
+		    v1 = sf::Vector2f(cos(radianAngle)*v1.x-sin(radianAngle)*v1.y,sin(radianAngle)*v1.x+cos(radianAngle)*v1.y);
+		})
+		.def_property_readonly_static("down", [](py::object){ return sf::Vector2f(0.0f,1.0f);})
+		.def_property_readonly_static("up", [](py::object){ return sf::Vector2f(0.0f,-1.0f);})
+		.def_property_readonly_static("right", [](py::object){ return sf::Vector2f(1.0f,0.0f);})
+		.def_property_readonly_static("left", [](py::object){ return sf::Vector2f(-1.0f,0.0f);})
 		.def_readwrite("x", &sf::Vector2f::x)
 		.def_readwrite("y", &sf::Vector2f::y)
 		.def("__repr__", [](const sf::Vector2f &vec)
@@ -382,6 +402,11 @@ void PythonEngine::Draw()
 void PythonEngine::Destroy()
 {
 	System::Destroy();
+
+	m_PySystems.clear();
+	m_PythonInstances.clear();
+	m_PyComponents.clear ();
+	m_PyModuleObjs.clear();
 	Log::GetInstance()->Msg("Finalize the python embed interpretor");
 	py::finalize_interpreter();
 }
@@ -433,11 +458,11 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 				m_PyClassNames[moduleId] = className;
 
 				m_IncrementalModuleId++;
-				/*{
+				{
 					std::ostringstream oss;
 					oss << "Loading module: " << moduleName << " with class: " << className << ",\n";
 					Log::GetInstance()->Msg(oss.str());
-				}*/
+				}
 			}
 			catch (const std::runtime_error& e)
 			{
@@ -446,9 +471,15 @@ ModuleId PythonEngine::LoadPyModule(std::string& moduleFilename)
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_MODULE;
 			}
+			SpreadClasses();
 			return moduleId;
 		}
 	}
+    {
+        std::ostringstream oss;
+        oss << "[Error]: Could not load " << moduleName << " because it is not a regular file.\n";
+        Log::GetInstance()->Msg(oss.str());
+    }
 	return INVALID_MODULE;
 }
 
@@ -611,26 +642,7 @@ void PythonEngine::LoadScripts(std::string dirname)
 		}
 	};
 	IterateDirectory(dirname, LoadAllPyModules);
-	//Spread the class name in all the scripts
-	for(ModuleId moduleId = 1U; moduleId < m_IncrementalModuleId; moduleId++)
-	{
-		for (ModuleId otherModuleId = 1U; otherModuleId < m_IncrementalModuleId; otherModuleId++)
-		{
-			if(moduleId == otherModuleId) continue;
-			try
-			{
-			m_PyModuleObjs[moduleId].attr(py::str(m_PyClassNames[otherModuleId])) = 
-				m_PyModuleObjs[otherModuleId].attr(py::str(m_PyClassNames[otherModuleId]));
-			}
-			catch (std::runtime_error& e)
-			{
-				std::ostringstream oss;
-				oss << "[PYTHON ERROR] Could not import class: " << m_PyClassNames[otherModuleId] << " into module: " << moduleId << " with error: " << e.what();
-				Log::GetInstance()->Error(oss.str());
-			}
-		}
-		
-	}
+	SpreadClasses();
 }
 
 
@@ -734,6 +746,29 @@ void PythonEngine::OnCollisionExit(Entity entity, ColliderData * colliderData)
 	}
 }
 
+void PythonEngine::SpreadClasses()
+{
+    //Spread the class name in all the scripts
+    for(ModuleId moduleId = 1U; moduleId < m_IncrementalModuleId; moduleId++)
+    {
+        for (ModuleId otherModuleId = 1U; otherModuleId < m_IncrementalModuleId; otherModuleId++)
+        {
+            if(moduleId == otherModuleId) continue;
+            try
+            {
+                m_PyModuleObjs[moduleId].attr(py::str(m_PyClassNames[otherModuleId])) =
+                        m_PyModuleObjs[otherModuleId].attr(py::str(m_PyClassNames[otherModuleId]));
+            }
+            catch (std::runtime_error& e)
+            {
+                std::ostringstream oss;
+                oss << "[PYTHON ERROR] Could not import class: " << m_PyClassNames[otherModuleId] << " into module: " << moduleId << " with error: " << e.what();
+                Log::GetInstance()->Error(oss.str());
+            }
+        }
+
+    }
+}
 
 
 }
