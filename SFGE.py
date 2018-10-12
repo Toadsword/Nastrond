@@ -1,5 +1,5 @@
-
-
+def auto_import():
+    from scripts import *
 
 class Vector2f:
     """SFML and default SFGE Vector type when not working on the physic"""
@@ -95,6 +95,11 @@ class Transform2dManager(System, ComponentManager):
     pass
 
 
+class PythonEngine(System):
+    def load_pycomponent(self, entity, script_path):
+        pass
+
+
 class EntityManager(System):
 
     def create_entity(self):
@@ -156,12 +161,14 @@ class Transform2d():
         self.scale = Vector2f()
         self.angle = 0.0
 
+
 class Sound:
     def play(self):
         pass
 
     def stop(self):
         pass
+
 
 class Body2d:
     def __init__(self):
@@ -170,6 +177,7 @@ class Body2d:
 
     def apply_force(self, force:b2Vec2):
         pass
+
 
 class KeyboardManager:
     class Key:
@@ -212,3 +220,4 @@ entity_manager = EntityManager()
 physics2d_manager = Physics2dManager()
 body2d_manager = Body2dManager()
 graphics2d_manager = Graphics2dManager()
+python_engine = PythonEngine()

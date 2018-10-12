@@ -140,6 +140,12 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
 	py::class_<ShapeManager> shapeManager(m, "ShapeManager");
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
+	pythonEngine
+		.def("load_pycomponent", [](PythonEngine* pythonEngineInstance, Entity entity, std::string scriptPath){
+			auto moduleId = pythonEngineInstance->LoadPyModule(scriptPath);
+			auto pyComponentId = pythonEngineInstance->LoadPyComponent(moduleId, entity);
+			return py::cast(pythonEngineInstance->GetPyComponentFromInstanceId(pyComponentId));
+		});
 
 	py::class_<Component, PyComponent> component(m, "Component");
 	component
@@ -307,7 +313,7 @@ void PythonEngine::Init()
 		sfgeModule.attr("physics2d_manager") = py::cast(m_Engine.GetPhysicsManager(), py::return_value_policy::reference);
 		sfgeModule.attr("transform2d_manager") = py::cast(m_Engine.GetTransform2dManager(), py::return_value_policy::reference);
 		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
-
+		sfgeModule.attr("python_engine") = py::cast(m_Engine.GetPythonEngine(), py::return_value_policy::reference);
 		sfgeModule.attr("graphics2d_manager") = py::cast(&(m_Engine.GetGraphics2dManager()), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
