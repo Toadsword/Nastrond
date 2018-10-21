@@ -77,7 +77,7 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 				}*/
 				soundBuffer = m_SoundBufferManager.GetSoundBuffer(soundBufferId);
 				newSound.SetBuffer(soundBuffer);
-				newSoundInfo.SoundBufferId = soundBufferId;
+				newSoundInfo.BufferId = soundBufferId;
 			}
 			else
 			{
@@ -325,6 +325,6 @@ void sfge::editor::SoundInfo::DrawOnInspector()
 	ImGui::Separator();
 	ImGui::Text("Sound");
 	ImGui::LabelText("Sound Path", path.c_str());
-	ImGui::InputInt("Sound Id", reinterpret_cast<int*>(&SoundBufferId));
+	ImGui::InputInt("Sound Id", reinterpret_cast<int*>(&BufferId));
 	
 }

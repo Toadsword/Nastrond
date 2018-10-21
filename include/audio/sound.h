@@ -50,8 +50,8 @@ namespace editor
 struct SoundInfo : ComponentInfo, PathEditorComponent
 {
 	void DrawOnInspector() override;
-	SoundBufferId SoundBufferId = INVALID_SOUND_BUFFER;
-	Sound* Sound = nullptr;
+	SoundBufferId BufferId = INVALID_SOUND_BUFFER;
+	sfge::Sound* Sound = nullptr;
 	std::string bufferPath = "";
 };
 }
