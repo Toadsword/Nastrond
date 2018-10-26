@@ -160,6 +160,7 @@ void Engine::Start()
 
 		m_Editor.Update(dt.asSeconds());
 		graphicsUpdateClock.restart ();
+		m_TransformManager.Update(dt.asSeconds());
 		m_Graphics2dManager.Update(dt.asSeconds());
 		m_PythonEngine.Draw();
 		m_Editor.Draw();
@@ -214,9 +215,9 @@ void Engine::Collect()
 }
 
 
-std::weak_ptr<Configuration> Engine::GetConfig() const
+Configuration * Engine::GetConfig() const
 {
-	return std::weak_ptr<Configuration>(m_Config);
+	return m_Config.get();
 }
 
 Graphics2dManager& Engine::GetGraphics2dManager() 

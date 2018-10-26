@@ -50,7 +50,7 @@ Offsetable::Offsetable(sf::Vector2f offset) : m_Offset(offset)
 {
 }
 
-sf::Vector2f Offsetable::GetOffset() const
+Vec2f Offsetable::GetOffset() const
 {
 	return m_Offset;
 }

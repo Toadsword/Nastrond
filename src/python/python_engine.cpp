@@ -61,7 +61,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	engine
 		.def_property_readonly("config", [](Engine* engine)
 	{
-		return engine->GetConfig().lock();
+		return engine->GetConfig();
 	}, py::return_value_policy::reference);
 
 	py::class_<Configuration, std::unique_ptr<Configuration, py::nodelete>> config(m, "Configuration");
@@ -105,6 +105,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<EntityManager> entityManager(m, "EntityManager");
 	entityManager
 	    .def("create_entity", &EntityManager::CreateEntity)
+	    .def("destroy_entity", &EntityManager::DestroyEntity)
 	    .def("has_component", &EntityManager::HasComponent)
 		.def("resize", &EntityManager::ResizeEntityNmb);
 
@@ -240,12 +241,44 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("get_current", &Timer::GetCurrent)
 		.def("get_current_time", &Timer::GetCurrentTime)
 		.def("is_over", &Timer::IsOver)
+		.def_property("period", &Timer::GetPeriod, &Timer::SetPeriod)
 		.def("__repr__", [](const Timer &timer)
 	{
 		std::ostringstream oss;
 		oss << "(" << timer.GetTime() << ", " << timer.GetPeriod() << ")";
 		return oss.str();
 	});
+
+	py::class_<Vec2f> vec2f(m, "Vec2f");
+	vec2f
+        .def(py::init<float, float>())
+        .def(py::init<>())
+        .def(py::self + py::self)
+        .def(py::self += py::self)
+        .def(py::self - py::self)
+        .def(py::self -= py::self)
+        .def(py::self * float())
+        .def(py::self / float())
+        .def_property_readonly("magnitude", &Vec2f::GetMagnitude)
+        .def_static("dot", &Vec2f::Dot)
+        .def_static("angle_between", &Vec2f::AngleBetween)
+        .def_static("lerp", &Vec2f::Lerp)
+        .def("rotate", [](Vec2f& v1, float angle){
+          float radianAngle = angle/180.0f*M_PI;
+          v1 = Vec2f(cos(radianAngle)*v1.x-sin(radianAngle)*v1.y,sin(radianAngle)*v1.x+cos(radianAngle)*v1.y);
+        })
+        .def_property_readonly_static("down", [](py::object){ return Vec2f(0.0f,1.0f);})
+        .def_property_readonly_static("up", [](py::object){ return Vec2f(0.0f,-1.0f);})
+        .def_property_readonly_static("right", [](py::object){ return Vec2f(1.0f,0.0f);})
+        .def_property_readonly_static("left", [](py::object){ return Vec2f(-1.0f,0.0f);})
+        .def_readwrite("x", &Vec2f::x)
+        .def_readwrite("y", &Vec2f::y)
+        .def("__repr__", [](const Vec2f &vec)
+        {
+          std::ostringstream oss;
+          oss << "(" << vec.x << ", " << vec.y << ")";
+          return oss.str();
+        });
 
 	py::class_<sf::Vector2f> vector2f(m, "Vector2f");
 	vector2f
@@ -268,11 +301,16 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_static("angle_between", [](const sf::Vector2f& v1, const sf::Vector2f& v2)
 		{
 		    float dot = v1.x*v2.x+v1.y*v2.y;
-		    return (dot==0.0f ? 0.0f : dot/fabs(dot)) * acos(dot)/M_PI*180.0f;
+		    float angle = acosf(dot)/M_PI*180.0f;
+		    return angle;
 
 		})
+		.def_static("lerp", [](const sf::Vector2f&v1, const sf::Vector2f&v2, float t)
+        {
+		    return v1+(v2-v1)*t;
+        })
 		.def("rotate", [](sf::Vector2f& v1, float angle){
-		    float radianAngle = (angle+360.0f)/180.0f*M_PI;
+		    float radianAngle = angle/180.0f*M_PI;
 		    v1 = sf::Vector2f(cos(radianAngle)*v1.x-sin(radianAngle)*v1.y,sin(radianAngle)*v1.x+cos(radianAngle)*v1.y);
 		})
 		.def_property_readonly_static("down", [](py::object){ return sf::Vector2f(0.0f,1.0f);})
@@ -376,7 +414,7 @@ void PythonEngine::Update(float dt)
 
 void PythonEngine::FixedUpdate()
 {
-	const auto config = m_Engine.GetConfig().lock();
+	const auto config = m_Engine.GetConfig();
 	for (auto pyComponent : m_PyComponents)
 	{
 		if (pyComponent != nullptr)
@@ -767,6 +805,35 @@ void PythonEngine::SpreadClasses()
             }
         }
 
+    }
+}
+
+void PythonEngine::RemovePyComponentsFrom(Entity entity)
+{
+    for(int i = 0; i < m_PyComponents.size();i++)
+    {
+        auto& pyComponent = m_PyComponents[i];
+        if(pyComponent != nullptr && entity == pyComponent->GetEntity())
+        {
+            pyComponent = nullptr;
+        }
+    }
+    for(int i = 0; i<m_PythonInstances.size();i++)
+    {
+        auto& pyInstance = m_PythonInstances[i];
+        if(pyInstance.is_none() || pyInstance.ptr() == nullptr ) continue;
+        try
+        {
+            if(pyInstance.cast<PyComponent*>() != nullptr && pyInstance.cast<PyComponent*>()->GetEntity() == entity)
+            {
+                m_PythonInstances.erase(m_PythonInstances.begin()+i);
+                i--;
+            }
+        }
+        catch (py::cast_error& e)
+        {
+
+        }
     }
 }
 

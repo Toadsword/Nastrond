@@ -40,7 +40,7 @@ TEST(TestSystem, PlanetPyComponent)
 	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 
-	const auto config = engine.GetConfig().lock();
+	const auto config = engine.GetConfig();
 	json sceneJson = {
 		{ "name", "Test Planet Component" } };
 	json entitiesArray = json::array();

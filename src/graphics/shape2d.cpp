@@ -65,7 +65,7 @@ void Shape::SetFillColor(sf::Color color) const
 
 void Shape::Update(float dt) const
 {
-	sf::Vector2f newPosition = m_Offset;
+	auto newPosition = m_Offset;
 
 	if(m_Transform != nullptr)
 	{

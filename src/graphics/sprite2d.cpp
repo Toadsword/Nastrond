@@ -69,7 +69,7 @@ void Sprite::Init()
 
 void Sprite::Update()
 {
-	sf::Vector2f pos = m_Offset;
+	auto pos = m_Offset;
 	if(m_Transform != nullptr)
 	{
 		pos += m_Transform->Position;

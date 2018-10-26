@@ -31,7 +31,7 @@ SOFTWARE.
 #include <string>
 #include <ctpl_stl.h>
 
-
+#include <engine/config.h>
 #include <utility/json_utility.h>
 #include <graphics/graphics2d.h>
 #include <audio/audio.h>
@@ -89,7 +89,7 @@ public:
 	* \brief A getter of the Configuration
 	* \return The Configuration struct got by the Engine
 	*/
-	std::weak_ptr<Configuration> GetConfig() const;
+	Configuration * GetConfig() const;
 
 	Graphics2dManager& GetGraphics2dManager();
 	AudioManager& GetAudioManager();
@@ -108,7 +108,7 @@ protected:
 	void InitModules();
 	ctpl::thread_pool m_ThreadPool;
 	std::shared_ptr<sf::RenderWindow> m_Window;
-	std::shared_ptr<Configuration> m_Config = nullptr;
+	std::unique_ptr<Configuration> m_Config;
 
 
 	//module

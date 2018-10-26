@@ -49,7 +49,7 @@ SceneManager::SceneManager(Engine& engine):
 void SceneManager::Init()
 {
 	
-	if(auto config = m_Engine.GetConfig().lock())
+	if(auto config = m_Engine.GetConfig())
 	{
 		SearchScenes(config->dataDirname);
 	}

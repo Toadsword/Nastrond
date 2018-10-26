@@ -84,6 +84,8 @@ public:
 
 	void LoadCppExtensionSystem(std::string moduleName);
 
+	void RemovePyComponentsFrom(Entity entity);
+
 	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 	/**
 	 * \brief Get a python component object

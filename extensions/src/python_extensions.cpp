@@ -41,9 +41,10 @@ void ExtendPython(py::module& m)
 	planetSystem
 		.def(py::init<Engine&>());
 	
-	py::class_<PirateSystem, System> pirateSystem(m, "PirateSystem");
+	py::class_<PirateSystem, System> pirateSystem(m, "PirateSystemCpp");
 	pirateSystem
 			.def(py::init<Engine&>());
+
 }
 
 }

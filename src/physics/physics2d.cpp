@@ -35,7 +35,7 @@ const float Physics2dManager::pixelPerMeter = 100.0f;
 void Physics2dManager::Init()
 {
 	b2Vec2 gravity;
-	if(const auto configPtr = m_Engine.GetConfig().lock())
+	if(const auto configPtr = m_Engine.GetConfig())
 		gravity = configPtr->gravity;
 	m_World = std::make_shared<b2World>(gravity);
 	m_ContactListener = std::make_unique<ContactListener>(m_Engine);
@@ -51,7 +51,7 @@ void Physics2dManager::Update(float dt)
 
 void Physics2dManager::FixedUpdate()
 {
-	const auto config = m_Engine.GetConfig().lock();
+	const auto config = m_Engine.GetConfig();
 	if (config != nullptr and m_World != nullptr)
 	{
 		m_World->Step(config->fixedDeltaTime,

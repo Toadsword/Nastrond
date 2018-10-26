@@ -67,6 +67,7 @@ public:
 
 	EntityMask GetMask(Entity entity);
 	Entity CreateEntity(Entity wantedEntity);
+	void DestroyEntity(Entity entity);
 	bool HasComponent(Entity entity, ComponentType componentType);
 	void AddComponentType(Entity entity, ComponentType componentType);
 	void RemoveComponentType(Entity entity, ComponentType componentType);

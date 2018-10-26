@@ -40,7 +40,7 @@ namespace sfge
 
 void Graphics2dManager::Init()
 {
-	if (const auto configPtr = m_Engine.GetConfig().lock())
+	if (const auto configPtr = m_Engine.GetConfig())
 	{
 
 		if (!m_Windowless)

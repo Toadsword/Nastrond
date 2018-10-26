@@ -47,7 +47,7 @@ TEST(TestScene, TestLotOfEntites)
 	
 	sfge::Engine engine;
 	engine.Init();
-	const auto config = engine.GetConfig().lock();
+	const auto config = engine.GetConfig();
 	json sceneJson = {
 		{"name", "Lot Of Entities Scene"}};
 	json entitiesArray = json::array();

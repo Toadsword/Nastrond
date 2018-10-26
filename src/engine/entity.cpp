@@ -76,6 +76,15 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
 	return INVALID_ENTITY;
 }
 
+void EntityManager::DestroyEntity(Entity entity)
+{
+    if(HasComponent(entity, ComponentType::PYCOMPONENT))
+    {
+        m_Engine.GetPythonEngine().RemovePyComponentsFrom(entity);
+    }
+	m_MaskArray[entity-1] = INVALID_ENTITY;
+}
+
 bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 {
 	return (m_MaskArray[entity - 1] & static_cast<int>(componentType)) == static_cast<int>(componentType);
@@ -105,7 +114,7 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 	{
 		resizeObserver->OnResize(newSize);
 	}
-	if(const auto config = m_Engine.GetConfig().lock())
+	if(const auto config = m_Engine.GetConfig())
 	{
 		config->currentEntitiesNmb = newSize;
 	}
@@ -115,4 +124,5 @@ void EntityManager::AddObserver(ResizeObserver* resizeObserver)
 {
 	m_ResizeObsververs.push_back(resizeObserver);
 }
+
 }

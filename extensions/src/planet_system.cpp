@@ -46,7 +46,7 @@ PlanetSystem::PlanetSystem(Engine& engine):
 
 void PlanetSystem::Init()
 {
-	auto config = m_Engine.GetConfig().lock();
+	auto config = m_Engine.GetConfig();
 	fixedDeltaTime = config->fixedDeltaTime;
 	screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 	auto& entityManager = m_Engine.GetEntityManager();

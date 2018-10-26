@@ -66,6 +66,22 @@ void Transform2dManager::OnResize(size_t new_size)
 	m_ComponentsInfo.resize(new_size);
 }
 
+void Transform2dManager::Update(float dt) {
+    System::Update(dt);
+    for(auto& transform : m_Components)
+	{
+    	if(transform.EulerAngle > 180.0f)
+		{
+    		transform.EulerAngle -= 360.0f;
+		}
+
+		if(transform.EulerAngle < -180.0f)
+		{
+			transform.EulerAngle += 360.0f;
+		}
+	}
+}
+
 TransformRequiredComponent::TransformRequiredComponent(Transform2d* transform) : 
 	m_Transform(transform)
 {

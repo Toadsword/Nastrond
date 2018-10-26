@@ -26,12 +26,39 @@ SOFTWARE.
 #define SFGE_PIRATE_SYSTEM_H
 
 #include <engine/system.h>
+#include <utility/time_utility.h>
+#include <SFML/Audio.hpp>
+#include <engine/globals.h>
+
 namespace sfge
 {
+class Engine;
+class Transform2d;
+
+struct PirateData
+{
+  sf::Vector2f direction = sf::Vector2f(0.0f,1.0f);
+  Timer shootingTimer{-1.0f, 2.0f};
+  Entity entity = INVALID_ENTITY;
+  Transform2d* transform2d = nullptr;
+  //Constant
+  const float speed = 20.0f;
+  const float rotSpeed = 20.0f;
+  const float shootingRange = 200.0f;
+
+};
 
 class PirateSystem : public System
 {
-    using System::System;
+ public:
+    PirateSystem(Engine& engine);
+
+    void Init() override;
+    void Update(float dt) override;
+ private:
+  PirateData* GetClosestPirate(PirateData* pirate);
+  std::vector<PirateData> m_Pirates;
+
 };
 
 }

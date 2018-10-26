@@ -1,8 +1,16 @@
 def auto_import():
     from scripts import *
 
+
 class Vector2f:
     """SFML and default SFGE Vector type when not working on the physic"""
+    def __init__(self):
+        self.x = 0.0
+        self.y = 0.0
+        self.magnitude = 0.0
+
+
+class Vec2f:
     def __init__(self):
         self.x = 0.0
         self.y = 0.0
@@ -107,7 +115,10 @@ class PythonEngine(System):
 
 class EntityManager(System):
 
-    def create_entity(self):
+    def create_entity(self, wanted_entity):
+        pass
+
+    def destroy_entity(self, entity):
         pass
 
     def has_components(self, entity, component):

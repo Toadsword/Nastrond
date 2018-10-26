@@ -77,7 +77,7 @@ void Editor::Update(float dt)
 	if (m_Enable)
 	{
 		const auto windowPtr = m_Window.lock();
-		const auto configPtr = m_Engine.GetConfig().lock();
+		const auto configPtr = m_Engine.GetConfig();
 		if (windowPtr and configPtr)
 		{
 			ImGui::SFML::Update(*windowPtr, sf::seconds(dt));

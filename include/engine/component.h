@@ -34,6 +34,7 @@ SOFTWARE.
 #include <engine/entity.h>
 
 #include <utility/json_utility.h>
+#include <engine/vector.h>
 
 namespace sfge
 {
@@ -162,10 +163,10 @@ class Offsetable
 public:
 	virtual ~Offsetable() = default;
 	Offsetable(sf::Vector2f offset);
-	sf::Vector2f GetOffset() const;
+	Vec2f GetOffset() const;
 	virtual void SetOffset(sf::Vector2f offset);
 protected:
-	sf::Vector2f m_Offset = sf::Vector2f();
+	Vec2f m_Offset;
 };
 
 }

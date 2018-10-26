@@ -22,55 +22,44 @@
  SOFTWARE.
  */
 
-#ifndef SFGE_TRANSFORM_H_
-#define SFGE_TRANSFORM_H_
-
-#include <engine/entity.h>
-#include <engine/component.h>
-#include <SFML/System/Vector2.hpp>
-#include "vector.h"
-
+#ifndef SFGE_VECTOR_H
+#define SFGE_VECTOR_H
+#include <SFML/Audio.hpp>
 namespace sfge
 {
 
-
-struct Transform2d
+class Vec2f
 {
-	Vec2f Position;
-	Vec2f Scale{1.0f,1.0f};
-	float EulerAngle = 0.0f;
+ public:
+  float x;
+  float y;
+
+  Vec2f(float x, float y);
+  Vec2f();
+
+  Vec2f( const sf::Vector2f& v);
+
+  float GetMagnitude();
+  Vec2f Normalized();
+  static Vec2f Lerp(const Vec2f& v1, const Vec2f& v2, float t);
+  static float AngleBetween(const Vec2f& v1, const Vec2f& v2);
+  static float Dot(const Vec2f& v1, const Vec2f& v2);
+
+  bool operator==(const Vec2f &rhs) const;
+  bool operator!=(const Vec2f &rhs) const;
+
+  Vec2f operator+(const Vec2f& rhs) const;
+  Vec2f& operator+=(const Vec2f& rhs);
+  Vec2f operator-(const Vec2f& rhs) const;
+
+  Vec2f& operator-=(const Vec2f& rhs);
+  Vec2f operator*(float rhs) const;
+  Vec2f operator/(float rhs) const;
+
+  operator sf::Vector2f() const;
+
+
 };
 
-namespace editor
-{
-struct Transform2dInfo : ComponentInfo
-{
-	void DrawOnInspector() override;
-	Transform2d* transform = nullptr;
-};
 }
-
-class Transform2dManager :
-	public ComponentManager<Transform2d, editor::Transform2dInfo>, public System, public ResizeObserver
-{
-public:
-	Transform2dManager(Engine& engine);
-	Transform2d* AddComponent(Entity entity) override;
-	void CreateComponent(json& componentJson, Entity entity) override;
-	void DestroyComponent(Entity entity) override;
-	void OnResize(size_t new_size) override;
-	void Update(float dt) override;
-};
-
-class TransformRequiredComponent
-{
-public:
-	TransformRequiredComponent(Transform2d* transform);
-	void SetTransform(Transform2d* transform);
-	Transform2d* GetTransform();
-protected:
-	Transform2d * m_Transform = nullptr;
-};
-}
-
-#endif /* INCLUDE_ENGINE_TRANSFORM_H_ */
+#endif //SFGE_VECTOR_H
