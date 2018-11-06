@@ -225,17 +225,17 @@ if(APPLE)
 		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
-#SFGE Tool Anim
-add_executable(SFGE_ANIM_TOOL tools/anim/main.cpp)
 
-include_directories(tools/anim/include)
+#SFGE Tool AnimCreator
 
-file(GLOB_RECURSE SFGE_ANIM_TOOL_SRC tools/anim/src/*.cpp tools/anim/include/*.h)
+file(GLOB_RECURSE SFGE_ANIM_CREATOR_TOOL_SRC tools/animCreator/main.cpp tools/animCreator/src/*.cpp tools/animCreator/include/*.h)
+include_directories(include tools/animCreator/include)
+add_executable(SFGE_ANIM_CREATOR_TOOL ${SFGE_ANIM_CREATOR_TOOL_SRC})
 
-target_link_libraries(SFGE_ANIM_TOOL PUBLIC ${SFGE_LIBRARIES})
-set_property(TARGET SFGE_ANIM_TOOL PROPERTY CXX_STANDARD 17)
+target_link_libraries(SFGE_ANIM_CREATOR_TOOL PUBLIC ${SFGE_LIBRARIES})
+set_property(TARGET SFGE_ANIM_CREATOR_TOOL PROPERTY CXX_STANDARD 17)
 if(APPLE)
-	set_target_properties(SFGE_ANIM_TOOL PROPERTIES
+	set_target_properties(SFGE_ANIM_CREATOR_TOOL PROPERTIES
 		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
