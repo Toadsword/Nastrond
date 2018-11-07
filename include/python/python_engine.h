@@ -113,18 +113,18 @@ private:
 	void LoadScripts(std::string dirname = "scripts/");
 
 
-	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * 4 };
-	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * 4 };
-	std::vector<std::string> m_PyModuleNames{ INIT_ENTITY_NMB * 4 };
-	std::vector<py::object> m_PyModuleObjs{INIT_ENTITY_NMB*4};
+	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<std::string> m_PyModuleNames{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<py::object> m_PyModuleObjs{INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER};
 
 	ModuleId m_IncrementalModuleId = 1U;
 
-	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * 4 };
+	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 	InstanceId m_IncrementalInstanceId = 1U;
-	std::vector<PyComponent*> m_PyComponents{ INIT_ENTITY_NMB * 4 };
-	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * 4 };
-	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{ INIT_ENTITY_NMB * 4 };
+	std::vector<PyComponent*> m_PyComponents{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 };
 
 }

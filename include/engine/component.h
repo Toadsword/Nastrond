@@ -54,19 +54,19 @@ enum class ComponentType : int
 };
 
 template<class T, class TInfo>
-class ComponentManager
+class SingleComponentManager
 {
 public:
-	ComponentManager()
+	SingleComponentManager()
 	{
 		m_Components = std::vector<T>{ INIT_ENTITY_NMB };
 		m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
 	};
 
-  	ComponentManager(ComponentManager&& componentManager) = default;
-  	ComponentManager(const ComponentManager& componentManager) = delete;
+  	SingleComponentManager(SingleComponentManager&& componentManager) = default;
+  	SingleComponentManager(const SingleComponentManager& componentManager) = delete;
 
-	virtual ~ComponentManager()
+	virtual ~SingleComponentManager()
 	{
 		m_Components.clear();
 		m_ComponentsInfo.clear();

@@ -35,7 +35,7 @@ namespace sfge
 {
 enum class ComponentType : int;
 template<class T, class TInfo>
-class ComponentManager;
+class SingleComponentManager;
 class ResizeObserver
 {
 public:
@@ -83,7 +83,7 @@ private:
 };
 /*
 template <>
-void EntityManager::AddObserver(ComponentManager<std::any, std::any>* componentManager)
+void EntityManager::AddObserver(SingleComponentManager<std::any, std::any>* componentManager)
 {
 	m_ResizeObsververs.push_back(componentManager);
 }

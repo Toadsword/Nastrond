@@ -24,7 +24,7 @@ void editor::Transform2dInfo::DrawOnInspector()
 }
 
 Transform2dManager::Transform2dManager(Engine& engine):
-	ComponentManager<sfge::Transform2d, sfge::editor::Transform2dInfo>(), 
+	SingleComponentManager<sfge::Transform2d, sfge::editor::Transform2dInfo>(),
 	System(engine),
 	ResizeObserver()
 {

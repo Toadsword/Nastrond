@@ -65,7 +65,7 @@ private:
 };
 }
 
-class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System, public ResizeObserver
+class Body2dManager : public SingleComponentManager<Body2d, editor::Body2dInfo>, public System, public ResizeObserver
 {
 public:
 	Body2dManager(Engine& engine);

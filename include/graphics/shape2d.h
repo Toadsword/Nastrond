@@ -76,7 +76,7 @@ struct ShapeInfo : ComponentInfo
 }
 
 class ShapeManager :
-	public ComponentManager<Shape, editor::ShapeInfo>,
+	public SingleComponentManager<Shape, editor::ShapeInfo>,
 	public System,
 	public ResizeObserver
 {

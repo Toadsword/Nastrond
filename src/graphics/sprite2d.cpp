@@ -97,7 +97,7 @@ void editor::SpriteInfo::DrawOnInspector()
 }
 
 SpriteManager::SpriteManager(Engine& engine):
-	ComponentManager<Sprite, editor::SpriteInfo>(),
+	SingleComponentManager<Sprite, editor::SpriteInfo>(),
 	System(engine),
 	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
 	m_Transform2dManager(m_Engine.GetTransform2dManager()),

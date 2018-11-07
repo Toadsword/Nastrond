@@ -144,7 +144,7 @@ std::deque<b2Vec2>& editor::Body2dInfo::GetVelocities()
 
 
 Body2dManager::Body2dManager(Engine& engine):
-	ComponentManager<Body2d, editor::Body2dInfo>(),
+	SingleComponentManager<Body2d, editor::Body2dInfo>(),
 	System(engine),
 	m_EntityManager(m_Engine.GetEntityManager()),
 	m_Transform2dManager(m_Engine.GetTransform2dManager())

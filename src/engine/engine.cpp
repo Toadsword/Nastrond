@@ -42,6 +42,7 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <physics/physics2d.h>
 #include <engine/log.h>
+#include <engine/systems_container.h>
 
 
 namespace sfge
@@ -273,6 +274,10 @@ ctpl::thread_pool & Engine::GetThreadPool()
 ProfilerFrameData& Engine::GetProfilerFrameData()
 {
     return m_FrameData;
+}
+Engine::Engine()
+{
+	m_SystemsContainer = std::make_unique<SystemsContainer>(*this);
 }
 
 }

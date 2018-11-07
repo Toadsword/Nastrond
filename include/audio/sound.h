@@ -106,7 +106,7 @@ struct SoundInfo : ComponentInfo, PathEditorComponent
 };
 }
 
-class SoundManager : public ComponentManager<Sound, editor::SoundInfo>, System
+class SoundManager : public SingleComponentManager<Sound, editor::SoundInfo>, System
 {
 public:
 	SoundManager(Engine& engine);

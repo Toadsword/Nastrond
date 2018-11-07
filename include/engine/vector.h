@@ -24,7 +24,7 @@
 
 #ifndef SFGE_VECTOR_H
 #define SFGE_VECTOR_H
-#include <SFML/Audio.hpp>
+#include <SFML/System/Vector2.hpp>
 namespace sfge
 {
 
@@ -36,9 +36,9 @@ class Vec2f
 
   Vec2f(float x, float y);
   Vec2f();
-
-  Vec2f( const sf::Vector2f& v);
-
+#ifdef SFML_VECTOR2_HPP
+  Vec2f( const sf::Vector2f& v);//copy construct
+#endif
   float GetMagnitude();
   Vec2f Normalized();
   static Vec2f Lerp(const Vec2f& v1, const Vec2f& v2, float t);

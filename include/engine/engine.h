@@ -33,15 +33,7 @@ SOFTWARE.
 
 #include <engine/config.h>
 #include <utility/json_utility.h>
-#include <graphics/graphics2d.h>
-#include <audio/audio.h>
-#include <engine/scene.h>
-#include <input/input.h>
-#include <python/python_engine.h>
-#include <physics/physics2d.h>
-#include <engine/entity.h>
-#include <engine/transform2d.h>
-#include <editor/editor.h>
+
 #include <editor/profiler.h>
 namespace sf
 {
@@ -55,6 +47,16 @@ namespace sfge
 */
 
 struct Configuration;
+class Graphics2dManager;
+class AudioManager;
+class SceneManager;
+class InputManager;
+class PythonEngine;
+class Physics2dManager;
+class EntityManager;
+class Transform2dManager;
+class Editor;
+class SystemsContainer;
 
 /**
 * \brief The main Engine class to centralise the frame process and the references
@@ -62,7 +64,7 @@ struct Configuration;
 class Engine
 {
 public:
-	Engine() = default;
+	Engine();
 	/**
 	* \brief Initialize all the modules of the Game Engine, reading the config file too
 	*/
@@ -111,16 +113,8 @@ protected:
 	std::unique_ptr<Configuration> m_Config;
 
 
-	//module
-	Graphics2dManager m_Graphics2dManager {*this};
-	AudioManager m_AudioManager {*this};
-	SceneManager m_SceneManager {*this};
-	InputManager m_InputManager {*this};
-	PythonEngine m_PythonEngine {*this};
-	Physics2dManager m_PhysicsManager {*this};
-	Editor m_Editor {*this};
-	EntityManager m_EntityManager {*this};
-	Transform2dManager m_TransformManager {*this};
+	//
+	std::unique_ptr<SystemsContainer> m_SystemsContainer;
 
   	ProfilerFrameData m_FrameData;
 

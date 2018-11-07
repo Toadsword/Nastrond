@@ -76,7 +76,7 @@ struct SpriteInfo : ComponentInfo
 /**
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
-class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>, 
+class SpriteManager : public SingleComponentManager<Sprite, editor::SpriteInfo>,
 	public LayerComponentManager<Sprite>, public System, public ResizeObserver
 {
 public:

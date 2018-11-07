@@ -36,7 +36,7 @@ SOFTWARE.
 #include <physics/physics2d.h>
 
 
-#define MULTITHREAD
+//#define MULTITHREAD
 #define OBJ_NMB 5'000
 #define SCREEN_SIZE 800
 #define VELOCITY_ITERATIONS 8

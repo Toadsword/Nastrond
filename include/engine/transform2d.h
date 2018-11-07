@@ -51,7 +51,7 @@ struct Transform2dInfo : ComponentInfo
 }
 
 class Transform2dManager :
-	public ComponentManager<Transform2d, editor::Transform2dInfo>, public System, public ResizeObserver
+	public SingleComponentManager<Transform2d, editor::Transform2dInfo>, public System, public ResizeObserver
 {
 public:
 	Transform2dManager(Engine& engine);
