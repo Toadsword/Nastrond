@@ -206,49 +206,49 @@ Configuration * Engine::GetConfig() const
 	return m_Config.get();
 }
 
-Graphics2dManager& Engine::GetGraphics2dManager()
+Graphics2dManager* Engine::GetGraphics2dManager()
 {
-	return m_SystemsContainer->graphics2dManager;
+	return m_SystemsContainer?&m_SystemsContainer->graphics2dManager:nullptr;
 }
 
-AudioManager& Engine::GetAudioManager()
+AudioManager* Engine::GetAudioManager()
 {
-	return m_SystemsContainer->audioManager;
+	return m_SystemsContainer ? &m_SystemsContainer->audioManager : nullptr;
 }
 
-SceneManager& Engine::GetSceneManager() 
+SceneManager* Engine::GetSceneManager() 
 {
-	return m_SystemsContainer->sceneManager;
+	return m_SystemsContainer ? &m_SystemsContainer->sceneManager : nullptr;
 }
 
-InputManager& Engine::GetInputManager() 
+InputManager* Engine::GetInputManager() 
 {
-	return m_SystemsContainer->inputManager;
+	return m_SystemsContainer ? &m_SystemsContainer->inputManager : nullptr;
 }
 
-PythonEngine& Engine::GetPythonEngine() 
+PythonEngine* Engine::GetPythonEngine() 
 {
-	return m_SystemsContainer->pythonEngine;
+	return m_SystemsContainer ? &m_SystemsContainer->pythonEngine : nullptr;
 }
 
-Physics2dManager& Engine::GetPhysicsManager() 
+Physics2dManager* Engine::GetPhysicsManager() 
 {
-	return m_SystemsContainer->physicsManager;
+	return m_SystemsContainer ? &m_SystemsContainer->physicsManager : nullptr;
 }
 
-EntityManager& Engine::GetEntityManager() 
+EntityManager* Engine::GetEntityManager() 
 {
-	return m_SystemsContainer->entityManager;
+	return m_SystemsContainer ? &m_SystemsContainer->entityManager : nullptr;
 }
 
-Transform2dManager& Engine::GetTransform2dManager() 
+Transform2dManager* Engine::GetTransform2dManager() 
 {
-	return m_SystemsContainer->transformManager;
+	return m_SystemsContainer ? &m_SystemsContainer->transformManager : nullptr;
 }
 
-Editor& Engine::GetEditor() 
+Editor* Engine::GetEditor() 
 {
-	return m_SystemsContainer->editor;
+	return m_SystemsContainer ? &m_SystemsContainer->editor : nullptr;
 }
 
 ctpl::thread_pool & Engine::GetThreadPool()

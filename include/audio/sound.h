@@ -112,6 +112,7 @@ public:
 	SoundManager(Engine& engine);
 	~SoundManager();
 
+	void Init() override;
 
 	Sound* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
@@ -122,8 +123,8 @@ public:
 	void Collect();
 
 protected:
-	EntityManager& m_EntityManager;
-	SoundBufferManager& m_SoundBufferManager;
+	EntityManager* m_EntityManager = nullptr;
+	SoundBufferManager* m_SoundBufferManager = nullptr;
 	std::vector<std::string> m_TexturePaths{ INIT_ENTITY_NMB };
 };
 }

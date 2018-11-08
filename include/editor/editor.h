@@ -74,12 +74,12 @@ public:
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
-	Graphics2dManager& m_GraphicsManager;
-	SceneManager& m_SceneManager;
-	EntityManager& m_EntityManager;
-	Transform2dManager& m_TransformManager;
-	Physics2dManager& m_PhysicsManager;
-	SoundManager& m_SoundManager;
+	Graphics2dManager* m_GraphicsManager = nullptr;
+	SceneManager* m_SceneManager = nullptr;
+	EntityManager* m_EntityManager = nullptr;
+	Transform2dManager* m_TransformManager = nullptr;
+	Physics2dManager* m_PhysicsManager = nullptr;
+	SoundManager* m_SoundManager = nullptr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;

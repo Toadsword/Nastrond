@@ -52,7 +52,7 @@ Sound* SoundManager::AddComponent(Entity entity)
 
 	
 	soundInfo.Sound = &sound;
-	m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
+	m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 	return &sound;
 }
 
@@ -67,7 +67,7 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 		sf::SoundBuffer* soundBuffer = nullptr;
 		if (FileExists(path))
 		{
-			const SoundBufferId soundBufferId = m_SoundBufferManager.LoadSoundBuffer(path);
+			const SoundBufferId soundBufferId = m_SoundBufferManager->LoadSoundBuffer(path);
 			if (soundBufferId != INVALID_SOUND_BUFFER)
 			{
 				/*{
@@ -75,7 +75,7 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}*/
-				soundBuffer = m_SoundBufferManager.GetSoundBuffer(soundBufferId);
+				soundBuffer = m_SoundBufferManager->GetSoundBuffer(soundBufferId);
 				newSound.SetBuffer(soundBuffer);
 				newSoundInfo.SoundBufferId = soundBufferId;
 			}
@@ -119,9 +119,15 @@ void Sound::SetBuffer(sf::SoundBuffer* buffer)
 	m_Sound.setBuffer(*buffer);
 }
 SoundManager::SoundManager(Engine& engine):
-System(engine), m_EntityManager(engine.GetEntityManager()), m_SoundBufferManager(engine.GetAudioManager().GetSoundBufferManager())
+System(engine)
 {
 
+}
+
+void SoundManager::Init()
+{
+	m_EntityManager = m_Engine.GetEntityManager();
+	m_SoundBufferManager = m_Engine.GetAudioManager()->GetSoundBufferManager();
 }
 void SoundManager::Reset()
 {

@@ -22,6 +22,10 @@
  SOFTWARE.
  */
 
+#ifdef WIN32
+#define _USE_MATH_DEFINES
+#endif
+
 #include <cmath>
 #include <engine/vector.h>
 #include <SFML/Audio.hpp>

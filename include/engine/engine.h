@@ -93,15 +93,15 @@ public:
 	*/
 	Configuration * GetConfig() const;
 
-	Graphics2dManager& GetGraphics2dManager();
-	AudioManager& GetAudioManager();
-	SceneManager& GetSceneManager();
-	InputManager& GetInputManager();
-	PythonEngine& GetPythonEngine();
-	Physics2dManager& GetPhysicsManager();
-	EntityManager& GetEntityManager();
-	Transform2dManager& GetTransform2dManager();
-	Editor& GetEditor();
+	Graphics2dManager* GetGraphics2dManager();
+	AudioManager* GetAudioManager();
+	SceneManager* GetSceneManager();
+	InputManager* GetInputManager();
+	PythonEngine* GetPythonEngine();
+	Physics2dManager* GetPhysicsManager();
+	EntityManager* GetEntityManager();
+	Transform2dManager* GetTransform2dManager();
+	Editor* GetEditor();
 
 	ctpl::thread_pool& GetThreadPool();
 	ProfilerFrameData& GetProfilerFrameData();

@@ -76,7 +76,7 @@ public:
 	std::list<std::string> GetAllScenes();
 private:
 
-	EntityManager& m_EntityManager;
+	EntityManager* m_EntityManager = nullptr;
 
 	std::map<std::string, std::string> m_ScenePathMap;
 

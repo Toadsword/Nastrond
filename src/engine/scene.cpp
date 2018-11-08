@@ -42,14 +42,14 @@
 namespace sfge
 {
 SceneManager::SceneManager(Engine& engine):
-	System(engine),
-	m_EntityManager(m_Engine.GetEntityManager())
+	System(engine)
+	
 {
 }
 
 void SceneManager::Init()
 {
-	
+	m_EntityManager = m_Engine.GetEntityManager();
 	if(auto config = m_Engine.GetConfig())
 	{
 		SearchScenes(config->dataDirname);
@@ -142,14 +142,14 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	{
 		for (auto& systemJson : sceneJson["systems"])
 		{
-			auto& pythonEngine = m_Engine.GetPythonEngine();
+			auto* pythonEngine = m_Engine.GetPythonEngine();
 			if (CheckJsonExists(systemJson, "script_path"))
 			{
 				std::string path = systemJson["script_path"];
-				const ModuleId moduleId = pythonEngine.LoadPyModule(path);
+				const ModuleId moduleId = pythonEngine->LoadPyModule(path);
 				if (moduleId != INVALID_MODULE)
 				{
-					const InstanceId instanceId = pythonEngine.LoadPySystem(moduleId);
+					const InstanceId instanceId = pythonEngine->LoadPySystem(moduleId);
 				}
 				else
 				{
@@ -161,7 +161,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 			if(CheckJsonExists(systemJson, "systemClassName"))
 			{
 				const std::string systemClassName = systemJson["systemClassName"];
-				pythonEngine.LoadCppExtensionSystem(systemClassName);
+				pythonEngine->LoadCppExtensionSystem(systemClassName);
 			}
 		}
 	}
@@ -170,12 +170,12 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		const auto entityNmb = sceneJson["entities"].size();
 		if(entityNmb > INIT_ENTITY_NMB)
 		{
-			m_EntityManager.ResizeEntityNmb(entityNmb);
+			m_EntityManager->ResizeEntityNmb(entityNmb);
 		}
 		for(auto& entityJson : sceneJson["entities"])
 		{
 			Entity entity = INVALID_ENTITY;
-			entity = m_EntityManager.CreateEntity(INVALID_ENTITY);
+			entity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 			if(entity == INVALID_ENTITY)
 			{
 				std::ostringstream oss;
@@ -185,13 +185,13 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 			}
 			if(CheckJsonExists(entityJson, "name"))
 			{
-				m_EntityManager.GetEntityInfo(entity).name = entityJson["name"].get<std::string>();
+				m_EntityManager->GetEntityInfo(entity).name = entityJson["name"].get<std::string>();
 			}
 			else
 			{
 				std::ostringstream oss;
 				oss << "Entity " << entity;
-				m_EntityManager.GetEntityInfo(entity).name = oss.str();
+				m_EntityManager->GetEntityInfo(entity).name = oss.str();
 			}
 			if (entity != INVALID_ENTITY && 
 				CheckJsonExists(entityJson, "components"))
@@ -208,60 +208,60 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						{
 						case ComponentType::TRANSFORM2D:
 						{
-							auto& transform2dManager = m_Engine.GetTransform2dManager();
+							auto* transform2dManager = m_Engine.GetTransform2dManager();
 
-							transform2dManager.CreateComponent(componentJson, entity);
-							m_EntityManager.AddComponentType(entity, ComponentType::TRANSFORM2D);
+							transform2dManager->CreateComponent(componentJson, entity);
+							m_EntityManager->AddComponentType(entity, ComponentType::TRANSFORM2D);
 							break;
 						}
 						case ComponentType::SHAPE2D:
 						{
-							auto& graphicsManager = m_Engine.GetGraphics2dManager();
-							auto& shapeManager = graphicsManager.GetShapeManager();
+							auto* graphicsManager = m_Engine.GetGraphics2dManager();
+							auto& shapeManager = graphicsManager->GetShapeManager();
 							shapeManager.CreateComponent(componentJson, entity);
-							m_EntityManager.AddComponentType(entity, ComponentType::SHAPE2D);
+							m_EntityManager->AddComponentType(entity, ComponentType::SHAPE2D);
 							break;
 						}
 						case ComponentType::BODY2D:
 						{
-							auto& physicsManager = m_Engine.GetPhysicsManager();
-							physicsManager.GetBodyManager().CreateComponent(componentJson, entity);
-							m_EntityManager.AddComponentType(entity, ComponentType::BODY2D);
+							auto* physicsManager = m_Engine.GetPhysicsManager();
+							physicsManager->GetBodyManager().CreateComponent(componentJson, entity);
+							m_EntityManager->AddComponentType(entity, ComponentType::BODY2D);
 
 							break;
 						}
 						case ComponentType::SOUND:
 						{
-							auto& audioManager = m_Engine.GetAudioManager();
-							auto& soundManager = audioManager.GetSoundManager();
+							auto* audioManager = m_Engine.GetAudioManager();
+							auto& soundManager = audioManager->GetSoundManager();
 							soundManager.CreateComponent(componentJson, entity);
-							m_EntityManager.AddComponentType(entity, ComponentType::SOUND);
+							m_EntityManager->AddComponentType(entity, ComponentType::SOUND);
 							break;
 						}
 						case ComponentType::SPRITE2D:
 						{
-							auto& graphicsManager = m_Engine.GetGraphics2dManager();
-							auto& spriteManager = graphicsManager.GetSpriteManager();
+							auto* graphicsManager = m_Engine.GetGraphics2dManager();
+							auto& spriteManager = graphicsManager->GetSpriteManager();
 							spriteManager.CreateComponent(componentJson, entity);
-							m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
+							m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 							break;
 						}
 						case ComponentType::COLLIDER2D:
 						{
-							auto& physicsManager = m_Engine.GetPhysicsManager();
-							physicsManager.GetColliderManager().CreateComponent(componentJson, entity);
-							m_EntityManager.AddComponentType(entity, ComponentType::COLLIDER2D);
+							auto* physicsManager = m_Engine.GetPhysicsManager();
+							physicsManager->GetColliderManager().CreateComponent(componentJson, entity);
+							m_EntityManager->AddComponentType(entity, ComponentType::COLLIDER2D);
 							break; 
 						}
 						case ComponentType::PYCOMPONENT:
 							{
-								auto& pythonEngine = m_Engine.GetPythonEngine();
+								auto* pythonEngine = m_Engine.GetPythonEngine();
 								if (CheckJsonExists(componentJson, "script_path"))
 								{
 									std::string path = componentJson["script_path"];
-									const ModuleId moduleId = pythonEngine.LoadPyModule(path);
+									const ModuleId moduleId = pythonEngine->LoadPyModule(path);
 									if(moduleId != INVALID_MODULE)
-										const InstanceId instanceId = pythonEngine.LoadPyComponent(moduleId, entity);
+										const InstanceId instanceId = pythonEngine->LoadPyComponent(moduleId, entity);
 								}
 								break;
 							}
@@ -296,11 +296,11 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 
 	m_Engine.Collect();
 
-	auto& editor = m_Engine.GetEditor();
-	editor.SetCurrentScene(std::move(sceneInfo));
+	auto* editor = m_Engine.GetEditor();
+	editor->SetCurrentScene(std::move(sceneInfo));
 	
-	auto& pythonEngine = m_Engine.GetPythonEngine();
-	pythonEngine.InitPyComponent();
+	auto* pythonEngine = m_Engine.GetPythonEngine();
+	pythonEngine->InitPyComponent();
 	
 	
 }

@@ -29,7 +29,7 @@ Transform2dManager::Transform2dManager(Engine& engine):
 	ResizeObserver()
 {
 
-	m_Engine.GetEntityManager().AddObserver(this);
+	m_Engine.GetEntityManager()->AddObserver(this);
 }
 
 Transform2d* Transform2dManager::AddComponent(Entity entity)
@@ -38,7 +38,7 @@ Transform2d* Transform2dManager::AddComponent(Entity entity)
 	auto& transform = GetComponentRef(entity);
 	m_ComponentsInfo[entity - 1].transform = &transform;
 
-	m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::TRANSFORM2D);
+	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TRANSFORM2D);
 	return &transform;
 }
 
@@ -57,7 +57,7 @@ void Transform2dManager::CreateComponent(json& componentJson, Entity entity)
 
 void Transform2dManager::DestroyComponent(Entity entity)
 {
-	m_Engine.GetEntityManager().RemoveComponentType(entity, ComponentType::TRANSFORM2D);
+	m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::TRANSFORM2D);
 }
 
 void Transform2dManager::OnResize(size_t new_size)

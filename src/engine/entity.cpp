@@ -81,7 +81,7 @@ void EntityManager::DestroyEntity(Entity entity)
 {
     if(HasComponent(entity, ComponentType::PYCOMPONENT))
     {
-        m_Engine.GetPythonEngine().RemovePyComponentsFrom(entity);
+        m_Engine.GetPythonEngine()->RemovePyComponentsFrom(entity);
     }
 	m_MaskArray[entity-1] = INVALID_ENTITY;
 }
