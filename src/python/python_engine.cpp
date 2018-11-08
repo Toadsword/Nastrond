@@ -32,6 +32,7 @@
 #include <engine/log.h>
 #include <engine/scene.h>
 #include <engine/engine.h>
+#include <engine/systems_container.h>
 #include <engine/config.h>
 #include <input/input.h>
 #include <audio/audio.h>

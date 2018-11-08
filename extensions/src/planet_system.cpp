@@ -26,6 +26,8 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/config.h>
 #include <graphics/graphics2d.h>
+#include <physics/body2d.h>
+#include <physics/physics2d.h>
 
 
 

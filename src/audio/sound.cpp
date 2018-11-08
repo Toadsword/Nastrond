@@ -68,7 +68,7 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 		if (FileExists(path))
 		{
 			const SoundBufferId soundBufferId = m_SoundBufferManager.LoadSoundBuffer(path);
-			if (soundBufferId != INVALID_TEXTURE)
+			if (soundBufferId != INVALID_SOUND_BUFFER)
 			{
 				/*{
 					std::ostringstream oss;
@@ -280,7 +280,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 	}
 	else
 	{
-		//Texture was never loaded
+		//SoundBuffer was never loaded
 		if (FileExists(filename))
 		{
 
@@ -290,7 +290,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 				std::ostringstream oss;
 				oss << "[ERROR] Could not load sound file: " << filename;
 				Log::GetInstance()->Error(oss.str());
-				return INVALID_TEXTURE;
+				return INVALID_SOUND_ID;
 			}
 
 			m_IncrementId++;
@@ -306,7 +306,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 			Log::GetInstance()->Error(oss.str());
 		}
 	}
-	return INVALID_TEXTURE;
+	return INVALID_SOUND_BUFFER;
 }
 
 sf::SoundBuffer* SoundBufferManager::GetSoundBuffer(SoundBufferId soundBufferId)

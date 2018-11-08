@@ -27,6 +27,7 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
+#include <graphics/shape2d.h>
 
 TEST(TestScene, TestLoadScene)
 {
@@ -65,7 +66,7 @@ TEST(TestScene, TestLotOfEntites)
 		{
 			{"size", {10,10}},
 			{"type", static_cast<int>(sfge::ComponentType::SHAPE2D)},
-			{"shape_type", static_cast<int>(sfge::ShapeType::RECTANGLE)}
+			{"shape_type", static_cast<int>(sfge::ShapeType ::RECTANGLE)}
 		};
 
 		std::ostringstream oss;

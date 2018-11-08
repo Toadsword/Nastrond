@@ -34,8 +34,10 @@ SOFTWARE.
 #include <engine/log.h>
 #include <engine/config.h>
 #include <audio/sound.h>
+#include <audio/audio.h>
 #include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
+#include <python/python_engine.h>
 
 namespace sfge
 {

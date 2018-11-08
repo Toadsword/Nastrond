@@ -25,6 +25,9 @@ SOFTWARE.
 #include <extensions/pirate_system.h>
 #include <engine/entity.h>
 #include <engine/engine.h>
+#include <engine/transform2d.h>
+#include <graphics/graphics2d.h>
+#include <physics/physics2d.h>
 
 namespace sfge
 {

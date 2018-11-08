@@ -26,6 +26,7 @@ SOFTWARE.
 #include <engine/config.h>
 #include <engine/entity.h>
 #include <engine/globals.h>
+#include <python/python_engine.h>
 
 namespace sfge
 {

@@ -33,6 +33,7 @@
 #include <graphics/graphics2d.h>
 #include <python/python_engine.h>
 #include <physics/physics2d.h>
+#include <audio/audio.h>
 #include <engine/engine.h>
 
 // for convenience
@@ -201,6 +202,8 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 					if (CheckJsonExists(componentJson, "type"))
 					{
 						const ComponentType componentType = componentJson["type"];
+
+						//Refactor this switch to dynamic allocation components
 						switch (componentType)
 						{
 						case ComponentType::TRANSFORM2D:

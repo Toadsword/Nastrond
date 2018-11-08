@@ -37,22 +37,22 @@
 
 namespace sfge
 {
-class SystemsContainer
+struct SystemsContainer
 {
  public:
   SystemsContainer(Engine &engine);
+
+  Graphics2dManager graphics2dManager{m_Engine};
+  AudioManager audioManager{m_Engine};
+  SceneManager sceneManager{m_Engine};
+  InputManager inputManager{m_Engine};
+  PythonEngine pythonEngine{m_Engine};
+  Physics2dManager physicsManager{m_Engine};
+  Editor editor{m_Engine};
+  EntityManager entityManager{m_Engine};
+  Transform2dManager transformManager{m_Engine};
  private:
   Engine& m_Engine;
-
-  Graphics2dManager m_Graphics2dManager{m_Engine};
-  AudioManager m_AudioManager{m_Engine};
-  SceneManager m_SceneManager{m_Engine};
-  InputManager m_InputManager{m_Engine};
-  PythonEngine m_PythonEngine{m_Engine};
-  Physics2dManager m_PhysicsManager{m_Engine};
-  Editor m_Editor{m_Engine};
-  EntityManager m_EntityManager{m_Engine};
-  Transform2dManager m_TransformManager{m_Engine};
 
 };
 }

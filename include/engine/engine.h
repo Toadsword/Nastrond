@@ -86,7 +86,7 @@ public:
 	*/
 	void Collect();
 
-	~Engine() = default;
+	~Engine();
 	/**
 	* \brief A getter of the Configuration
 	* \return The Configuration struct got by the Engine
