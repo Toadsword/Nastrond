@@ -131,7 +131,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     static bool show_app_console = false;
     static bool show_app_log = false;
     static bool show_app_layout = false;
-    static bool show_app_property_editor = false;
+    static bool show_app_property_editor = true;
     static bool show_app_long_text = false;
     static bool show_app_auto_resize = false;
     static bool show_app_constrained_resize = false;
@@ -188,7 +188,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     ImGui::SetNextWindowSize(ImVec2(550,680), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("ImGui Demo", p_open, window_flags))
     {
-        // Early out if the window is collapsed, as an optimization.
+        // Early out if the window is collapsed, as an optimkization.
         ImGui::End();
         return;
     }

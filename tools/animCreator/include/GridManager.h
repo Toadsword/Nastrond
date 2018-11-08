@@ -1,4 +1,4 @@
-#ifndef GRID_MANAGER_H
+	#ifndef GRID_MANAGER_H
 #define GRID_MANAGER_H
 
 #include <Grid.h>

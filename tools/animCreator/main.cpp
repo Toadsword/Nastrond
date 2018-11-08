@@ -1,12 +1,15 @@
 #include <cstdlib>
 #include <SFML\Graphics.hpp>
+#include <imgui.h>
+#include <imgui-SFML.h>
 #include <iostream>
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(640, 480), "SFML DEMO");
+	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML DEMO");
 	window.setFramerateLimit(60);
 
+	sf::Clock clock;
 
 	sf::Texture spriteSheet;
 	sf::Sprite playerSprite;
@@ -28,11 +31,14 @@ int main()
 	bool leftButtonDown = false;
 	sf::Mouse myMouse;
 
+	ImGui::SFML::Init(window, true);
+
 	while(window.isOpen())
 	{
 		sf::Event event;
 		while(window.pollEvent(event))
 		{
+			ImGui::SFML::ProcessEvent(event);
 			/*
 			switch(event.type)
 			{
@@ -62,7 +68,7 @@ int main()
 				break;
 			case sf::Event::MouseButtonPressed:
 				if (event.mouseButton.button == sf::Mouse::Left)
-					leftButtonDown = true;
+					leftButtonDown = false;
 				std::cout << leftButtonDown << "\n";
 				break;
 			case sf::Event::MouseButtonReleased:
@@ -72,8 +78,22 @@ int main()
 				break;
 			}
 		}
-		window.clear();
+		
 
+		ImGui::SFML::Update(window, sf::seconds(clock.getElapsedTime().asSeconds()));
+		ImGui::ShowDemoWindow();
+		/*
+		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
+		ImGui::Begin("sfhbfdsxxxxxhb");
+		{	
+			if (ImGui::Selectable("Coucou Je suis un seletable"))
+				std::cout << "Je suis select \n";
+		}
+		ImGui::End();
+		*/
+
+		/*
 		frameCounter++;
 		if(frameCounter == 15)
 		{
@@ -90,12 +110,18 @@ int main()
 
 		if (playerSprite.getGlobalBounds().contains(myMouse.getPosition(window).x, myMouse.getPosition(window).y))
 			std::cout << "Mouse inside sprite. \n";
+			*/
 
 
-		window.draw(playerSprite);
+
+		window.clear();
+		ImGui::SFML::Render(window);
+		//window.draw(playerSprite);
 		window.display();
+		clock.restart();
+		//ImGui::EndFrame();
 	}
-
+	ImGui::Shutdown();
 
 	system("PAUSE");
 	return 0;
