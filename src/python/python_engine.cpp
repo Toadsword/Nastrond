@@ -82,11 +82,13 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<SceneManager> sceneManager(m, "SceneManager");
 	sceneManager
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def("load_scene", &SceneManager::LoadSceneFromName)
 		.def("get_scenes", &SceneManager::GetAllScenes);
 
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager
+			.def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def_property_readonly("keyboard", &InputManager::GetKeyboardManager, py::return_value_policy::reference);
 	py::class_<KeyboardManager> keyboardManager(m, "KeyboardManager");
 	keyboardManager
@@ -104,11 +106,13 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Transform2dManager> transform2dManager(m , "Transform2dManager");
 	transform2dManager
-	    .def("add_component", &Transform2dManager::AddComponent, py::return_value_policy::reference)
+	    .def(py::init<Engine&>(), py::return_value_policy::reference)
+		.def("add_component", &Transform2dManager::AddComponent, py::return_value_policy::reference)
 	    .def("get_component", &Transform2dManager::GetComponentRef, py::return_value_policy::reference);
 
 	py::class_<EntityManager> entityManager(m, "EntityManager");
 	entityManager
+	    .def(py::init<Engine&>(), py::return_value_policy::reference)
 	    .def("create_entity", &EntityManager::CreateEntity)
 	    .def("destroy_entity", &EntityManager::DestroyEntity)
 	    .def("has_component", &EntityManager::HasComponent)
@@ -116,6 +120,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Physics2dManager> physics2dManager(m, "Physics2dManager");
 	physics2dManager
+	    .def(py::init<Engine&>(), py::return_value_policy::reference)
 	    .def_property_readonly ("body2d_manager", &Physics2dManager::GetBodyManager, py::return_value_policy::reference)
 		.def("pixel2meter", [](float v) {return pixel2meter(v); })
 		.def("pixel2meter", [](sf::Vector2f v) {return pixel2meter(v); })
@@ -127,8 +132,9 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	    .def("add_component", &Body2dManager::AddComponent, py::return_value_policy::reference)
 	    .def("get_component", &Body2dManager::GetComponentRef, py::return_value_policy::reference);
 
-	py::class_<Graphics2dManager, std::unique_ptr<Graphics2dManager, py::nodelete>> graphics2dManager(m, "Graphics2dManager");
+	py::class_<Graphics2dManager> graphics2dManager(m, "Graphics2dManager");
 	graphics2dManager
+	    .def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
@@ -146,8 +152,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	spriteManager
 		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
 	py::class_<ShapeManager> shapeManager(m, "ShapeManager");
+	shapeManager
+		.def(py::init<Engine&>(), py::return_value_policy::reference);
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 	pythonEngine
+	    .def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def("load_pycomponent", [](PythonEngine* pythonEngineInstance, Entity entity, std::string scriptPath){
 			auto moduleId = pythonEngineInstance->LoadPyModule(scriptPath);
 			auto pyComponentId = pythonEngineInstance->LoadPyComponent(moduleId, entity);
@@ -217,6 +226,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	
 	py::class_<Shape> shape(m, "Shape");
 	shape
+	.def(py::init(), py::return_value_policy::reference)
 		.def("set_fill_color", &Shape::SetFillColor);
 	py::class_<Sprite> sprite(m, "Sprite");
 	sprite

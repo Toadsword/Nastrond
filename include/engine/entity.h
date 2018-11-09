@@ -29,13 +29,11 @@ SOFTWARE.
 #include <engine/system.h>
 #include <editor/editor_info.h>
 #include <engine/globals.h>
-#include <engine/component.h>
 
 namespace sfge
 {
 enum class ComponentType : int;
-template<class T, class TInfo>
-class SingleComponentManager;
+
 class ResizeObserver
 {
 public:

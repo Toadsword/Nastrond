@@ -41,6 +41,7 @@ struct SystemsContainer
 {
  public:
   SystemsContainer(Engine& engine);
+  SystemsContainer(const SystemsContainer&) = delete;
 
   Graphics2dManager graphics2dManager;
   AudioManager audioManager;

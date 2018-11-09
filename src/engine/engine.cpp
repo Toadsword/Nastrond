@@ -165,40 +165,41 @@ void Engine::Start()
 
 void Engine::Destroy() 
 {
-    m_SystemsContainer->entityManager.Destroy();
-  m_SystemsContainer->graphics2dManager.Destroy();
-  m_SystemsContainer->audioManager.Destroy();
-  m_SystemsContainer->sceneManager.Destroy();
-  m_SystemsContainer->inputManager.Destroy();
-  m_SystemsContainer->editor.Destroy();
-  m_SystemsContainer->physicsManager.Destroy();
 
-  m_SystemsContainer->pythonEngine.Destroy();
+	m_SystemsContainer->pythonEngine.Destroy();
+	m_SystemsContainer->entityManager.Destroy();
+	m_SystemsContainer->graphics2dManager.Destroy();
+	m_SystemsContainer->audioManager.Destroy();
+	m_SystemsContainer->sceneManager.Destroy();
+	m_SystemsContainer->inputManager.Destroy();
+	m_SystemsContainer->editor.Destroy();
+	m_SystemsContainer->physicsManager.Destroy();
+
 }
 
 void Engine::Clear() 
 {
-  m_SystemsContainer->entityManager.Clear();
-  m_SystemsContainer->graphics2dManager.Clear();
-  m_SystemsContainer->audioManager.Clear();
-  m_SystemsContainer->sceneManager.Clear();
-  m_SystemsContainer->inputManager.Clear();
-  m_SystemsContainer->pythonEngine.Clear();
-  m_SystemsContainer->editor.Clear();
-  m_SystemsContainer->physicsManager.Clear();
+	m_SystemsContainer->entityManager.Clear();
+	m_SystemsContainer->graphics2dManager.Clear();
+	m_SystemsContainer->audioManager.Clear();
+	m_SystemsContainer->sceneManager.Clear();
+	m_SystemsContainer->inputManager.Clear();
+	m_SystemsContainer->pythonEngine.Clear();
+	m_SystemsContainer->editor.Clear();
+	m_SystemsContainer->physicsManager.Clear();
 }
 
 void Engine::Collect() 
 {
 
-  m_SystemsContainer->entityManager.Collect();
-  m_SystemsContainer->graphics2dManager.Collect();
-  m_SystemsContainer->audioManager.Collect();
-  m_SystemsContainer->sceneManager.Collect();
-  m_SystemsContainer->inputManager.Collect();
-  m_SystemsContainer->pythonEngine.Collect();
-  m_SystemsContainer->editor.Collect();
-  m_SystemsContainer->physicsManager.Collect();
+	m_SystemsContainer->entityManager.Collect();
+	m_SystemsContainer->graphics2dManager.Collect();
+	m_SystemsContainer->audioManager.Collect();
+	m_SystemsContainer->sceneManager.Collect();
+	m_SystemsContainer->inputManager.Collect();
+	m_SystemsContainer->pythonEngine.Collect();
+	m_SystemsContainer->editor.Collect();
+	m_SystemsContainer->physicsManager.Collect();
 }
 
 

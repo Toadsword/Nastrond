@@ -58,6 +58,8 @@ template<class T, class TInfo>
 class BasicComponentManager
 {
 public:
+    BasicComponentManager() = default;
+  	BasicComponentManager(const BasicComponentManager&) = delete;
 	virtual ~BasicComponentManager()
 	{
 		m_Components.clear();
@@ -83,16 +85,16 @@ protected:
 };
 
 template<class T, class TInfo>
-class SingleComponentManager : 
-	public ResizeObserver, 
-	public System, 
-	public BasicComponentManager<T, TInfo>
+class SingleComponentManager :
+		public BasicComponentManager<T, TInfo>,
+		public ResizeObserver,
+		public System
 {
 public:
 	SingleComponentManager(Engine& engine): System(engine), BasicComponentManager<T,TInfo>()
 	{
-		m_Components = std::vector<T>{ INIT_ENTITY_NMB };
-		m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
+		BasicComponentManager<T,TInfo>::m_Components = std::vector<T>{ INIT_ENTITY_NMB };
+        BasicComponentManager<T,TInfo>::m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
 	}
 
   	SingleComponentManager(SingleComponentManager&& componentManager) = default;
@@ -115,7 +117,7 @@ public:
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
 		}
-		return m_ComponentsInfo[entity - 1];
+		return BasicComponentManager<T,TInfo>::m_ComponentsInfo[entity - 1];
 	}
 
 	virtual T* GetComponentPtr(Entity entity)
@@ -124,7 +126,7 @@ public:
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
 		}
-		return &m_Components[entity - 1];
+		return &BasicComponentManager<T,TInfo>::m_Components[entity - 1];
 	}
 
 	T& GetComponentRef(Entity entity)
@@ -133,13 +135,13 @@ public:
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
 		}
-		return m_Components[entity - 1];
+		return BasicComponentManager<T,TInfo>::m_Components[entity - 1];
 	}
 
 	void OnResize(size_t newSize) override
 	{
-		m_Components.resize(newSize);
-		m_ComponentsInfo.resize(newSize);
+		BasicComponentManager<T,TInfo>::m_Components.resize(newSize);
+		BasicComponentManager<T,TInfo>::m_ComponentsInfo.resize(newSize);
 	}
 protected:
 	EntityManager* m_EntityManager = nullptr;
@@ -158,13 +160,13 @@ class MultipleComponentManager :
 	void Init() override
 	{
 		System::Init();
-		m_EntityManager = m_Engine.GetEntityManager();
-		m_EntityManager->AddObserver(this);
+		BasicComponentManager<T,TInfo>::m_EntityManager = m_Engine.GetEntityManager();
+		BasicComponentManager<T,TInfo>::m_EntityManager->AddObserver(this);
 	}
 	void OnResize(size_t newSize) override
 	{
-		m_Components.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
-		m_ComponentsInfo.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
+		BasicComponentManager<T,TInfo>::m_Components.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
+		BasicComponentManager<T,TInfo>::m_ComponentsInfo.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
 	}
 };
 

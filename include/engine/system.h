@@ -39,7 +39,10 @@ public:
 
 	virtual ~System() = default;
 	System& operator=(const System&) = delete;
-	explicit System(const System & system);
+	System ( System && ) = default; //move constructor
+	System ( const System & ) = delete; //delete copy constructor
+	//explicit System(const System & system);
+
 	/**
 	* \brief Called to initialize the module
 	*/

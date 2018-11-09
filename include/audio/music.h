@@ -28,7 +28,6 @@ SOFTWARE.
 #include <string>
 #include <SFML/Audio/Music.hpp>
 
-#include <engine/entity.h>
 #include <engine/system.h>
 namespace sfge
 {
