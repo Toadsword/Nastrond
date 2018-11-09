@@ -54,7 +54,6 @@ class Transform2dManager :
 {
 public:
 	using SingleComponentManager::SingleComponentManager;
-	void Init() override;
 	Transform2d* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;

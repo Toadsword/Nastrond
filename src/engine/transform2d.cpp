@@ -23,9 +23,6 @@ void editor::Transform2dInfo::DrawOnInspector()
 	ImGui::InputFloat("Angle", &transform->EulerAngle);
 }
 
-void Transform2dManager::Init()
-{
-}
 
 Transform2d* Transform2dManager::AddComponent(Entity entity)
 {

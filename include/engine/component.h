@@ -91,7 +91,7 @@ class SingleComponentManager :
 		public System
 {
 public:
-	SingleComponentManager(Engine& engine): System(engine), BasicComponentManager<T,TInfo>()
+	SingleComponentManager(Engine& engine): System(engine)
 	{
 		BasicComponentManager<T,TInfo>::m_Components = std::vector<T>{ INIT_ENTITY_NMB };
         BasicComponentManager<T,TInfo>::m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };

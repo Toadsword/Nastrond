@@ -81,7 +81,6 @@ class SpriteManager : public SingleComponentManager<Sprite, editor::SpriteInfo>,
 {
 public:
 	using SingleComponentManager::SingleComponentManager;
-	SpriteManager& operator=(const SpriteManager&) = delete;
 
 	void Init() override;
 	void Update(float dt) override;

@@ -42,9 +42,9 @@ namespace sfge::ext
 {
 
 
-//#define WITH_PHYSICS
-#define WITH_VERTEXARRAY
-#define MULTI_THREAD
+#define WITH_PHYSICS
+//#define WITH_VERTEXARRAY
+//#define MULTI_THREAD
 
 class PlanetSystem : public System
 {
@@ -76,22 +76,22 @@ private:
 	const float gravityConst = 1000.0f;
 	const float centerMass = 1000.0f;
 	const float planetMass = 1.0f;
-	const int entitiesNmb = 1'000'000;
+	const size_t entitiesNmb = 100;
 
 #ifndef WITH_PHYSICS
-	std::vector<sf::Vector2f> m_Velocities{(unsigned long) entitiesNmb};
+	std::vector<sf::Vector2f> m_Velocities{entitiesNmb};
 #endif
 
 	sf::Vector2f screenSize;
 #ifdef WITH_VERTEXARRAY
-	sf::VertexArray m_VertexArray{sf::Quads, static_cast<size_t>(4 * entitiesNmb)};
+	sf::VertexArray m_VertexArray{sf::Quads, MULTIPLE_COMPONENTS_MULTIPLIER * entitiesNmb};
 	Graphics2dManager* m_Graphics2DManager;
 	sf::Texture* texture = nullptr;
 	sf::Vector2f textureSize;
 #endif
 #ifdef MULTI_THREAD
 
-	  std::vector<sf::Vector2f> m_Positions{(unsigned long) entitiesNmb};
+	  std::vector<sf::Vector2f> m_Positions{entitiesNmb};
 
 #endif
 
