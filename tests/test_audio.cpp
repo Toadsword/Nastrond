@@ -57,7 +57,7 @@ TEST(TestAudio, Sound)
 
 	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
 	sceneJson["name"] = "Test Sound";
-	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }

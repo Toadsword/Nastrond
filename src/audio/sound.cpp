@@ -118,15 +118,10 @@ void Sound::SetBuffer(sf::SoundBuffer* buffer)
 {
 	m_Sound.setBuffer(*buffer);
 }
-SoundManager::SoundManager(Engine& engine):
-System(engine)
-{
-
-}
 
 void SoundManager::Init()
 {
-	m_EntityManager = m_Engine.GetEntityManager();
+	SingleComponentManager::Init();
 	m_SoundBufferManager = m_Engine.GetAudioManager()->GetSoundBufferManager();
 }
 void SoundManager::Reset()

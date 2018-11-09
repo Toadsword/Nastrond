@@ -111,7 +111,7 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 {
 	m_MaskArray.resize(newSize);
 	m_EntityInfos.resize(newSize);
-	for (auto* resizeObserver : m_ResizeObsververs)
+	for (auto* resizeObserver : m_ResizeObservers)
 	{
 		resizeObserver->OnResize(newSize);
 	}
@@ -123,7 +123,7 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 
 void EntityManager::AddObserver(ResizeObserver* resizeObserver)
 {
-	m_ResizeObsververs.push_back(resizeObserver);
+	m_ResizeObservers.push_back(resizeObserver);
 }
 
 }

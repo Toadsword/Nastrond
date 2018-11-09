@@ -27,7 +27,6 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
-#include <physics/physics2d.h>
 
 namespace sfge
 {
@@ -36,18 +35,18 @@ static const int piratesNmb = 100;
 PirateSystem::PirateSystem(Engine &engine) : System(engine)
 {
     auto config = m_Engine.GetConfig();
-    m_Engine.GetEntityManager().ResizeEntityNmb(piratesNmb);
+    m_Engine.GetEntityManager()->ResizeEntityNmb(piratesNmb);
     m_Pirates.resize(piratesNmb);
     for(int i = 0; i < piratesNmb; i++)
     {
-        auto newEntity = m_Engine.GetEntityManager().CreateEntity(i+1);
-        auto* transform = m_Engine.GetTransform2dManager().AddComponent(newEntity);
+        auto newEntity = m_Engine.GetEntityManager()->CreateEntity(i+1);
+        auto* transform = m_Engine.GetTransform2dManager()->AddComponent(newEntity);
         transform->Position = sf::Vector2f(
             rand()%config->screenResolution.x,
             rand()%config->screenResolution.y);
-        auto* sprite = m_Engine.GetGraphics2dManager().GetSpriteManager().AddComponent(newEntity);
-        auto textureId = m_Engine.GetGraphics2dManager().GetTextureManager().LoadTexture("data/pirates/Ships/ship (1).png");
-        auto* texture = m_Engine.GetGraphics2dManager().GetTextureManager().GetTexture(textureId);
+        auto* sprite = m_Engine.GetGraphics2dManager()->GetSpriteManager()->AddComponent(newEntity);
+	    const auto textureId = m_Engine.GetGraphics2dManager()->GetTextureManager()->LoadTexture("data/pirates/Ships/ship (1).png");
+        auto* texture = m_Engine.GetGraphics2dManager()->GetTextureManager()->GetTexture(textureId);
         sprite->SetTexture(texture);
         m_Pirates[i].transform2d = transform;
         m_Pirates[i].entity = newEntity;

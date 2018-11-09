@@ -31,15 +31,16 @@ SOFTWARE.
 
 #include <engine/globals.h>
 #include <engine/log.h>
+
 #include <engine/entity.h>
+#include <engine/system.h>
+#include <engine/engine.h>
 
 #include <utility/json_utility.h>
 #include <engine/vector.h>
 
 namespace sfge
 {
-
-
 
 enum class ComponentType : int
 {
@@ -54,23 +55,59 @@ enum class ComponentType : int
 };
 
 template<class T, class TInfo>
-class SingleComponentManager
+class BasicComponentManager
 {
 public:
-	SingleComponentManager()
+	virtual ~BasicComponentManager()
+	{
+		m_Components.clear();
+		m_ComponentsInfo.clear();
+	}
+
+	std::vector<T>& GetComponents()
+	{
+		return m_Components;
+	}
+
+	virtual T* AddComponent(Entity entity) = 0;
+	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
+	virtual void CreateEmptyComponent(Entity entity)
+	{
+		json emptyComponent;
+		CreateComponent(emptyComponent, entity);
+	};
+	virtual void DestroyComponent(Entity entity) = 0;
+protected:
+	std::vector<T> m_Components;
+	std::vector<TInfo> m_ComponentsInfo;
+};
+
+template<class T, class TInfo>
+class SingleComponentManager : 
+	public ResizeObserver, 
+	public System, 
+	public BasicComponentManager<T, TInfo>
+{
+public:
+	SingleComponentManager(Engine& engine): System(engine), BasicComponentManager<T,TInfo>()
 	{
 		m_Components = std::vector<T>{ INIT_ENTITY_NMB };
 		m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
-	};
+	}
 
   	SingleComponentManager(SingleComponentManager&& componentManager) = default;
   	SingleComponentManager(const SingleComponentManager& componentManager) = delete;
 
+	void Init() override
+	{
+		System::Init();
+		m_EntityManager = m_Engine.GetEntityManager();
+		m_EntityManager->AddObserver(this);
+	}
+
 	virtual ~SingleComponentManager()
 	{
-		m_Components.clear();
-		m_ComponentsInfo.clear();
-	};
+	}
 
 	TInfo& GetComponentInfo(Entity entity)
 	{
@@ -80,6 +117,7 @@ public:
 		}
 		return m_ComponentsInfo[entity - 1];
 	}
+
 	virtual T* GetComponentPtr(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
@@ -88,6 +126,7 @@ public:
 		}
 		return &m_Components[entity - 1];
 	}
+
 	T& GetComponentRef(Entity entity)
 	{
 		if (entity == INVALID_ENTITY)
@@ -96,31 +135,38 @@ public:
 		}
 		return m_Components[entity - 1];
 	}
-	std::vector<T>& GetComponents()
-	{
-		return m_Components;
-	}
 
-	void OnNotifyNewSize(size_t newSize)
+	void OnResize(size_t newSize) override
 	{
 		m_Components.resize(newSize);
 		m_ComponentsInfo.resize(newSize);
 	}
-	virtual T* AddComponent(Entity entity) = 0;
-	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
-	virtual void CreateEmptyComponent(Entity entity)
-	{
-		json emptyComponent;
-		CreateComponent (emptyComponent, entity);
-	};
-	virtual void DestroyComponent(Entity entity) = 0;
-
 protected:
-	std::vector<T> m_Components;
-	std::vector<TInfo> m_ComponentsInfo;
+	EntityManager* m_EntityManager = nullptr;
 };
 
-
+template<class T, class TInfo>
+class MultipleComponentManager : 
+	public BasicComponentManager<T,TInfo>, 
+	public System, 
+	public ResizeObserver
+{
+	MultipleComponentManager(Engine& engine): System(engine), BasicComponentManager<T,TInfo>()
+	{
+		
+	}
+	void Init() override
+	{
+		System::Init();
+		m_EntityManager = m_Engine.GetEntityManager();
+		m_EntityManager->AddObserver(this);
+	}
+	void OnResize(size_t newSize) override
+	{
+		m_Components.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
+		m_ComponentsInfo.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
+	}
+};
 
 class LayerComponent
 {
@@ -168,6 +214,7 @@ public:
 protected:
 	Vec2f m_Offset;
 };
+
 
 }
 #endif

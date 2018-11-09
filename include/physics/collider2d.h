@@ -59,10 +59,11 @@ class ColliderManager : System
 {
 public:
 	ColliderManager(Engine& engine);
+	void Init() override;
 	void CreateComponent(json& componentJson, Entity entity);
 private:
-	Body2dManager& m_BodyManager;
-	EntityManager& m_EntityManager;
+	Body2dManager* m_BodyManager;
+	EntityManager* m_EntityManager;
 	std::vector<ColliderData> m_ColliderDatas;
 	std::vector<editor::ColliderInfo> m_ColliderInfos;
 };

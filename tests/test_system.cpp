@@ -83,8 +83,8 @@ TEST(TestSystem, PlanetPyComponent)
 		entitiesArray.push_back(entityJson);
 	}
 	sceneJson["entities"] = entitiesArray;
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }
@@ -104,8 +104,8 @@ TEST(TestSystem, PlanetPySystem)
 		{"script_path", "scripts/planet_system.py"}
 	};
 	sceneJson["systems"] = json::array({ systemJson });
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }
@@ -125,8 +125,8 @@ TEST(TestSystem, PlanetPySystemCpp)
 	};
 
 	sceneJson["systems"] = json::array({ systemJson });
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }

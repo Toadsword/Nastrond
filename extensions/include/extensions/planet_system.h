@@ -67,10 +67,10 @@ private:
 	static float Magnitude(sf::Vector2f v);
 	static float Magnitude(b2Vec2 v);
 
-	Transform2dManager& m_Transform2DManager;
-	Body2dManager& m_Body2DManager;
-	TextureManager& m_TextureManager;
-	SpriteManager& m_SpriteManager;
+	Transform2dManager* m_Transform2DManager;
+	Body2dManager* m_Body2DManager;
+	TextureManager* m_TextureManager;
+	SpriteManager* m_SpriteManager;
 
 	float fixedDeltaTime = 0.0f;
 	const float gravityConst = 1000.0f;
@@ -85,7 +85,7 @@ private:
 	sf::Vector2f screenSize;
 #ifdef WITH_VERTEXARRAY
 	sf::VertexArray m_VertexArray{sf::Quads, static_cast<size_t>(4 * entitiesNmb)};
-	Graphics2dManager& m_Graphics2DManager;
+	Graphics2dManager* m_Graphics2DManager;
 	sf::Texture* texture = nullptr;
 	sf::Vector2f textureSize;
 #endif

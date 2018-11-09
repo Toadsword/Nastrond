@@ -73,9 +73,9 @@ public:
 	* \return The SFML window
 	*/
 	std::shared_ptr<sf::RenderWindow> GetWindow();
-	ShapeManager& GetShapeManager();
-	SpriteManager& GetSpriteManager();
-	TextureManager& GetTextureManager();
+	ShapeManager* GetShapeManager();
+	SpriteManager* GetSpriteManager();
+	TextureManager* GetTextureManager();
 
 protected:
 	bool m_Windowless = false;

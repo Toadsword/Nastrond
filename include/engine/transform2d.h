@@ -27,8 +27,7 @@
 
 #include <engine/entity.h>
 #include <engine/component.h>
-#include <SFML/System/Vector2.hpp>
-#include "vector.h"
+#include <engine/vector.h>
 
 namespace sfge
 {
@@ -51,14 +50,14 @@ struct Transform2dInfo : ComponentInfo
 }
 
 class Transform2dManager :
-	public SingleComponentManager<Transform2d, editor::Transform2dInfo>, public System, public ResizeObserver
+	public SingleComponentManager<Transform2d, editor::Transform2dInfo>
 {
 public:
-	Transform2dManager(Engine& engine);
+	using SingleComponentManager::SingleComponentManager;
+	void Init() override;
 	Transform2d* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
-	void OnResize(size_t new_size) override;
 	void Update(float dt) override;
 };
 

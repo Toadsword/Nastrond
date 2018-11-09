@@ -55,7 +55,7 @@ TEST(TestSprite, TestSprite)
 
 	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
 	sceneJson["name"] = "Test Sprite";
-	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 	
 	engine.Start();
 }

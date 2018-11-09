@@ -118,34 +118,34 @@ void PyComponent::Update(float dt)
 		case ComponentType::TRANSFORM2D:
 			
 			{
-				auto& transformManager = m_Engine.GetTransform2dManager();
-				auto& transform = transformManager.GetComponentRef(m_Entity);
+				auto* transformManager = m_Engine.GetTransform2dManager();
+				auto& transform = transformManager->GetComponentRef(m_Entity);
 				return py::cast(transform, py::return_value_policy::reference);
 			}
 		case ComponentType::BODY2D:
 			{
-				auto& physicsManager = m_Engine.GetPhysicsManager();
-				auto& body = physicsManager.GetBodyManager().GetComponentRef(m_Entity);
+				auto* physicsManager = m_Engine.GetPhysicsManager();
+				auto& body = physicsManager->GetBodyManager()->GetComponentRef(m_Entity);
 				return py::cast(body, py::return_value_policy::reference);
 			}
 		case ComponentType::COLLIDER2D:
 			break;
 		case ComponentType::SHAPE2D:
 			{
-				auto& graphicsManager = m_Engine.GetGraphics2dManager();
-				const auto shape = graphicsManager.GetShapeManager().GetComponentPtr (m_Entity);
+				auto* graphicsManager = m_Engine.GetGraphics2dManager();
+				const auto shape = graphicsManager->GetShapeManager()->GetComponentPtr (m_Entity);
 				return py::cast(shape, py::return_value_policy::reference);
 			}
 		case ComponentType::SPRITE2D:
 			{
-				auto& graphicsManager = m_Engine.GetGraphics2dManager();
-				auto& sprite = graphicsManager.GetSpriteManager().GetComponentRef(m_Entity);
+				auto* graphicsManager = m_Engine.GetGraphics2dManager();
+				auto& sprite = graphicsManager->GetSpriteManager()->GetComponentRef(m_Entity);
 				return py::cast(sprite, py::return_value_policy::reference);
 			}
 		case ComponentType::SOUND:
 			{
-				auto& soundManager = m_Engine.GetAudioManager().GetSoundManager();
-				auto& sound = soundManager.GetComponentRef(m_Entity);
+				auto* soundManager = m_Engine.GetAudioManager()->GetSoundManager();
+				auto& sound = soundManager->GetComponentRef(m_Entity);
 				return py::cast(sound, py::return_value_policy::reference);
 			}
 		default:
@@ -156,7 +156,7 @@ void PyComponent::Update(float dt)
 
 	py::object Component::GetPyComponent(py::object type)
 	{
-		return m_Engine.GetPythonEngine().GetPyComponentFromType(type, m_Entity);
+		return m_Engine.GetPythonEngine()->GetPyComponentFromType(type, m_Entity);
 	}
 
 	

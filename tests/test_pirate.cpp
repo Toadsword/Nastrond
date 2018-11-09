@@ -44,8 +44,8 @@ TEST(TestPirate, PyPirate)
             {"script_path", "scripts/pirate_manager.py"}
     };
     sceneJson["systems"] = json::array({ systemJson });
-    auto& sceneManager = engine.GetSceneManager();
-    sceneManager.LoadSceneFromJson(sceneJson);
+    auto* sceneManager = engine.GetSceneManager();
+    sceneManager->LoadSceneFromJson(sceneJson);
 
     engine.Start();
 }
@@ -65,8 +65,8 @@ TEST(TestPirate, PirateSystem)
             {"systemClassName", "PirateSystemCpp"}
     };
     sceneJson["systems"] = json::array({ systemJson });
-    auto& sceneManager = engine.GetSceneManager();
-    sceneManager.LoadSceneFromJson(sceneJson);
+    auto* sceneManager = engine.GetSceneManager();
+    sceneManager->LoadSceneFromJson(sceneJson);
 
     engine.Start();
 }

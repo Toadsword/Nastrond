@@ -77,11 +77,12 @@ struct SpriteInfo : ComponentInfo
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
 class SpriteManager : public SingleComponentManager<Sprite, editor::SpriteInfo>,
-	public LayerComponentManager<Sprite>, public System, public ResizeObserver
+	public LayerComponentManager<Sprite>
 {
 public:
-	SpriteManager(Engine& engine);
+	using SingleComponentManager::SingleComponentManager;
 	SpriteManager& operator=(const SpriteManager&) = delete;
+
 	void Init() override;
 	void Update(float dt) override;
 	void Draw(sf::RenderWindow& window);
@@ -94,9 +95,8 @@ public:
 
 	void OnResize(size_t new_size) override;
 protected:
-	Graphics2dManager& m_GraphicsManager;
-	Transform2dManager& m_Transform2dManager;
-	EntityManager& m_EntityManager;
+	Graphics2dManager* m_GraphicsManager = nullptr;
+	Transform2dManager* m_Transform2dManager = nullptr;
 };
 
 

@@ -86,8 +86,8 @@ public:
 	void Collect() override;
 
 
-	Body2dManager& GetBodyManager();
-	ColliderManager& GetColliderManager();
+	Body2dManager* GetBodyManager();
+	ColliderManager* GetColliderManager();
 
 	const static float pixelPerMeter;
 private:

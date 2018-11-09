@@ -37,15 +37,15 @@ TEST(TextureTest, BadTexture)
 	config->windowLess = true;
 	engine.Init (std::move (config));
 
-	auto& textureManager = engine.GetGraphics2dManager().GetTextureManager();
+	auto* textureManager = engine.GetGraphics2dManager()->GetTextureManager();
 
 	const std::string goodTextPath = "data/sprites/other_play.png";
 	const std::string badTextPath = "fake/path/prout.jpg";
 	const std::string badTextPathWithoutExtension = "fake/path/prout";
 
-	const sfge::TextureId goodTextId = textureManager.LoadTexture(goodTextPath);
-	const sfge::TextureId badTextId = textureManager.LoadTexture(badTextPath);
-	const sfge::TextureId badTextExtId = textureManager.LoadTexture(badTextPathWithoutExtension);
+	const sfge::TextureId goodTextId = textureManager->LoadTexture(goodTextPath);
+	const sfge::TextureId badTextId = textureManager->LoadTexture(badTextPath);
+	const sfge::TextureId badTextExtId = textureManager->LoadTexture(badTextPathWithoutExtension);
 
 	sf::Sprite sprite;
 
@@ -56,7 +56,7 @@ TEST(TextureTest, BadTexture)
 	if (badTextId != sfge::INVALID_TEXTURE)
 	{
 		sfge::Log::GetInstance()->Msg("Loading Bad File");
-		sprite.setTexture(*textureManager.GetTexture(badTextId));
+		sprite.setTexture(*textureManager->GetTexture(badTextId));
 	}
 	else
 	{
@@ -68,7 +68,7 @@ TEST(TextureTest, BadTexture)
 	{
 
 		sfge::Log::GetInstance()->Msg("Loading Good File");
-		sprite.setTexture(*textureManager.GetTexture(goodTextId));
+		sprite.setTexture(*textureManager->GetTexture(goodTextId));
 	}
 	else
 	{

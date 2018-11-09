@@ -33,19 +33,24 @@ void editor::ColliderInfo::DrawOnInspector()
 }
 
 ColliderManager::ColliderManager(Engine& engine) :
-	System(engine),
-	m_BodyManager(m_Engine.GetPhysicsManager().GetBodyManager()),
-	m_EntityManager(m_Engine.GetEntityManager())
+	System(engine)
+	
 {
 	m_ColliderDatas.reserve(INIT_ENTITY_NMB * 4);
+}
+
+void ColliderManager::Init()
+{
+	m_BodyManager = m_Engine.GetPhysicsManager()->GetBodyManager();
+	m_EntityManager = m_Engine.GetEntityManager();
 }
 
 void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 {
 	Log::GetInstance()->Msg("Create component Collider");
-	if (m_EntityManager.HasComponent(entity, ComponentType::BODY2D))
+	if (m_EntityManager->HasComponent(entity, ComponentType::BODY2D))
 	{
-		auto & body = m_BodyManager.GetComponentRef(entity);
+		auto & body = m_BodyManager->GetComponentRef(entity);
 
 		b2FixtureDef fixtureDef;
 

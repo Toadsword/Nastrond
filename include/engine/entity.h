@@ -39,7 +39,7 @@ class SingleComponentManager;
 class ResizeObserver
 {
 public:
-	virtual void OnResize(size_t new_size) = 0;
+	virtual void OnResize(size_t newSize) = 0;
 };
 /**
  * \brief Entity index number, starting from 1U
@@ -79,7 +79,7 @@ public:
 private:
 	std::vector<EntityMask> m_MaskArray{ INIT_ENTITY_NMB };
 	std::vector<editor::EntityInfo> m_EntityInfos{ INIT_ENTITY_NMB };
-	std::vector<ResizeObserver*> m_ResizeObsververs;
+	std::vector<ResizeObserver*> m_ResizeObservers;
 };
 /*
 template <>

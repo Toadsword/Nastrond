@@ -106,10 +106,10 @@ struct SoundInfo : ComponentInfo, PathEditorComponent
 };
 }
 
-class SoundManager : public SingleComponentManager<Sound, editor::SoundInfo>, System
+class SoundManager : public SingleComponentManager<Sound, editor::SoundInfo>
 {
 public:
-	SoundManager(Engine& engine);
+	using SingleComponentManager::SingleComponentManager; 
 	~SoundManager();
 
 	void Init() override;

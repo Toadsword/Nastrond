@@ -119,8 +119,8 @@ void Editor::Update(float dt)
 				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::BODY2D))
 				{
 					
-					auto& bodyManager = m_PhysicsManager->GetBodyManager();
-					auto& bodyInfo = bodyManager.GetComponentInfo(selectedEntity);
+					auto* bodyManager = m_PhysicsManager->GetBodyManager();
+					auto& bodyInfo = bodyManager->GetComponentInfo(selectedEntity);
 					bodyInfo.DrawOnInspector();
 					
 				}
@@ -128,16 +128,16 @@ void Editor::Update(float dt)
 				if (m_EntityManager->HasComponent(selectedEntity, ComponentType::SPRITE2D))
 				{
 					
-					auto& spriteManager = m_GraphicsManager->GetSpriteManager();
-					auto& spriteInfo = spriteManager.GetComponentInfo(selectedEntity);
+					auto* spriteManager = m_GraphicsManager->GetSpriteManager();
+					auto& spriteInfo = spriteManager->GetComponentInfo(selectedEntity);
 					spriteInfo.DrawOnInspector();
 
 					
 				}
 				if (m_EntityManager->HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
-					auto& shapeManager = m_GraphicsManager->GetShapeManager();
-					auto& shapeInfo = shapeManager.GetComponentInfo (selectedEntity);
+					auto* shapeManager = m_GraphicsManager->GetShapeManager();
+					auto& shapeInfo = shapeManager->GetComponentInfo (selectedEntity);
 					shapeInfo.DrawOnInspector();
 				}
 

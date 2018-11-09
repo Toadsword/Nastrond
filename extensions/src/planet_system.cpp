@@ -35,34 +35,37 @@ namespace sfge::ext
 {
 
 PlanetSystem::PlanetSystem(Engine& engine): 
-	System(engine),
-	m_Transform2DManager(m_Engine.GetTransform2dManager()),
-	m_Body2DManager(m_Engine.GetPhysicsManager().GetBodyManager()),
-	m_TextureManager(m_Engine.GetGraphics2dManager().GetTextureManager()),
-#ifdef WITH_VERTEXARRAY
-	m_Graphics2DManager(m_Engine.GetGraphics2dManager()),
-#endif
-	m_SpriteManager(m_Engine.GetGraphics2dManager().GetSpriteManager())
+	System(engine)
+	
 {
 }
 
 void PlanetSystem::Init()
 {
+	m_Transform2DManager = m_Engine.GetTransform2dManager();
+	m_Body2DManager = m_Engine.GetPhysicsManager()->GetBodyManager();
+	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+#ifdef WITH_VERTEXARRAY
+	m_Graphics2DManager = m_Engine.GetGraphics2dManager();
+#endif
+	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+
+
 	auto config = m_Engine.GetConfig();
 	fixedDeltaTime = config->fixedDeltaTime;
 	screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
-	auto& entityManager = m_Engine.GetEntityManager();
-	entityManager.ResizeEntityNmb(entitiesNmb);
+	auto* entityManager = m_Engine.GetEntityManager();
+	entityManager->ResizeEntityNmb(entitiesNmb);
 
 #ifdef WITH_VERTEXARRAY
-	const auto textureId = m_TextureManager.LoadTexture("data/sprites/round.png");
-	texture = m_TextureManager.GetTexture(textureId);
+	const auto textureId = m_TextureManager->LoadTexture("data/sprites/round.png");
+	texture = m_TextureManager->GetTexture(textureId);
 	textureSize = sf::Vector2f(texture->getSize().x, texture->getSize().y);
 #endif
 
 	for (int i = 0; i < entitiesNmb; i++)
 	{
-		const auto newEntity = entityManager.CreateEntity(i + 1);
+		const auto newEntity = entityManager->CreateEntity(i + 1);
 
 #ifdef MULTI_THREAD
 		m_Positions[i] = sf::Vector2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
@@ -176,7 +179,7 @@ void PlanetSystem::Draw()
 #ifdef WITH_VERTEXARRAY
 	sf::RenderStates renderStates;
 	renderStates.texture = texture;
-	auto window = m_Graphics2DManager.GetWindow();
+	auto window = m_Graphics2DManager->GetWindow();
 	window->draw(m_VertexArray, renderStates);
 #endif
 }

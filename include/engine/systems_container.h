@@ -40,19 +40,17 @@ namespace sfge
 struct SystemsContainer
 {
  public:
-  SystemsContainer(Engine &engine);
+  SystemsContainer(Engine& engine);
 
-  Graphics2dManager graphics2dManager{m_Engine};
-  AudioManager audioManager{m_Engine};
-  SceneManager sceneManager{m_Engine};
-  InputManager inputManager{m_Engine};
-  PythonEngine pythonEngine{m_Engine};
-  Physics2dManager physicsManager{m_Engine};
-  Editor editor{m_Engine};
-  EntityManager entityManager{m_Engine};
-  Transform2dManager transformManager{m_Engine};
- private:
-  Engine& m_Engine;
+  Graphics2dManager graphics2dManager;
+  AudioManager audioManager;
+  SceneManager sceneManager;
+  InputManager inputManager;
+  PythonEngine pythonEngine;
+  Physics2dManager physicsManager;
+  Editor editor;
+  EntityManager entityManager;
+  Transform2dManager transformManager;
 
 };
 }

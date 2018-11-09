@@ -27,8 +27,15 @@
 namespace sfge
 {
 
-
-SystemsContainer::SystemsContainer(Engine &engine) : m_Engine(engine)
+SystemsContainer::SystemsContainer(Engine &engine) : graphics2dManager(engine),
+	audioManager(engine),
+	sceneManager(engine),
+	inputManager(engine),
+	pythonEngine(engine),
+	physicsManager(engine),
+	editor(engine),
+	entityManager(engine),
+	transformManager(engine)
 {
 
 }

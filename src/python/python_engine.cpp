@@ -21,6 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+
+#ifdef WIN32
+#define _USE_MATH_DEFINES
+#endif
 #include <sstream>
 #include <list>
 #include <cmath>
@@ -129,7 +133,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
 
-	py::class_<TextureManager, std::unique_ptr<TextureManager, py::nodelete>> textureManager(m, "TextureManager");
+	py::class_<TextureManager> textureManager(m, "TextureManager");
 	textureManager
 		.def("load_texture", [](TextureManager* textureManager, std::string name)
 		{
@@ -359,7 +363,7 @@ void PythonEngine::Init()
 
 	OnResize(INIT_ENTITY_NMB);
 
-	m_Engine.GetEntityManager().AddObserver(this);
+	m_Engine.GetEntityManager()->AddObserver(this);
 	py::initialize_interpreter();
 	//Adding reference to c++ engine modules
 
@@ -373,7 +377,7 @@ void PythonEngine::Init()
 		sfgeModule.attr("transform2d_manager") = py::cast(m_Engine.GetTransform2dManager(), py::return_value_policy::reference);
 		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
 		sfgeModule.attr("python_engine") = py::cast(m_Engine.GetPythonEngine(), py::return_value_policy::reference);
-		sfgeModule.attr("graphics2d_manager") = py::cast(&(m_Engine.GetGraphics2dManager()), py::return_value_policy::reference);
+		sfgeModule.attr("graphics2d_manager") = py::cast(m_Engine.GetGraphics2dManager(), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{
@@ -548,7 +552,7 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 			pyInfo.path = m_PythonModulePaths[moduleId];
 			pyInfo.pyComponent = pyComponent;
 			m_PyComponentsInfo.push_back(pyInfo);
-			m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::PYCOMPONENT);
+			m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::PYCOMPONENT);
 		}
 		else
 		{

@@ -96,13 +96,13 @@ void editor::SpriteInfo::DrawOnInspector()
 	}
 }
 
-SpriteManager::SpriteManager(Engine& engine):
-	SingleComponentManager<Sprite, editor::SpriteInfo>(),
-	System(engine),
-	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager()),
-	m_EntityManager(m_Engine.GetEntityManager())
+
+void SpriteManager::Init()
 {
+	SingleComponentManager::Init();
+	m_GraphicsManager = m_Engine.GetGraphics2dManager();
+	m_Transform2dManager = m_Engine.GetTransform2dManager();
+
 }
 
 Sprite* SpriteManager::AddComponent(Entity entity)
@@ -110,24 +110,19 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 	auto& sprite = GetComponentRef(entity);
 	auto& spriteInfo = GetComponentInfo(entity);
 
-	sprite.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
+	sprite.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	spriteInfo.sprite = &sprite;
 
-	m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
+	m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 	return &sprite;
 }
 
-void SpriteManager::Init()
-{
-	System::Init();
-	m_EntityManager.AddObserver(this);
-}
 
 void SpriteManager::Update(float dt)
 {
 	for(int i = 0; i < m_Components.size();i++)
 	{
-		if(m_EntityManager.HasComponent(i+1, ComponentType::SPRITE2D))
+		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D))
 		{
 			m_Components[i].Update();
 		}
@@ -140,7 +135,7 @@ void SpriteManager::Draw(sf::RenderWindow& window)
 	
 	for (int i = 0; i<m_Components.size();i++)
 	{
-		if(m_EntityManager.HasComponent(i + 1, ComponentType::SPRITE2D))
+		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
 			m_Components[i].Draw(window);
 	}
 	
@@ -166,8 +161,8 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 		sf::Texture* texture = nullptr;
 		if (FileExists(path))
 		{
-			auto& textureManager = m_GraphicsManager.GetTextureManager();
-			const TextureId textureId = textureManager.LoadTexture(path);
+			auto* textureManager = m_GraphicsManager->GetTextureManager();
+			const TextureId textureId = textureManager->LoadTexture(path);
 			if (textureId != INVALID_TEXTURE)
 			{
 				/*{
@@ -175,9 +170,9 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}*/
-				texture = textureManager.GetTexture(textureId);
+				texture = textureManager->GetTexture(textureId);
 				newSprite.SetTexture(texture);
-				newSprite.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
+				newSprite.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 				newSpriteInfo.textureId = textureId;
 			}
 			else

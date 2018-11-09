@@ -91,14 +91,14 @@ void Physics2dManager::Collect()
 }
 
 
-Body2dManager& Physics2dManager::GetBodyManager()
+Body2dManager* Physics2dManager::GetBodyManager()
 {
-	return m_BodyManager;
+	return &m_BodyManager;
 }
 
-ColliderManager& Physics2dManager::GetColliderManager()
+ColliderManager* Physics2dManager::GetColliderManager()
 {
-	return m_ColliderManager;
+	return &m_ColliderManager;
 }
 
 
@@ -112,15 +112,15 @@ void ContactListener::BeginContact(b2Contact* contact)
 	{
 		//Trigger
 		
-		pythonEngine.OnTriggerEnter(colliderA->entity, colliderB);
-		pythonEngine.OnTriggerEnter(colliderB->entity, colliderA);
+		pythonEngine->OnTriggerEnter(colliderA->entity, colliderB);
+		pythonEngine->OnTriggerEnter(colliderB->entity, colliderA);
 		
 	}
 	else
 	{
 		//Collision
-		pythonEngine.OnCollisionEnter(colliderA->entity, colliderB);
-		pythonEngine.OnCollisionEnter(colliderB->entity, colliderA);
+		pythonEngine->OnCollisionEnter(colliderA->entity, colliderB);
+		pythonEngine->OnCollisionEnter(colliderB->entity, colliderA);
 		
 	}
 }
@@ -134,15 +134,15 @@ void ContactListener::EndContact(b2Contact* contact)
 	if (colliderA->fixture->IsSensor() or colliderB->fixture->IsSensor())
 	{
 		//Trigger
-		pythonEngine.OnTriggerExit(colliderA->entity, colliderB);
-		pythonEngine.OnTriggerExit(colliderB->entity, colliderA);
+		pythonEngine->OnTriggerExit(colliderA->entity, colliderB);
+		pythonEngine->OnTriggerExit(colliderB->entity, colliderA);
 		
 	}
 	else
 	{
 		//Collision
-		pythonEngine.OnCollisionExit(colliderA->entity, colliderB);
-		pythonEngine.OnCollisionExit(colliderB->entity, colliderA);
+		pythonEngine->OnCollisionExit(colliderA->entity, colliderB);
+		pythonEngine->OnCollisionExit(colliderB->entity, colliderA);
 		
 	}
 }

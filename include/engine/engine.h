@@ -56,10 +56,10 @@ class Physics2dManager;
 class EntityManager;
 class Transform2dManager;
 class Editor;
-class SystemsContainer;
+struct SystemsContainer;
 
 /**
-* \brief The main Engine class to centralise the frame process and the references
+* \brief The main Engine class to centralize the frame process and the references
 */
 class Engine
 {

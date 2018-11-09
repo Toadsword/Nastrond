@@ -86,6 +86,7 @@ void Engine::InitModules()
 
 
 	m_SystemsContainer->entityManager.Init();
+	m_SystemsContainer->transformManager.Init();
     m_SystemsContainer->graphics2dManager.Init();
     m_SystemsContainer->audioManager.Init();
     m_SystemsContainer->sceneManager.Init();

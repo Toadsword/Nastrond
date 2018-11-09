@@ -104,19 +104,19 @@ std::shared_ptr<sf::RenderWindow> Graphics2dManager::GetWindow()
 	return m_Window;
 }
 
-SpriteManager& Graphics2dManager::GetSpriteManager()
+SpriteManager* Graphics2dManager::GetSpriteManager()
 {
-	return m_SpriteManager;
+	return &m_SpriteManager;
 }
 
-TextureManager& Graphics2dManager::GetTextureManager()
+TextureManager* Graphics2dManager::GetTextureManager()
 {
-	return m_TextureManager;
+	return &m_TextureManager;
 }
 
-ShapeManager& Graphics2dManager::GetShapeManager()
+ShapeManager* Graphics2dManager::GetShapeManager()
 {
-	return m_ShapeManager;
+	return &m_ShapeManager;
 }
 
 void Graphics2dManager::CheckVersion() const

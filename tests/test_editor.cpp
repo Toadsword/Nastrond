@@ -29,8 +29,8 @@ TEST(TestEditor, ShowValue)
 {
 	sfge::Engine engine;
 	engine.Init();
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromPath("data/scenes/test.scene");
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromPath("data/scenes/test.scene");
 
 	engine.Start();
 	

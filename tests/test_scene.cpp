@@ -34,8 +34,8 @@ TEST(TestScene, TestLoadScene)
 	sfge::Engine engine;
 	engine.Init();
 
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromPath ("data/scenes/test.scene");
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromPath ("data/scenes/test.scene");
 
 
 	engine.Start();
@@ -82,8 +82,8 @@ TEST(TestScene, TestLotOfEntites)
 		entitiesArray.push_back(entityJson);
 	}
 	sceneJson["entities"] = entitiesArray;
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }

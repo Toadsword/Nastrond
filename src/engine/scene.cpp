@@ -217,15 +217,15 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						case ComponentType::SHAPE2D:
 						{
 							auto* graphicsManager = m_Engine.GetGraphics2dManager();
-							auto& shapeManager = graphicsManager->GetShapeManager();
-							shapeManager.CreateComponent(componentJson, entity);
+							auto* shapeManager = graphicsManager->GetShapeManager();
+							shapeManager->CreateComponent(componentJson, entity);
 							m_EntityManager->AddComponentType(entity, ComponentType::SHAPE2D);
 							break;
 						}
 						case ComponentType::BODY2D:
 						{
 							auto* physicsManager = m_Engine.GetPhysicsManager();
-							physicsManager->GetBodyManager().CreateComponent(componentJson, entity);
+							physicsManager->GetBodyManager()->CreateComponent(componentJson, entity);
 							m_EntityManager->AddComponentType(entity, ComponentType::BODY2D);
 
 							break;
@@ -233,23 +233,23 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						case ComponentType::SOUND:
 						{
 							auto* audioManager = m_Engine.GetAudioManager();
-							auto& soundManager = audioManager->GetSoundManager();
-							soundManager.CreateComponent(componentJson, entity);
+							auto* soundManager = audioManager->GetSoundManager();
+							soundManager->CreateComponent(componentJson, entity);
 							m_EntityManager->AddComponentType(entity, ComponentType::SOUND);
 							break;
 						}
 						case ComponentType::SPRITE2D:
 						{
 							auto* graphicsManager = m_Engine.GetGraphics2dManager();
-							auto& spriteManager = graphicsManager->GetSpriteManager();
-							spriteManager.CreateComponent(componentJson, entity);
+							auto* spriteManager = graphicsManager->GetSpriteManager();
+							spriteManager->CreateComponent(componentJson, entity);
 							m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 							break;
 						}
 						case ComponentType::COLLIDER2D:
 						{
 							auto* physicsManager = m_Engine.GetPhysicsManager();
-							physicsManager->GetColliderManager().CreateComponent(componentJson, entity);
+							physicsManager->GetColliderManager()->CreateComponent(componentJson, entity);
 							m_EntityManager->AddComponentType(entity, ComponentType::COLLIDER2D);
 							break; 
 						}
