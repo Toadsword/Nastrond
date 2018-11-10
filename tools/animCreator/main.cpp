@@ -6,7 +6,7 @@
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML DEMO");
+	sf::RenderWindow window(sf::VideoMode(900, 600), "SFML DEMO");
 	window.setFramerateLimit(60);
 
 	sf::Clock clock;
@@ -39,28 +39,15 @@ int main()
 		while(window.pollEvent(event))
 		{
 			ImGui::SFML::ProcessEvent(event);
-			/*
+			
 			switch(event.type)
 			{
 				case sf::Event::Closed:
 					window.close();
 					break;
-				case sf::Event::MouseButtonPressed:
-					std::cout << "Mouse button pressed. \n";
-
-					event.
-					switch(event.key.code)
-					{
-						case sf::Mouse::Left:
-							std::cout << "Left Key pressed \n";
-							break;
-						case sf::Mouse::Right:
-							std::cout << "Right Key pressed \n";
-					}
-					break;
 			}
-			*/
-
+			
+			/*
 			switch(event.type)
 			{
 			case sf::Event::Closed:
@@ -77,20 +64,71 @@ int main()
 				std::cout << leftButtonDown << "\n";
 				break;
 			}
+			*/
 		}
-		
 
 		ImGui::SFML::Update(window, sf::seconds(clock.getElapsedTime().asSeconds()));
+
+		ImGuiWindowFlags window_flags = 0;
+		window_flags |= ImGuiWindowFlags_NoTitleBar;
+		window_flags |= ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoResize;
+		window_flags |= ImGuiWindowFlags_MenuBar;
+		window_flags |= ImGuiWindowFlags_NoCollapse;
+		//p_open = NULL; // Don't pass our bool* to Begin
+
 		ImGui::ShowDemoWindow();
+
 		/*
 		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
-		ImGui::Begin("sfhbfdsxxxxxhb");
+		ImGui::SetNextWindowSize(ImVec2(900.0f, 20.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("menu", NULL, window_flags))
+		{
+			if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu("File"))
+				{
+					if (ImGui::MenuItem("New")) {
+						std::cout << "New select \n";
+					}
+					if (ImGui::MenuItem("Open", "Ctrl+O")) {
+						std::cout << "Open select \n";
+					}
+					if (ImGui::MenuItem("Quit", "Alt+F4")) {}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
+		}
+		ImGui::End();
+		*/
+		/*
+		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(450.0f, 300.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("F1", NULL, window_flags))
+		{
+			if (ImGui::Selectable("Coucou Je suis un seletable"))
+				std::cout << "Je suis select \n";
+		}
+		ImGui::End();
+		ImGui::SetNextWindowPos(ImVec2(450.0f, 0.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(450.0f, 300.0f), ImGuiCond_FirstUseEver);
+		if(ImGui::Begin("F2", NULL, window_flags))
 		{	
 			if (ImGui::Selectable("Coucou Je suis un seletable"))
 				std::cout << "Je suis select \n";
 		}
 		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(0.0f, 300.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(900, 300.0f), ImGuiCond_FirstUseEver);
+		if(ImGui::Begin("F3", NULL, window_flags))
+		{
+			if (ImGui::Selectable("Coucou Je suis un seletable"))
+				std::cout << "Je suis select \n";
+		}
+		ImGui::End();
+
 		*/
 
 		/*
@@ -110,16 +148,13 @@ int main()
 
 		if (playerSprite.getGlobalBounds().contains(myMouse.getPosition(window).x, myMouse.getPosition(window).y))
 			std::cout << "Mouse inside sprite. \n";
-			*/
-
-
+		*/
 
 		window.clear();
 		ImGui::SFML::Render(window);
 		//window.draw(playerSprite);
 		window.display();
 		clock.restart();
-		//ImGui::EndFrame();
 	}
 	ImGui::Shutdown();
 
