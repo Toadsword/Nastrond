@@ -24,7 +24,6 @@ public:
 	void DisplayEditorWindow();
 
 	sf::RenderWindow* GetWindow();
-	void SetEngine(Engine* engine);
 
 private:
 	bool isInit = false;

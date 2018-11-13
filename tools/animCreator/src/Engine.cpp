@@ -6,11 +6,18 @@
 
 void Engine::Init()
 {
+	//We don't want to initialize an already running Engine
+	if (isRunning)
+		return;
+
 	m_graphicsManager = new GraphicsManager();
 	m_window = m_graphicsManager->Init(this);
 
 	m_animationManager = new AnimationManager();
+	m_animationManager->Init();
+	
 	m_textureManager = new TextureManager();
+	m_textureManager->Init();
 
 	//Create every managers.
 	isRunning = true;
@@ -22,6 +29,7 @@ void Engine::Start()
 	{
 		Update();
 	}
+	StopEngine();
 }
 
 void Engine::Update()
@@ -32,10 +40,13 @@ void Engine::Update()
 	m_clock.restart();
 }
 
-void Engine::Stop()
+void Engine::ExitApplication()
 {
 	isRunning = false;
+}
 
+void Engine::StopEngine()
+{
 	m_graphicsManager->Stop();
 	m_window = nullptr;
 

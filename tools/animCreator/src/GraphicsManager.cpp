@@ -34,7 +34,7 @@ void GraphicsManager::Update(int dt)
 		switch (event.type)
 		{
 		case sf::Event::Closed:
-			m_engine->Stop();
+			m_engine->ExitApplication();
 			return;
 		}
 	}
@@ -81,13 +81,13 @@ void GraphicsManager::DisplayMenuWindow()
 				{
 					std::cout << "New select \n";
 				}
-				if (ImGui::MenuItem("Open", "Ctrl+O")) 
+				if (ImGui::MenuItem("Open new file", "Ctrl+O")) 
 				{
 					std::cout << "Open select \n";
 				}
 				if (ImGui::MenuItem("Quit", "Alt+F4"))
 				{
-					
+					m_engine->ExitApplication();			
 				}
 				ImGui::EndMenu();
 			}
@@ -151,13 +151,7 @@ void GraphicsManager::DisplayEditorWindow()
 	ImGui::End();
 }
 
-
 sf::RenderWindow* GraphicsManager::GetWindow()
 {
 	return m_window;
-}
-
-void GraphicsManager::SetEngine(Engine* engine)
-{
-	m_engine = engine;
 }

@@ -14,13 +14,15 @@ public:
 	void Init();
 	void Start();
 	void Update();
-	void Stop();
+	void ExitApplication();
 
 	GraphicsManager* GetGraphicsManager();
 	TextureManager* GetTextureManager();
 	AnimationManager* GetAnimationManager();
 
 private:
+	void StopEngine();
+
 	GraphicsManager* m_graphicsManager;
 	TextureManager* m_textureManager;
 	AnimationManager* m_animationManager;
