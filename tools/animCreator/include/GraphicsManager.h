@@ -5,26 +5,31 @@
 
 const int WINDOW_WIDTH = 900;
 const int WINDOW_HEIGHT = 600;
+const int MAX_FRAMERATE = 60;
 const std::string WINDOW_NAME = "AnimCreator";
 
 class Engine;
 class GraphicsManager{
-
-private:
-	Engine& m_engine;
-	sf::RenderWindow m_window;
 public:
-	void Init(Engine & engine);
-	void Update();
+
+	GraphicsManager::GraphicsManager() {}
+
+	sf::RenderWindow* Init(Engine* engine);
+	void Update(int dt);
+	void Stop();
 
 	void DisplayEditorWindow();
 	void DisplayFileWindow();
 	void DisplayMenuWindow();
 	void DisplayPreviewWindow();
 
-	sf::RenderWindow& GetWindow();
+	sf::RenderWindow* GetWindow();
+	void SetEngine(Engine* engine);
 
-	void SetEngine(Engine& engine);
+private:
+	bool isInit = false;
+	Engine* m_engine = nullptr;
+	sf::RenderWindow* m_window = nullptr;
 };
 
 #endif // ifndef GRAPHICS_MANAGER_H

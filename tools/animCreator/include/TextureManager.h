@@ -2,7 +2,7 @@
 #define TEXTURE_MANAGER_H
 
 #include <vector>
-#include "SFML/Graphics/Texture.hpp"
+#include "SFML/Graphics.hpp"
 
 struct TextureInfos
 {
@@ -15,13 +15,16 @@ struct TextureInfos
 
 class TextureManager
 {
-private:
-	std::vector<TextureInfos> textures;
 public:
+	TextureManager::TextureManager(){};
+
 	bool LoadTexture(std::string path);
 	bool LoadTexture(std::string path, int numRow, int numCol, int rowWidth, int colWidth);
 	std::vector<TextureInfos> GetAllTextures();
-	TextureInfos GetTextureFromId(short Id);
+	TextureInfos GetTextureFromId(short id);
+
+private:
+	std::vector<TextureInfos> m_textures;
 };
 
 #endif // ifndef TEXTURE_MANAGER_H

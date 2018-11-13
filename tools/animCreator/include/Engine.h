@@ -1,20 +1,33 @@
 #ifndef ENGINE_H
 #define ENGINE_H
+#include "SFML/Graphics/RenderWindow.hpp"
 
-class GraphicsManager;
-class TextureManager;
-class AnimationManager;
+#include "AnimationManager.h"
+#include "TextureManager.h"
+#include "GraphicsManager.h"
 
 class Engine
 {
 public:
-	void Init();
-	void Update();
-	void Start();
+	Engine::Engine() {};
 
-	GraphicsManager& graphicsManager;
-	TextureManager& textureManager;
-	AnimationManager& animationManager;
+	void Init();
+	void Start();
+	void Update();
+	void Stop();
+
+	GraphicsManager* GetGraphicsManager();
+	TextureManager* GetTextureManager();
+	AnimationManager* GetAnimationManager();
+
+private:
+	GraphicsManager* m_graphicsManager;
+	TextureManager* m_textureManager;
+	AnimationManager* m_animationManager;
+	sf::RenderWindow* m_window = nullptr;
+
+	sf::Clock m_clock;
+	bool isRunning = false;
 };
 
 #endif // ifndef ENGINE_H
