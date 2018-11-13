@@ -4,6 +4,7 @@
 
 #include <imgui.h>
 #include <imgui-SFML.h>
+#include <iostream>
 
 sf::RenderWindow* GraphicsManager::Init(Engine* engine)
 {
@@ -58,24 +59,96 @@ void GraphicsManager::Stop()
 	ImGui::Shutdown();
 }
 
-void GraphicsManager::DisplayEditorWindow()
+void GraphicsManager::DisplayMenuWindow()
 {
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_MenuBar;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
+	ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(900.0f, 0.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("MenuWindow", NULL, window_flags))
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("New")) 
+				{
+					std::cout << "New select \n";
+				}
+				if (ImGui::MenuItem("Open", "Ctrl+O")) 
+				{
+					std::cout << "Open select \n";
+				}
+				if (ImGui::MenuItem("Quit", "Alt+F4"))
+				{
+					
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+	}
+	ImGui::End();
 }
 
 void GraphicsManager::DisplayFileWindow()
 {
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
 
-}
-
-void GraphicsManager::DisplayMenuWindow()
-{
-
+	ImGui::SetNextWindowPos(ImVec2(0.0f, 20.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("FileWindow", NULL, window_flags))
+	{
+		if (ImGui::Selectable("Coucou Je suis un seletable"))
+			std::cout << "Je suis select \n";
+	}
+	ImGui::End();
 }
 
 void GraphicsManager::DisplayPreviewWindow()
 {
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
 
+	ImGui::SetNextWindowPos(ImVec2(450.0f, 20.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("PreviewWindow", NULL, window_flags))
+	{
+		if (ImGui::Selectable("Coucou Je suis un seletable"))
+			std::cout << "Je suis select \n";
+	}
+	ImGui::End();
+}
+
+void GraphicsManager::DisplayEditorWindow()
+{
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+
+	ImGui::SetNextWindowPos(ImVec2(0.0f, 300.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(900, 300.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("EditorWindow", NULL, window_flags))
+	{
+		if (ImGui::Selectable("Coucou Je suis un seletable"))
+			std::cout << "Je suis select \n";
+	}
+	ImGui::End();
 }
 
 

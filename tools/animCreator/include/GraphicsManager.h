@@ -18,10 +18,10 @@ public:
 	void Update(int dt);
 	void Stop();
 
-	void DisplayEditorWindow();
-	void DisplayFileWindow();
 	void DisplayMenuWindow();
+	void DisplayFileWindow();
 	void DisplayPreviewWindow();
+	void DisplayEditorWindow();
 
 	sf::RenderWindow* GetWindow();
 	void SetEngine(Engine* engine);

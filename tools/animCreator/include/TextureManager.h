@@ -18,13 +18,16 @@ class TextureManager
 public:
 	TextureManager::TextureManager(){};
 
-	bool LoadTexture(std::string path);
-	bool LoadTexture(std::string path, int numRow, int numCol, int rowWidth, int colWidth);
-	std::vector<TextureInfos> GetAllTextures();
-	TextureInfos GetTextureFromId(short id);
+	void Init();
+
+	bool LoadTexture(std::string path, int sizeX, int sizeY);
+	bool LoadTexture(std::string path, int rowWidth, int colWidth, int numRow, int numCol);
+	std::vector<TextureInfos*> GetAllTextures();
+	TextureInfos* GetTextureFromId(short id);
 
 private:
-	std::vector<TextureInfos> m_textures;
+	std::vector<TextureInfos*> m_textures;
+	short m_lastId = 0;
 };
 
 #endif // ifndef TEXTURE_MANAGER_H
