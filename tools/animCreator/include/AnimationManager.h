@@ -17,9 +17,13 @@ public:
 	bool RemoveKey(short key);
 	bool SetTextureOnKey(short key, short textureId);
 
+	void SetFPSSpeed(short newSpeed);
+	short GetFPSSpeed();
+
 	std::map<const short, short> getAnim();
 
 private:
+	short m_fpsSpeed;
 	std::map<const short, short> m_animation;
 };
 

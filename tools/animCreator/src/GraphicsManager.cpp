@@ -1,10 +1,11 @@
-#include <GraphicsManager.h>
 #include <SFML/Graphics.hpp>
-#include <Engine.h>
-
 #include <imgui.h>
 #include <imgui-SFML.h>
+
 #include <iostream>
+
+#include <Engine.h>
+#include <GraphicsManager.h>
 
 sf::RenderWindow* GraphicsManager::Init(Engine* engine)
 {

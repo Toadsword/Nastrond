@@ -1,6 +1,6 @@
-#include <AnimationManager.h>
-
 #include <map>
+
+#include <AnimationManager.h>
 
 void AnimationManager::Init()
 {
@@ -40,4 +40,15 @@ bool AnimationManager::SetTextureOnKey(short key, short textureId)
 		return true;
 	}
 	return false;
+}
+
+void AnimationManager::SetFPSSpeed(short newSpeed)
+{
+	if (newSpeed > 0.0f)
+		m_fpsSpeed = newSpeed;
+}
+
+short AnimationManager::GetFPSSpeed()
+{
+	return m_fpsSpeed;
 }

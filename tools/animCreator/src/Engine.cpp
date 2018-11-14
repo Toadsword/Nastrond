@@ -1,8 +1,8 @@
-#include <Engine.h>
-
 #include <GraphicsManager.h>
 #include <TextureManager.h>
 #include <AnimationManager.h>
+
+#include <Engine.h>
 
 void Engine::Init()
 {
@@ -10,6 +10,7 @@ void Engine::Init()
 	if (isRunning)
 		return;
 
+	//Create every managers.
 	m_graphicsManager = new GraphicsManager();
 	m_window = m_graphicsManager->Init(this);
 
@@ -19,25 +20,27 @@ void Engine::Init()
 	m_textureManager = new TextureManager();
 	m_textureManager->Init();
 
-	//Create every managers.
 	isRunning = true;
 }
 
 void Engine::Start()
 {
+	sf::Clock clock;
+
 	while(isRunning && m_window != nullptr)
 	{
-		Update();
+		int dt = clock.getElapsedTime().asMilliseconds();
+
+		Update(dt);
+
+		clock.restart();
 	}
 	StopEngine();
 }
 
-void Engine::Update()
+void Engine::Update(int dt)
 {
-	int dt = m_clock.getElapsedTime().asMilliseconds();
 	m_graphicsManager->Update(dt);
-
-	m_clock.restart();
 }
 
 void Engine::ExitApplication()

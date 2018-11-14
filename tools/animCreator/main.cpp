@@ -1,7 +1,13 @@
 #include <Engine.h>
+#include <Utilities.h>
 
 int main()
 {
+	std::map<short, short> anim;
+	std::vector<TextureInfos*> textures;
+	Utilities::ExportToJson(anim, textures);
+	return 0;
+	
 	Engine* engine = new Engine();
 
 	engine->Init();

@@ -1,7 +1,8 @@
-#include <TextureManager.h>
-
 #include <SFML/Graphics.hpp>
+
 #include <iostream>
+
+#include <TextureManager.h>
 
 void TextureManager::Init()
 {

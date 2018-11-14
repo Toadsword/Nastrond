@@ -1,10 +1,11 @@
 #ifndef ENGINE_H
 #define ENGINE_H
-#include "SFML/Graphics/RenderWindow.hpp"
 
-#include "AnimationManager.h"
-#include "TextureManager.h"
-#include "GraphicsManager.h"
+#include <SFML/Graphics.hpp>
+
+#include <AnimationManager.h>
+#include <TextureManager.h>
+#include <GraphicsManager.h>
 
 class Engine
 {
@@ -13,7 +14,7 @@ public:
 
 	void Init();
 	void Start();
-	void Update();
+	void Update(int dt);
 	void ExitApplication();
 
 	GraphicsManager* GetGraphicsManager();
@@ -28,7 +29,6 @@ private:
 	AnimationManager* m_animationManager;
 	sf::RenderWindow* m_window = nullptr;
 
-	sf::Clock m_clock;
 	bool isRunning = false;
 };
 
