@@ -65,7 +65,7 @@ private:
 };
 }
 
-class Body2dManager : public SingleComponentManager<Body2d, editor::Body2dInfo>
+class Body2dManager : public SingleComponentManager<Body2d, editor::Body2dInfo, ComponentType::BODY2D>
 {
 public:
 	using SingleComponentManager::SingleComponentManager;

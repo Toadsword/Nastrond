@@ -76,7 +76,7 @@ struct ShapeInfo : ComponentInfo
 }
 
 class ShapeManager :
-	public SingleComponentManager<Shape, editor::ShapeInfo>
+	public SingleComponentManager<Shape, editor::ShapeInfo, ComponentType::SHAPE2D>
 {
 
 public:

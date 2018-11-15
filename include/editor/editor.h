@@ -72,6 +72,8 @@ public:
 	void Clear() override;
 
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
+
+	void AddDrawableObserver(editor::IDrawableManager* observer);
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
 	Graphics2dManager* m_GraphicsManager = nullptr;
@@ -85,6 +87,8 @@ protected:
 	bool m_IsImguiInit = false;
 	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};
 	Entity selectedEntity = INVALID_ENTITY;
+
+	std::vector<editor::IDrawableManager*> m_DrawableObservers;
 };
 
 }

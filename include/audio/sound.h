@@ -63,8 +63,11 @@ public:
 	void Play();
 	void Stop();
 
+	Entity GetEntity();
+	void SetEntity(Entity newEntity);
 protected:
 	sf::Sound m_Sound;
+	Entity m_Entity;
 };
 
 class SoundBufferManager : public System
@@ -106,26 +109,30 @@ struct SoundInfo : ComponentInfo, PathEditorComponent
 };
 }
 
-class SoundManager : public SingleComponentManager<Sound, editor::SoundInfo>
+const size_t MAX_SOUND_CHANNELS = 256;
+
+class SoundManager : public MultipleComponentManager<Sound, editor::SoundInfo, ComponentType::SOUND>
 {
 public:
-	using SingleComponentManager::SingleComponentManager; 
+	SoundManager(Engine& engine);
 	~SoundManager();
 
-	void Init() override;
+    void Init() override;
 
 	Sound* AddComponent(Entity entity) override;
+
+	//TODO use similar construction as pycomponent
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
-	
 	void Reset();
+	void Collect() override;
 
-	void Collect();
+	Sound* GetComponentPtr(Entity entity) override;
 
+    virtual void OnResize(size_t newSize) override{};
 protected:
 	EntityManager* m_EntityManager = nullptr;
 	SoundBufferManager* m_SoundBufferManager = nullptr;
-	std::vector<std::string> m_TexturePaths{ INIT_ENTITY_NMB };
 };
 }
 #endif

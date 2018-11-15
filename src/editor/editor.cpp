@@ -110,7 +110,7 @@ void Editor::Update(float dt)
 			{
 				auto& entityInfo = m_EntityManager->GetEntityInfo(selectedEntity);
 				ImGui::InputText("Name", &entityInfo.name[0u], 15);
-				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
+				/*if(m_EntityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
 				{
 					auto& transformInfo = m_TransformManager->GetComponentInfo(selectedEntity);
 					transformInfo.DrawOnInspector();
@@ -154,6 +154,11 @@ void Editor::Update(float dt)
 						pyInfo.DrawOnInspector();
 					}
 				}
+				 */
+				for(auto& drawableComponentManager: m_DrawableObservers)
+                {
+				  drawableComponentManager->DrawOnInspector(selectedEntity);
+                }
 
 			}
 			ImGui::End();
@@ -216,5 +221,9 @@ void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
 		window->setTitle(oss.str());
 	}
 
+}
+void Editor::AddDrawableObserver(editor::IDrawableManager *observer)
+{
+	m_DrawableObservers.push_back(observer);
 }
 }

@@ -39,6 +39,12 @@ class ResizeObserver
 public:
 	virtual void OnResize(size_t newSize) = 0;
 };
+
+class DestroyObserver
+{
+ public:
+  virtual void OnDestroy(Entity entity) = 0;
+};
 /**
  * \brief Entity index number, starting from 1U
  */
@@ -72,16 +78,18 @@ public:
 	editor::EntityInfo& GetEntityInfo(Entity entity);
 
 	void ResizeEntityNmb(size_t newSize);
-	void AddObserver(ResizeObserver* resizeObserver);
+	void AddResizeObserver(ResizeObserver *resizeObserver);
+	void AddDestroyObserver(DestroyObserver *destroyObserver);
 
 private:
 	std::vector<EntityMask> m_MaskArray{ INIT_ENTITY_NMB };
 	std::vector<editor::EntityInfo> m_EntityInfos{ INIT_ENTITY_NMB };
 	std::vector<ResizeObserver*> m_ResizeObservers;
+	std::vector<DestroyObserver*> m_DestroyObservers;
 };
 /*
 template <>
-void EntityManager::AddObserver(SingleComponentManager<std::any, std::any>* componentManager)
+void EntityManager::AddResizeObserver(SingleComponentManager<std::any, std::any>* componentManager)
 {
 	m_ResizeObsververs.push_back(componentManager);
 }

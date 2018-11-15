@@ -91,40 +91,43 @@ void editor::Body2dInfo::DrawOnInspector()
 	const auto b2Body = body->GetBody();
 	ImGui::Separator();
 	ImGui::Text("Body2d");
-	switch (b2Body->GetType())
+	if(b2Body != nullptr)
 	{
-	case b2_staticBody:
-
-		ImGui::LabelText("Type", "Static");
-		break;
-	case b2_dynamicBody:
-		ImGui::LabelText("Type", "Dynamic");
-		break;
-	case b2_kinematicBody:
-		ImGui::LabelText("Type", "Kinematic");
-		break;
-	}
-	float velocity[2] =
-	{
-		meter2pixel(b2Body->GetLinearVelocity().x),
-		meter2pixel(b2Body->GetLinearVelocity().y)
-	};
-	ImGui::InputFloat2("Velocity", velocity);
-	if (ImGui::IsItemHovered())
-	{
-		auto& velocities = m_Velocities;
-		std::vector<float> xValues(velocities.size());
-		std::vector<float> yValues(velocities.size());
-		for (auto vIndex = 0; vIndex < velocities.size(); vIndex++)
+		switch (b2Body->GetType())
 		{
-			xValues[vIndex] = velocities[vIndex].x;
-			yValues[vIndex] = velocities[vIndex].y;
+		case b2_staticBody:
+
+			ImGui::LabelText("Type", "Static");
+			break;
+		case b2_dynamicBody:
+			ImGui::LabelText("Type", "Dynamic");
+			break;
+		case b2_kinematicBody:
+			ImGui::LabelText("Type", "Kinematic");
+			break;
 		}
-		//Plot last second velocities
-		ImGui::BeginTooltip();
-		ImGui::PlotLines("X", &xValues[0], xValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
-		ImGui::PlotLines("Y", &yValues[0], yValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
-		ImGui::EndTooltip();
+		float velocity[2] =
+		{
+			meter2pixel(b2Body->GetLinearVelocity().x),
+			meter2pixel(b2Body->GetLinearVelocity().y)
+		};
+		ImGui::InputFloat2("Velocity", velocity);
+		if (ImGui::IsItemHovered())
+		{
+			auto& velocities = m_Velocities;
+			std::vector<float> xValues(velocities.size());
+			std::vector<float> yValues(velocities.size());
+			for (auto vIndex = 0; vIndex < velocities.size(); vIndex++)
+			{
+				xValues[vIndex] = velocities[vIndex].x;
+				yValues[vIndex] = velocities[vIndex].y;
+			}
+			//Plot last second velocities
+			ImGui::BeginTooltip();
+			ImGui::PlotLines("X", &xValues[0], xValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
+			ImGui::PlotLines("Y", &yValues[0], yValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
+			ImGui::EndTooltip();
+		}
 	}
 }
 

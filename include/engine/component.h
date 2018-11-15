@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include <queue>
 #include <vector>
+#include <any>
 
 #include <engine/globals.h>
 #include <engine/log.h>
@@ -35,6 +36,8 @@ SOFTWARE.
 #include <engine/entity.h>
 #include <engine/system.h>
 #include <engine/engine.h>
+#include <editor/editor_info.h>
+#include <editor/editor.h>
 
 #include <utility/json_utility.h>
 #include <engine/vector.h>
@@ -54,59 +57,113 @@ enum class ComponentType : int
 	PYCOMPONENT = 1 << 6
 };
 
-template<class T, class TInfo>
-class BasicComponentManager
+template<typename T, ComponentType componentType>
+class ComponentManager:
+    public System,
+    public DestroyObserver
 {
-public:
-    BasicComponentManager() = default;
-  	BasicComponentManager(const BasicComponentManager&) = delete;
-	virtual ~BasicComponentManager()
-	{
-		m_Components.clear();
-		m_ComponentsInfo.clear();
-	}
+ protected:
+  EntityManager* m_EntityManager = nullptr;
+  std::vector<T> m_Components;
+ public:
+  ComponentManager(Engine& engine) : System(engine) {}
+  ComponentManager(const ComponentManager&) = delete;
+  ComponentManager(ComponentManager&& componentManager) = default;
 
-	std::vector<T>& GetComponents()
-	{
-		return m_Components;
-	}
+  virtual T* AddComponent(Entity entity) = 0;
+  virtual void CreateComponent(json& componentJson, Entity entity) = 0;
+  virtual void DestroyComponent(Entity entity) = 0;
 
-	virtual T* AddComponent(Entity entity) = 0;
-	virtual void CreateComponent(json& componentJson, Entity entity) = 0;
-	virtual void CreateEmptyComponent(Entity entity)
-	{
-		json emptyComponent;
-		CreateComponent(emptyComponent, entity);
-	};
-	virtual void DestroyComponent(Entity entity) = 0;
-protected:
-	std::vector<T> m_Components;
-	std::vector<TInfo> m_ComponentsInfo;
+  void Init() override
+  {
+    System::Init();
+    m_EntityManager = m_Engine.GetEntityManager();
+    m_EntityManager->AddDestroyObserver(this);
+  }
+  virtual ~ComponentManager()
+  {
+    m_Components.clear();
+    //m_ComponentsInfo.clear();
+  }
+
+
+  virtual T* GetComponentPtr(Entity entity) = 0;
+
+  std::vector<T>& GetComponents()
+  {
+    return m_Components;
+  }
+
+  virtual void OnDestroy(Entity entity) override {}
+
 };
 
-template<class T, class TInfo>
-class SingleComponentManager :
-		public BasicComponentManager<T, TInfo>,
-		public ResizeObserver,
-		public System
+
+template<typename TInfo>
+class ComponentInfoManager : public editor::IDrawableManager
+{
+  static_assert(std::is_base_of<editor::ComponentInfo, TInfo>::value, "TInfo must be derived from ComponentInfo");
+ public:
+  ComponentInfoManager(ComponentType componentType): m_ComponentType(componentType)
+  {
+
+  }
+
+
+protected:
+  std::vector<TInfo> m_ComponentsInfo;
+  ComponentType m_ComponentType;
+};
+
+
+template<typename T, typename TInfo, ComponentType componentType>
+class BasicComponentManager: public ComponentManager<T, componentType>,
+                             public ComponentInfoManager<TInfo>
 {
 public:
-	SingleComponentManager(Engine& engine): System(engine)
+    BasicComponentManager(Engine& engine) : ComponentManager<T, componentType>(engine), ComponentInfoManager<TInfo>(componentType)
+    {
+
+    }
+    virtual void DrawOnInspector(Entity entity) override
+    {
+      for (auto &info : ComponentInfoManager<TInfo>::m_ComponentsInfo)
+      {
+        if (ComponentManager<T, componentType>::m_EntityManager->HasComponent(entity, componentType) && info.GetEntity() == entity)
+        {
+          info.DrawOnInspector();
+        }
+      }
+    }
+    virtual void Init() override
+    {
+      ComponentManager<T, componentType>::Init();
+      ComponentManager<T, componentType>::m_Engine.GetEditor()->AddDrawableObserver(this);
+    }
+};
+
+template<class T, class TInfo, ComponentType componentType>
+class SingleComponentManager :
+		public BasicComponentManager<T, TInfo, componentType>,
+		public ResizeObserver
+{
+public:
+	SingleComponentManager(Engine& engine):BasicComponentManager<T,TInfo, componentType>(engine)
 	{
-		BasicComponentManager<T,TInfo>::m_Components = std::vector<T>{ INIT_ENTITY_NMB };
-        BasicComponentManager<T,TInfo>::m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
+		BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>{ INIT_ENTITY_NMB };
+        BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
+        for(int i = 0; i < INIT_ENTITY_NMB;i++)
+        {
+          BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i+1);
+        }
 	}
 
-  	SingleComponentManager(SingleComponentManager&& componentManager) = default;
-  	SingleComponentManager(const SingleComponentManager& componentManager) = delete;
-
-	void Init() override
+	virtual void Init() override
 	{
-		System::Init();
-		m_EntityManager = m_Engine.GetEntityManager();
-		m_EntityManager->AddObserver(this);
+		BasicComponentManager<T,TInfo, componentType>::Init();
+		BasicComponentManager<T,TInfo, componentType>::m_EntityManager = System::m_Engine.GetEntityManager();
+		BasicComponentManager<T,TInfo, componentType>::m_EntityManager->AddResizeObserver(this);
 	}
-
 	virtual ~SingleComponentManager()
 	{
 	}
@@ -117,16 +174,16 @@ public:
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
 		}
-		return BasicComponentManager<T,TInfo>::m_ComponentsInfo[entity - 1];
+		return BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo[entity - 1];
 	}
 
-	virtual T* GetComponentPtr(Entity entity)
+	virtual T* GetComponentPtr(Entity entity) override
 	{
 		if (entity == INVALID_ENTITY)
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
 		}
-		return &BasicComponentManager<T,TInfo>::m_Components[entity - 1];
+		return &BasicComponentManager<T,TInfo, componentType>::m_Components[entity - 1];
 	}
 
 	T& GetComponentRef(Entity entity)
@@ -135,40 +192,45 @@ public:
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
 		}
-		return BasicComponentManager<T,TInfo>::m_Components[entity - 1];
+		return BasicComponentManager<T,TInfo, componentType>::m_Components[entity - 1];
 	}
 
 	void OnResize(size_t newSize) override
 	{
-		BasicComponentManager<T,TInfo>::m_Components.resize(newSize);
-		BasicComponentManager<T,TInfo>::m_ComponentsInfo.resize(newSize);
+		BasicComponentManager<T,TInfo, componentType>::m_Components.resize(newSize);
+		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo.resize(newSize);
 	}
-protected:
-	EntityManager* m_EntityManager = nullptr;
+
 };
 
-template<class T, class TInfo>
+template<class T, class TInfo, ComponentType componentType>
 class MultipleComponentManager : 
-	public BasicComponentManager<T,TInfo>, 
-	public System, 
+	public BasicComponentManager<T,TInfo, componentType>,
 	public ResizeObserver
+
 {
-	MultipleComponentManager(Engine& engine): System(engine), BasicComponentManager<T,TInfo>()
+ public:
+	MultipleComponentManager(Engine& engine): BasicComponentManager<T,TInfo, componentType>(engine)
 	{
-		
+		BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER};
+		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 	}
+
 	void Init() override
-	{
-		System::Init();
-		BasicComponentManager<T,TInfo>::m_EntityManager = m_Engine.GetEntityManager();
-		BasicComponentManager<T,TInfo>::m_EntityManager->AddObserver(this);
-	}
-	void OnResize(size_t newSize) override
-	{
-		BasicComponentManager<T,TInfo>::m_Components.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
-		BasicComponentManager<T,TInfo>::m_ComponentsInfo.resize(MULTIPLE_COMPONENTS_MULTIPLIER*newSize);
-	}
+    {
+		BasicComponentManager<T,TInfo, componentType>::m_EntityManager = BasicComponentManager<T,TInfo, componentType>::m_Engine.GetEntityManager();
+		BasicComponentManager<T,TInfo, componentType>::m_EntityManager->AddResizeObserver(this);
+    }
+
+    virtual void OnResize(size_t newSize) override
+    {
+      BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>{ newSize * MULTIPLE_COMPONENTS_MULTIPLIER};
+      BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ newSize * MULTIPLE_COMPONENTS_MULTIPLIER };
+    }
+
 };
+
+
 
 class LayerComponent
 {

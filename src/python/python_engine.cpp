@@ -373,7 +373,7 @@ void PythonEngine::Init()
 
 	OnResize(INIT_ENTITY_NMB);
 
-	m_Engine.GetEntityManager()->AddObserver(this);
+  m_Engine.GetEntityManager()->AddResizeObserver(this);
 	py::initialize_interpreter();
 	//Adding reference to c++ engine modules
 

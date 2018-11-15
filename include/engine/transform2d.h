@@ -50,7 +50,7 @@ struct Transform2dInfo : ComponentInfo
 }
 
 class Transform2dManager :
-	public SingleComponentManager<Transform2d, editor::Transform2dInfo>
+	public SingleComponentManager<Transform2d, editor::Transform2dInfo, ComponentType::TRANSFORM2D>
 {
 public:
 	using SingleComponentManager::SingleComponentManager;

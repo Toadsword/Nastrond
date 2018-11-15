@@ -27,6 +27,7 @@ SOFTWARE.
 namespace sfge
 {
 
+
 bool LayerComponent::LayerCompare(LayerComponent* s1, LayerComponent* s2)
 {
 	

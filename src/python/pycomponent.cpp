@@ -145,7 +145,7 @@ void PyComponent::Update(float dt)
 		case ComponentType::SOUND:
 			{
 				auto* soundManager = m_Engine.GetAudioManager()->GetSoundManager();
-				auto& sound = soundManager->GetComponentRef(m_Entity);
+				auto* sound = soundManager->GetComponentPtr(m_Entity);
 				return py::cast(sound, py::return_value_policy::reference);
 			}
 		default:
@@ -160,7 +160,7 @@ void PyComponent::Update(float dt)
 	}
 
 	
-void PyComponent::OnCollisionEnter(ColliderData * collider)
+    void PyComponent::OnCollisionEnter(ColliderData * collider)
 	{
 	try
 	{
