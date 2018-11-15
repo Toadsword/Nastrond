@@ -38,9 +38,9 @@ bool TextureManager::LoadTexture(std::string path, int rowWidth, int colWidth, i
 	return false;
 }
 
-std::vector<TextureInfos*> TextureManager::GetAllTextures()
+std::vector<TextureInfos*>* TextureManager::GetAllTextures()
 {
-	return m_textures;
+	return &m_textures;
 }
 
 TextureInfos* TextureManager::GetTextureFromId(short id)

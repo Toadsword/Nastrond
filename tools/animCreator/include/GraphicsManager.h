@@ -3,6 +3,8 @@
 
 #include <SFML\Graphics.hpp>
 
+#include <Utilities.h>
+
 const int WINDOW_WIDTH = 900;
 const int WINDOW_HEIGHT = 600;
 const int MAX_FRAMERATE = 60;
@@ -23,10 +25,16 @@ public:
 	void DisplayPreviewWindow();
 	void DisplayEditorWindow();
 
+	void OpenModalSave();
+
 	sf::RenderWindow* GetWindow();
 
 private:
 	bool isInit = false;
+
+	bool m_openModalSave = false; 
+	LogSaveError m_saveResult;
+
 	Engine* m_engine = nullptr;
 	sf::RenderWindow* m_window = nullptr;
 };

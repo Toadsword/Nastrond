@@ -45,12 +45,32 @@ bool AnimationManager::SetTextureOnKey(short key, short textureId)
 void AnimationManager::SetFPSSpeed(short newSpeed)
 {
 	if (newSpeed > 0.0f)
-		m_fpsSpeed = newSpeed;
+		m_animSpeed = newSpeed;
 }
 
 short AnimationManager::GetFPSSpeed()
 {
-	return m_fpsSpeed;
+	return m_animSpeed;
+}
+
+void AnimationManager::SetName(std::string newName)
+{
+	m_animName = newName;
+}
+
+std::string AnimationManager::GetName()
+{
+	return m_animName;
+}
+
+void AnimationManager::SetLooped(bool newLoop)
+{
+	m_looped = newLoop;
+}
+
+bool AnimationManager::GetLooped()
+{
+	return m_looped;
 }
 
 std::map<const short, short>& AnimationManager::GetAnim()

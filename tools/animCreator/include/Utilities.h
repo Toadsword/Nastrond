@@ -9,11 +9,18 @@ const std::string SAVE_FOLDER = "../data/animSaves/";
 struct TextureInfos;
 class AnimationManager;
 
+static enum LogSaveError {
+	SUCCESS,
+	FAILURE,
+	DO_REPLACE,
+};
+
 class Utilities
 {
 public:
-	static void ExportToJson(AnimationManager anim, std::vector<TextureInfos*> textures, std::string animName);
-	static void ExportToGif(AnimationManager anim, std::vector<TextureInfos*> textures, std::string animName);
+
+	static LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
+	static LogSaveError ExportToGif(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
 };
 
 #endif // ifndef UTILITIES_H

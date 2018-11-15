@@ -23,7 +23,7 @@ public:
 
 	bool LoadTexture(std::string path, int sizeX, int sizeY);
 	bool LoadTexture(std::string path, int rowWidth, int colWidth, int numRow, int numCol);
-	std::vector<TextureInfos*> GetAllTextures();
+	std::vector<TextureInfos*>* GetAllTextures();
 	TextureInfos* GetTextureFromId(short id);
 
 private:

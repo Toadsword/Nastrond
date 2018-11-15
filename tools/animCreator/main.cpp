@@ -5,6 +5,7 @@
 
 int main()
 {
+	/*
 	TextureManager textureMan;
 	textureMan.LoadTexture("D:/Images/Artworks/Touhou/BvGapbeIcAArSAf.png", 48, 48);
 	textureMan.LoadTexture("D:/Images/Artworks/Touhou/BvGapbeIcAArSAf.png", 48, 48, 1, 0);
@@ -18,7 +19,8 @@ int main()
 
 	Utilities::ExportToJson(anim, textureMan.GetAllTextures(), "AnimTest");
 	return 0;
-	
+	*/
+
 	Engine* engine = new Engine();
 
 	engine->Init();

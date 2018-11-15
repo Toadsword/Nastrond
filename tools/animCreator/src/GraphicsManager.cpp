@@ -2,10 +2,13 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#include <windows.h>
 #include <iostream>
 
 #include <Engine.h>
 #include <GraphicsManager.h>
+#include <imgui_internal.h>
+#include "Utilities.h"
 
 sf::RenderWindow* GraphicsManager::Init(Engine* engine)
 {
@@ -42,11 +45,14 @@ void GraphicsManager::Update(int dt)
 
 	ImGui::SFML::Update(*m_window, sf::seconds(dt));
 
+	//ImGui::ShowDemoWindow();
+
+	
 	DisplayEditorWindow();
 	DisplayFileWindow();
 	DisplayMenuWindow();
 	DisplayPreviewWindow();
-
+	
 
 	m_window->clear();
 	ImGui::SFML::Render(*m_window);
@@ -86,6 +92,11 @@ void GraphicsManager::DisplayMenuWindow()
 				{
 					std::cout << "Open select \n";
 				}
+				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
+				{
+					m_saveResult = Utilities::ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures());
+					m_openModalSave = m_saveResult != SUCCESS;
+				}
 				if (ImGui::MenuItem("Quit", "Alt+F4"))
 				{
 					m_engine->ExitApplication();			
@@ -96,6 +107,8 @@ void GraphicsManager::DisplayMenuWindow()
 		}
 	}
 	ImGui::End();
+
+	if (m_openModalSave) OpenModalSave();
 }
 
 void GraphicsManager::DisplayFileWindow()
@@ -105,6 +118,7 @@ void GraphicsManager::DisplayFileWindow()
 	window_flags |= ImGuiWindowFlags_NoMove;
 	window_flags |= ImGuiWindowFlags_NoResize;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
 	ImGui::SetNextWindowPos(ImVec2(0.0f, 20.0f), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
@@ -123,6 +137,7 @@ void GraphicsManager::DisplayPreviewWindow()
 	window_flags |= ImGuiWindowFlags_NoMove;
 	window_flags |= ImGuiWindowFlags_NoResize;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
 	ImGui::SetNextWindowPos(ImVec2(450.0f, 20.0f), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
@@ -141,6 +156,7 @@ void GraphicsManager::DisplayEditorWindow()
 	window_flags |= ImGuiWindowFlags_NoMove;
 	window_flags |= ImGuiWindowFlags_NoResize;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
 	ImGui::SetNextWindowPos(ImVec2(0.0f, 300.0f), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(900, 300.0f), ImGuiCond_FirstUseEver);
@@ -148,6 +164,57 @@ void GraphicsManager::DisplayEditorWindow()
 	{
 		if (ImGui::Selectable("Coucou Je suis un seletable"))
 			std::cout << "Je suis select \n";
+	}
+	ImGui::End();
+}
+
+void GraphicsManager::OpenModalSave()
+{
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_Modal;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoResize;
+
+	ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(600.0f, 100.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("Save Current...", &m_openModalSave, window_flags))
+	{
+		if(m_saveResult == FAILURE)	
+			ImGui::TextColored(ImVec4(1, 0, 0, 0.8), "Couldn't save animation");
+		if(m_saveResult == DO_REPLACE)
+		{
+			ImGui::TextColored(ImVec4(1, 0, 0, 0.8), "An animation already exists with this name... Do you want to replace it?");
+			ImGui::Columns(4, "yes_or_no", false);
+			ImGui::NextColumn();
+			if(ImGui::Button("Yes"))
+			{
+				m_saveResult = Utilities::ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures(), true);
+				m_saveResult = SUCCESS;
+				m_openModalSave = false;
+			}
+			ImGui::NextColumn();
+			if (ImGui::Button("No"))
+			{
+				m_saveResult = SUCCESS;
+				m_openModalSave = false;
+			}
+		}
+
+		//ImGui::InputText("Animation Name", m_labelNameFile, IM_ARRAYSIZE(m_labelNameFile));
+		/*
+		 *ImGui::Columns(2);
+		if (ImGui::Button("Save Animation"))
+		{
+			if(result == SUCCESS)
+				m_openModalSave = false;
+		}
+		ImGui::NextColumn();
+		if (ImGui::Button("Close"))
+		{
+			m_openModalSave = false;
+		}
+		if(result)
+		*/
 	}
 	ImGui::End();
 }

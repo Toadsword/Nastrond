@@ -19,11 +19,17 @@ public:
 
 	void SetFPSSpeed(short newSpeed);
 	short GetFPSSpeed();
+	void SetName(std::string newName);
+	std::string GetName();
+	void SetLooped(bool newLoop);
+	bool GetLooped();
 
 	std::map<const short, short>& GetAnim();
 
 private:
-	short m_fpsSpeed;
+	bool m_looped = false;
+	short m_animSpeed = 100;
+	std::string m_animName = "TestAnimMaggle";
 	std::map<const short, short> m_animation;
 };
 
