@@ -26,6 +26,7 @@ SOFTWARE.
 #define SFGE_EDITOR_H
 
 #include <memory>
+#include <set>
 
 #include <engine/system.h>
 #include <engine/globals.h>
@@ -88,7 +89,7 @@ protected:
 	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};
 	Entity selectedEntity = INVALID_ENTITY;
 
-	std::vector<editor::IDrawableManager*> m_DrawableObservers;
+	std::set<editor::IDrawableManager*> m_DrawableObservers;
 };
 
 }

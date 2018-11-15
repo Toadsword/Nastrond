@@ -42,6 +42,7 @@ void Physics2dManager::Init()
 	m_World->SetContactListener(m_ContactListener.get());
 
 	m_BodyManager.Init();
+	m_ColliderManager.Init();
 }
 
 void Physics2dManager::Update(float dt)

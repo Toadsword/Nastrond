@@ -123,11 +123,11 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 
 void EntityManager::AddResizeObserver(ResizeObserver *resizeObserver)
 {
-	m_ResizeObservers.push_back(resizeObserver);
+	m_ResizeObservers.emplace(resizeObserver);
 }
 void EntityManager::AddDestroyObserver(DestroyObserver *destroyObserver)
 {
-	m_DestroyObservers.push_back(destroyObserver);
+	m_DestroyObservers.emplace(destroyObserver);
 }
 
 }

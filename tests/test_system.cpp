@@ -27,6 +27,7 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
+#include <engine/component.h>
 
 
 TEST(TestSystem, PlanetPyComponent)

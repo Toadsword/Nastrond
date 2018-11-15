@@ -21,6 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#ifdef WIN32
+#define _USE_MATH_DEFINES
+#endif
+
+#include <cmath>
 
 //SFGE includes
 #include <engine/scene.h>
@@ -202,50 +207,16 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 					if (CheckJsonExists(componentJson, "type"))
 					{
 						const ComponentType componentType = componentJson["type"];
-
+						int index = (int)log2((double)componentType);
+						if(m_ComponentManager[index] != nullptr)
+						{
+							m_ComponentManager[index]->CreateComponent(componentJson, entity);
+							m_EntityManager->AddComponentType(entity, componentType);
+						}
 						//Refactor this switch to dynamic allocation components
-						switch (componentType)
+						/*switch (componentType)
 						{
-						case ComponentType::TRANSFORM2D:
-						{
-							auto* transform2dManager = m_Engine.GetTransform2dManager();
 
-							transform2dManager->CreateComponent(componentJson, entity);
-							m_EntityManager->AddComponentType(entity, ComponentType::TRANSFORM2D);
-							break;
-						}
-						case ComponentType::SHAPE2D:
-						{
-							auto* graphicsManager = m_Engine.GetGraphics2dManager();
-							auto* shapeManager = graphicsManager->GetShapeManager();
-							shapeManager->CreateComponent(componentJson, entity);
-							m_EntityManager->AddComponentType(entity, ComponentType::SHAPE2D);
-							break;
-						}
-						case ComponentType::BODY2D:
-						{
-							auto* physicsManager = m_Engine.GetPhysicsManager();
-							physicsManager->GetBodyManager()->CreateComponent(componentJson, entity);
-							m_EntityManager->AddComponentType(entity, ComponentType::BODY2D);
-
-							break;
-						}
-						case ComponentType::SOUND:
-						{
-							auto* audioManager = m_Engine.GetAudioManager();
-							auto* soundManager = audioManager->GetSoundManager();
-							soundManager->CreateComponent(componentJson, entity);
-							m_EntityManager->AddComponentType(entity, ComponentType::SOUND);
-							break;
-						}
-						case ComponentType::SPRITE2D:
-						{
-							auto* graphicsManager = m_Engine.GetGraphics2dManager();
-							auto* spriteManager = graphicsManager->GetSpriteManager();
-							spriteManager->CreateComponent(componentJson, entity);
-							m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
-							break;
-						}
 						case ComponentType::COLLIDER2D:
 						{
 							auto* physicsManager = m_Engine.GetPhysicsManager();
@@ -268,6 +239,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 						default:
 							break;
 						}
+						 */
 					}
 					else
 					{
@@ -342,7 +314,10 @@ void SceneManager::LoadSceneFromName(const std::string& sceneName)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-
-
+void SceneManager::AddComponentManager(IComponentFactory *componentFactory, ComponentType componentType)
+{
+	int index = static_cast<int>(log2((double)componentType));
+	m_ComponentManager[index] = componentFactory;
+}
 
 }

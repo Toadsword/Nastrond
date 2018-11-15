@@ -84,8 +84,8 @@ public:
 private:
 	std::vector<EntityMask> m_MaskArray{ INIT_ENTITY_NMB };
 	std::vector<editor::EntityInfo> m_EntityInfos{ INIT_ENTITY_NMB };
-	std::vector<ResizeObserver*> m_ResizeObservers;
-	std::vector<DestroyObserver*> m_DestroyObservers;
+	std::set<ResizeObserver*> m_ResizeObservers;
+	std::set<DestroyObserver*> m_DestroyObservers;
 };
 /*
 template <>

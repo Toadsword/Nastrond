@@ -36,6 +36,7 @@ SOFTWARE.
 #include <engine/entity.h>
 #include <engine/system.h>
 #include <engine/engine.h>
+#include <engine/scene.h>
 #include <editor/editor_info.h>
 #include <editor/editor.h>
 
@@ -57,10 +58,17 @@ enum class ComponentType : int
 	PYCOMPONENT = 1 << 6
 };
 
+class IComponentFactory
+{
+ public:
+  virtual void CreateComponent(json& componentJson, Entity entity) = 0;
+};
+
 template<typename T, ComponentType componentType>
 class ComponentManager:
     public System,
-    public DestroyObserver
+    public DestroyObserver,
+    public IComponentFactory
 {
  protected:
   EntityManager* m_EntityManager = nullptr;
@@ -71,7 +79,6 @@ class ComponentManager:
   ComponentManager(ComponentManager&& componentManager) = default;
 
   virtual T* AddComponent(Entity entity) = 0;
-  virtual void CreateComponent(json& componentJson, Entity entity) = 0;
   virtual void DestroyComponent(Entity entity) = 0;
 
   void Init() override
@@ -139,6 +146,7 @@ public:
     {
       ComponentManager<T, componentType>::Init();
       ComponentManager<T, componentType>::m_Engine.GetEditor()->AddDrawableObserver(this);
+      ComponentManager<T, componentType>::m_Engine.GetSceneManager()->AddComponentManager(this, componentType);
     }
 };
 
@@ -218,6 +226,7 @@ class MultipleComponentManager :
 
 	void Init() override
     {
+        BasicComponentManager<T,TInfo, componentType>::Init();
 		BasicComponentManager<T,TInfo, componentType>::m_EntityManager = BasicComponentManager<T,TInfo, componentType>::m_Engine.GetEntityManager();
 		BasicComponentManager<T,TInfo, componentType>::m_EntityManager->AddResizeObserver(this);
     }

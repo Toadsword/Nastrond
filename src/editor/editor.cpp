@@ -224,6 +224,6 @@ void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
 }
 void Editor::AddDrawableObserver(editor::IDrawableManager *observer)
 {
-	m_DrawableObservers.push_back(observer);
+	m_DrawableObservers.emplace(observer);
 }
 }
