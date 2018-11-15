@@ -20,7 +20,7 @@ public:
 	void SetFPSSpeed(short newSpeed);
 	short GetFPSSpeed();
 
-	std::map<const short, short> getAnim();
+	std::map<const short, short>& GetAnim();
 
 private:
 	short m_fpsSpeed;

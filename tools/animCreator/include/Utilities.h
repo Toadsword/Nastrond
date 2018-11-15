@@ -4,13 +4,16 @@
 #include <vector>
 #include <map>
 
+const std::string SAVE_FOLDER = "../data/animSaves/";
+
 struct TextureInfos;
+class AnimationManager;
 
 class Utilities
 {
 public:
-	static void ExportToJson(std::map<short, short> anim, std::vector<TextureInfos*> textures);
-	static void ExportToGif(std::map<short, short> anim, std::vector<TextureInfos*> textures);
+	static void ExportToJson(AnimationManager anim, std::vector<TextureInfos*> textures, std::string animName);
+	static void ExportToGif(AnimationManager anim, std::vector<TextureInfos*> textures, std::string animName);
 };
 
 #endif // ifndef UTILITIES_H

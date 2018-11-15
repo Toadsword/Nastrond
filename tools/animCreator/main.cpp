@@ -1,11 +1,22 @@
 #include <Engine.h>
+#include <TextureManager.h>
+#include <AnimationManager.h>
 #include <Utilities.h>
 
 int main()
 {
-	std::map<short, short> anim;
-	std::vector<TextureInfos*> textures;
-	Utilities::ExportToJson(anim, textures);
+	TextureManager textureMan;
+	textureMan.LoadTexture("D:/Images/Artworks/Touhou/BvGapbeIcAArSAf.png", 48, 48);
+	textureMan.LoadTexture("D:/Images/Artworks/Touhou/BvGapbeIcAArSAf.png", 48, 48, 1, 0);
+	TextureInfos* textu1 = textureMan.GetTextureFromId(1);
+	TextureInfos* textu2 = textureMan.GetTextureFromId(2);
+
+	AnimationManager anim;
+	anim.SetFPSSpeed(20);
+	anim.AddKey(1, textu1->id);
+	anim.AddKey(10, textu2->id);
+
+	Utilities::ExportToJson(anim, textureMan.GetAllTextures(), "AnimTest");
 	return 0;
 	
 	Engine* engine = new Engine();

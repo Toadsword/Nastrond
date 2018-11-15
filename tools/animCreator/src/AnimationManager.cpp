@@ -52,3 +52,8 @@ short AnimationManager::GetFPSSpeed()
 {
 	return m_fpsSpeed;
 }
+
+std::map<const short, short>& AnimationManager::GetAnim()
+{
+	return m_animation;
+}
