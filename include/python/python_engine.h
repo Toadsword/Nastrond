@@ -36,11 +36,18 @@
 
 namespace sfge
 {
+
+class PyComponent;
+
 namespace editor
 {
-struct PyComponentInfo;
+struct PyComponentInfo : public ComponentInfo, public PathEditorComponent
+{
+	void DrawOnInspector() override;
+
+	PyComponent* pyComponent = nullptr;
+};
 }
-class PyComponent;
 struct ColliderData;
 
 using ModuleId = unsigned;
@@ -51,10 +58,12 @@ const InstanceId INVALID_INSTANCE = 0U;
 /**
 * \brief Manage the python interpreter
 */
-class PythonEngine : public System, public LayerComponentManager<PyComponent*>, public ResizeObserver
+class PythonEngine :
+		public MultipleComponentManager<PyComponent*, editor::PyComponentInfo, ComponentType::PYCOMPONENT>,
+		public LayerComponentManager<PyComponent*>
 {
 public:
-	using System::System;
+	using MultipleComponentManager::MultipleComponentManager;
 	/**
 	* \brief Initialize the python interpreter
 	*/
@@ -78,6 +87,11 @@ public:
 	void Clear() override;
 
 	ModuleId LoadPyModule(std::string& moduleFilename);
+
+	virtual void CreateComponent(json& componentJson, Entity entity) override;
+	virtual PyComponent** AddComponent(Entity entity);
+	virtual void DestroyComponent(Entity entity);
+	virtual PyComponent** GetComponentPtr(Entity entity);
 
 	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
 	InstanceId LoadPySystem(ModuleId moduleId);
@@ -111,7 +125,7 @@ private:
 	 * \brief Load all the python scripts at initialization or reset
 	 */
 	void LoadScripts(std::string dirname = "scripts/");
-
+	int GetFreeComponent();
 
 	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
@@ -122,9 +136,7 @@ private:
 
 	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 	InstanceId m_IncrementalInstanceId = 1U;
-	std::vector<PyComponent*> m_PyComponents{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
-	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 };
 
 }

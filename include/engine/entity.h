@@ -26,6 +26,8 @@ SOFTWARE.
 #define SFGE_ENTITY_H
 
 #include <vector>
+#include <set>
+
 #include <engine/system.h>
 #include <editor/editor_info.h>
 #include <engine/globals.h>

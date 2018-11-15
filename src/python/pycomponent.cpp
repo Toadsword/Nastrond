@@ -257,26 +257,4 @@ void Component::SetInstanceId(unsigned int instanceId)
 	m_InstanceId = instanceId;
 }
 
-void editor::PyComponentInfo::DrawOnInspector()
-{
-	ImGui::Separator();
-	ImGui::Text("PyComponent");
-
-	ImGui::LabelText("Name", name.c_str());
-	ImGui::LabelText("Path", path.c_str());
-	if (pyComponent != nullptr)
-	{
-		//TODO check all variables from the cpp
-		std::ostringstream oss;
-		const auto pyCompObj = py::cast(pyComponent);
-		py::dict pyCompAttrDict = pyCompObj.attr("__dict__");
-		for(auto& elem : pyCompAttrDict)
-		{
-			std::string key = py::str(elem.first);
-			std::string value = py::str(elem.second);
-			ImGui::LabelText(key.c_str(), value.c_str());
-		}
-		Log::GetInstance()->Msg(oss.str());
-	}
-}
 }

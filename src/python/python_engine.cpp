@@ -29,6 +29,7 @@
 #include <list>
 #include <cmath>
 
+#include <imgui.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
@@ -369,11 +370,11 @@ void PythonEngine::Init()
 {
 
 	Log::GetInstance()->Msg("Initialise the python embed interpretor");
-	System::Init();
+	MultipleComponentManager::Init();
 
 	OnResize(INIT_ENTITY_NMB);
 
-  m_Engine.GetEntityManager()->AddResizeObserver(this);
+  	m_Engine.GetEntityManager()->AddResizeObserver(this);
 	py::initialize_interpreter();
 	//Adding reference to c++ engine modules
 
@@ -400,7 +401,7 @@ void PythonEngine::Init()
 
 void PythonEngine::InitPyComponent()
 {
-	for (auto pyComponent : m_PyComponents)
+	for (auto* pyComponent : m_Components)
 	{
 		if(pyComponent != nullptr)
 			pyComponent->Init();
@@ -415,7 +416,7 @@ void PythonEngine::InitPyComponent()
 
 void PythonEngine::Update(float dt)
 {
-	for (auto pyComponent : m_PyComponents)
+	for (auto* pyComponent : m_Components)
 	{
 		if(pyComponent != nullptr)
 			pyComponent->Update(dt);
@@ -430,7 +431,7 @@ void PythonEngine::Update(float dt)
 void PythonEngine::FixedUpdate()
 {
 	const auto config = m_Engine.GetConfig();
-	for (auto pyComponent : m_PyComponents)
+	for (auto pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr)
 			pyComponent->FixedUpdate(config->fixedDeltaTime);
@@ -454,11 +455,12 @@ void PythonEngine::Draw()
 
 void PythonEngine::Destroy()
 {
-	System::Destroy();
+	MultipleComponentManager::Destroy();
 
 	m_PySystems.clear();
 	m_PythonInstances.clear();
-	m_PyComponents.clear ();
+	m_Components.clear ();
+	m_ComponentsInfo.clear();
 	m_PyModuleObjs.clear();
 	Log::GetInstance()->Msg("Finalize the python embed interpretor");
 	py::finalize_interpreter();
@@ -467,7 +469,7 @@ void PythonEngine::Destroy()
 void PythonEngine::Clear()
 {
 	m_PythonInstances.clear();
-	m_PyComponents.clear ();
+	m_Components.clear ();
 	OnResize(INIT_ENTITY_NMB);
 }
 
@@ -548,26 +550,38 @@ InstanceId PythonEngine::LoadPyComponent(ModuleId moduleId, Entity entity)
 		
 
 		const auto pyInstanceId = m_IncrementalInstanceId;
-		
-		//Load PyComponent
-		m_PythonInstances[pyInstanceId] =
-			moduleObj.attr(className.c_str())(m_Engine, entity);
 
-		const auto pyComponent = GetPyComponentFromInstanceId(pyInstanceId);
-		if (pyComponent != nullptr)
+		int index = GetFreeComponent();
+		if(index != -1)
 		{
-			m_PyComponents.push_back(pyComponent);
-			auto pyInfo = editor::PyComponentInfo();
-			pyInfo.name = className;
-			pyInfo.path = m_PythonModulePaths[moduleId];
-			pyInfo.pyComponent = pyComponent;
-			m_PyComponentsInfo.push_back(pyInfo);
-			m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::PYCOMPONENT);
+			//Load PyComponent
+			m_PythonInstances[pyInstanceId] =
+				moduleObj.attr(className.c_str())(m_Engine, entity);
+
+			const auto pyComponent = GetPyComponentFromInstanceId(pyInstanceId);
+			if (pyComponent != nullptr)
+			{
+
+				m_Components[index] = pyComponent;
+				auto pyInfo = editor::PyComponentInfo();
+				pyInfo.name = className;
+				pyInfo.path = m_PythonModulePaths[moduleId];
+				pyInfo.pyComponent = pyComponent;
+				m_ComponentsInfo[index] = pyInfo;
+				m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::PYCOMPONENT);
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "[Python Error] Could not load the PyComponent* out of the instance";
+				Log::GetInstance()->Error(oss.str());
+				return INVALID_INSTANCE;
+			}
 		}
 		else
 		{
 			std::ostringstream oss;
-			oss << "[Python Error] Could not load the PyComponent* out of the instance";
+			oss << "[Python Error] Could not load the PyComponent* no more slot available";
 			Log::GetInstance()->Error(oss.str());
 			return INVALID_INSTANCE;
 		}
@@ -659,7 +673,7 @@ void PythonEngine::LoadCppExtensionSystem(std::string systemClassName)
 std::list<editor::PyComponentInfo> PythonEngine::GetPyComponentsInfoFromEntity(Entity entity)
 {
 	std::list<editor::PyComponentInfo> pyComponentInfos;
-	for(auto& pyInfo : m_PyComponentsInfo)
+	for(auto& pyInfo : m_ComponentsInfo)
 	{
 		if(pyInfo.pyComponent != nullptr && pyInfo.pyComponent->GetEntity() == entity)
 		{
@@ -727,7 +741,7 @@ PySystem* PythonEngine::GetPySystemFromInstanceId(InstanceId instanceId)
 
 py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)
 {
-	for (PyComponent* pyComponent : m_PyComponents)
+	for (PyComponent* pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr and
 		pyComponent->GetEntity() == entity and
@@ -741,23 +755,18 @@ py::object PythonEngine::GetPyComponentFromType(py::object type, Entity entity)
 
 void PythonEngine::OnResize(size_t new_size)
 {
-	m_PythonModulePaths.resize(new_size * 4 );
-	m_PyClassNames.resize(new_size * 4 );
-	m_PyModuleNames.resize(new_size * 4);
-	m_PyModuleObjs.resize(new_size * 4);
-
-	
-
-	m_PythonInstances.resize(new_size * 4);
-	
-	m_PyComponents.resize(new_size * 4);
-	m_PySystems.resize(new_size * 4);
-	m_PyComponentsInfo.resize(new_size * 4);
+	MultipleComponentManager::OnResize(new_size);
+	m_PythonModulePaths.resize(new_size * MULTIPLE_COMPONENTS_MULTIPLIER );
+	m_PyClassNames.resize(new_size * MULTIPLE_COMPONENTS_MULTIPLIER );
+	m_PyModuleNames.resize(new_size * MULTIPLE_COMPONENTS_MULTIPLIER);
+	m_PyModuleObjs.resize(new_size * MULTIPLE_COMPONENTS_MULTIPLIER);
+	m_PythonInstances.resize(new_size * MULTIPLE_COMPONENTS_MULTIPLIER);
+	m_PySystems.resize(new_size * MULTIPLE_COMPONENTS_MULTIPLIER);
 }
 
 void PythonEngine::OnTriggerEnter(Entity entity, ColliderData * colliderData)
 {
-	for (auto& pyComponent : m_PyComponents)
+	for (auto& pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
@@ -768,7 +777,7 @@ void PythonEngine::OnTriggerEnter(Entity entity, ColliderData * colliderData)
 
 void PythonEngine::OnTriggerExit(Entity entity, ColliderData * colliderData)
 {
-	for (auto& pyComponent : m_PyComponents)
+	for (auto& pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
@@ -779,7 +788,7 @@ void PythonEngine::OnTriggerExit(Entity entity, ColliderData * colliderData)
 
 void PythonEngine::OnCollisionEnter(Entity entity, ColliderData * colliderData)
 {
-	for (auto& pyComponent : m_PyComponents)
+	for (auto& pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
@@ -790,7 +799,7 @@ void PythonEngine::OnCollisionEnter(Entity entity, ColliderData * colliderData)
 
 void PythonEngine::OnCollisionExit(Entity entity, ColliderData * colliderData)
 {
-	for (auto& pyComponent : m_PyComponents)
+	for (auto& pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr and pyComponent->GetEntity() == entity)
 		{
@@ -825,15 +834,15 @@ void PythonEngine::SpreadClasses()
 
 void PythonEngine::RemovePyComponentsFrom(Entity entity)
 {
-    for(int i = 0; i < m_PyComponents.size();i++)
+    for(int i = 0; i < m_Components.size();i++)
     {
-        auto& pyComponent = m_PyComponents[i];
+        auto& pyComponent = m_Components[i];
         if(pyComponent != nullptr && entity == pyComponent->GetEntity())
         {
             pyComponent = nullptr;
         }
     }
-    for(int i = 0; i<m_PythonInstances.size();i++)
+    for(int i = 0; i < m_PythonInstances.size();i++)
     {
         auto& pyInstance = m_PythonInstances[i];
         if(pyInstance.is_none() || pyInstance.ptr() == nullptr ) continue;
@@ -852,5 +861,58 @@ void PythonEngine::RemovePyComponentsFrom(Entity entity)
     }
 }
 
+	int PythonEngine::GetFreeComponent()
+	{
+		for(int i = 0; i < m_Components.size();i++)
+		{
+			if (m_Components[i] == nullptr)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+    void PythonEngine::CreateComponent(json &componentJson, Entity entity)
+    {
+
+    }
+
+    void PythonEngine::DestroyComponent(Entity entity)
+    {
+
+    }
+
+    PyComponent **PythonEngine::AddComponent(Entity entity)
+    {
+        return nullptr;
+    }
+
+    PyComponent **PythonEngine::GetComponentPtr(Entity entity) {
+        return nullptr;
+    }
+
+    void editor::PyComponentInfo::DrawOnInspector()
+{
+	ImGui::Separator();
+	ImGui::Text("PyComponent");
+
+	ImGui::LabelText("Name", name.c_str());
+	ImGui::LabelText("Path", path.c_str());
+	if (pyComponent != nullptr)
+	{
+		//TODO check all variables from the cpp
+		std::ostringstream oss;
+		const auto pyCompObj = py::cast(pyComponent);
+		py::dict pyCompAttrDict = pyCompObj.attr("__dict__");
+		for(auto& elem : pyCompAttrDict)
+		{
+			std::string key = py::str(elem.first);
+			std::string value = py::str(elem.second);
+			ImGui::LabelText(key.c_str(), value.c_str());
+		}
+		Log::GetInstance()->Msg(oss.str());
+	}
+}
 
 }
