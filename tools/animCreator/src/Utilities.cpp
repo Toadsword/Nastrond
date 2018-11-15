@@ -14,20 +14,28 @@ void Utilities::ExportToJson(AnimationManager anim, std::vector<TextureInfos*> t
 {
 	json value;
 
-	if (!CreateDirectory((SAVE_FOLDER + animName + "/").c_str(), NULL))
+	//Creating base folder
+	if(!CreateDirectory("../data/", NULL) && !CreateDirectory(SAVE_FOLDER.c_str(), NULL))
 	{
-		if(ERROR_ALREADY_EXISTS)
+		if (ERROR_ALREADY_EXISTS != GetLastError())
 		{
-			std::cout << "FOLDER ALREADY EXISTS. \n";
-		}
-		else
-		{
-			std::cout << "COULDN'T CREATE FOLDER. \n";
+			std::cout << "COULDN'T CREATE BASE FOLDER : error(" << GetLastError() << ")\n";
 			return;
 		}
 	}
 
-	
+	if (!CreateDirectory((SAVE_FOLDER + animName + "/").c_str(), NULL))
+	{
+		if(ERROR_ALREADY_EXISTS == GetLastError())
+		{
+			std::cout << "FOLDER '"+ SAVE_FOLDER + animName +"/' ALREADY EXISTS. \n";
+		}
+		else
+		{
+			std::cout << "COULDN'T CREATE FOLDER '" + SAVE_FOLDER + animName + "/' : error(" << GetLastError()  << ")\n";
+			return;
+		}
+	}
 
 	// Json construction
 	value["frameFps"] = anim.GetFPSSpeed();
@@ -59,12 +67,21 @@ void Utilities::ExportToJson(AnimationManager anim, std::vector<TextureInfos*> t
 		}
 
 		//Copy file for saves
-		//TODO VERIF SI LE FICHIER EST PAS DEJA EXISTANT DANS DESTINATION
-		
-		std::ifstream  src(textToApply->path, std::ios::binary);
-		std::ofstream  dst(SAVE_FOLDER + animName + "/" + fileName, std::ios::binary);
+		std::ifstream my_file(SAVE_FOLDER + animName + "/" + fileName);
+		if (!my_file.good())
+		{
+			std::cout << "saving image \n";
+			std::ifstream  src(textToApply->path, std::ios::binary);
+			std::ofstream  dst(SAVE_FOLDER + animName + "/" + fileName, std::ios::binary);
 
-		dst << src.rdbuf();
+			dst << src.rdbuf();
+			dst.close();
+		}
+		else
+		{
+			std::cout << "image already copied\n";
+		}
+		my_file.close();
 		
 		value["frames"][index]["key"] = frame.first;		
 		value["frames"][index]["path"] = fileName;
