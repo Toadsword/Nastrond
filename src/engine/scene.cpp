@@ -154,7 +154,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 				const ModuleId moduleId = pythonEngine->LoadPyModule(path);
 				if (moduleId != INVALID_MODULE)
 				{
-					const InstanceId instanceId = pythonEngine->LoadPySystem(moduleId);
+					const InstanceId instanceId = pythonEngine->GetPySystemManager().LoadPySystem(moduleId);
 				}
 				else
 				{
@@ -166,7 +166,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 			if(CheckJsonExists(systemJson, "systemClassName"))
 			{
 				const std::string systemClassName = systemJson["systemClassName"];
-				pythonEngine->LoadCppExtensionSystem(systemClassName);
+				pythonEngine->GetPySystemManager().LoadCppExtensionSystem(systemClassName);
 			}
 		}
 	}
@@ -214,32 +214,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 							m_EntityManager->AddComponentType(entity, componentType);
 						}
 						//Refactor this switch to dynamic allocation components
-						/*switch (componentType)
-						{
 
-						case ComponentType::COLLIDER2D:
-						{
-							auto* physicsManager = m_Engine.GetPhysicsManager();
-							physicsManager->GetColliderManager()->CreateComponent(componentJson, entity);
-							m_EntityManager->AddComponentType(entity, ComponentType::COLLIDER2D);
-							break; 
-						}
-						case ComponentType::PYCOMPONENT:
-							{
-								auto* pythonEngine = m_Engine.GetPythonEngine();
-								if (CheckJsonExists(componentJson, "script_path"))
-								{
-									std::string path = componentJson["script_path"];
-									const ModuleId moduleId = pythonEngine->LoadPyModule(path);
-									if(moduleId != INVALID_MODULE)
-										const InstanceId instanceId = pythonEngine->LoadPyComponent(moduleId, entity);
-								}
-								break;
-							}
-						default:
-							break;
-						}
-						 */
 					}
 					else
 					{
@@ -272,7 +247,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	editor->SetCurrentScene(std::move(sceneInfo));
 	
 	auto* pythonEngine = m_Engine.GetPythonEngine();
-	pythonEngine->InitPyComponent();
+	pythonEngine->InitScriptsInstances();
 	
 	
 }

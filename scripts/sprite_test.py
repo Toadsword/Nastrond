@@ -9,7 +9,7 @@ class SpriteTest(Component):
 
     def init(self):
         self.speed = 4.0
-        self.direction = Vector2f(2.0, 4.0)
+        self.direction = Vec2f(2.0, 4.0)
         self.transform = self.get_component(Component.Transform2d)
         sprite_test = self.get_component(ComponentTest)
         if sprite_test:

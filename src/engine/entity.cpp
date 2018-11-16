@@ -79,10 +79,10 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
 
 void EntityManager::DestroyEntity(Entity entity)
 {
-    if(HasComponent(entity, ComponentType::PYCOMPONENT))
-    {
-        m_Engine.GetPythonEngine()->RemovePyComponentsFrom(entity);
-    }
+    for(auto& destroyObserver : m_DestroyObservers)
+	{
+    	destroyObserver->OnDestroy(entity);
+	}
 	m_MaskArray[entity-1] = INVALID_ENTITY;
 }
 

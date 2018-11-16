@@ -131,6 +131,7 @@ public:
 
     virtual void OnResize(size_t newSize) override{};
 protected:
+	int GetFreeComponentIndex() override {return -1;};
 	EntityManager* m_EntityManager = nullptr;
 	SoundBufferManager* m_SoundBufferManager = nullptr;
 };

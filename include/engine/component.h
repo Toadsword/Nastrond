@@ -236,6 +236,8 @@ class MultipleComponentManager :
       BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>{ newSize * MULTIPLE_COMPONENTS_MULTIPLIER};
       BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ newSize * MULTIPLE_COMPONENTS_MULTIPLIER };
     }
+protected:
+    virtual int GetFreeComponentIndex() = 0;
 
 };
 

@@ -49,8 +49,8 @@ static std::set<std::string> sndExtensionSet
 
 SoundManager::SoundManager(Engine& engine): MultipleComponentManager(engine)
 {
-	m_Components.resize(MAX_SOUND_CHANNELS);
-	m_ComponentsInfo.resize(MAX_SOUND_CHANNELS);
+	m_Components.resize(MAX_SOUND_CHANNELS-MUSIC_INSTANCES_NMB);
+	m_ComponentsInfo.resize(MAX_SOUND_CHANNELS-MUSIC_INSTANCES_NMB);
 }
 
 SoundManager::~SoundManager()
@@ -368,7 +368,7 @@ void sfge::editor::SoundInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Sound");
-	ImGui::LabelText("Sound Path", path.c_str());
+	ImGui::LabelText("Sound Path", "%s", path.c_str());
 	ImGui::InputInt("Sound Id", reinterpret_cast<int*>(&SoundBufferId));
 	
 }

@@ -35,6 +35,8 @@ namespace sfge
 using MusicId = unsigned int;
 const MusicId INVALID_MUSIC_ID = 0U;
 
+const size_t MUSIC_INSTANCES_NMB = 1;
+
 class MusicManager
 {
 public:

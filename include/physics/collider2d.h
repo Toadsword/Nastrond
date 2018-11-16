@@ -65,9 +65,9 @@ public:
 	void CreateComponent(json& componentJson, Entity entity)override;
 	void DestroyComponent(Entity entity) override;
   	ColliderData* GetComponentPtr(Entity entity) override;
-private:
+protected:
 
-  	int GetFreeComponent();
+  	int GetFreeComponentIndex() override;
 	Body2dManager* m_BodyManager;
 };
 

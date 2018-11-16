@@ -39,12 +39,20 @@ void editor::ColliderInfo::DrawOnInspector()
     {
       switch (data->fixture->GetShape()->m_type)
       {
-        case b2Shape::e_circle:
-          ImGui::LabelText("Shape", "Circle");
-          break;
+      	case b2Shape::e_circle:
+      		ImGui::LabelText("Shape", "Circle");
+      		break;
         case b2Shape::e_polygon:
-          ImGui::LabelText("Shape", "Polygon");
-          break;
+        	ImGui::LabelText("Shape", "Polygon");
+        	break;
+      	case b2Shape::e_chain:
+      		ImGui::LabelText("Shape", "Chain");
+			break;
+		case b2Shape::e_edge:
+			ImGui::LabelText("Shape", "Edge");
+		  	break;
+		  default:
+		  	break;
       }
     }
   }
@@ -118,7 +126,7 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 		{
 			fixtureDef.shape = shape.get();
 
-			auto index = GetFreeComponent();
+			auto index = GetFreeComponentIndex();
 			if(index != -1)
 			{
 				auto fixture = body.GetBody()->CreateFixture(&fixtureDef);
@@ -135,7 +143,7 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 		}
 	}
 }
-int ColliderManager::GetFreeComponent()
+int ColliderManager::GetFreeComponentIndex()
 {
 	for(int i = 0; i < m_Components.size();i++)
 	{

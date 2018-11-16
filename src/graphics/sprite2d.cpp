@@ -83,7 +83,7 @@ void editor::SpriteInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Sprite");
-	ImGui::LabelText("Texture Path", texturePath.c_str());
+	ImGui::LabelText("Texture Path", "%s", texturePath.c_str());
 	ImGui::InputInt("Texture Id", (int*)&textureId);
 	if(sprite)
 	{
