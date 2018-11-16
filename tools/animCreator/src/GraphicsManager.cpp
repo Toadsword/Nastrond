@@ -19,16 +19,15 @@ sf::RenderWindow* GraphicsManager::Init(Engine* engine)
 	m_window = window;
 	ImGui::SFML::Init(*m_window, true);
 
-	isInit = true;
+	m_isInit = true;
 
 	return window;
 }
 
 void GraphicsManager::Update(int dt)
 {
-	if (!isInit)
+	if (!m_isInit)
 		return;
-
 
 	sf::Event event;
 	while (m_window->pollEvent(event))
@@ -124,10 +123,33 @@ void GraphicsManager::DisplayFileWindow()
 	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("FileWindow", NULL, window_flags))
 	{
-		if (ImGui::Selectable("Coucou Je suis un seletable"))
-			std::cout << "Je suis select \n";
+		if(ImGui::Button(" + "))
+		{
+			std::cout << "Ajouter une texture.\n";
+			m_openModalAddText = true;
+		}
+
+		ImGui::Columns(2);
+		auto* loadedTextures = m_engine->GetTextureManager()->GetAllTextures();
+
+		for(auto* texture : *loadedTextures)
+		{
+			if (ImGui::Button((std::to_string(texture->id) + " : " + texture->fileName).c_str()))
+			{
+				std::cout << "Texture " << texture->id << " selected.\n";
+				m_selectedTexture = texture->id;
+			}
+			sf::FloatRect imgRect(texture->position.x, texture->position.y, texture->size.x, texture->size.y);
+			if(m_selectedTexture == texture-> id)
+				ImGui::Image(texture->texture, imgRect, sf::Color::White, sf::Color::Blue);
+			else
+				ImGui::Image(texture->texture, imgRect);
+			ImGui::NextColumn();
+		}
 	}
 	ImGui::End();
+
+	if (m_openModalAddText) OpenModalAddText();
 }
 
 void GraphicsManager::DisplayPreviewWindow()
@@ -179,8 +201,15 @@ void GraphicsManager::OpenModalSave()
 	ImGui::SetNextWindowSize(ImVec2(600.0f, 100.0f), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("Save Current...", &m_openModalSave, window_flags))
 	{
-		if(m_saveResult == FAILURE)	
+		if (m_saveResult == FAILURE)
+		{
 			ImGui::TextColored(ImVec4(1, 0, 0, 0.8), "Couldn't save animation");
+			if (ImGui::Button("Oh ok"))
+			{
+				m_saveResult = SUCCESS;
+				m_openModalSave = false;
+			}
+		}
 		if(m_saveResult == DO_REPLACE)
 		{
 			ImGui::TextColored(ImVec4(1, 0, 0, 0.8), "An animation already exists with this name... Do you want to replace it?");
@@ -199,22 +228,44 @@ void GraphicsManager::OpenModalSave()
 				m_openModalSave = false;
 			}
 		}
+	}
+	ImGui::End();
+}
 
-		//ImGui::InputText("Animation Name", m_labelNameFile, IM_ARRAYSIZE(m_labelNameFile));
-		/*
-		 *ImGui::Columns(2);
-		if (ImGui::Button("Save Animation"))
-		{
-			if(result == SUCCESS)
-				m_openModalSave = false;
-		}
+void GraphicsManager::OpenModalAddText()
+{
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_Modal;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoResize;
+
+	ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(600.0f, 130.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("Load new sprite...", &m_openModalAddText, window_flags))
+	{
+		//TODO : FILE SYSTEM
+		ImGui::InputText("FilePath (from C:)", m_inputNameNewFile, IM_ARRAYSIZE(m_inputNameNewFile));
+		ImGui::Columns(2);
+		ImGui::InputInt("Size X", &m_inputSizeX);
 		ImGui::NextColumn();
-		if (ImGui::Button("Close"))
+		ImGui::InputInt("Size Y", &m_inputSizeY);
+		ImGui::NextColumn();
+		ImGui::InputInt("Num Rows", &m_inputNumRows);
+		ImGui::NextColumn();
+		ImGui::InputInt("Num Columns", &m_inputNumCols);
+
+		if(ImGui::Button("Load"))
 		{
-			m_openModalSave = false;
+			bool result = m_engine->GetTextureManager()->LoadTexture(m_inputNameNewFile, m_inputSizeX, m_inputSizeY, m_inputNumRows, m_inputNumCols);
+			std::cout << "rows : " << m_inputNumRows << " ;\n" <<
+				"cols : " << m_inputNumCols << " ;\n" <<
+				"SizeX : " << m_inputSizeX << " ;\n" <<
+				"SizeY : " << m_inputSizeY << " ;\n";
+			if (result)
+				std::cout << "Loaded Textures !\n";
+			else
+				std::cout << "Failed to load textures..\n";				
 		}
-		if(result)
-		*/
 	}
 	ImGui::End();
 }

@@ -10,6 +10,7 @@ struct TextureInfos
 	short id;
 	sf::Texture texture;
 	std::string path;
+	std::string fileName;
 	sf::Vector2i position;
 	sf::Vector2i size;
 };

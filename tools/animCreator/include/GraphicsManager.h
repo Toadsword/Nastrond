@@ -26,12 +26,24 @@ public:
 	void DisplayEditorWindow();
 
 	void OpenModalSave();
+	void OpenModalAddText();
 
 	sf::RenderWindow* GetWindow();
 
 private:
-	bool isInit = false;
+	bool m_isInit = false;
+	// TextureSelected
+	short m_selectedTexture = -1;
 
+	// Modal Add Texture 
+	bool m_openModalAddText = false;
+	char m_inputNameNewFile[128] = "";
+	int m_inputNumCols = 0;
+	int m_inputNumRows = 0;
+	int m_inputSizeX = 0;
+	int m_inputSizeY = 0;
+
+	// Modal Save 
 	bool m_openModalSave = false; 
 	LogSaveError m_saveResult;
 

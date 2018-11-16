@@ -9,7 +9,7 @@ const std::string SAVE_FOLDER = "../data/animSaves/";
 struct TextureInfos;
 class AnimationManager;
 
-static enum LogSaveError {
+enum LogSaveError {
 	SUCCESS,
 	FAILURE,
 	DO_REPLACE,
