@@ -28,6 +28,8 @@ Project : AnimationTool for SFGE
 */
 
 #include <SFML/Graphics.hpp>
+#include <imgui.h>
+#include <imgui-SFML.h>
 
 #include <iostream>
 
@@ -37,7 +39,7 @@ void TextureManager::Init()
 {
 	m_lastId = 0;
 
-	//LoadTexture("D:/Images/Sprites/items.png", 24, 24, 6, 6);
+	LoadTexture("D:/Images/Sprites/Pepper_publish.png", 24, 32, 4, 3);
 }
 
 bool TextureManager::LoadTexture(std::string path, int sizeX, int sizeY)
@@ -94,5 +96,18 @@ TextureInfos* TextureManager::GetTextureFromId(short id)
 	}
 
 	return nullptr;
+}
+
+void TextureManager::DisplayTexture(short id, bool selected)
+{
+	auto texture = GetTextureFromId(id);
+	if(texture != nullptr)
+	{
+		sf::FloatRect imgRect(texture->position.x, texture->position.y, texture->size.x, texture->size.y);
+		if (selected)
+			ImGui::Image(texture->texture, imgRect, sf::Color::White, sf::Color::Blue);
+		else
+			ImGui::Image(texture->texture, imgRect);
+	}
 }
 

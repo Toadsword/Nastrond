@@ -53,7 +53,8 @@ public:
 	void DisplayMenuWindow();
 	void DisplayFileWindow();
 	void DisplayPreviewWindow();
-	void DisplayEditorWindow();
+	void DisplayGeneInformationsWindow();
+	void DisplayFrameInformationsWindow();
 
 	void OpenModalSave();
 	void OpenModalAddText();
@@ -62,8 +63,13 @@ public:
 
 private:
 	bool m_isInit = false;
+	
 	// TextureSelected
-	short m_selectedTexture = -1;
+	short m_selectedTextureId = -1;
+
+	// Preview options
+	int m_currentFrame = 0;
+	bool m_doPlayAnimation = false;
 
 	// Modal Add Texture 
 	bool m_openModalAddText = false;
@@ -75,7 +81,7 @@ private:
 
 	// Modal Save 
 	bool m_openModalSave = false; 
-	LogSaveError m_saveResult;
+	LogSaveError m_saveResult = SUCCESS;
 
 	Engine* m_engine = nullptr;
 	sf::RenderWindow* m_window = nullptr;

@@ -56,6 +56,8 @@ public:
 	std::vector<TextureInfos*>* GetAllTextures();
 	TextureInfos* GetTextureFromId(short id);
 
+	void DisplayTexture(short id, bool selected = false);
+
 private:
 	std::vector<TextureInfos*> m_textures;
 	short m_lastId = 0;

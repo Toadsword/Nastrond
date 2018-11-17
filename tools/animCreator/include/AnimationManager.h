@@ -40,24 +40,29 @@ public:
 
 	void Init();
 
+	int GetHighestKeynum();
+
+	bool AddKey();
 	bool AddKey(short key);
 	bool AddKey(short key, short TextureId);
+	bool RemoveKey();
 	bool RemoveKey(short key);
 	bool SetTextureOnKey(short key, short textureId);
 
-	void SetFPSSpeed(short newSpeed);
-	short GetFPSSpeed();
+	void SetSpeed(int newSpeed);
+	int GetSpeed();
 	void SetName(std::string newName);
 	std::string GetName();
 	void SetLooped(bool newLoop);
 	bool GetLooped();
 
 	std::map<const short, short>& GetAnim();
+	short GetTextureIdFromKeyframe(short key);
 
 private:
 	bool m_looped = false;
-	short m_animSpeed = 100;
-	std::string m_animName = "TestAnimMaggle";
+	int m_animSpeed = 100;
+	std::string m_animName = "NewAnimation";
 	std::map<const short, short> m_animation;
 };
 

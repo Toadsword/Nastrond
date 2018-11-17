@@ -30,10 +30,27 @@ Project : AnimationTool for SFGE
 #include <map>
 
 #include <AnimationManager.h>
+#include <iostream>
 
 void AnimationManager::Init()
 {
 	m_animation.clear();
+}
+
+int AnimationManager::GetHighestKeynum()
+{
+	int maxKey = -1;
+	for (auto element : m_animation)
+	{
+		if (maxKey < element.first)
+			maxKey = element.first;
+	}
+	return maxKey;
+}
+
+bool AnimationManager::AddKey()
+{
+	return AddKey(GetHighestKeynum() + 1, -1);
 }
 
 bool AnimationManager::AddKey(short key)
@@ -45,10 +62,18 @@ bool AnimationManager::AddKey(short key, short textureId)
 {
 	if (m_animation.find(key) == m_animation.end())
 	{
+		std::cout << "non : ";
 		m_animation.insert(std::make_pair(key, textureId));
 		return true;
 	}
-	return false;
+	std::cout << "oui : ";
+	m_animation[key] = textureId;
+	return true;
+}
+
+bool AnimationManager::RemoveKey()
+{
+	return RemoveKey(GetHighestKeynum());
 }
 
 bool AnimationManager::RemoveKey(short key)
@@ -71,13 +96,13 @@ bool AnimationManager::SetTextureOnKey(short key, short textureId)
 	return false;
 }
 
-void AnimationManager::SetFPSSpeed(short newSpeed)
+void AnimationManager::SetSpeed(int newSpeed)
 {
 	if (newSpeed > 0.0f)
 		m_animSpeed = newSpeed;
 }
 
-short AnimationManager::GetFPSSpeed()
+int AnimationManager::GetSpeed()
 {
 	return m_animSpeed;
 }
@@ -105,4 +130,13 @@ bool AnimationManager::GetLooped()
 std::map<const short, short>& AnimationManager::GetAnim()
 {
 	return m_animation;
+}
+
+short AnimationManager::GetTextureIdFromKeyframe(short key)
+{
+	if (m_animation.find(key) != m_animation.end())
+	{
+		return m_animation[key];
+	}
+	return -1;
 }

@@ -39,13 +39,20 @@ Project : AnimationTool for SFGE
 
 using json = nlohmann::json;
 
+char* Utilities::ConvertStringToArrayChar(std::string string, size_t size)
+{
+	char * result = new char[size];
+	strcpy(result, string.c_str());
+	return result;
+}
+
 LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
 {
 	json value;
 	std::string animName = anim->GetName();
 
 	//Creating base folder
-	if(!CreateDirectory("../data/", NULL) && !CreateDirectory(SAVE_FOLDER.c_str(), NULL))
+	if(!CreateDirectory(DATA_FOLDER.c_str(), NULL) && !CreateDirectory(SAVE_FOLDER.c_str(), NULL))
 	{
 		if (ERROR_ALREADY_EXISTS != GetLastError())
 		{
@@ -79,7 +86,7 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 		return DO_REPLACE;
 
 	// Json construction
-	value["frameFps"] = anim->GetFPSSpeed();
+	value["frameFps"] = anim->GetSpeed();
 	auto frames = anim->GetAnim();
 	short index = 0;
 
@@ -149,4 +156,33 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 LogSaveError Utilities::ExportToGif(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
 {
 	return SUCCESS;
+}
+
+
+std::string Utilities::GetClipboardText()
+{
+	// Try opening the clipboard
+	if (!OpenClipboard(nullptr))
+		return "";
+
+	// Get handle of clipboard object for ANSI text
+	HANDLE hData = GetClipboardData(CF_TEXT);
+	if (hData == nullptr)
+		return "";
+
+	// Lock the handle to get the actual text pointer
+	char * pszText = static_cast<char*>(GlobalLock(hData));
+	if (pszText == nullptr)
+		return "";
+
+	// Save text in a string class instance
+	std::string text(pszText);
+
+	// Release the lock
+	GlobalUnlock(hData);
+
+	// Release the clipboard
+	CloseClipboard();
+
+	return text;
 }

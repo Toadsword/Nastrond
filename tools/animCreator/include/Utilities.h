@@ -33,6 +33,7 @@ Project : AnimationTool for SFGE
 #include <vector>
 #include <map>
 
+const std::string DATA_FOLDER = "../data/";
 const std::string SAVE_FOLDER = "../data/animSaves/";
 
 struct TextureInfos;
@@ -50,6 +51,12 @@ public:
 
 	static LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
 	static LogSaveError ExportToGif(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
+
+	static char* Utilities::ConvertStringToArrayChar(std::string string, size_t size);
+
+	// Works only on Windows
+	// Function taken on by Mr.C64 : https://stackoverflow.com/questions/14762456/getclipboarddatacf-text
+	static std::string GetClipboardText();
 };
 
 #endif // ifndef UTILITIES_H
