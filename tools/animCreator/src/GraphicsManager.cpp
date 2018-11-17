@@ -36,8 +36,7 @@ Project : AnimationTool for SFGE
 
 #include <Engine.h>
 #include <GraphicsManager.h>
-#include <imgui_internal.h>
-#include "Utilities.h"
+#include <Utilities.h>
 
 sf::RenderWindow* GraphicsManager::Init(Engine* engine)
 {
@@ -71,7 +70,7 @@ void GraphicsManager::Update(int dt)
 		}
 	}
 
-	ImGui::SFML::Update(*m_window, sf::seconds(dt));
+	ImGui::SFML::Update(*m_window, sf::milliseconds(dt));
 
 	//ImGui::ShowDemoWindow();
 
@@ -79,7 +78,7 @@ void GraphicsManager::Update(int dt)
 	DisplayGeneInformationsWindow();
 	DisplayFrameInformationsWindow();
 	DisplayFileWindow();
-	DisplayPreviewWindow();
+	DisplayPreviewWindow(dt);
 	DisplayMenuWindow();
 	
 
@@ -182,7 +181,7 @@ void GraphicsManager::DisplayFileWindow()
 	if (m_openModalAddText) OpenModalAddText();
 }
 
-void GraphicsManager::DisplayPreviewWindow()
+void GraphicsManager::DisplayPreviewWindow(int dt)
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -195,23 +194,43 @@ void GraphicsManager::DisplayPreviewWindow()
 	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("PreviewWindow", NULL, window_flags))
 	{
-		auto idCurrentTexture = m_engine->GetAnimationManager()->GetTextureIdFromKeyframe(m_currentFrame);
+		auto animManager = m_engine->GetAnimationManager();
+		if (m_doPlayAnimation)
+		{
+			m_elapsedTimeSinceNewFrame += dt;
+			if(m_elapsedTimeSinceNewFrame >= animManager->GetSpeed())
+			{
+				m_elapsedTimeSinceNewFrame = 0;
+				m_currentFrame++;
+				if (m_currentFrame > animManager->GetHighestKeynum())
+					m_currentFrame = 0;
+			}
+		}
+
+
+		auto idCurrentTexture = animManager->GetTextureIdFromKeyframe(m_currentFrame);
 		if(idCurrentTexture > -1)
 		{
 			m_engine->GetTextureManager()->DisplayTexture(idCurrentTexture);
 		}
 
 		ImGui::AlignTextToFramePadding();
-		if(ImGui::Button("Play", ImVec2(40,20)))
+		if(!m_doPlayAnimation)
 		{
-			std::cout << "Play animation\n";
-			m_doPlayAnimation = true;
-		} 
-		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2(40, 20)))
+			if(ImGui::Button("Play", ImVec2(40,20)))
+			{
+				std::cout << "Play animation\n";
+				m_doPlayAnimation = true;
+				m_elapsedTimeSinceNewFrame = 0;
+			} 
+		}
+		else
 		{
-			std::cout << "Pause animation\n";
-			m_doPlayAnimation = false;
+			if (ImGui::Button("Pause", ImVec2(40, 20)))
+			{
+				std::cout << "Pause animation\n";
+				m_doPlayAnimation = false;
+			}
 		}
 		ImGui::SameLine();
 

@@ -32,6 +32,7 @@ Project : AnimationTool for SFGE
 #include <AnimationManager.h>
 
 #include <Engine.h>
+#include <iostream>
 
 void Engine::Init()
 {
@@ -59,10 +60,9 @@ void Engine::Start()
 	while(isRunning && m_window != nullptr)
 	{
 		int dt = clock.getElapsedTime().asMilliseconds();
+		clock.restart();
 
 		Update(dt);
-
-		clock.restart();
 	}
 	StopEngine();
 }

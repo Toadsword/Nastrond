@@ -62,11 +62,9 @@ bool AnimationManager::AddKey(short key, short textureId)
 {
 	if (m_animation.find(key) == m_animation.end())
 	{
-		std::cout << "non : ";
 		m_animation.insert(std::make_pair(key, textureId));
 		return true;
 	}
-	std::cout << "oui : ";
 	m_animation[key] = textureId;
 	return true;
 }
@@ -91,6 +89,18 @@ bool AnimationManager::SetTextureOnKey(short key, short textureId)
 	if (m_animation.find(key) != m_animation.end())
 	{
 		m_animation[key] = textureId;
+		return true;
+	}
+	return false;
+}
+
+bool AnimationManager::SwapKeyTextures(short first, short second)
+{
+	if (m_animation.find(first) != m_animation.end() && m_animation.find(second) != m_animation.end())
+	{
+		short tmp = m_animation[first];
+		m_animation[first] = m_animation[second];
+		m_animation[second] = tmp;
 		return true;
 	}
 	return false;

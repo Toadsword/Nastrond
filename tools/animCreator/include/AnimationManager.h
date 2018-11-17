@@ -48,6 +48,7 @@ public:
 	bool RemoveKey();
 	bool RemoveKey(short key);
 	bool SetTextureOnKey(short key, short textureId);
+	bool SwapKeyTextures(short first, short second);
 
 	void SetSpeed(int newSpeed);
 	int GetSpeed();

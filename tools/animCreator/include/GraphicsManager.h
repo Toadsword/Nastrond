@@ -52,7 +52,7 @@ public:
 
 	void DisplayMenuWindow();
 	void DisplayFileWindow();
-	void DisplayPreviewWindow();
+	void DisplayPreviewWindow(int dt);
 	void DisplayGeneInformationsWindow();
 	void DisplayFrameInformationsWindow();
 
@@ -70,6 +70,7 @@ private:
 	// Preview options
 	int m_currentFrame = 0;
 	bool m_doPlayAnimation = false;
+	int m_elapsedTimeSinceNewFrame = 0;
 
 	// Modal Add Texture 
 	bool m_openModalAddText = false;
