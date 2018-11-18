@@ -33,6 +33,10 @@ message(STATUS "List of CXX features known to CMake")
 		message("  ${_f}")
 endforeach()
 
+if(WIN32)
+add_compile_definitions(NOMINMAX)
+endif(WIN32)
+
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -141,8 +145,8 @@ set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compilin
 set(PYBIND11_DIR ${EXTERNAL_DIR}/pybind11/)
 add_subdirectory(${PYBIND11_DIR})
 include_directories(${PYBIND11_DIR})
-LIST(APPEND SFGE_LIBRARIES
-  pybind11::embed)
+LIST(APPEND SFGE_LIBRARIES pybind11::embed)
+
 
 if(APPLE)
 	set(boost_min_ver 1.50.0)

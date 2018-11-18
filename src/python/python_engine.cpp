@@ -22,12 +22,15 @@
  SOFTWARE.
  */
 
+
 #ifdef WIN32
 #define _USE_MATH_DEFINES
+#include <corecrt_math_defines.h>
 #endif
+
+//#include <cmath>
 #include <sstream>
 #include <list>
-#include <cmath>
 
 #include <imgui.h>
 #include <pybind11/operators.h>
@@ -255,8 +258,8 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def(py::init<float, float>())
 		.def("update", &Timer::Update)
 		.def("reset", &Timer::Reset)
-		.def("get_current", &Timer::GetCurrent)
-		.def("get_current_time", &Timer::GetCurrentTime)
+		.def("get_current", &Timer::GetCurrentRatio)
+		.def("get_current_time", &Timer::GetTimeFromStart)
 		.def("is_over", &Timer::IsOver)
 		.def_property("period", &Timer::GetPeriod, &Timer::SetPeriod)
 		.def("__repr__", [](const Timer &timer)
