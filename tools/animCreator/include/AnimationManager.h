@@ -42,9 +42,9 @@ public:
 
 	int GetHighestKeynum();
 
-	bool AddKey();
-	bool AddKey(short key);
-	bool AddKey(short key, short TextureId);
+	bool AddOrInsertKey();
+	bool AddOrInsertKey(short key, short textureId = -1);
+	void AddNewKey(short key, short textureId = -1);
 	bool RemoveKey();
 	bool RemoveKey(short key);
 	bool SetTextureOnKey(short key, short textureId);

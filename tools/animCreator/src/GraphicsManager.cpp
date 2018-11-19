@@ -86,7 +86,7 @@ void GraphicsManager::Update(int dt)
 			if (event.key.control && event.key.code == sf::Keyboard::Key::L)
 				m_engine->GetAnimationManager()->SetLooped(!m_engine->GetAnimationManager()->GetLooped());
 			if (event.key.control && event.key.code == sf::Keyboard::Key::Add)
-				m_engine->GetAnimationManager()->AddKey();
+				m_engine->GetAnimationManager()->AddOrInsertKey();
 			if (event.key.control && event.key.code == sf::Keyboard::Key::Subtract)
 				m_engine->GetAnimationManager()->RemoveKey();
 			break;
@@ -199,9 +199,9 @@ void GraphicsManager::DisplayFileWindow()
 				if (m_doubleClicked)
 				{
 					if(m_currentFrame == -1)
-						m_engine->GetAnimationManager()->AddKey(m_engine->GetAnimationManager()->GetHighestKeynum(), texture->id);
+						m_engine->GetAnimationManager()->AddOrInsertKey(m_engine->GetAnimationManager()->GetHighestKeynum(), texture->id);
 					else
-						m_engine->GetAnimationManager()->AddKey(m_currentFrame, texture->id);
+						m_engine->GetAnimationManager()->AddOrInsertKey(m_currentFrame, texture->id);
 				}
 			}
 			if (ImGui::IsItemHovered())
@@ -220,7 +220,7 @@ void GraphicsManager::DisplayFileWindow()
 			{
 				auto animManager = m_engine->GetAnimationManager();
 				std::cout << animManager->GetHighestKeynum() << "\n";
-				animManager->AddKey(animManager->GetHighestKeynum() + 1, texture->id);
+				animManager->AddOrInsertKey(animManager->GetHighestKeynum() + 1, texture->id);
 			}
 			if (ImGui::IsItemHovered())
 			{
@@ -308,7 +308,7 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 		//Frame at the beginning
 		if (ImGui::Button(" <<+ "))
 		{
-			anim->AddKey();
+			anim->AddOrInsertKey();
 			m_currentFrame = 0;
 		}
 		if (ImGui::IsItemHovered())
@@ -336,7 +336,7 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 		//Frame before/after
 		if (ImGui::Button(" <+ "))
 		{
-			anim->AddKey(m_currentFrame - 1);
+			anim->AddNewKey(m_currentFrame - 1);
 			m_currentFrame--;
 		}
 		if (ImGui::IsItemHovered())
@@ -385,7 +385,7 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 
 		if (ImGui::Button(" +> "))
 		{
-			anim->AddKey(m_currentFrame + 1);
+			anim->AddNewKey(m_currentFrame + 1);
 			m_currentFrame++;
 		}
 		if (ImGui::IsItemHovered())
@@ -417,7 +417,7 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 		ImGui::SameLine();
 		if (ImGui::Button(" +>> "))
 		{
-			anim->AddKey();
+			anim->AddOrInsertKey();
 			m_currentFrame = anim->GetHighestKeynum();
 		}
 		if (ImGui::IsItemHovered())
@@ -504,7 +504,7 @@ void GraphicsManager::DisplayFrameInformationsWindow()
 		if(ImGui::Button("Assign selected texture") && m_selectedTextureId != -1)
 		{
 			std::cout << "Assigned texture " << m_selectedTextureId << " to frame " << m_currentFrame << ".\n";
-			animManager->AddKey(m_currentFrame, m_selectedTextureId);
+			animManager->AddOrInsertKey(m_currentFrame, m_selectedTextureId);
 		}
 		if (ImGui::IsItemHovered())
 		{

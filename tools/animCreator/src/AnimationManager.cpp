@@ -35,7 +35,7 @@ Project : AnimationTool for SFGE
 void AnimationManager::Init()
 {
 	m_animation.clear();
-	AddKey(0);
+	AddOrInsertKey(0);
 }
 
 int AnimationManager::GetHighestKeynum()
@@ -49,17 +49,25 @@ int AnimationManager::GetHighestKeynum()
 	return maxKey;
 }
 
-bool AnimationManager::AddKey()
+void AnimationManager::AddNewKey(short key, short textureId)
 {
-	return AddKey(GetHighestKeynum() + 1, -1);
+	//Add a key at the end
+	AddOrInsertKey();
+
+	//Move to the right every frames until key is reached
+	for(int i = GetHighestKeynum(); i != key; i--)
+	{
+		SwapKeyTextures(i, i - 1);
+	}
+	//Assign it
+	m_animation[key] = textureId;
 }
 
-bool AnimationManager::AddKey(short key)
+bool AnimationManager::AddOrInsertKey()
 {
-	return AddKey(key, -1);
+	return AddOrInsertKey(GetHighestKeynum() + 1, -1);
 }
-
-bool AnimationManager::AddKey(short key, short textureId)
+bool AnimationManager::AddOrInsertKey(short key, short textureId)
 {
 	if (m_animation.find(key) == m_animation.end())
 	{
@@ -90,7 +98,7 @@ bool AnimationManager::RemoveKey(short key)
 		m_animation.erase(GetHighestKeynum());
 
 		if (m_animation.empty())
-			AddKey(0);
+			AddOrInsertKey(0);
 		return true;
 	}
 	return false;

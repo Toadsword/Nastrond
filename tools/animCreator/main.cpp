@@ -44,8 +44,8 @@ int main()
 
 	AnimationManager anim;
 	anim.SetFPSSpeed(20);
-	anim.AddKey(1, textu1->id);
-	anim.AddKey(10, textu2->id);
+	anim.AddOrInsertKey(1, textu1->id);
+	anim.AddOrInsertKey(10, textu2->id);
 
 	Utilities::ExportToJson(anim, textureMan.GetAllTextures(), "AnimTest");
 	return 0;
