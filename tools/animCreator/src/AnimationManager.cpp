@@ -78,7 +78,15 @@ bool AnimationManager::RemoveKey(short key)
 {
 	if (m_animation.find(key) != m_animation.end())
 	{
-		m_animation.erase(key);
+		for(auto frame : m_animation)
+		{
+			if(frame.first >= key && frame.first < GetHighestKeynum())
+			{
+				SwapKeyTextures(frame.first, frame.first + 1);
+			}
+		}
+
+		m_animation.erase(GetHighestKeynum());
 		return true;
 	}
 	return false;

@@ -67,6 +67,19 @@ void GraphicsManager::Update(int dt)
 		case sf::Event::Closed:
 			m_engine->ExitApplication();
 			return;
+
+		//Shortcuts
+		case sf::Event::KeyPressed:
+			if(event.key.control && event.key.code == sf::Keyboard::Key::S)
+			{
+				m_saveResult = Utilities::ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures());
+				m_openModalSave = m_saveResult != SUCCESS;
+			}
+			if(event.key.control && event.key.code == sf::Keyboard::Key::O)
+			{
+				m_openModalAddText = true;
+			}
+			break;
 		}
 	}
 
@@ -116,9 +129,9 @@ void GraphicsManager::DisplayMenuWindow()
 				{
 					std::cout << "New select \n";
 				}
-				if (ImGui::MenuItem("Open new file", "Ctrl+O")) 
+				if (ImGui::MenuItem("Open new sprite", "Ctrl+O")) 
 				{
-					std::cout << "Open select \n";
+					m_openModalAddText = true;
 				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
@@ -153,11 +166,11 @@ void GraphicsManager::DisplayFileWindow()
 	if (ImGui::Begin("FileWindow", NULL, window_flags))
 	{
 		ImGui::Columns(2);
-		if(ImGui::Button(" + "))
+		if(ImGui::Button("Add a texture"))
 		{
-			std::cout << "Ajouter une texture.\n";
 			m_openModalAddText = true;
 		}
+
 		ImGui::NextColumn();
 		ImGui::Text("All Sprites");
 
@@ -166,10 +179,26 @@ void GraphicsManager::DisplayFileWindow()
 
 		for(auto* texture : *loadedTextures)
 		{
-			if (ImGui::Button((std::to_string(texture->id) + " : " + texture->fileName).c_str()))
+			if (ImGui::Button((std::to_string(texture->id) + " : " + texture->fileName).c_str(), ImVec2(160, 0)))
 			{
 				std::cout << "Texture " << texture->id << " selected.\n";
 				m_selectedTextureId = texture->id;
+			}
+			ImGui::SameLine();
+			if(ImGui::Button((" + ##TextureId" + std::to_string(texture->id)).c_str(), ImVec2(35, 0)))
+			{
+				auto animManager = m_engine->GetAnimationManager();
+				std::cout << animManager->GetHighestKeynum() << "\n";
+				animManager->AddKey(animManager->GetHighestKeynum() + 1, texture->id);
+			}
+			if (ImGui::IsItemHovered())
+			{
+				ImVec2 m = ImGui::GetIO().MousePos;
+
+				ImGui::SetNextWindowPos(ImVec2(m.x + 10, m.y + 10));
+				ImGui::Begin("2", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+				ImGui::Text("Add a frame with this texture");
+				ImGui::End();
 			}
 
 			m_engine->GetTextureManager()->DisplayTexture(texture->id, m_selectedTextureId == texture->id);
@@ -203,7 +232,11 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 				m_elapsedTimeSinceNewFrame = 0;
 				m_currentFrame++;
 				if (m_currentFrame > animManager->GetHighestKeynum())
+				{
 					m_currentFrame = 0;
+					if (!animManager->GetLooped())
+						m_doPlayAnimation = false;
+				}
 			}
 		}
 
@@ -286,7 +319,11 @@ void GraphicsManager::DisplayGeneInformationsWindow()
 
 		ImGui::SameLine();
 		if (ImGui::Button(" - "))
+		{
 			anim->RemoveKey();
+			if (m_currentFrame > anim->GetHighestKeynum())
+				m_currentFrame = anim->GetHighestKeynum();
+		}
 
 		ImGui::SameLine();
 		if(ImGui::Button(" + "))
@@ -308,13 +345,30 @@ void GraphicsManager::DisplayFrameInformationsWindow()
 	ImGui::SetNextWindowSize(ImVec2(450, 300.0f), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("FrameInfoWindow", NULL, window_flags))
 	{
+		auto animManager = m_engine->GetAnimationManager();
 		if(ImGui::Button("Assign selected texture"))
 		{
 			std::cout << "Assigned texture " << m_selectedTextureId << " to frame " << m_currentFrame << ".\n";
-			m_engine->GetAnimationManager()->AddKey(m_currentFrame, m_selectedTextureId);
+			animManager->AddKey(m_currentFrame, m_selectedTextureId);
+		}
+		if (ImGui::IsItemHovered())
+		{
+			ImVec2 m = ImGui::GetIO().MousePos;
+
+			ImGui::SetNextWindowPos(ImVec2(m.x + 10, m.y + 10));
+			ImGui::Begin("2", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+			m_engine->GetTextureManager()->DisplayTexture(m_selectedTextureId);
+			ImGui::End();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Remove current frame"))
+		{
+			animManager->RemoveKey(m_currentFrame);
+			if (m_currentFrame > animManager->GetHighestKeynum())
+				m_currentFrame = animManager->GetHighestKeynum();
 		}
 
-		short currentTextId = m_engine->GetAnimationManager()->GetTextureIdFromKeyframe(m_currentFrame);
+		short currentTextId = animManager->GetTextureIdFromKeyframe(m_currentFrame);
 		TextureInfos* currFrame = m_engine->GetTextureManager()->GetTextureFromId(currentTextId);
 		if(currFrame == nullptr)
 		{

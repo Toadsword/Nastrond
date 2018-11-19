@@ -74,7 +74,7 @@ private:
 
 	// Modal Add Texture 
 	bool m_openModalAddText = false;
-	char m_inputNameNewFile[128] = "";
+	char m_inputNameNewFile[128] = "C:/Users/myUser/Images/default.png";
 	int m_inputNumCols = 0;
 	int m_inputNumRows = 0;
 	int m_inputSizeX = 0;
