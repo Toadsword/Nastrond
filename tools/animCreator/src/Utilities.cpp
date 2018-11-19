@@ -56,22 +56,14 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 	{
 		if (ERROR_ALREADY_EXISTS != GetLastError())
 		{
-			//std::cout << "COULDN'T CREATE BASE FOLDER : error(" << GetLastError() << ")\n";
-			return FAILURE;
+			return SAVE_FAILURE;
 		}
 	}
 
 	if (!CreateDirectory((SAVE_FOLDER + animName + "/").c_str(), NULL))
 	{
-		if(ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			//std::cout << "FOLDER '"+ SAVE_FOLDER + animName +"/' ALREADY EXISTS. \n";
-		}
-		else
-		{
-			//std::cout << "COULDN'T CREATE FOLDER '" + SAVE_FOLDER + animName + "/' : error(" << GetLastError()  << ")\n";
-			return FAILURE;
-		}
+		if(ERROR_ALREADY_EXISTS != GetLastError())
+			return SAVE_FAILURE;
 	}
 
 	//Check if file already exists. If so, we ask if the user wants to replace it
@@ -83,7 +75,7 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 	doAnimExists.close();
 
 	if(confirmedReplacement)
-		return DO_REPLACE;
+		return SAVE_DO_REPLACE;
 
 	// Json construction
 	value["frameFps"] = anim->GetSpeed();
@@ -150,12 +142,12 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 
 	std::cout << "Animation saved in "<< SAVE_FOLDER << animName << "/ \n";
 
-	return SUCCESS;
+	return SAVE_SUCCESS;
 }
 
 LogSaveError Utilities::ExportToGif(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
 {
-	return SUCCESS;
+	return SAVE_SUCCESS;
 }
 
 

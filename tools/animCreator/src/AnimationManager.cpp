@@ -35,11 +35,12 @@ Project : AnimationTool for SFGE
 void AnimationManager::Init()
 {
 	m_animation.clear();
+	AddKey(0);
 }
 
 int AnimationManager::GetHighestKeynum()
 {
-	int maxKey = -1;
+	int maxKey = 0;
 	for (auto element : m_animation)
 	{
 		if (maxKey < element.first)
@@ -87,6 +88,9 @@ bool AnimationManager::RemoveKey(short key)
 		}
 
 		m_animation.erase(GetHighestKeynum());
+
+		if (m_animation.empty())
+			AddKey(0);
 		return true;
 	}
 	return false;

@@ -40,9 +40,9 @@ struct TextureInfos;
 class AnimationManager;
 
 enum LogSaveError {
-	SUCCESS,
-	FAILURE,
-	DO_REPLACE,
+	SAVE_SUCCESS,
+	SAVE_FAILURE,
+	SAVE_DO_REPLACE,
 };
 
 class Utilities

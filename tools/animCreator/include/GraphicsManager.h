@@ -34,11 +34,14 @@ Project : AnimationTool for SFGE
 #include <SFML\Graphics.hpp>
 
 #include <Utilities.h>
+#include <TextureManager.h>
 
 const int WINDOW_WIDTH = 900;
 const int WINDOW_HEIGHT = 600;
 const int MAX_FRAMERATE = 60;
 const std::string WINDOW_NAME = "AnimCreator";
+
+const int TIME_TO_DOUBLE_CLICK = 500;
 
 class Engine;
 class GraphicsManager{
@@ -63,7 +66,11 @@ public:
 
 private:
 	bool m_isInit = false;
-	
+
+	//Input control
+	int m_timeSinceLastClick = 0;
+	bool m_doubleClicked = false;
+
 	// TextureSelected
 	short m_selectedTextureId = -1;
 
@@ -79,10 +86,14 @@ private:
 	int m_inputNumRows = 0;
 	int m_inputSizeX = 0;
 	int m_inputSizeY = 0;
+	int m_inputStartPosX = 0;
+	int m_inputStartPosY = 0;
+	int m_lastIdBeforeNewTextLoad = 0;
+	LoadFileResult m_fileImportResult = LOAD_NONE;
 
 	// Modal Save 
 	bool m_openModalSave = false; 
-	LogSaveError m_saveResult = SUCCESS;
+	LogSaveError m_saveResult = SAVE_SUCCESS;
 
 	Engine* m_engine = nullptr;
 	sf::RenderWindow* m_window = nullptr;

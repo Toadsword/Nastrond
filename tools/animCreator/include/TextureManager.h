@@ -34,6 +34,13 @@ Project : AnimationTool for SFGE
 
 #include <vector>
 
+enum LoadFileResult
+{
+	LOAD_NONE,
+	LOAD_SUCCESS,
+	LOAD_FAILURE,
+};
+
 struct TextureInfos
 {
 	short id;
@@ -51,10 +58,12 @@ public:
 
 	void Init();
 
-	bool LoadTexture(std::string path, int sizeX, int sizeY);
-	bool LoadTexture(std::string path, int rowWidth, int colWidth, int numRow, int numCol);
+	LoadFileResult LoadTexture(std::string path, int sizeX = 0, int sizeY = 0, int numRow = 0, int numCol = 0, int startPosX = 0, int startPosY = 0);
 	std::vector<TextureInfos*>* GetAllTextures();
+	bool RemoveTexture(short id);
 	TextureInfos* GetTextureFromId(short id);
+
+	short GetLastId();
 
 	void DisplayTexture(short id, bool selected = false);
 

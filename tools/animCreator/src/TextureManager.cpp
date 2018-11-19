@@ -34,6 +34,7 @@ Project : AnimationTool for SFGE
 #include <iostream>
 
 #include <TextureManager.h>
+#include <json.hpp>
 
 void TextureManager::Init()
 {
@@ -42,12 +43,7 @@ void TextureManager::Init()
 	LoadTexture("D:/Images/Sprites/Pepper_publish.png", 24, 32, 4, 3);
 }
 
-bool TextureManager::LoadTexture(std::string path, int sizeX, int sizeY)
-{
-	return LoadTexture(path, sizeX, sizeY, 0, 0);
-}
-
-bool TextureManager::LoadTexture(std::string path, int sizeX, int sizeY, int numRow, int numCol)
+LoadFileResult TextureManager::LoadTexture(std::string path, int sizeX, int sizeY, int numRow, int numCol, int startPosX, int startPosY)
 {
 	sf::Texture newTexture;
 	if (newTexture.loadFromFile(path))
@@ -60,31 +56,49 @@ bool TextureManager::LoadTexture(std::string path, int sizeX, int sizeY, int num
 				newTextureInfo->texture = newTexture;
 				newTextureInfo->path = path;
 
-				//Get the file name.
 				std::string fileName = path;
-				std::size_t found = fileName.find("/");
+				char slash = '/';
+				if(!(fileName.find(slash) < fileName.length()))
+					slash = '\\';
+
+				//Get the file name.
+				std::size_t found = fileName.find(slash);
 				while (found < fileName.length())
 				{
 					fileName = fileName.substr(found + 1);
-					found = fileName.find("/");
+					found = fileName.find(slash);
 				}
 				newTextureInfo->fileName = fileName;
 
-				newTextureInfo->position = sf::Vector2i(i*sizeX, j*sizeY);
+				newTextureInfo->position = sf::Vector2i(startPosX + i*sizeX, startPosY + j*sizeY);
 				newTextureInfo->size = sf::Vector2i(sizeX, sizeY);;
 				newTextureInfo->id = m_lastId;
 				m_lastId++;
 				m_textures.push_back(newTextureInfo);
 			}
-		}		
-		return true;
+		}
+		return LOAD_SUCCESS;
 	}
-	return false;
+	return LOAD_FAILURE;
 }
+
 
 std::vector<TextureInfos*>* TextureManager::GetAllTextures()
 {
 	return &m_textures;
+}
+
+bool TextureManager::RemoveTexture(short id)
+{
+	for (auto iter = m_textures.begin(); iter != m_textures.end(); iter++)
+	{
+		if ((*iter)->id == id)
+		{
+			m_textures.erase(iter);
+			return true;
+		}
+	}
+	return false;
 }
 
 TextureInfos* TextureManager::GetTextureFromId(short id)
@@ -96,6 +110,11 @@ TextureInfos* TextureManager::GetTextureFromId(short id)
 	}
 
 	return nullptr;
+}
+
+short TextureManager::GetLastId()
+{
+	return m_lastId;
 }
 
 void TextureManager::DisplayTexture(short id, bool selected)
