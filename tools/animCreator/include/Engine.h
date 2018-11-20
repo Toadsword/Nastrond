@@ -37,28 +37,77 @@ Project : AnimationTool for SFGE
 #include <TextureManager.h>
 #include <GraphicsManager.h>
 
+/**
+ * \brief Engine : Core of the application, manages all the managers.
+ * Creates, Destroys managers and deals with the global function of the application.
+ */
 class Engine
 {
 public:
+	/**
+	 * \brief Constructor of the Engine.
+	 */
 	Engine::Engine() {};
 
+	/**
+	 * \brief Initializer of the Engine. This function must be called before running, at it creates every Managers the tool need to function.
+	 */
 	void Init();
+	/**
+	 * \brief Start the Engine. Once started, it will repeatedly call Update().
+	 */
 	void Start();
+	/**
+	 * \brief Updates the Engine state every frames.
+	 * \param dt Time passed between the last frame and the current one.
+	 */
 	void Update(int dt);
+	/**
+	 * \brief Called when the application is meant to be closed. Waits until the end of the current frame before closing.
+	 */
 	void ExitApplication();
 
+	/**
+	 * \brief Getter of the Graphics Manager.
+	 * \return The Graphics Manager.
+	 */
 	GraphicsManager* GetGraphicsManager();
+	/**
+	 * \brief Getter of the Texture Manager.
+	 * \return The Texture Manager.
+	 */
 	TextureManager* GetTextureManager();
+	/**
+	 * \brief Getter of the Animation Manager.
+	 * \return The Animation Manager.
+	 */
 	AnimationManager* GetAnimationManager();
 
 private:
+	/**
+	 * \brief Stops the Engine, destroys all the instanced objects and managers.
+	 */
 	void StopEngine();
-
+	/**
+	 * \brief Pointer to the Graphics Manager of the Engine.
+	 */
 	GraphicsManager* m_graphicsManager;
+	/**
+	 * \brief Pointer to the Texture Manager of the Engine.
+	 */
 	TextureManager* m_textureManager;
+	/**
+	 * \brief Pointer to the Animation Manager of the Engine.
+	 */
 	AnimationManager* m_animationManager;
+	/**
+	 * \brief Pointer to the graphics windows of the Engine.
+	 */
 	sf::RenderWindow* m_window = nullptr;
 
+	/**
+	 * \brief Current running state. Is set to "true" once the engine is initialized.
+	 */
 	bool isRunning = false;
 };
 

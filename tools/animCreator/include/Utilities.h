@@ -39,24 +39,37 @@ const std::string SAVE_FOLDER = "../data/animSaves/";
 struct TextureInfos;
 class AnimationManager;
 
+/**
+ * \brief Enum used to reference the state of last saved animation in the application.
+ */
 enum LogSaveError {
 	SAVE_SUCCESS,
 	SAVE_FAILURE,
 	SAVE_DO_REPLACE,
 };
 
+/**
+ * \brief Utility class, composed with static functions.
+ */
 class Utilities
 {
 public:
-
+	/**
+	 * \brief Export the current animation to Json, ready for SFGE.
+	 * \param anim AnimationManager that stores all the informations
+	 * \param textures All the textures loaded in the application.
+	 * \param confirmedReplacement True if the application ignores the existent files, false otherwise.
+	 * \return The state of the exportation.
+	 */
 	static LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
-	static LogSaveError ExportToGif(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
 
-	static char* Utilities::ConvertStringToArrayChar(std::string string, size_t size);
-
-	// Works only on Windows
-	// Function taken on by Mr.C64 : https://stackoverflow.com/questions/14762456/getclipboarddatacf-text
-	static std::string GetClipboardText();
+	/**
+	 * \brief Convert current string into an array of char.
+	 * \param string String to convert.
+	 * \param size Size of the array of char.
+	 * \return Pointer to the array of char.
+	 */
+	static char* ConvertStringToArrayChar(std::string string, size_t size);
 };
 
 #endif // ifndef UTILITIES_H

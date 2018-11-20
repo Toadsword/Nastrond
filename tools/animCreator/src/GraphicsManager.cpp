@@ -79,12 +79,12 @@ void GraphicsManager::Update(int dt)
 			}
 			if(event.key.control && event.key.code == sf::Keyboard::Key::O)
 			{
-				m_openModalAddText = true;
+				m_openModalAddTexture = true;
 			}
 			if (event.key.control && event.key.code == sf::Keyboard::Key::P)
 				m_doPlayAnimation = !m_doPlayAnimation;
 			if (event.key.control && event.key.code == sf::Keyboard::Key::L)
-				m_engine->GetAnimationManager()->SetLooped(!m_engine->GetAnimationManager()->GetLooped());
+				m_engine->GetAnimationManager()->SetIsLooped(!m_engine->GetAnimationManager()->GetIsLooped());
 			if (event.key.control && event.key.code == sf::Keyboard::Key::Add)
 				m_engine->GetAnimationManager()->AddOrInsertKey();
 			if (event.key.control && event.key.code == sf::Keyboard::Key::Subtract)
@@ -104,8 +104,7 @@ void GraphicsManager::Update(int dt)
 
 	//ImGui::ShowDemoWindow();
 	
-	DisplayGeneInformationsWindow();
-	DisplayFrameInformationsWindow();
+	DisplayAnimationInformationsWindow();
 	DisplayFileWindow();
 	DisplayPreviewWindow(dt);
 	DisplayMenuWindow();
@@ -146,7 +145,7 @@ void GraphicsManager::DisplayMenuWindow()
 				}
 				if (ImGui::MenuItem("Open new sprite", "Ctrl+O")) 
 				{
-					m_openModalAddText = true;
+					m_openModalAddTexture = true;
 				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
@@ -177,29 +176,35 @@ void GraphicsManager::DisplayFileWindow()
 	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
 	ImGui::SetNextWindowPos(ImVec2(0.0f, 20.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(450.0f, 580.0f), ImGuiCond_FirstUseEver);
 	if (ImGui::Begin("FileWindow", NULL, window_flags))
 	{
 		ImGui::Columns(2);
 		if(ImGui::Button("Add a texture"))
-			m_openModalAddText = true;
+			m_openModalAddTexture = true;
 
 		ImGui::NextColumn();
 		ImGui::Text("All Sprites");
 
 		ImGui::NextColumn();
 		auto* loadedTextures = m_engine->GetTextureManager()->GetAllTextures();
-
+		if(loadedTextures->empty())
+		{
+			ImGui::Columns(1);
+			ImGui::Text("There are currently no sprites in here...");
+			ImGui::Text("Begin by adding some sprites ! (Button above)");
+			ImGui::Columns(2);
+		}
 		for(auto* texture : *loadedTextures)
 		{
 			if (ImGui::Button((std::to_string(texture->id) + " : " + texture->fileName).c_str(), ImVec2(125, 0)))
 			{
-				std::cout << "Texture " << texture->id << " selected.\n";
+				//std::cout << "Texture " << texture->id << " selected.\n";
 				m_selectedTextureId = texture->id;
 				if (m_doubleClicked)
 				{
 					if(m_currentFrame == -1)
-						m_engine->GetAnimationManager()->AddOrInsertKey(m_engine->GetAnimationManager()->GetHighestKeynum(), texture->id);
+						m_engine->GetAnimationManager()->AddOrInsertKey(m_engine->GetAnimationManager()->GetHighestKeyNum(), texture->id);
 					else
 						m_engine->GetAnimationManager()->AddOrInsertKey(m_currentFrame, texture->id);
 				}
@@ -219,8 +224,7 @@ void GraphicsManager::DisplayFileWindow()
 			if(ImGui::Button((" + ##TextureId" + std::to_string(texture->id)).c_str(), ImVec2(35, 0)))
 			{
 				auto animManager = m_engine->GetAnimationManager();
-				std::cout << animManager->GetHighestKeynum() << "\n";
-				animManager->AddOrInsertKey(animManager->GetHighestKeynum() + 1, texture->id);
+				animManager->AddOrInsertKey(animManager->GetHighestKeyNum() + 1, texture->id);
 			}
 			if (ImGui::IsItemHovered())
 			{
@@ -255,7 +259,7 @@ void GraphicsManager::DisplayFileWindow()
 	}
 	ImGui::End();
 
-	if (m_openModalAddText) OpenModalAddText();
+	if (m_openModalAddTexture) OpenModalAddTexture();
 }
 
 void GraphicsManager::DisplayPreviewWindow(int dt)
@@ -279,36 +283,21 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 			{
 				m_elapsedTimeSinceNewFrame = 0;
 				m_currentFrame++;
-				if (m_currentFrame > animManager->GetHighestKeynum())
+				if (m_currentFrame > animManager->GetHighestKeyNum())
 				{
 					m_currentFrame = 0;
-					if (!animManager->GetLooped())
+					if (!animManager->GetIsLooped())
 						m_doPlayAnimation = false;
 				}
 			}
 		}
-		ImGui::AlignTextToFramePadding();
-		if(!m_doPlayAnimation)
-		{
-			if(ImGui::Button("Play", ImVec2(40,20)))
-			{
-				m_doPlayAnimation = true;
-				m_elapsedTimeSinceNewFrame = 0;
-			} 
-		}
-		else
-		{
-			if (ImGui::Button("Pause", ImVec2(40, 20)))
-				m_doPlayAnimation = false;
-		}
-		ImGui::SameLine();
-		ImGui::SliderInt("All Frames", &m_currentFrame, 0, std::max(0, m_engine->GetAnimationManager()->GetHighestKeynum()));
+		ImGui::SliderInt("All Frames", &m_currentFrame, 0, std::max(0, m_engine->GetAnimationManager()->GetHighestKeyNum()));
 
-		auto anim = m_engine->GetAnimationManager();
+		ImGui::Columns(9, "colsEditorBtns", false);
 		//Frame at the beginning
 		if (ImGui::Button(" <<+ "))
 		{
-			anim->AddOrInsertKey();
+			animManager->AddOrInsertKey();
 			m_currentFrame = 0;
 		}
 		if (ImGui::IsItemHovered())
@@ -319,9 +308,9 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 			ImGui::Text("Add new frame at the end.");
 			ImGui::End();
 		}
-		ImGui::SameLine();
+		ImGui::NextColumn();
 		if (ImGui::Button(" <<- "))
-			anim->RemoveKey(0);
+			animManager->RemoveKey(0);
 
 		if (ImGui::IsItemHovered())
 		{
@@ -331,12 +320,12 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 			ImGui::Text("Remove last frame.");
 			ImGui::End();
 		}
-		ImGui::SameLine();
+		ImGui::NextColumn();
 
 		//Frame before/after
 		if (ImGui::Button(" <+ "))
 		{
-			anim->AddNewKey(m_currentFrame - 1);
+			animManager->AddNewKey(m_currentFrame - 1);
 			m_currentFrame--;
 		}
 		if (ImGui::IsItemHovered())
@@ -347,11 +336,11 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 			ImGui::Text("Add a frame before the current one.");
 			ImGui::End();
 		}
-		ImGui::SameLine();
+		ImGui::NextColumn();
 		
 		if (ImGui::Button(" < "))
 		{
-			anim->SwapKeyTextures(m_currentFrame ,m_currentFrame - 1);
+			animManager->SwapKeyTextures(m_currentFrame ,m_currentFrame - 1);
 			m_currentFrame--;
 			if (m_currentFrame < 0)
 				m_currentFrame = 0;
@@ -364,70 +353,85 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 			ImGui::Text("Move current frame to the left.");
 			ImGui::End();
 		}
-		ImGui::SameLine();
+		ImGui::NextColumn();
+		if (!m_doPlayAnimation)
+		{
+			if (ImGui::Button("Play", ImVec2(40, 20)))
+			{
+				m_doPlayAnimation = true;
+				m_elapsedTimeSinceNewFrame = 0;
+			}
+		}
+		else
+		{
+			if (ImGui::Button("Pause", ImVec2(40, 20)))
+				m_doPlayAnimation = false;
+		}
+		ImGui::NextColumn();
 
 		if (ImGui::Button(" > "))
 		{
-			anim->SwapKeyTextures(m_currentFrame, m_currentFrame + 1);
+			animManager->SwapKeyTextures(m_currentFrame, m_currentFrame + 1);
 			m_currentFrame++;
-			if (m_currentFrame > anim->GetHighestKeynum())
-				m_currentFrame = anim->GetHighestKeynum();
+			if (m_currentFrame > animManager->GetHighestKeyNum())
+				m_currentFrame = animManager->GetHighestKeyNum();
 		}
 		if (ImGui::IsItemHovered())
 		{
 			ImVec2 m = ImGui::GetIO().MousePos;
-			ImGui::SetNextWindowPos(ImVec2(m.x + 10, m.y + 10));
+			ImGui::SetNextWindowPos(ImVec2(m.x - 200, m.y + 10));
 			ImGui::Begin("2", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 			ImGui::Text("Move current frame to the right.");
 			ImGui::End();
 		}
-		ImGui::SameLine();
+		ImGui::NextColumn();
 
 		if (ImGui::Button(" +> "))
 		{
-			anim->AddNewKey(m_currentFrame + 1);
+			animManager->AddNewKey(m_currentFrame + 1);
 			m_currentFrame++;
 		}
 		if (ImGui::IsItemHovered())
 		{
 			ImVec2 m = ImGui::GetIO().MousePos;
-			ImGui::SetNextWindowPos(ImVec2(m.x + 10, m.y + 10));
+			ImGui::SetNextWindowPos(ImVec2(m.x - 200, m.y + 10));
 			ImGui::Begin("2", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 			ImGui::Text("Add a frame after the current one.");
 			ImGui::End();
 		}
 
 		//Frame at the end
-		ImGui::SameLine();
+		ImGui::NextColumn();
 		if (ImGui::Button(" ->> "))
 		{
-			anim->RemoveKey();
-			if (m_currentFrame > anim->GetHighestKeynum())
-				m_currentFrame = anim->GetHighestKeynum();
+			animManager->RemoveKey();
+			if (m_currentFrame > animManager->GetHighestKeyNum())
+				m_currentFrame = animManager->GetHighestKeyNum();
 		}
 		if(ImGui::IsItemHovered())
 		{
 			ImVec2 m = ImGui::GetIO().MousePos;
-			ImGui::SetNextWindowPos(ImVec2(m.x + 10, m.y + 10));
+			ImGui::SetNextWindowPos(ImVec2(m.x - 200, m.y + 10));
 			ImGui::Begin("2", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 			ImGui::Text("Remove last frame.");
 			ImGui::End();
 		}
 
-		ImGui::SameLine();
+		ImGui::NextColumn();
 		if (ImGui::Button(" +>> "))
 		{
-			anim->AddOrInsertKey();
-			m_currentFrame = anim->GetHighestKeynum();
+			animManager->AddOrInsertKey();
+			m_currentFrame = animManager->GetHighestKeyNum();
 		}
 		if (ImGui::IsItemHovered())
 		{
 			ImVec2 m = ImGui::GetIO().MousePos;
-			ImGui::SetNextWindowPos(ImVec2(m.x + 10, m.y + 10));
+			ImGui::SetNextWindowPos(ImVec2(m.x - 200, m.y + 10));
 			ImGui::Begin("2", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 			ImGui::Text("Add new frame at the end.");
 			ImGui::End();
 		}
+		ImGui::Columns(1, "colsEditorBtns", false);
 
 		//Display Image
 		auto idCurrentTexture = animManager->GetTextureIdFromKeyframe(m_currentFrame);
@@ -439,55 +443,7 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 	ImGui::End();
 }
 
-void GraphicsManager::DisplayGeneInformationsWindow()
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-	ImGui::SetNextWindowPos(ImVec2(0.0f, 300.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(450, 300.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("GeneInfoWindow", NULL, window_flags))
-	{
-		ImGui::Columns(2);
-		// General informations
-		auto anim = m_engine->GetAnimationManager();
-
-		//Name
-		char* nameInChar = Utilities::ConvertStringToArrayChar(anim->GetName(), 32);
-		ImGui::Text("Animation name"); ImGui::NextColumn();
-		ImGui::InputText("##name", nameInChar, 32);
-		anim->SetName(nameInChar);
-		ImGui::NextColumn();
-		
-		//Looped
-		bool looped = anim->GetLooped();
-		ImGui::Text("Looped"); ImGui::NextColumn();
-		ImGui::Checkbox("##looped", &looped);
-		anim->SetLooped(looped);
-		ImGui::NextColumn();
-
-		//Speed
-		int speed = anim->GetSpeed();
-
-		ImGui::Text("Speed"); ImGui::NextColumn();
-		ImGui::DragInt("##speed", &speed); ImGui::SameLine();
-		ImGui::Text("ms");
-		anim->SetSpeed(speed);
-		ImGui::NextColumn();
-
-		//NumFrames
-		int animSize = anim->GetAnim().size();
-		ImGui::Text("Number of frames"); ImGui::NextColumn();
-		ImGui::Text(std::to_string(animSize).c_str());
-	}
-	ImGui::End();
-}
-
-void GraphicsManager::DisplayFrameInformationsWindow()
+void GraphicsManager::DisplayAnimationInformationsWindow()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -501,9 +457,11 @@ void GraphicsManager::DisplayFrameInformationsWindow()
 	if (ImGui::Begin("FrameInfoWindow", NULL, window_flags))
 	{
 		auto animManager = m_engine->GetAnimationManager();
-		if(ImGui::Button("Assign selected texture") && m_selectedTextureId != -1)
+
+		//***** BUTTONS *****//
+		if (ImGui::Button("Assign selected texture") && m_selectedTextureId != -1)
 		{
-			std::cout << "Assigned texture " << m_selectedTextureId << " to frame " << m_currentFrame << ".\n";
+			//std::cout << "Assigned texture " << m_selectedTextureId << " to frame " << m_currentFrame << ".\n";
 			animManager->AddOrInsertKey(m_currentFrame, m_selectedTextureId);
 		}
 		if (ImGui::IsItemHovered())
@@ -520,39 +478,76 @@ void GraphicsManager::DisplayFrameInformationsWindow()
 		if (ImGui::Button("Remove current frame"))
 		{
 			animManager->RemoveKey(m_currentFrame);
-			if (m_currentFrame > animManager->GetHighestKeynum())
-				m_currentFrame = animManager->GetHighestKeynum();
+			if (m_currentFrame > animManager->GetHighestKeyNum())
+				m_currentFrame = animManager->GetHighestKeyNum();
+		}
+
+		//***** FILE INFORMATIONS *****//
+		if (ImGui::CollapsingHeader("Animation informations"))
+		{
+			ImGui::Columns(2, "infoCols");
+			//Name
+			char* nameInChar = Utilities::ConvertStringToArrayChar(animManager->GetName(), 32);
+			ImGui::Text("Animation name"); ImGui::NextColumn();
+			ImGui::InputText("##name", nameInChar, 32);
+			animManager->SetName(nameInChar);
+			ImGui::NextColumn();
+
+			//Looped
+			bool looped = animManager->GetIsLooped();
+			ImGui::Text("Looped"); ImGui::NextColumn();
+			ImGui::Checkbox("##looped", &looped);
+			animManager->SetIsLooped(looped);
+			ImGui::NextColumn();
+
+			//Speed
+			int speed = animManager->GetSpeed();
+
+			ImGui::Text("Speed"); ImGui::NextColumn();
+			ImGui::DragInt("##speed", &speed); ImGui::SameLine();
+			ImGui::Text("ms");
+			animManager->SetSpeed(speed);
+			ImGui::NextColumn();
+
+			//NumFrames
+			int animSize = animManager->GetAnim().size();
+			ImGui::Text("Number of frames"); ImGui::NextColumn();
+			ImGui::Text(std::to_string(animSize).c_str());
+			ImGui::Columns(1, "infoCols");
 		}
 
 		short currentTextId = animManager->GetTextureIdFromKeyframe(m_currentFrame);
 		TextureInfos* currFrame = m_engine->GetTextureManager()->GetTextureFromId(currentTextId);
-		if(currFrame == nullptr)
+		if (currFrame == nullptr)
 		{
 			ImGui::End();
 			return;
 		}
 
-		ImGui::Columns(2);
-		// Frame informations
-		// Id
-		ImGui::Text("Id"); ImGui::NextColumn();
-		ImGui::Text(std::to_string(currFrame->id).c_str()); ImGui::NextColumn();
+		//**** FRAME INFORMATIONS *****//
+		if (ImGui::CollapsingHeader("Frame informations")) {
+			ImGui::Columns(2, "infoCols");
+			// Frame informations
+			// Id
+			ImGui::Text("Id"); ImGui::NextColumn();
+			ImGui::Text(std::to_string(currFrame->id).c_str()); ImGui::NextColumn();
 
-		// Filename
-		ImGui::Text("File name"); ImGui::NextColumn();
-		ImGui::Text(currFrame->fileName.c_str()); ImGui::NextColumn();
-		
-		// Path
-		ImGui::Text("Texture path"); ImGui::NextColumn();
-		ImGui::Text(currFrame->path.c_str()); ImGui::NextColumn();
+			// Filename
+			ImGui::Text("File name"); ImGui::NextColumn();
+			ImGui::Text(currFrame->fileName.c_str()); ImGui::NextColumn();
 
-		// Position
-		ImGui::Text("Position"); ImGui::NextColumn();
-		ImGui::Text((std::to_string(currFrame->position.x) + ", " + std::to_string(currFrame->position.y)).c_str()); ImGui::NextColumn();
-		
-		// Size
-		ImGui::Text("Size"); ImGui::NextColumn();
-		ImGui::Text((std::to_string(currFrame->size.x) + ", " + std::to_string(currFrame->size.y)).c_str()); ImGui::NextColumn();
+			// Path
+			ImGui::Text("Texture path"); ImGui::NextColumn();
+			ImGui::Text(currFrame->path.c_str()); ImGui::NextColumn();
+
+			// Position
+			ImGui::Text("Position"); ImGui::NextColumn();
+			ImGui::Text((std::to_string(currFrame->position.x) + ", " + std::to_string(currFrame->position.y)).c_str()); ImGui::NextColumn();
+
+			// Size
+			ImGui::Text("Size"); ImGui::NextColumn();
+			ImGui::Text((std::to_string(currFrame->size.x) + ", " + std::to_string(currFrame->size.y)).c_str()); ImGui::NextColumn();
+		}
 	}
 	ImGui::End();
 }
@@ -599,7 +594,7 @@ void GraphicsManager::OpenModalSave()
 	ImGui::End();
 }
 
-void GraphicsManager::OpenModalAddText()
+void GraphicsManager::OpenModalAddTexture()
 {
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_Modal;
@@ -608,7 +603,7 @@ void GraphicsManager::OpenModalAddText()
 
 	ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(600.0f, 150.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Load new sprite...", &m_openModalAddText, window_flags))
+	if (ImGui::Begin("Load new sprite...", &m_openModalAddTexture, window_flags))
 	{
 		ImGui::InputText("FilePath (from C:)", m_inputNameNewFile, IM_ARRAYSIZE(m_inputNameNewFile));
 
@@ -626,10 +621,10 @@ void GraphicsManager::OpenModalAddText()
 		ImGui::InputInt("##Num Columns", &m_inputNumCols); ImGui::NextColumn();
 
 		ImGui::Text("Start position x"); ImGui::NextColumn();
-		ImGui::InputInt("##Start position x", &m_inputStartPosX); ImGui::NextColumn();
+		ImGui::InputInt("##Start position x", &m_inputOffsetX); ImGui::NextColumn();
 
 		ImGui::Text("Start position y"); ImGui::NextColumn();
-		ImGui::InputInt("##Start position y", &m_inputStartPosY); ImGui::NextColumn();
+		ImGui::InputInt("##Start position y", &m_inputOffsetY); ImGui::NextColumn();
 
 		ImGui::Columns(1, "idColAddSprite");
 
@@ -637,7 +632,7 @@ void GraphicsManager::OpenModalAddText()
 		if(ImGui::Button("Load"))
 		{
 			m_lastIdBeforeNewTextLoad = m_engine->GetTextureManager()->GetLastId();
-			m_fileImportResult = textManager->LoadTexture(m_inputNameNewFile, m_inputSizeX, m_inputSizeY, m_inputNumRows, m_inputNumCols, m_inputStartPosX, m_inputStartPosY);
+			m_fileImportResult = textManager->LoadTexture(m_inputNameNewFile, m_inputSizeX, m_inputSizeY, m_inputNumRows, m_inputNumCols, m_inputOffsetX, m_inputOffsetY);
 		}
 		ImGui::SameLine();
 		if(m_fileImportResult != LOAD_NONE)

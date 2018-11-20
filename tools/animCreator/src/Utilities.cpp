@@ -39,13 +39,6 @@ Project : AnimationTool for SFGE
 
 using json = nlohmann::json;
 
-char* Utilities::ConvertStringToArrayChar(std::string string, size_t size)
-{
-	char * result = new char[size];
-	strcpy(result, string.c_str());
-	return result;
-}
-
 LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
 {
 	json value;
@@ -145,36 +138,9 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 	return SAVE_SUCCESS;
 }
 
-LogSaveError Utilities::ExportToGif(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
+char* Utilities::ConvertStringToArrayChar(std::string string, size_t size)
 {
-	return SAVE_SUCCESS;
-}
-
-
-std::string Utilities::GetClipboardText()
-{
-	// Try opening the clipboard
-	if (!OpenClipboard(nullptr))
-		return "";
-
-	// Get handle of clipboard object for ANSI text
-	HANDLE hData = GetClipboardData(CF_TEXT);
-	if (hData == nullptr)
-		return "";
-
-	// Lock the handle to get the actual text pointer
-	char * pszText = static_cast<char*>(GlobalLock(hData));
-	if (pszText == nullptr)
-		return "";
-
-	// Save text in a string class instance
-	std::string text(pszText);
-
-	// Release the lock
-	GlobalUnlock(hData);
-
-	// Release the clipboard
-	CloseClipboard();
-
-	return text;
+	char * result = new char[size];
+	strcpy(result, string.c_str());
+	return result;
 }

@@ -38,24 +38,13 @@ void AnimationManager::Init()
 	AddOrInsertKey(0);
 }
 
-int AnimationManager::GetHighestKeynum()
-{
-	int maxKey = 0;
-	for (auto element : m_animation)
-	{
-		if (maxKey < element.first)
-			maxKey = element.first;
-	}
-	return maxKey;
-}
-
 void AnimationManager::AddNewKey(short key, short textureId)
 {
 	//Add a key at the end
 	AddOrInsertKey();
 
 	//Move to the right every frames until key is reached
-	for(int i = GetHighestKeynum(); i != key; i--)
+	for(int i = GetHighestKeyNum(); i != key; i--)
 	{
 		SwapKeyTextures(i, i - 1);
 	}
@@ -65,7 +54,7 @@ void AnimationManager::AddNewKey(short key, short textureId)
 
 bool AnimationManager::AddOrInsertKey()
 {
-	return AddOrInsertKey(GetHighestKeynum() + 1, -1);
+	return AddOrInsertKey(GetHighestKeyNum() + 1, -1);
 }
 bool AnimationManager::AddOrInsertKey(short key, short textureId)
 {
@@ -80,7 +69,7 @@ bool AnimationManager::AddOrInsertKey(short key, short textureId)
 
 bool AnimationManager::RemoveKey()
 {
-	return RemoveKey(GetHighestKeynum());
+	return RemoveKey(GetHighestKeyNum());
 }
 
 bool AnimationManager::RemoveKey(short key)
@@ -89,13 +78,13 @@ bool AnimationManager::RemoveKey(short key)
 	{
 		for(auto frame : m_animation)
 		{
-			if(frame.first >= key && frame.first < GetHighestKeynum())
+			if(frame.first >= key && frame.first < GetHighestKeyNum())
 			{
 				SwapKeyTextures(frame.first, frame.first + 1);
 			}
 		}
 
-		m_animation.erase(GetHighestKeynum());
+		m_animation.erase(GetHighestKeyNum());
 
 		if (m_animation.empty())
 			AddOrInsertKey(0);
@@ -147,14 +136,25 @@ std::string AnimationManager::GetName()
 	return m_animName;
 }
 
-void AnimationManager::SetLooped(bool newLoop)
+void AnimationManager::SetIsLooped(bool newLoop)
 {
 	m_looped = newLoop;
 }
 
-bool AnimationManager::GetLooped()
+bool AnimationManager::GetIsLooped()
 {
 	return m_looped;
+}
+
+int AnimationManager::GetHighestKeyNum()
+{
+	int maxKey = 0;
+	for (auto element : m_animation)
+	{
+		if (maxKey < element.first)
+			maxKey = element.first;
+	}
+	return maxKey;
 }
 
 std::map<const short, short>& AnimationManager::GetAnim()
