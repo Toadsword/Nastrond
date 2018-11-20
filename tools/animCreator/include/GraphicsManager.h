@@ -36,7 +36,9 @@ Project : AnimationTool for SFGE
 #include <Utilities.h>
 #include <TextureManager.h>
 
-// Constants
+/**
+ * Constants
+ */   
 const int WINDOW_WIDTH = 900;
 const int WINDOW_HEIGHT = 600;
 const int MAX_FRAMERATE = 60;
@@ -44,7 +46,9 @@ const std::string WINDOW_NAME = "AnimCreator";
 
 const int TIME_TO_DOUBLE_CLICK = 500;
 
-// Prototype
+/**
+ * Prototype
+ */
 class Engine;
 
 /**
@@ -100,6 +104,10 @@ public:
 	 * \brief Display the modal used to add textures to the application.
 	 */
 	void OpenModalAddTexture();
+	/**
+	 * \brief Display the modal used to confirm the reset of the animation to the application.
+	 */
+	void OpenModalConfirmNew();
 
 	/**
 	 * \brief Getter of the graphic window of the application.
@@ -194,6 +202,12 @@ private:
 	 * \brief Result of the saved animation. Used to allow the user to confirm the possible replacement of the animation.
 	 */
 	LogSaveError m_saveResult = SAVE_SUCCESS;
+
+	/* -------------------------------------- Modal new animation  ----------------------------------- */
+	/**
+	 * \brief true if we display the modal to confirm the reset of the animation, false otherwise.
+	 */
+	bool m_openModalConfirmNew = false;
 
 	/* -------------------------------------- Others ----------------------------------- */
 	/**

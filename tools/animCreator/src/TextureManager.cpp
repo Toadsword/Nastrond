@@ -39,8 +39,6 @@ Project : AnimationTool for SFGE
 void TextureManager::Init()
 {
 	m_lastId = 0;
-
-	LoadTexture("D:/Images/Sprites/Pepper_publish.png", 24, 32, 4, 3);
 }
 
 LoadFileResult TextureManager::LoadTexture(std::string path, int sizeX, int sizeY, int numRow, int numCol, int startPosX, int startPosY)

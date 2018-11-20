@@ -141,7 +141,7 @@ void GraphicsManager::DisplayMenuWindow()
 			{
 				if (ImGui::MenuItem("New")) 
 				{
-					std::cout << "New select \n";
+					m_openModalConfirmNew = true;
 				}
 				if (ImGui::MenuItem("Open new sprite", "Ctrl+O")) 
 				{
@@ -164,6 +164,7 @@ void GraphicsManager::DisplayMenuWindow()
 	ImGui::End();
 
 	if (m_openModalSave) OpenModalSave();
+	if (m_openModalConfirmNew) OpenModalConfirmNew();
 }
 
 void GraphicsManager::DisplayFileWindow()
@@ -655,6 +656,34 @@ void GraphicsManager::OpenModalAddTexture()
 		else if(m_fileImportResult == LOAD_FAILURE)
 		{
 			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Error while loading file : Does it really exists?");
+		}
+	}
+	ImGui::End();
+}
+
+void GraphicsManager::OpenModalConfirmNew()
+{
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_Modal;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoResize;
+
+	ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(600.0f, 50.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("New animation...", &m_openModalConfirmNew, window_flags))
+	{
+		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "Are you sure you want to begin a new animation?");
+		ImGui::Columns(4, "yes_or_no", false);
+		ImGui::NextColumn();
+		if (ImGui::Button("Yes"))
+		{
+			m_engine->GetAnimationManager()->Init();
+			m_openModalConfirmNew = false;
+		}
+		ImGui::NextColumn();
+		if (ImGui::Button("No"))
+		{
+			m_openModalConfirmNew = false;
 		}
 	}
 	ImGui::End();

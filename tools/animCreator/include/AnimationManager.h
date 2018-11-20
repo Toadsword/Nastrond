@@ -155,7 +155,7 @@ private:
 	/**
 	 * \brief Loop state of the animation; Default value : false
 	 */
-	bool m_looped = false;
+	bool m_looped = true;
 
 	/**
 	 * \brief Speed of the animation in miliseconds(ms) per frame; Default value : 100ms per frame

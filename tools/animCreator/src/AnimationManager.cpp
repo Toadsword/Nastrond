@@ -34,6 +34,10 @@ Project : AnimationTool for SFGE
 
 void AnimationManager::Init()
 {
+	m_animSpeed = 100;
+	m_looped = true;
+	m_animName = "NewAnimation";
+
 	m_animation.clear();
 	AddOrInsertKey(0);
 }
