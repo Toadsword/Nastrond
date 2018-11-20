@@ -29,6 +29,7 @@ SOFTWARE.
 #include <graphics/shape2d.h>
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
+#include <graphics/animation2d.h>
 
 namespace sfge
 {
@@ -75,6 +76,7 @@ public:
 	std::shared_ptr<sf::RenderWindow> GetWindow();
 	ShapeManager& GetShapeManager();
 	SpriteManager& GetSpriteManager();
+	AnimationManager& GetAnimationManager();
 	TextureManager& GetTextureManager();
 
 protected:
@@ -85,6 +87,7 @@ protected:
 	void CheckVersion() const;
 	TextureManager m_TextureManager{m_Engine};
 	SpriteManager m_SpriteManager{m_Engine};
+	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
 	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
 };

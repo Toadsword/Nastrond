@@ -254,6 +254,14 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 								}
 								break;
 							}
+						case ComponentType::ANIMATION2D:
+						{
+							auto& graphicsManager = m_Engine.GetGraphics2dManager();
+							auto& animationManager = graphicsManager.GetAnimationManager();
+							animationManager.CreateComponent(componentJson, entity);
+							m_EntityManager.AddComponentType(entity, ComponentType::ANIMATION2D);
+							break;
+						}
 						default:
 							break;
 						}

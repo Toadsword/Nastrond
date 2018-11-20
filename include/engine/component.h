@@ -49,7 +49,8 @@ enum class ComponentType : int
 	BODY2D = 1 << 3,
 	COLLIDER2D = 1 << 4,
 	SOUND = 1 << 5,
-	PYCOMPONENT = 1 << 6
+	PYCOMPONENT = 1 << 6,
+	ANIMATION2D = 1 << 7
 };
 
 template<class T, class TInfo>

@@ -71,7 +71,9 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 		return SAVE_DO_REPLACE;
 
 	// Json construction
-	value["frameFps"] = anim->GetSpeed();
+	value["name"] = anim->GetName();
+	value["isLooped"] = anim->GetIsLooped();
+	value["speed"] = anim->GetSpeed();
 	auto frames = anim->GetAnim();
 	short index = 0;
 
@@ -118,7 +120,7 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 
 		//Registering information of the frame
 		value["frames"][index]["key"] = frame.first;		
-		value["frames"][index]["path"] = fileName;
+		value["frames"][index]["filename"] = fileName;
 		value["frames"][index]["position"]["x"] = textToApply->position.x;
 		value["frames"][index]["position"]["y"] = textToApply->position.y;
 		value["frames"][index]["size"]["x"] = textToApply->size.x;
