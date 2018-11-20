@@ -1,7 +1,7 @@
 {
     "frames": [
         {
-            "imagefILE": "Pepper_publish.png",
+            "filename": "Pepper_publish.png",
             "key": 0,
             "position": {
                 "x": 0,
@@ -13,7 +13,7 @@
             }
         },
         {
-            "imageName": "Pepper_publish.png",
+            "filename": "Pepper_publish.png",
             "key": 1,
             "position": {
                 "x": 24,
@@ -25,7 +25,7 @@
             }
         },
         {
-            "imageName": "Pepper_publish.png",
+            "filename": "Pepper_publish.png",
             "key": 2,
             "position": {
                 "x": 48,
@@ -37,7 +37,7 @@
             }
         },
         {
-            "imageName": "Pepper_publish.png",
+            "filename": "Pepper_publish.png",
             "key": 3,
             "position": {
                 "x": 24,

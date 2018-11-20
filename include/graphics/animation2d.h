@@ -38,7 +38,7 @@ SOFTWARE.
 namespace sfge
 {
 
-const std::string ANIM_FOLER = "../data/animSaves/";
+const std::string ANIM_FOLER = "./data/animSaves/";
 
 struct AnimationFrame
 {
@@ -63,12 +63,13 @@ public:
 	void Init();
 	void Update(float dt);
 	void Draw(sf::RenderWindow& window);
-	void SetAnimation(std::vector<AnimationFrame> newFrameList, int newSpeed, bool newIsLooped);
+	void SetAnimation(std::vector<AnimationFrame> newFrameList, float newSpeed, bool newIsLooped);
 
 protected:
 	std::vector<AnimationFrame> frameList;
 	sf::Sprite sprite;
-	std::vector<AnimationFrame>::iterator currentFrame = frameList.begin();
+	short currentFrameKey = 0;
+	//std::vector<AnimationFrame>::iterator currentFrame = frameList.begin();
 	float timeSinceChangedFrame = 0;
 	float speed = 0.1f;
 	bool isLooped = false;

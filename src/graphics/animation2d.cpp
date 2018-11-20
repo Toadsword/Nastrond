@@ -55,12 +55,13 @@ void Animation::Draw(sf::RenderWindow& window)
 	window.draw(sprite);
 }
 
-void Animation::SetAnimation(std::vector<AnimationFrame> newFrameList, int newSpeed, bool newIsLooped)
+void Animation::SetAnimation(std::vector<AnimationFrame> newFrameList, float newSpeed, bool newIsLooped)
 {
 	this->frameList = newFrameList;
 	this->speed = newSpeed;
 	this->isLooped = newIsLooped;
-	this->currentFrame = newFrameList.begin();
+	//this->currentFrame = newFrameList.begin();
+	this->currentFrameKey = 0;
 }
 
 void Animation::Init()
@@ -70,18 +71,39 @@ void Animation::Init()
 void Animation::Update(float dt)
 {
 	timeSinceChangedFrame += dt;
-
-	if(timeSinceChangedFrame >= speed && frameList.size() > 0)
+	
+	if(timeSinceChangedFrame >= speed && !frameList.empty())
 	{
 		timeSinceChangedFrame = 0;
+
+		currentFrameKey++;
+		bool changed = false;
+		for(auto frame : frameList)
+		{
+			if(frame.key == currentFrameKey)
+			{
+				sprite.setTextureRect(frame.textureRect);
+				sprite.setTexture(*frame.texture);
+				changed = true;
+				break;
+			}
+		}
+		if(!changed)
+		{
+			currentFrameKey = 0;
+			sprite.setTextureRect(frameList[currentFrameKey].textureRect);
+			sprite.setTexture(*frameList[currentFrameKey].texture);
+		}
+
+		//With Iterator (Doesn't work)
+		/* 
 		if (currentFrame == frameList.end())
 			currentFrame = frameList.begin();
 		else
-			currentFrame++;
-
+			++currentFrame;
 		sprite.setTextureRect((*currentFrame).textureRect);
-		sprite.setTexture(*(*currentFrame).texture);		
-
+		sprite.setTexture(*(*currentFrame).texture);
+		*/
 	}
 	
 	sf::Vector2f pos = m_Offset;
@@ -172,7 +194,7 @@ void AnimationManager::Collect()
 void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 {
 
-	if (CheckJsonParameter(componentJson, "path", json::value_t::object))
+	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		std::string path = componentJson["path"];
 		if (!FileExists(path))
@@ -204,9 +226,9 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 		}
 
 		float speed = 0.1f;
-		if (CheckJsonParameter(*framesInfosPtr, "speed", json::value_t::number_integer))
+		if (CheckJsonParameter(*framesInfosPtr, "speed", json::value_t::number_unsigned))
 		{
-			speed = (*framesInfosPtr)["speed"].get<int>() / 1000.0f;
+			speed = (*framesInfosPtr)["speed"].get<float>() / 1000.0f;
 			newAnimationInfo.speed = speed;
 		}
 
@@ -227,8 +249,8 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 				if (CheckJsonExists(frameJson, "filename"))
 				{
 					newFrame.filename = frameJson["filename"].get<std::string>();
-					std::string path = ANIM_FOLER + name + "/" + newFrame.filename;
-					const TextureId textureId = textureManager.LoadTexture(path);
+					std::string texturePath = ANIM_FOLER + name + "/" + newFrame.filename;
+					const TextureId textureId = textureManager.LoadTexture(texturePath);
 					
 					if (textureId != INVALID_TEXTURE)
 					{
@@ -237,7 +259,7 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 					else
 					{
 						std::ostringstream oss;
-						oss << "Texture file " << path << " cannot be loaded";
+						oss << "Texture file " << texturePath << " cannot be loaded";
 						Log::GetInstance()->Error(oss.str());
 					}
 				}
