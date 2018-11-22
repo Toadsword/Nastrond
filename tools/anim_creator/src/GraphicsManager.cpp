@@ -73,7 +73,7 @@ void GraphicsManager::Update(int dt)
 		case sf::Event::KeyPressed:
 			if(event.key.control && event.key.code == sf::Keyboard::Key::S)
 			{
-				m_saveResult = Utilities::ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures());
+				m_saveResult = ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures());
 				m_openModalSave = m_saveResult != SAVE_SUCCESS;
 			}
 			if(event.key.control && event.key.code == sf::Keyboard::Key::O)
@@ -148,7 +148,7 @@ void GraphicsManager::DisplayMenuWindow()
 				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
-					m_saveResult = Utilities::ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures());
+					m_saveResult = ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures());
 					m_openModalSave = m_saveResult != SAVE_SUCCESS;
 				}
 				if (ImGui::MenuItem("Quit", "Alt+F4"))
@@ -487,7 +487,7 @@ void GraphicsManager::DisplayAnimationInformationsWindow()
 		{
 			ImGui::Columns(2, "infoCols");
 			//Name
-			char* nameInChar = Utilities::ConvertStringToArrayChar(animManager->GetName(), 32);
+			char* nameInChar = ConvertStringToArrayChar(animManager->GetName(), 32);
 			ImGui::Text("Animation name"); ImGui::NextColumn();
 			ImGui::InputText("##name", nameInChar, 32);
 			animManager->SetName(nameInChar);
@@ -579,7 +579,7 @@ void GraphicsManager::OpenModalSave()
 			ImGui::NextColumn();
 			if(ImGui::Button("Yes"))
 			{
-				m_saveResult = Utilities::ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures(), true);
+				m_saveResult = ExportToJson(m_engine->GetAnimationManager(), m_engine->GetTextureManager()->GetAllTextures(), true);
 				m_saveResult = SAVE_SUCCESS;
 				m_openModalSave = false;
 			}

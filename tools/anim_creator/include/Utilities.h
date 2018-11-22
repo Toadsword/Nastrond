@@ -27,8 +27,8 @@ Date : November 2018
 Project : AnimationTool for SFGE
 */
 
-#ifndef UTILITIES_H
-#define UTILITIES_H
+#ifndef ANIM_TOOL_UTILITIES_H
+#define ANIM_TOOL_UTILITIES_H
 
 #include <vector>
 #include <map>
@@ -48,28 +48,23 @@ enum LogSaveError {
 	SAVE_DO_REPLACE,
 };
 
-/**
- * \brief Utility class, composed with static functions.
- */
-class Utilities
-{
-public:
-	/**
-	 * \brief Export the current animation to Json, ready for SFGE.
-	 * \param anim AnimationManager that stores all the informations
-	 * \param textures All the textures loaded in the application.
-	 * \param confirmedReplacement True if the application ignores the existent files, false otherwise.
-	 * \return The state of the exportation.
-	 */
-	static LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
 
-	/**
-	 * \brief Convert current string into an array of char.
-	 * \param string String to convert.
-	 * \param size Size of the array of char.
-	 * \return Pointer to the array of char.
-	 */
-	static char* ConvertStringToArrayChar(std::string string, size_t size);
-};
+/**
+ * \brief Export the current animation to Json, ready for SFGE.
+ * \param anim AnimationManager that stores all the informations
+ * \param textures All the textures loaded in the application.
+ * \param confirmedReplacement True if the application ignores the existent files, false otherwise.
+ * \return The state of the exportation.
+ */
+LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
+
+/**
+ * \brief Convert current string into an array of char.
+ * \param string String to convert.
+ * \param size Size of the array of char.
+ * \return Pointer to the array of char.
+ */
+char* ConvertStringToArrayChar(std::string string, size_t size);
+
 
 #endif // ifndef UTILITIES_H

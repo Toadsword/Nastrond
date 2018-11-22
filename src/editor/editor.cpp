@@ -62,9 +62,9 @@ void Editor::Init()
 		m_Window = m_GraphicsManager->GetWindow();
 		
 		Log::GetInstance()->Msg("Enabling Editor");
-		if(const auto window = m_Window.lock())
+		if(m_Window)
 		{
-			ImGui::SFML::Init(*window, true);
+			ImGui::SFML::Init(*m_Window, true);
 			m_IsImguiInit = true;
 		}
 		else
@@ -77,11 +77,10 @@ void Editor::Update(float dt)
 {
 	if (m_Enable)
 	{
-		const auto windowPtr = m_Window.lock();
 		const auto configPtr = m_Engine.GetConfig();
-		if (windowPtr and configPtr)
+		if (m_Window and configPtr)
 		{
-			ImGui::SFML::Update(*windowPtr, sf::seconds(dt));
+			ImGui::SFML::Update(*m_Window, sf::seconds(dt));
 
 			//GameObject window
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
@@ -183,9 +182,9 @@ void Editor::Draw()
 {
 	if (m_Enable)
 	{
-		if (const auto window = m_Window.lock())
+		if (m_Window)
 		{
-			ImGui::SFML::Render(*window);
+			ImGui::SFML::Render(*m_Window);
 		}
 	}
 }
@@ -214,11 +213,11 @@ void Editor::Clear()
 void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
 {
 	m_CurrentScene = std::move(sceneInfo);
-	if(auto window = m_Window.lock())
+	if(m_Window)
 	{
 		std::ostringstream oss;
 		oss << "SFGE " << SFGE_VERSION << " - " << m_CurrentScene->name;
-		window->setTitle(oss.str());
+		m_Window->setTitle(oss.str());
 	}
 
 }

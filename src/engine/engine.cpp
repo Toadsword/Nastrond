@@ -131,7 +131,7 @@ void Engine::Start()
 		}
 
         m_SystemsContainer->inputManager.Update(dt.asSeconds());
-		sf::Time fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
+		auto fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
 			fixedUpdateClock.restart ();

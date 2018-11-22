@@ -45,7 +45,7 @@ void Graphics2dManager::Init()
 
 		if (!m_Windowless)
 		{
-			m_Window = std::make_shared<sf::RenderWindow>(
+			m_Window = std::make_unique<sf::RenderWindow>(
 				sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
 				"SFGE 0.1");
 			if (configPtr->maxFramerate)
@@ -102,9 +102,9 @@ void Graphics2dManager::DrawLine(sf::Vector2f from, sf::Vector2f to, sf::Color c
 	m_Window->draw(vertices, 2, sf::Lines);
 }
 
-std::shared_ptr<sf::RenderWindow> Graphics2dManager::GetWindow()
+sf::RenderWindow* Graphics2dManager::GetWindow()
 {
-	return m_Window;
+	return m_Window.get();
 }
 
 SpriteManager* Graphics2dManager::GetSpriteManager()

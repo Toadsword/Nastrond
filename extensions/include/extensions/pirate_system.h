@@ -33,7 +33,7 @@ SOFTWARE.
 namespace sfge
 {
 class Engine;
-class Transform2d;
+struct Transform2d;
 
 struct PirateData
 {

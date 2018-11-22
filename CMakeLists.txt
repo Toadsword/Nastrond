@@ -81,6 +81,7 @@ LIST(APPEND SFGE_LIBRARIES
 	sfml-audio
 	sfml-network)
 
+
 #Google Test
 set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest)
 add_subdirectory(${GOOGLE_TEST_DIR})
@@ -109,32 +110,37 @@ add_subdirectory(${BOX2D_DIR})
 include_directories(${BOX2D_DIR}/Box2D/)
 LIST(APPEND SFGE_LIBRARIES
 	Box2D)
-
+cotire(Box2D)
 
 
 
 #PYTHON
-#IF(NOT WIN32)
-#	add_definitions(-Wall -Wextra -pedantic -std=c++11)
-#
-#	IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
-#		add_definitions(-g -O0)
-#	ELSE()
-#		add_definitions(-O3)
-#	ENDIF()
-#
-#	LIST(APPEND SFGE_LIBRARIES resolv)
-#ELSE()
-#	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-#ENDIF()
+IF(UNIX)
+	add_definitions(-Wall -Wextra -pedantic -std=c++11)
+
+	IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+		add_definitions(-g -O0)
+	ELSE()
+		add_definitions(-O3)
+	ENDIF()
+	set(PYBIND11_CPP_STANDARD -std=c++1z)
+	if(NOT APPLE)
+		set(PYTHON_EXECUTABLE "/usr/bin/python3")
+	elseif(APPLE)
+		set(PYTHON_EXECUTABLE "/usr/local/bin/python3")
+	endif()
+	LIST(APPEND SFGE_LIBRARIES resolv)
+ELSE()
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	
+	set(PYBIND11_CPP_STANDARD /std:c++latest)
+	#find_package( PythonInterp 3.6 REQUIRED )
+	#find_package( PythonLibs 3.6 REQUIRED )
+ENDIF()
 #
 
 #PYBIND11
-if(UNIX AND NOT APPLE)
-	set(PYTHON_EXECUTABLE "/usr/bin/python3")
-elseif(APPLE)
-	set(PYTHON_EXECUTABLE "/usr/local/bin/python3")
-endif()
+
 set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
 set(PYBIND11_DIR ${EXTERNAL_DIR}/pybind11/)
 add_subdirectory(${PYBIND11_DIR})
@@ -212,6 +218,7 @@ foreach(course_file ${COURSE_FILES} )
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
   ENDIF()
+  cotire(${course_name})
 endforeach()
 
 #SFGE TEST
@@ -253,7 +260,7 @@ foreach(tool_dir ${TOOLS_DIR})
 	file(GLOB_RECURSE TOOL_SRC ${tool_dir}/include/*.h ${tool_dir}/src/*.cpp ${tool_dir}/main.cpp)
 	add_executable(${tool_name} ${TOOL_SRC})
 
-	target_link_libraries(${tool_name} SFGE_COMMON)
+	target_link_libraries(${tool_name} PUBLIC SFGE_COMMON)
 	set_property(TARGET ${tool_name} PROPERTY CXX_STANDARD 17)
 	set_target_properties (${tool_name} PROPERTIES FOLDER Tools)
 	if(APPLE)
@@ -261,6 +268,7 @@ foreach(tool_dir ${TOOLS_DIR})
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	ENDIF()
+	cotire(${tool_name})
 endforeach()
 
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
