@@ -26,7 +26,7 @@ SOFTWARE.
 #include <fstream>
 //SFGE includes
 #include <engine/config.h>
-#include <engine/log.h>
+#include <utility/log.h>
 
 
 namespace sfge

@@ -25,7 +25,7 @@ SOFTWARE.
 #include <graphics/graphics2d.h>
 #include <graphics/shape2d.h>
 #include <utility/json_utility.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/transform2d.h>
 #include <engine/engine.h>
 #include <imgui.h>
@@ -65,7 +65,7 @@ void Shape::SetFillColor(sf::Color color) const
 
 void Shape::Update(float dt) const
 {
-	sf::Vector2f newPosition = m_Offset;
+	auto newPosition = m_Offset;
 
 	if(m_Transform != nullptr)
 	{
@@ -84,14 +84,6 @@ void Shape::SetShape (std::unique_ptr<sf::Shape> shape)
 sf::Shape *Shape::GetShape ()
 {
 	return m_Shape.get ();
-}
-
-
-	ShapeManager::ShapeManager(Engine& engine):
-	System(engine),
-	m_Transform2dManager(m_Engine.GetTransform2dManager()),
-	m_EntityManager(m_Engine.GetEntityManager())
-{
 }
 
 void editor::ShapeInfo::DrawOnInspector ()
@@ -130,8 +122,8 @@ void editor::ShapeInfo::DrawOnInspector ()
 
 void ShapeManager::Init()
 {
-	System::Init();
-	m_EntityManager.AddObserver(this);
+	SingleComponentManager::Init();
+	m_Transform2dManager = m_Engine.GetTransform2dManager();
 }
 
 
@@ -139,7 +131,7 @@ void ShapeManager::Draw(sf::RenderWindow& window)
 {
 	for(int i = 0; i < m_Components.size(); i++)
 	{
-		if(m_EntityManager.HasComponent(i + 1, ComponentType::SHAPE2D))
+		if(m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
 		{
 			m_Components[i].Draw(window);
 		}
@@ -151,7 +143,7 @@ void ShapeManager::Update(const float dt)
 	
 	for (int i = 0; i < m_Components.size(); i++)
 	{
-		if (m_EntityManager.HasComponent(i + 1, ComponentType::SHAPE2D))
+		if (m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
 		{
 			m_Components[i].Update(dt);
 		}
@@ -172,7 +164,7 @@ Shape *ShapeManager::AddComponent (Entity entity)
 {
 	auto shapePtr = GetComponentPtr (entity);
 	GetComponentInfo (entity).shapePtr = shapePtr;
-	m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::SHAPE2D);
+	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::SHAPE2D);
 	return shapePtr;
 }
 
@@ -186,7 +178,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 	}
 
 	auto& shape = m_Components[entity-1];
-	shape.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
+	shape.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	shape.SetOffset(offset);
 
 	auto shapeInfo = editor::ShapeInfo();

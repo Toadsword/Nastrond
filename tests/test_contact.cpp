@@ -30,8 +30,8 @@ TEST(TestContact, LinkPythonWithPhysics)
 {
 	sfge::Engine engine;
 	engine.Init();
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromName("ContactTestScene");
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromName("ContactTestScene");
 
 	engine.Start();
 }

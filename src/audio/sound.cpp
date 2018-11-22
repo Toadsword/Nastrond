@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include <audio/sound.h>
 #include <audio/audio.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/engine.h>
 #include <engine/config.h>
 #include <utility/file_utility.h>
@@ -45,39 +45,75 @@ static std::set<std::string> sndExtensionSet
 	".flac"
 };
 
+
+
+SoundManager::SoundManager(Engine& engine): MultipleComponentManager(engine)
+{
+	m_Components.resize(MAX_SOUND_CHANNELS-MUSIC_INSTANCES_NMB);
+	m_ComponentsInfo.resize(MAX_SOUND_CHANNELS-MUSIC_INSTANCES_NMB);
+}
+
+SoundManager::~SoundManager()
+{
+
+}
+
 Sound* SoundManager::AddComponent(Entity entity)
 {
-	auto& sound = GetComponentRef(entity);
-	auto& soundInfo = GetComponentInfo(entity);
+	Sound* sound = nullptr;
+	editor::SoundInfo* soundInfo = nullptr;
+	for(int i = 0; i < MAX_SOUND_CHANNELS;i++)
+	{
+		if(m_Components[i].GetEntity() == INVALID_ENTITY)
+		{
+			sound = &m_Components[i];
+			soundInfo = &m_ComponentsInfo[i];
+			break;
+		}
+	}
 
-	
-	soundInfo.Sound = &sound;
-	m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
-	return &sound;
+	if(sound != nullptr)
+	{
+		soundInfo->Sound = sound;
+		m_EntityManager->AddComponentType(entity, ComponentType::SOUND);
+		return sound;
+	}
+	return nullptr;
 }
 
 void SoundManager::CreateComponent(json & componentJson, Entity entity)
 {
-	auto & newSound = m_Components[entity - 1];
-	auto & newSoundInfo = m_ComponentsInfo[entity - 1];
+
 	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		auto path = componentJson["path"].get<std::string>();
-		newSoundInfo.path = path;
 		sf::SoundBuffer* soundBuffer = nullptr;
 		if (FileExists(path))
 		{
-			const SoundBufferId soundBufferId = m_SoundBufferManager.LoadSoundBuffer(path);
-			if (soundBufferId != INVALID_TEXTURE)
+			auto* sound = AddComponent(entity);
+			if(sound == nullptr)
+			{
+				std::ostringstream oss;
+				oss << "All sound channels used";
+				Log::GetInstance()->Error(oss.str());
+				return;
+			}
+			int index = sound-&m_Components[0];
+			auto* soundInfo = &m_ComponentsInfo[index];
+			const SoundBufferId soundBufferId = m_SoundBufferManager->LoadSoundBuffer(path);
+			if (soundBufferId != INVALID_SOUND_BUFFER)
 			{
 				/*{
 					std::ostringstream oss;
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}*/
-				soundBuffer = m_SoundBufferManager.GetSoundBuffer(soundBufferId);
-				newSound.SetBuffer(soundBuffer);
-				newSoundInfo.BufferId = soundBufferId;
+
+				soundInfo->SetEntity(entity);
+				soundInfo->path = path;
+				soundBuffer = m_SoundBufferManager->GetSoundBuffer(soundBufferId);
+				sound->SetBuffer(soundBuffer);
+				soundInfo->SoundBufferId = soundBufferId;
 			}
 			else
 			{
@@ -118,10 +154,10 @@ void Sound::SetBuffer(sf::SoundBuffer* buffer)
 {
 	m_Sound.setBuffer(*buffer);
 }
-SoundManager::SoundManager(Engine& engine):
-System(engine), m_EntityManager(engine.GetEntityManager()), m_SoundBufferManager(engine.GetAudioManager().GetSoundBufferManager())
-{
 
+void SoundManager::Init()
+{
+	m_SoundBufferManager = m_Engine.GetAudioManager()->GetSoundBufferManager();
 }
 void SoundManager::Reset()
 {
@@ -131,6 +167,10 @@ void SoundManager::Reset()
 void SoundManager::Collect()
 {
 
+}
+Sound *SoundManager::GetComponentPtr(Entity entity)
+{
+	return nullptr;
 }
 
 void Sound::Play()
@@ -144,6 +184,15 @@ void Sound::Stop()
 	m_Sound.stop();
 }
 
+Entity Sound::GetEntity()
+{
+	return m_Entity;
+}
+void Sound::SetEntity(Entity entity)
+{
+	m_Entity = entity;
+}
+
 SoundBufferManager::~SoundBufferManager()
 {
 	m_SoundBuffers.clear();
@@ -151,7 +200,7 @@ SoundBufferManager::~SoundBufferManager()
 
 void SoundBufferManager::Init()
 {
-	if (const auto config = m_Engine.GetConfig().lock())
+	if (const auto config = m_Engine.GetConfig())
 	{
 		if (config->devMode)
 		{
@@ -280,7 +329,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 	}
 	else
 	{
-		//Texture was never loaded
+		//SoundBuffer was never loaded
 		if (FileExists(filename))
 		{
 
@@ -290,7 +339,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 				std::ostringstream oss;
 				oss << "[ERROR] Could not load sound file: " << filename;
 				Log::GetInstance()->Error(oss.str());
-				return INVALID_TEXTURE;
+				return INVALID_SOUND_ID;
 			}
 
 			m_IncrementId++;
@@ -306,7 +355,7 @@ SoundBufferId SoundBufferManager::LoadSoundBuffer(std::string filename)
 			Log::GetInstance()->Error(oss.str());
 		}
 	}
-	return INVALID_TEXTURE;
+	return INVALID_SOUND_BUFFER;
 }
 
 sf::SoundBuffer* SoundBufferManager::GetSoundBuffer(SoundBufferId soundBufferId)
@@ -314,17 +363,15 @@ sf::SoundBuffer* SoundBufferManager::GetSoundBuffer(SoundBufferId soundBufferId)
 	return m_SoundBuffers[soundBufferId - 1].get();
 }
 
-SoundManager::~SoundManager()
-{
-	
-}
 }
 
 void sfge::editor::SoundInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Sound");
-	ImGui::LabelText("Sound Path", path.c_str());
-	ImGui::InputInt("Sound Id", reinterpret_cast<int*>(&BufferId));
+
+
+	ImGui::LabelText("Sound Path", "%s", path.c_str());
+	ImGui::InputInt("Sound Id", reinterpret_cast<int*>(&SoundBufferId));
 	
 }

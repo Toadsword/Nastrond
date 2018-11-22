@@ -25,10 +25,16 @@
 #ifndef SFGE_PYSYSTEM_H
 #define SFGE_PYSYSTEM_H
 
+#include <utility/python_utility.h>
+
 #include <engine/system.h>
+#include <engine/component.h>
 
 namespace sfge
 {
+
+using InstanceId = unsigned;
+using ModuleId = unsigned;
 class PySystem : public System
 {
 public:
@@ -38,6 +44,35 @@ public:
 	void FixedUpdate() override;
 	void Draw() override;
 
+	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
+
+	void LoadCppExtensionSystem(std::string moduleName);
+};
+
+class PySystemManager : public System
+{
+public:
+
+	using System::System;
+	void Init() override;
+
+	void Update(float dt) override;
+	void FixedUpdate() override;
+
+	void Destroy() override;
+
+	InstanceId LoadPySystem(ModuleId moduleId);
+	void LoadCppExtensionSystem(std::string systemClassName);
+	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
+
+	void InitPySystems();
+protected:
+	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+
+	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	InstanceId m_IncrementalInstanceId = 1U;
+
+	PythonEngine* m_PythonEngine = nullptr;
 };
 }
 #endif

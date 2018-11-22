@@ -56,9 +56,9 @@ public:
 	*/
 	void Update(float dt) override;
 
-	SoundManager& GetSoundManager();
-	MusicManager& GetMusicManager();
-	SoundBufferManager& GetSoundBufferManager();
+	SoundManager* GetSoundManager();
+	MusicManager* GetMusicManager();
+	SoundBufferManager* GetSoundBufferManager();
 	void Destroy() override;
 	void Clear() override;
 	void Collect() override;

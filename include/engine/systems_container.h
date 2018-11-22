@@ -1,18 +1,18 @@
 /*
  MIT License
- 
+
  Copyright (c) 2017 SAE Institute Switzerland AG
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in all
  copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,21 +22,37 @@
  SOFTWARE.
  */
 
-#include <engine/log.h>
+#ifndef SFGE_SYSTEMS_CONTAINER_H
+#define SFGE_SYSTEMS_CONTAINER_H
+
+#include <graphics/graphics2d.h>
+#include <audio/audio.h>
+#include <engine/scene.h>
+#include <input/input.h>
+#include <python/python_engine.h>
+#include <physics/physics2d.h>
+#include <engine/entity.h>
+#include <engine/transform2d.h>
+#include <editor/editor.h>
 
 namespace sfge
 {
-
-void Log::Msg(const std::string & text)
+struct SystemsContainer
 {
-	std::cout << text << "\n" << std::flush;
+ public:
+  SystemsContainer(Engine& engine);
+  SystemsContainer(const SystemsContainer&) = delete;
 
+  Graphics2dManager graphics2dManager;
+  AudioManager audioManager;
+  SceneManager sceneManager;
+  InputManager inputManager;
+  PythonEngine pythonEngine;
+  Physics2dManager physicsManager;
+  Editor editor;
+  EntityManager entityManager;
+  Transform2dManager transformManager;
 
+};
 }
-
-void Log::Error(const std::string & text)
-{
-	std::cerr << text << "\n"<<std::flush;
-}
-
-}
+#endif //SFGE_SYSTEMS_CONTAINER_H

@@ -30,6 +30,8 @@ SOFTWARE.
 
 #include <extensions/python_extensions.h>
 #include <extensions/planet_system.h>
+#include <extensions/pirate_system.h>
+
 namespace sfge::ext
 {
 
@@ -38,6 +40,11 @@ void ExtendPython(py::module& m)
 	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
 	planetSystem
 		.def(py::init<Engine&>());
+	
+	py::class_<PirateSystem, System> pirateSystem(m, "PirateSystemCpp");
+	pirateSystem
+			.def(py::init<Engine&>());
+
 }
 
 }

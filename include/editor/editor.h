@@ -26,6 +26,7 @@ SOFTWARE.
 #define SFGE_EDITOR_H
 
 #include <memory>
+#include <set>
 
 #include <engine/system.h>
 #include <engine/globals.h>
@@ -72,19 +73,23 @@ public:
 	void Clear() override;
 
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
+
+	void AddDrawableObserver(editor::IDrawableManager* observer);
 protected:
 	std::weak_ptr<sf::RenderWindow> m_Window;
-	Graphics2dManager& m_GraphicsManager;
-	SceneManager& m_SceneManager;
-	EntityManager& m_EntityManager;
-	Transform2dManager& m_TransformManager;
-	Physics2dManager& m_PhysicsManager;
-	SoundManager& m_SoundManager;
+	Graphics2dManager* m_GraphicsManager = nullptr;
+	SceneManager* m_SceneManager = nullptr;
+	EntityManager* m_EntityManager = nullptr;
+	Transform2dManager* m_TransformManager = nullptr;
+	Physics2dManager* m_PhysicsManager = nullptr;
+	SoundManager* m_SoundManager = nullptr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	bool m_IsImguiInit = false;
 	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};
 	Entity selectedEntity = INVALID_ENTITY;
+
+	std::set<editor::IDrawableManager*> m_DrawableObservers;
 };
 
 }

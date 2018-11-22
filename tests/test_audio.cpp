@@ -23,6 +23,7 @@ SOFTWARE.
 */
 #include <engine/engine.h>
 #include <engine/config.h>
+#include <engine/scene.h>
 #include <gtest/gtest.h>
 #include <audio/sound.h>
 #include <SFML/Audio.hpp>
@@ -56,7 +57,7 @@ TEST(TestAudio, Sound)
 
 	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
 	sceneJson["name"] = "Test Sound";
-	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }

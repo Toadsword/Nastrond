@@ -29,6 +29,7 @@ SOFTWARE.
 #include <graphics/shape2d.h>
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
+#include <graphics/animation2d.h>
 
 namespace sfge
 {
@@ -41,9 +42,6 @@ class Graphics2dManager : public System
 public:
 	using System::System;
 
-  	Graphics2dManager& operator=(const Graphics2dManager&) = delete;
-
-  	Graphics2dManager(Graphics2dManager&& graphics2dManager) = default;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/
@@ -73,9 +71,11 @@ public:
 	* \return The SFML window
 	*/
 	std::shared_ptr<sf::RenderWindow> GetWindow();
-	ShapeManager& GetShapeManager();
-	SpriteManager& GetSpriteManager();
-	TextureManager& GetTextureManager();
+
+	AnimationManager* GetAnimationManager();
+	ShapeManager* GetShapeManager();
+	SpriteManager* GetSpriteManager();
+	TextureManager* GetTextureManager();
 
 protected:
 	bool m_Windowless = false;
@@ -85,6 +85,7 @@ protected:
 	void CheckVersion() const;
 	TextureManager m_TextureManager{m_Engine};
 	SpriteManager m_SpriteManager{m_Engine};
+	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
 	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
 };

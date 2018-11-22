@@ -23,3 +23,16 @@ SOFTWARE.
 */
 
 #include <editor/editor_info.h>
+
+namespace sfge::editor
+{
+Entity IDrawableInspector::GetEntity()
+{
+  return m_Entity;
+}
+
+void IDrawableInspector::SetEntity(Entity entity)
+{
+  m_Entity = entity;
+}
+}

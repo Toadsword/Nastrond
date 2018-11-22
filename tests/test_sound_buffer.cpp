@@ -26,7 +26,7 @@ SOFTWARE.
 #include <engine/config.h>
 #include <audio/audio.h>
 #include <audio/sound.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <gtest/gtest.h>
 
 TEST(TestAudio, TestSoundBuffer)
@@ -38,15 +38,15 @@ TEST(TestAudio, TestSoundBuffer)
 	config->windowLess = true;
 	engine.Init (std::move (config));
 
-	auto& soundBufferManager = engine.GetAudioManager().GetSoundBufferManager();
+	auto* soundBufferManager = engine.GetAudioManager()->GetSoundBufferManager();
 
 	const std::string goodSoundBufferPath = "data/sounds/doorClose_1.ogg";
 	const std::string badTextPath = "fake/path/prout.ogg";
 	const std::string badTextPathWithoutExtension = "fake/path/prout";
 
-	const auto goodSndBufferId = soundBufferManager.LoadSoundBuffer(goodSoundBufferPath);
-	const auto badSndBufferId = soundBufferManager.LoadSoundBuffer(badTextPath);
-	const auto badExtSndBufferId = soundBufferManager.LoadSoundBuffer(badTextPathWithoutExtension);
+	const auto goodSndBufferId = soundBufferManager->LoadSoundBuffer(goodSoundBufferPath);
+	const auto badSndBufferId = soundBufferManager->LoadSoundBuffer(badTextPath);
+	const auto badExtSndBufferId = soundBufferManager->LoadSoundBuffer(badTextPathWithoutExtension);
 
 
 	ASSERT_EQ (badExtSndBufferId, sfge::INVALID_SOUND_BUFFER);
@@ -57,7 +57,7 @@ TEST(TestAudio, TestSoundBuffer)
 	if (badSndBufferId != sfge::INVALID_SOUND_BUFFER)
 	{
 		sfge::Log::GetInstance()->Error("Loading Bad File");
-		sound.setBuffer(*soundBufferManager.GetSoundBuffer(badSndBufferId));
+		sound.setBuffer(*soundBufferManager->GetSoundBuffer(badSndBufferId));
 	}
 	else
 	{
@@ -69,7 +69,7 @@ TEST(TestAudio, TestSoundBuffer)
 	{
 
 		sfge::Log::GetInstance()->Msg("Loading Good File");
-		sound.setBuffer(*soundBufferManager.GetSoundBuffer(goodSndBufferId));
+		sound.setBuffer(*soundBufferManager->GetSoundBuffer(goodSndBufferId));
 	}
 	else
 	{
@@ -81,7 +81,7 @@ TEST(TestAudio, TestSoundBuffer)
 	sound.play();
 
 	std::this_thread::sleep_for(std::chrono::milliseconds
-	(soundBufferManager.GetSoundBuffer(goodSndBufferId)->getDuration().asMilliseconds()));
+	(soundBufferManager->GetSoundBuffer(goodSndBufferId)->getDuration().asMilliseconds()));
 
 	engine.Destroy ();
 }

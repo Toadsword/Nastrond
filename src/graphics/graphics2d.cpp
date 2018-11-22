@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <graphics/graphics2d.h>
 #include <engine/engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 
 //Dependencies includes
@@ -40,7 +40,7 @@ namespace sfge
 
 void Graphics2dManager::Init()
 {
-	if (const auto configPtr = m_Engine.GetConfig().lock())
+	if (const auto configPtr = m_Engine.GetConfig())
 	{
 
 		if (!m_Windowless)
@@ -63,6 +63,7 @@ void Graphics2dManager::Init()
 	m_TextureManager.Init();
 	m_ShapeManager.Init();
 	m_SpriteManager.Init();
+	m_AnimationManager.Init();
 
 }
 
@@ -73,9 +74,11 @@ void Graphics2dManager::Update(float dt)
 		m_Window->clear();
 
 		m_SpriteManager.Update(dt);
+		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
-		m_SpriteManager.Draw(*m_Window);
 
+		m_SpriteManager.Draw(*m_Window);
+		m_AnimationManager.Draw(*m_Window);
 		m_ShapeManager.Draw(*m_Window);
 	}
 }
@@ -104,19 +107,24 @@ std::shared_ptr<sf::RenderWindow> Graphics2dManager::GetWindow()
 	return m_Window;
 }
 
-SpriteManager& Graphics2dManager::GetSpriteManager()
+SpriteManager* Graphics2dManager::GetSpriteManager()
 {
-	return m_SpriteManager;
+	return &m_SpriteManager;
 }
 
-TextureManager& Graphics2dManager::GetTextureManager()
+AnimationManager* Graphics2dManager::GetAnimationManager()
 {
-	return m_TextureManager;
+	return &m_AnimationManager;
 }
 
-ShapeManager& Graphics2dManager::GetShapeManager()
+TextureManager* Graphics2dManager::GetTextureManager()
 {
-	return m_ShapeManager;
+	return &m_TextureManager;
+}
+
+ShapeManager* Graphics2dManager::GetShapeManager()
+{
+	return &m_ShapeManager;
 }
 
 void Graphics2dManager::CheckVersion() const

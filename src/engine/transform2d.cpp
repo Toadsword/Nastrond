@@ -23,22 +23,13 @@ void editor::Transform2dInfo::DrawOnInspector()
 	ImGui::InputFloat("Angle", &transform->EulerAngle);
 }
 
-Transform2dManager::Transform2dManager(Engine& engine):
-	ComponentManager<sfge::Transform2d, sfge::editor::Transform2dInfo>(), 
-	System(engine),
-	ResizeObserver()
-{
-
-	m_Engine.GetEntityManager().AddObserver(this);
-}
 
 Transform2d* Transform2dManager::AddComponent(Entity entity)
 {
 
 	auto& transform = GetComponentRef(entity);
 	m_ComponentsInfo[entity - 1].transform = &transform;
-
-	m_Engine.GetEntityManager().AddComponentType(entity, ComponentType::TRANSFORM2D);
+	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TRANSFORM2D);
 	return &transform;
 }
 
@@ -57,13 +48,24 @@ void Transform2dManager::CreateComponent(json& componentJson, Entity entity)
 
 void Transform2dManager::DestroyComponent(Entity entity)
 {
-	m_Engine.GetEntityManager().RemoveComponentType(entity, ComponentType::TRANSFORM2D);
+	m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::TRANSFORM2D);
 }
 
-void Transform2dManager::OnResize(size_t new_size)
-{
-	m_Components.resize(new_size);
-	m_ComponentsInfo.resize(new_size);
+
+void Transform2dManager::Update(float dt) {
+    System::Update(dt);
+    for(auto& transform : m_Components)
+	{
+    	if(transform.EulerAngle > 180.0f)
+		{
+    		transform.EulerAngle -= 360.0f;
+		}
+
+		if(transform.EulerAngle < -180.0f)
+		{
+			transform.EulerAngle += 360.0f;
+		}
+	}
 }
 
 TransformRequiredComponent::TransformRequiredComponent(Transform2d* transform) : 

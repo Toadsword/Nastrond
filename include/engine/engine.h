@@ -31,21 +31,13 @@ SOFTWARE.
 #include <string>
 #include <ctpl_stl.h>
 
-
+#include <engine/config.h>
 #include <utility/json_utility.h>
-#include <graphics/graphics2d.h>
-#include <audio/audio.h>
-#include <engine/scene.h>
-#include <input/input.h>
-#include <python/python_engine.h>
-#include <physics/physics2d.h>
-#include <engine/entity.h>
-#include <engine/transform2d.h>
-#include <editor/editor.h>
+
 #include <editor/profiler.h>
 namespace sf
 {
-class sf::RenderWindow;
+class RenderWindow;
 }
 namespace sfge
 {
@@ -55,14 +47,24 @@ namespace sfge
 */
 
 struct Configuration;
+class Graphics2dManager;
+class AudioManager;
+class SceneManager;
+class InputManager;
+class PythonEngine;
+class Physics2dManager;
+class EntityManager;
+class Transform2dManager;
+class Editor;
+struct SystemsContainer;
 
 /**
-* \brief The main Engine class to centralise the frame process and the references
+* \brief The main Engine class to centralize the frame process and the references
 */
 class Engine
 {
 public:
-	Engine() = default;
+	Engine();
 	/**
 	* \brief Initialize all the modules of the Game Engine, reading the config file too
 	*/
@@ -84,22 +86,22 @@ public:
 	*/
 	void Collect();
 
-	~Engine() = default;
+	~Engine();
 	/**
 	* \brief A getter of the Configuration
 	* \return The Configuration struct got by the Engine
 	*/
-	std::weak_ptr<Configuration> GetConfig() const;
+	Configuration * GetConfig() const;
 
-	Graphics2dManager& GetGraphics2dManager();
-	AudioManager& GetAudioManager();
-	SceneManager& GetSceneManager();
-	InputManager& GetInputManager();
-	PythonEngine& GetPythonEngine();
-	Physics2dManager& GetPhysicsManager();
-	EntityManager& GetEntityManager();
-	Transform2dManager& GetTransform2dManager();
-	Editor& GetEditor();
+	Graphics2dManager* GetGraphics2dManager();
+	AudioManager* GetAudioManager();
+	SceneManager* GetSceneManager();
+	InputManager* GetInputManager();
+	PythonEngine* GetPythonEngine();
+	Physics2dManager* GetPhysicsManager();
+	EntityManager* GetEntityManager();
+	Transform2dManager* GetTransform2dManager();
+	Editor* GetEditor();
 
 	ctpl::thread_pool& GetThreadPool();
 	ProfilerFrameData& GetProfilerFrameData();
@@ -108,19 +110,11 @@ protected:
 	void InitModules();
 	ctpl::thread_pool m_ThreadPool;
 	std::shared_ptr<sf::RenderWindow> m_Window;
-	std::shared_ptr<Configuration> m_Config = nullptr;
+	std::unique_ptr<Configuration> m_Config;
 
 
-	//module
-	Graphics2dManager m_Graphics2dManager {*this};
-	AudioManager m_AudioManager {*this};
-	SceneManager m_SceneManager {*this};
-	InputManager m_InputManager {*this};
-	PythonEngine m_PythonEngine {*this};
-	Physics2dManager m_PhysicsManager {*this};
-	Editor m_Editor {*this};
-	EntityManager m_EntityManager {*this};
-	Transform2dManager m_TransformManager {*this};
+	//
+	std::unique_ptr<SystemsContainer> m_SystemsContainer;
 
   	ProfilerFrameData m_FrameData;
 

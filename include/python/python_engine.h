@@ -36,22 +36,21 @@
 
 namespace sfge
 {
-namespace editor
-{
-struct PyComponentInfo;
-}
-class PyComponent;
+
+
 struct ColliderData;
 
 using ModuleId = unsigned;
 const ModuleId INVALID_MODULE = 0U;
+
 using InstanceId = unsigned;
 const InstanceId INVALID_INSTANCE = 0U;
 
 /**
 * \brief Manage the python interpreter
 */
-class PythonEngine : public System, public LayerComponentManager<PyComponent*>, public ResizeObserver
+class PythonEngine :
+		public System
 {
 public:
 	using System::System;
@@ -60,7 +59,8 @@ public:
 	*/
 	void Init() override;
 
-	void InitPyComponent();
+
+	void InitScriptsInstances();
 	/**
 	* \brief Update the python interpreter, called only in play mode
 	* \param dt The delta time since last frame
@@ -76,48 +76,37 @@ public:
 	void Collect() override;
 	void Clear() override;
 
-	ModuleId LoadPyModule(std::string& moduleFilename);
+	ModuleId LoadPyModule(std::string moduleFilename);
 
-	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
-	InstanceId LoadPySystem(ModuleId moduleId);
 
-	void LoadCppExtensionSystem(std::string moduleName);
+	PyComponentManager& GetPyComponentManager(){ return m_PyComponentManager; }
+	PySystemManager& GetPySystemManager(){ return m_PySystemManager; }
 
-	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
-	/**
-	 * \brief Get a python component object
-	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
-	 * \return pyComponent PyComponent pointer that interacts with the python script
-	 */
-	PyComponent* GetPyComponentFromInstanceId(InstanceId instanceId);
-	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
-	py::object GetPyComponentFromType(py::object type, Entity entity);
+	const std::string& GetClassNameFrom(ModuleId moduleId);
+	const std::string& GetModuleNameFrom(ModuleId moduleId);
+	const std::string& GetModulePathFrom(ModuleId moduleId);
+	const py::object & GetModuleObjFrom(ModuleId moduleId);
 
-	void OnResize(size_t new_size) override;
 	/*
 	*/
-	void OnTriggerEnter(Entity entity, ColliderData* colliderData);
-	void OnTriggerExit(Entity entity, ColliderData* colliderData);
-	void OnCollisionEnter(Entity entity, ColliderData* colliderData);
-	void OnCollisionExit(Entity entity, ColliderData* colliderData);
+    void SpreadClasses();
 private:
 	/**
 	 * \brief Load all the python scripts at initialization or reset
 	 */
 	void LoadScripts(std::string dirname = "scripts/");
 
-	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * 4 };
-	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * 4 };
-	std::vector<std::string> m_PyModuleNames{ INIT_ENTITY_NMB * 4 };
-	std::vector<py::object> m_PyModuleObjs{INIT_ENTITY_NMB*4};
+
+	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<std::string> m_PyModuleNames{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<py::object> m_PyModuleObjs{INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER};
 
 	ModuleId m_IncrementalModuleId = 1U;
 
-	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * 4 };
-	InstanceId m_IncrementalInstanceId = 1U;
-	std::vector<PyComponent*> m_PyComponents{ INIT_ENTITY_NMB * 4 };
-	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * 4 };
-	std::vector<editor::PyComponentInfo> m_PyComponentsInfo{ INIT_ENTITY_NMB * 4 };
+	PyComponentManager m_PyComponentManager{m_Engine};
+	PySystemManager m_PySystemManager{m_Engine};
+
 };
 
 }

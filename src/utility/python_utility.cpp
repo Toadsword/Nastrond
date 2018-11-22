@@ -26,7 +26,7 @@
 #include <sstream>
 
 #include <utility/python_utility.h>
-#include <engine/log.h>
+#include <utility/log.h>
 
 namespace sfge
 {

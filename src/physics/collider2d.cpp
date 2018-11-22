@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#include <imgui.h>
 #include <physics/collider2d.h>
 #include <engine/globals.h>
 #include <engine/component.h>
@@ -30,22 +31,46 @@ namespace sfge
 {
 void editor::ColliderInfo::DrawOnInspector()
 {
+  ImGui::Separator();
+  ImGui::Text("Collider");
+  if(data != nullptr)
+  {
+    if(data->fixture != nullptr)
+    {
+      switch (data->fixture->GetShape()->m_type)
+      {
+      	case b2Shape::e_circle:
+      		ImGui::LabelText("Shape", "Circle");
+      		break;
+        case b2Shape::e_polygon:
+        	ImGui::LabelText("Shape", "Polygon");
+        	break;
+      	case b2Shape::e_chain:
+      		ImGui::LabelText("Shape", "Chain");
+			break;
+		case b2Shape::e_edge:
+			ImGui::LabelText("Shape", "Edge");
+		  	break;
+		  default:
+		  	break;
+      }
+    }
+  }
 }
 
-ColliderManager::ColliderManager(Engine& engine) :
-	System(engine),
-	m_BodyManager(m_Engine.GetPhysicsManager().GetBodyManager()),
-	m_EntityManager(m_Engine.GetEntityManager())
+
+void ColliderManager::Init()
 {
-	m_ColliderDatas.reserve(INIT_ENTITY_NMB * 4);
+	MultipleComponentManager::Init();
+	m_BodyManager = m_Engine.GetPhysicsManager()->GetBodyManager();
 }
 
 void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 {
 	Log::GetInstance()->Msg("Create component Collider");
-	if (m_EntityManager.HasComponent(entity, ComponentType::BODY2D))
+	if (m_EntityManager->HasComponent(entity, ComponentType::BODY2D))
 	{
-		auto & body = m_BodyManager.GetComponentRef(entity);
+		auto & body = m_BodyManager->GetComponentRef(entity);
 
 		b2FixtureDef fixtureDef;
 
@@ -101,15 +126,42 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 		{
 			fixtureDef.shape = shape.get();
 
-			auto fixture = body.GetBody()->CreateFixture(&fixtureDef);
+			auto index = GetFreeComponentIndex();
+			if(index != -1)
+			{
+				auto fixture = body.GetBody()->CreateFixture(&fixtureDef);
 
-			m_ColliderDatas.push_back(ColliderData());
-			ColliderData& colliderData = m_ColliderDatas.back();
-			colliderData.entity = entity;
-			colliderData.fixture = fixture;
-			colliderData.body = body.GetBody();
-			fixture->SetUserData(&colliderData);
+
+				ColliderData& colliderData = m_Components[index];
+				colliderData.entity = entity;
+				colliderData.fixture = fixture;
+				colliderData.body = body.GetBody();
+				m_ComponentsInfo[index].data = &colliderData;
+				m_ComponentsInfo[index].SetEntity(entity);
+				fixture->SetUserData(&colliderData);
+			}
 		}
 	}
+}
+int ColliderManager::GetFreeComponentIndex()
+{
+	for(int i = 0; i < m_Components.size();i++)
+	{
+		if(m_Components[i].entity == INVALID_ENTITY)
+			return i;
+	}
+	return -1;
+}
+ColliderData *ColliderManager::AddComponent(Entity entity)
+{
+	return nullptr;
+}
+void ColliderManager::DestroyComponent(Entity entity)
+{
+
+}
+ColliderData *ColliderManager::GetComponentPtr(Entity entity)
+{
+	return nullptr;
 }
 }

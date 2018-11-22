@@ -23,7 +23,7 @@ class PlanetSystem(System):
             new_entity = entity_manager.create_entity(i+1)
 
             transform = transform2d_manager.add_component(new_entity)  # type: Transform2d
-            transform.position = Vector2f(random.randint(0, self.screen_size.x), random.randint(0, self.screen_size.y))
+            transform.position = Vec2f(random.randint(0, self.screen_size.x), random.randint(0, self.screen_size.y))
 
             body2d = body2d_manager.add_component(new_entity)  # type: Body2d
             body2d.velocity = self.calculate_init_speed(transform)

@@ -33,7 +33,7 @@ TEST(TestScene, TestSwitchScene)
 		sfge::Engine engine;
 		engine.Init();
 
-		engine.GetSceneManager().LoadSceneFromPath("data/scenes/test_switch.scene");
+		engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_switch.scene");
 
 
 		engine.Start(); 
