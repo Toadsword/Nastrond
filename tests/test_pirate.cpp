@@ -38,7 +38,7 @@ TEST(TestPirate, PyPirate)
     initConfig->maxFramerate = 0;
     engine.Init(std::move(initConfig));
     json sceneJson = {
-            { "name", "Test Pirate Component" }
+            { "name", "Test Pirate PySystem" }
     };
     json systemJson = {
             {"script_path", "scripts/pirate_manager.py"}
@@ -59,7 +59,7 @@ TEST(TestPirate, PirateSystem)
     initConfig->maxFramerate = 0;
     engine.Init(std::move(initConfig));
     json sceneJson = {
-            { "name", "Test Pirate System" }
+            { "name", "Test Pirate SystemCpp" }
     };
     json systemJson = {
             {"systemClassName", "PirateSystemCpp"}
