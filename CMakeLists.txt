@@ -81,6 +81,7 @@ LIST(APPEND SFGE_LIBRARIES
 	sfml-audio
 	sfml-network)
 
+
 #Google Test
 set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest)
 add_subdirectory(${GOOGLE_TEST_DIR})
@@ -109,39 +110,37 @@ add_subdirectory(${BOX2D_DIR})
 include_directories(${BOX2D_DIR}/Box2D/)
 LIST(APPEND SFGE_LIBRARIES
 	Box2D)
-
+cotire(Box2D)
 
 
 
 #PYTHON
-#IF(NOT WIN32)
-#	add_definitions(-Wall -Wextra -pedantic -std=c++11)
-#
-#	IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
-#		add_definitions(-g -O0)
-#	ELSE()
-#		add_definitions(-O3)
-#	ENDIF()
-#
-#	LIST(APPEND SFGE_LIBRARIES resolv)
-#ELSE()
-#	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-#ENDIF()
+IF(UNIX)
+	add_definitions(-Wall -Wextra -pedantic -std=c++11)
 
-IF(WIN32)
-find_package(PythonLibs 3.6 EXACT REQUIRED)
-
-include_directories(${PYTHON_INCLUDE_DIR})
-LIST(APPEND SFGE_LIBRARIES ${PYTHON_LIBRARY})
-endif()
+	IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+		add_definitions(-g -O0)
+	ELSE()
+		add_definitions(-O3)
+	ENDIF()
+	set(PYBIND11_CPP_STANDARD -std=c++1z)
+	if(NOT APPLE)
+		set(PYTHON_EXECUTABLE "/usr/bin/python3")
+	elseif(APPLE)
+		set(PYTHON_EXECUTABLE "/usr/local/bin/python3")
+	endif()
+	LIST(APPEND SFGE_LIBRARIES resolv)
+ELSE()
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	
+	set(PYBIND11_CPP_STANDARD /std:c++latest)
+	#find_package( PythonInterp 3.6 REQUIRED )
+	#find_package( PythonLibs 3.6 REQUIRED )
+ENDIF()
 #
 
 #PYBIND11
-if(UNIX AND NOT APPLE)
-	set(PYTHON_EXECUTABLE "/usr/bin/python3")
-elseif(APPLE)
-	set(PYTHON_EXECUTABLE "/usr/local/bin/python3")
-endif()
+
 set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
 set(PYBIND11_DIR ${EXTERNAL_DIR}/pybind11/)
 add_subdirectory(${PYBIND11_DIR})
@@ -161,12 +160,10 @@ if(APPLE)
 	LIST(APPEND SFGE_LIBRARIES
 	  ${Boost_LIBRARIES})
 endif(APPLE)
-
+set(UTILITIES_DIR ${EXTERNAL_DIR}/utilities/)
+include_directories(${UTILITIES_DIR})
 #MISCELLANEOUS UTILITIES
 if(UNIX AND NOT APPLE)
-	set(UTILITIES_DIR ${EXTERNAL_DIR}/utilities/)
-	include_directories(${UTILITIES_DIR})
-
 	check_include_file(uuid/uuid.h HAVE_UUID_UUID_H)
 	check_library_exists(uuid uuid_generate "/lib;/usr/lib;/usr/local/lib" HAVE_UUID_LIB)
 
@@ -177,18 +174,20 @@ endif()
 
 
 #SFGE_COMMON
+
 LIST(APPEND SFGE_LIBRARIES)
 if(UNIX AND NOT APPLE)
 	LIST(APPEND SFGE_LIBRARIES
 		stdc++fs)
 ENDIF()
 
+include_directories(include/)
+include_directories(extensions/include/)
+
 file(GLOB_RECURSE SFGE_EXTENSIONS_SRC extensions/src/*.cpp extensions/include/*.h)
 source_group("Extensions"            FILES ${SFGE_EXTENSIONS_SRC})
 add_library(SFGE_COMMON STATIC ${SFGE_SRC} ${SFGE_EXTENSIONS_SRC})
 
-include_directories(include/)
-include_directories(extensions/include/)
 target_link_libraries(SFGE_COMMON PUBLIC ${SFGE_LIBRARIES})
 set_property(TARGET SFGE_COMMON PROPERTY CXX_STANDARD 17)
 
@@ -219,6 +218,7 @@ foreach(course_file ${COURSE_FILES} )
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
   ENDIF()
+  cotire(${course_name})
 endforeach()
 
 #SFGE TEST
@@ -249,20 +249,28 @@ if(APPLE)
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
 
-#SFGE Tool AnimCreator
+#SFGE TOOLS
+SET(SFGE_TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
+file(GLOB TOOLS_DIR ${SFGE_TOOLS_DIR}/*)
+foreach(tool_dir ${TOOLS_DIR})
 
-file(GLOB_RECURSE SFGE_ANIM_CREATOR_TOOL_SRC tools/anim_creator/main.cpp tools/anim_creator/src/*.cpp tools/anim_creator/include/*.h)
-LIST(APPEND SFGE_ANIM_CREATOR_TOOL_SRC ${SFGE_UTILITY_SRC})
-include_directories(include tools/anim_creator/include)
-add_executable(SFGE_ANIM_CREATOR_TOOL ${SFGE_ANIM_CREATOR_TOOL_SRC})
+    get_filename_component(tool_name ${tool_dir} NAME)
+	message("Tool name: ${tool_name} ${tool_dir}")
+	include_directories(${tool_dir}/include/)
+	file(GLOB_RECURSE TOOL_SRC ${tool_dir}/include/*.h ${tool_dir}/src/*.cpp ${tool_dir}/main.cpp)
+	add_executable(${tool_name} ${TOOL_SRC})
 
-target_link_libraries(SFGE_ANIM_CREATOR_TOOL PUBLIC ${SFGE_LIBRARIES})
-set_property(TARGET SFGE_ANIM_CREATOR_TOOL PROPERTY CXX_STANDARD 17)
-if(APPLE)
-	set_target_properties(SFGE_ANIM_CREATOR_TOOL PROPERTIES
-		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
-		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-ENDIF()
+	target_link_libraries(${tool_name} PUBLIC SFGE_COMMON)
+	set_property(TARGET ${tool_name} PROPERTY CXX_STANDARD 17)
+	set_target_properties (${tool_name} PROPERTIES FOLDER Tools)
+	if(APPLE)
+		set_target_properties(${tool_name} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+	ENDIF()
+	cotire(${tool_name})
+endforeach()
+
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
 

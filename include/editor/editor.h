@@ -76,7 +76,7 @@ public:
 
 	void AddDrawableObserver(editor::IDrawableManager* observer);
 protected:
-	std::weak_ptr<sf::RenderWindow> m_Window;
+	sf::RenderWindow* m_Window = nullptr;
 	Graphics2dManager* m_GraphicsManager = nullptr;
 	SceneManager* m_SceneManager = nullptr;
 	EntityManager* m_EntityManager = nullptr;

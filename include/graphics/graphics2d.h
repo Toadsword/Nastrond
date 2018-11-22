@@ -70,7 +70,7 @@ public:
 	* \brief Getter of the window created in GraphicsManager
 	* \return The SFML window
 	*/
-	std::shared_ptr<sf::RenderWindow> GetWindow();
+	sf::RenderWindow* GetWindow();
 
 	AnimationManager* GetAnimationManager();
 	ShapeManager* GetShapeManager();
@@ -87,7 +87,7 @@ protected:
 	SpriteManager m_SpriteManager{m_Engine};
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
-	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
+	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 
 }

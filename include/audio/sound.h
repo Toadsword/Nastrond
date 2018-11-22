@@ -45,6 +45,7 @@ const SoundBufferId INVALID_SOUND_BUFFER = 0U;
 const auto MAX_SOUND_BUFFER_SIZE = 1'000'000ll;
 
 
+
 /**
 * \brief Sound class child is a Component
 */

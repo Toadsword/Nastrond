@@ -119,7 +119,7 @@ void editor::AnimationInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Animation");
-	ImGui::LabelText("Animation name", name.c_str());
+	ImGui::LabelText("Animation name", "%s", name.c_str());
 	//ImGui::InputInt("Texture Id", (int*)&textureId);
 	if(animation)
 	{

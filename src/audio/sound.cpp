@@ -108,6 +108,7 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}*/
+
 				soundInfo->SetEntity(entity);
 				soundInfo->path = path;
 				soundBuffer = m_SoundBufferManager->GetSoundBuffer(soundBufferId);
@@ -368,6 +369,8 @@ void sfge::editor::SoundInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Sound");
+
+
 	ImGui::LabelText("Sound Path", "%s", path.c_str());
 	ImGui::InputInt("Sound Id", reinterpret_cast<int*>(&SoundBufferId));
 	
