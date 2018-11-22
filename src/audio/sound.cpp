@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include <audio/sound.h>
 #include <audio/audio.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/engine.h>
 #include <engine/config.h>
 #include <utility/file_utility.h>

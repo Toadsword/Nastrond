@@ -30,7 +30,7 @@ SOFTWARE.
 #include <memory>
 
 #include <graphics/texture.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 #include <engine/engine.h>
 #include <utility/file_utility.h>

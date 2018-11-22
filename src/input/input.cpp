@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <input/input.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <SFML/Window.hpp>
 #include <imgui-SFML.h>
 #include <imgui.h>

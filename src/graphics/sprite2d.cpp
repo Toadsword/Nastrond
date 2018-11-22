@@ -27,7 +27,7 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <utility/file_utility.h>
 
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/engine.h>
 #include <engine/config.h>
 #include <engine/transform2d.h>

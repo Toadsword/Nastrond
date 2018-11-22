@@ -41,7 +41,7 @@ public:
 	/**
 	 * \brief Constructor of Animation Manager.
 	 */
-	AnimationManager::AnimationManager() {};
+	AnimationManager() {};
 
 	/**
 	 * \brief Initializes the Animations manager, creating the required variables needed to function.

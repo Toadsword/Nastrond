@@ -31,7 +31,7 @@ SOFTWARE.
 #include <editor/editor.h>
 #include <engine/globals.h>
 #include <engine/engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 #include <audio/sound.h>
 #include <graphics/graphics2d.h>

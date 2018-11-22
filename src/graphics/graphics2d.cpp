@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <graphics/graphics2d.h>
 #include <engine/engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 
 //Dependencies includes

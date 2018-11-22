@@ -50,14 +50,13 @@ int main()
 	Utilities::ExportToJson(anim, textureMan.GetAllTextures(), "AnimTest");
 	return 0;
 	*/
+	{
+		Engine engine;
 
-	Engine* engine = new Engine();
+		engine.Init();
+		engine.Start();
 
-	engine->Init();
-	engine->Start();
-
-	delete(engine);
-
+	}
 	/*
 	sf::Texture spriteSheet;
 	sf::Sprite playerSprite;
@@ -151,7 +150,8 @@ int main()
 	if (playerSprite.getGlobalBounds().contains(myMouse.getPosition(window).x, myMouse.getPosition(window).y))
 		std::cout << "Mouse inside sprite. \n";
 	*/
-
+#ifdef WIN32
 	system("PAUSE");
-	return 0;
+#endif
+	return EXIT_SUCCESS;
 }

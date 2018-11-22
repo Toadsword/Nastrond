@@ -45,7 +45,7 @@ SOFTWARE.
 #include <editor/profiler.h>
 namespace sf
 {
-class sf::RenderWindow;
+class RenderWindow;
 }
 namespace sfge
 {

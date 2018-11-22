@@ -44,5 +44,19 @@ std::ifstream::pos_type CalculateFileSize(const std::string& filename)
 	std::ifstream in(filename, std::ifstream::binary | std::ifstream::ate);
 	return in.tellg();
 }
+bool CreateDirectory(const std::string& dirname)
+{
+	return fs::create_directory(dirname);
+}
+bool RemoveDirectory(const std::string &dirname, bool removeAll)
+{
+	if(removeAll)
+	{
+		return fs::remove_all(dirname);
+	} else
+	{
+		return fs::remove(dirname);
+	}
+}
 
 }

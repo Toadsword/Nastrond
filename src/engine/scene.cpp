@@ -24,7 +24,7 @@
 
 //SFGE includes
 #include <engine/scene.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <utility/json_utility.h>
 #include <editor/editor.h>
 #include <engine/config.h>

@@ -26,7 +26,7 @@ SOFTWARE.
 #include <audio/sound.h>
 #include <iostream>
 #include <utility/file_utility.h>
-#include <engine/log.h>
+#include <utility/log.h>
 
 namespace sfge
 {

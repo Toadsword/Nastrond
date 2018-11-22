@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 
-#include <engine/log.h>
+#include <utility/log.h>
 
 namespace sfge
 {

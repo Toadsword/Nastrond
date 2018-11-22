@@ -8,7 +8,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 #include <utility/python_utility.h>
-#include "engine/log.h"
+#include "utility/log.h"
 
 namespace sfge
 {

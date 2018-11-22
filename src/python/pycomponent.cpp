@@ -26,7 +26,7 @@
 
 #include <python/pycomponent.h>
 #include <python/python_engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <physics/physics2d.h>
 #include <graphics/graphics2d.h>
 #include <engine/engine.h>

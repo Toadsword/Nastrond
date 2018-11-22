@@ -26,7 +26,7 @@ SOFTWARE.
 #include <engine/config.h>
 #include <audio/audio.h>
 #include <audio/sound.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <gtest/gtest.h>
 
 TEST(TestAudio, TestSoundBuffer)

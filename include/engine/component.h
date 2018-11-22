@@ -30,7 +30,7 @@ SOFTWARE.
 #include <vector>
 
 #include <engine/globals.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/entity.h>
 
 #include <utility/json_utility.h>

@@ -67,7 +67,7 @@ public:
 	/**
 	 * \brief Constructor of the Texture Manager.
 	 */
-	TextureManager::TextureManager(){};
+	TextureManager(){};
 	
 	/**
 	 * \brief Initializer of the Texture Manager. This function must be called before running, at it initializes the needed variables.

@@ -154,12 +154,22 @@ if(APPLE)
 endif(APPLE)
 
 #MISCELLANEOUS UTILITIES
-set(UTILITIES_DIR ${EXTERNAL_DIR}/utilities/)
-include_directories(${UTILITIES_DIR})
+if(UNIX AND NOT APPLE)
+	set(UTILITIES_DIR ${EXTERNAL_DIR}/utilities/)
+	include_directories(${UTILITIES_DIR})
+
+	check_include_file(uuid/uuid.h HAVE_UUID_UUID_H)
+	check_library_exists(uuid uuid_generate "/lib;/usr/lib;/usr/local/lib" HAVE_UUID_LIB)
+
+	if (HAVE_UUID_LIB)
+		set(CMAKE_REQUIRED_LIBRARIES "uuid;${CMAKE_REQUIRED_LIBRARIES}")
+	endif (HAVE_UUID_LIB)
+endif()
 
 
 #SFGE_COMMON
-if(NOT WIN32 AND NOT APPLE)
+LIST(APPEND SFGE_LIBRARIES)
+if(UNIX AND NOT APPLE)
 	LIST(APPEND SFGE_LIBRARIES
 		stdc++fs)
 ENDIF()
@@ -199,6 +209,7 @@ foreach(course_file ${COURSE_FILES} )
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
   ENDIF()
 endforeach()
+
 #SFGE TEST
 SET(SFGE_TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 file(GLOB TEST_FILES ${SFGE_TEST_DIR}/*.cpp )
@@ -228,8 +239,9 @@ ENDIF()
 
 #SFGE Tool AnimCreator
 
-file(GLOB_RECURSE SFGE_ANIM_CREATOR_TOOL_SRC tools/animCreator/main.cpp tools/animCreator/src/*.cpp tools/animCreator/include/*.h)
-include_directories(include tools/animCreator/include)
+file(GLOB_RECURSE SFGE_ANIM_CREATOR_TOOL_SRC tools/anim_creator/main.cpp tools/anim_creator/src/*.cpp tools/anim_creator/include/*.h)
+LIST(APPEND SFGE_ANIM_CREATOR_TOOL_SRC ${SFGE_UTILITY_SRC})
+include_directories(include tools/anim_creator/include)
 add_executable(SFGE_ANIM_CREATOR_TOOL ${SFGE_ANIM_CREATOR_TOOL_SRC})
 
 target_link_libraries(SFGE_ANIM_CREATOR_TOOL PUBLIC ${SFGE_LIBRARIES})

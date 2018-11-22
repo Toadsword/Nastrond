@@ -31,7 +31,7 @@ Project : AnimationTool for SFGE
 #ifndef GRAPHICS_MANAGER_H
 #define GRAPHICS_MANAGER_H
 
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 #include <Utilities.h>
 #include <TextureManager.h>
@@ -61,7 +61,7 @@ public:
 	/**
 	 * \brief Constructor of the Graphics Manager.
 	 */
-	GraphicsManager::GraphicsManager() {}
+	GraphicsManager() {}
 
 	/**
 	 * \brief Initializer of the Graphics Manager. This function must be called before running, at it creates all the graphics needs.

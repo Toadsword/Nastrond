@@ -28,7 +28,7 @@
 #include <pybind11/stl.h>
 
 #include <python/python_engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/scene.h>
 #include <engine/engine.h>
 #include <engine/config.h>

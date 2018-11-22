@@ -31,7 +31,8 @@ Project : AnimationTool for SFGE
 
 #include <iostream>
 #include <fstream>
-#include <windows.h>
+
+#include <utility/file_utility.h>
 
 #include <AnimationManager.h>
 #include <TextureManager.h>
@@ -45,27 +46,24 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 	std::string animName = anim->GetName();
 
 	//Creating base folder
-	if(!CreateDirectory(DATA_FOLDER.c_str(), NULL) && !CreateDirectory(SAVE_FOLDER.c_str(), NULL))
+	if(!sfge::CreateDirectory(DATA_FOLDER) && !sfge::CreateDirectory(SAVE_FOLDER))
 	{
-		if (ERROR_ALREADY_EXISTS != GetLastError())
-		{
-			return SAVE_FAILURE;
-		}
+		return SAVE_FAILURE;
+
 	}
 
-	if (!CreateDirectory((SAVE_FOLDER + animName + "/").c_str(), NULL))
+	if (!sfge::CreateDirectory((SAVE_FOLDER + animName + "/")))
 	{
-		if(ERROR_ALREADY_EXISTS != GetLastError())
-			return SAVE_FAILURE;
+		return SAVE_FAILURE;
 	}
 
 	//Check if file already exists. If so, we ask if the user wants to replace it
 	if (confirmedReplacement)
-		RemoveDirectory((SAVE_FOLDER + animName + "/").c_str());
-	
-	std::ifstream doAnimExists(SAVE_FOLDER + animName + ".json");
-	confirmedReplacement = !confirmedReplacement && doAnimExists;
-	doAnimExists.close();
+		sfge::RemoveDirectory(SAVE_FOLDER + animName + "/");
+	{
+		std::ifstream doAnimExists(SAVE_FOLDER + animName + ".json");
+		confirmedReplacement = !confirmedReplacement && doAnimExists;
+	}
 
 	if(confirmedReplacement)
 		return SAVE_DO_REPLACE;

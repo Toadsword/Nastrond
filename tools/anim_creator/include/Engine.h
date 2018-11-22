@@ -47,7 +47,7 @@ public:
 	/**
 	 * \brief Constructor of the Engine.
 	 */
-	Engine::Engine() {};
+	Engine() {};
 
 	/**
 	 * \brief Initializer of the Engine. This function must be called before running, at it creates every Managers the tool need to function.

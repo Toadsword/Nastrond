@@ -31,7 +31,6 @@ Project : AnimationTool for SFGE
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#include <windows.h>
 #include <iostream>
 
 #include <Engine.h>

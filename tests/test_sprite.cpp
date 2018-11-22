@@ -27,7 +27,7 @@ SOFTWARE.
 #include <graphics/sprite2d.h>
 #include <engine/transform2d.h>
 #include <utility/json_utility.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 #include <engine/scene.h>
 //Dependencies

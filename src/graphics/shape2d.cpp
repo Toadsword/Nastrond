@@ -25,7 +25,7 @@ SOFTWARE.
 #include <graphics/graphics2d.h>
 #include <graphics/shape2d.h>
 #include <utility/json_utility.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/transform2d.h>
 #include <engine/engine.h>
 #include <imgui.h>

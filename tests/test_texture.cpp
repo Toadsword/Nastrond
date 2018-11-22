@@ -26,7 +26,7 @@ SOFTWARE.
 #include <engine/config.h>
 #include <graphics/graphics2d.h>
 #include <graphics/texture.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <gtest/gtest.h>
 
 TEST(TextureTest, BadTexture)

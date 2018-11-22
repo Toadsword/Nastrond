@@ -41,7 +41,7 @@ SOFTWARE.
 #include <editor/editor.h>
 #include <engine/transform2d.h>
 #include <physics/physics2d.h>
-#include <engine/log.h>
+#include <utility/log.h>
 
 
 namespace sfge
