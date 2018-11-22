@@ -34,19 +34,15 @@ SOFTWARE.
 #include <utility/log.h>
 #include <engine/config.h>
 #include <audio/sound.h>
+#include <audio/audio.h>
 #include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
+#include <python/python_engine.h>
 
 namespace sfge
 {
 Editor::Editor(Engine& engine):
-	System(engine),
-	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
-	m_SceneManager(m_Engine.GetSceneManager()),
-	m_EntityManager(m_Engine.GetEntityManager()),
-	m_TransformManager(m_Engine.GetTransform2dManager()),
-	m_PhysicsManager(m_Engine.GetPhysicsManager()),
-	m_SoundManager(m_Engine.GetAudioManager().GetSoundManager())
+	System(engine)
 {
 }
 
@@ -55,10 +51,15 @@ Editor::Editor(Engine& engine):
 */
 void Editor::Init()
 {
-	
+	m_GraphicsManager = m_Engine.GetGraphics2dManager();
+	m_SceneManager = m_Engine.GetSceneManager();
+	m_EntityManager = m_Engine.GetEntityManager();
+	m_TransformManager = m_Engine.GetTransform2dManager();
+	m_PhysicsManager = m_Engine.GetPhysicsManager();
+	m_SoundManager = m_Engine.GetAudioManager()->GetSoundManager();
 	if (m_Enable)
 	{
-		m_Window = m_GraphicsManager.GetWindow();
+		m_Window = m_GraphicsManager->GetWindow();
 		
 		Log::GetInstance()->Msg("Enabling Editor");
 		if(const auto window = m_Window.lock())
@@ -77,7 +78,7 @@ void Editor::Update(float dt)
 	if (m_Enable)
 	{
 		const auto windowPtr = m_Window.lock();
-		const auto configPtr = m_Engine.GetConfig().lock();
+		const auto configPtr = m_Engine.GetConfig();
 		if (windowPtr and configPtr)
 		{
 			ImGui::SFML::Update(*windowPtr, sf::seconds(dt));
@@ -89,9 +90,9 @@ void Editor::Update(float dt)
 			
 			for (int i = 0; i < configPtr->currentEntitiesNmb; i++)
 			{
-				if(m_EntityManager.GetMask(i+1) != INVALID_ENTITY)
+				if(m_EntityManager->GetMask(i+1) != INVALID_ENTITY)
 				{
-					auto& entityInfo = m_EntityManager.GetEntityInfo(i+1);
+					auto& entityInfo = m_EntityManager->GetEntityInfo(i+1);
 					if(ImGui::Selectable(entityInfo.name.c_str(), selectedEntity-1 == i))
 					{
 						selectedEntity = i + 1;
@@ -107,52 +108,57 @@ void Editor::Update(float dt)
 			//TODO ADD THE SELECTED ENTITY COMPONENTS ON THE WINDOW
 			if(selectedEntity != INVALID_ENTITY)
 			{
-				auto& entityInfo = m_EntityManager.GetEntityInfo(selectedEntity);
+				auto& entityInfo = m_EntityManager->GetEntityInfo(selectedEntity);
 				ImGui::InputText("Name", &entityInfo.name[0u], 15);
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
+				/*if(m_EntityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
 				{
-					auto& transformInfo = m_TransformManager.GetComponentInfo(selectedEntity);
+					auto& transformInfo = m_TransformManager->GetComponentInfo(selectedEntity);
 					transformInfo.DrawOnInspector();
 				}
 
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::BODY2D))
+				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::BODY2D))
 				{
 					
-					auto& bodyManager = m_PhysicsManager.GetBodyManager();
-					auto& bodyInfo = bodyManager.GetComponentInfo(selectedEntity);
+					auto* bodyManager = m_PhysicsManager->GetBodyManager();
+					auto& bodyInfo = bodyManager->GetComponentInfo(selectedEntity);
 					bodyInfo.DrawOnInspector();
 					
 				}
 
-				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SPRITE2D))
+				if (m_EntityManager->HasComponent(selectedEntity, ComponentType::SPRITE2D))
 				{
 					
-					auto& spriteManager = m_GraphicsManager.GetSpriteManager();
-					auto& spriteInfo = spriteManager.GetComponentInfo(selectedEntity);
+					auto* spriteManager = m_GraphicsManager->GetSpriteManager();
+					auto& spriteInfo = spriteManager->GetComponentInfo(selectedEntity);
 					spriteInfo.DrawOnInspector();
 
 					
 				}
-				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SHAPE2D))
+				if (m_EntityManager->HasComponent(selectedEntity, ComponentType::SHAPE2D))
 				{
-					auto& shapeManager = m_GraphicsManager.GetShapeManager();
-					auto& shapeInfo = shapeManager.GetComponentInfo (selectedEntity);
+					auto* shapeManager = m_GraphicsManager->GetShapeManager();
+					auto& shapeInfo = shapeManager->GetComponentInfo (selectedEntity);
 					shapeInfo.DrawOnInspector();
 				}
 
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::SOUND))
+				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::SOUND))
 				{
-					auto& soundInfo = m_SoundManager.GetComponentInfo(selectedEntity);
+					auto& soundInfo = m_SoundManager->GetComponentInfo(selectedEntity);
 					soundInfo.DrawOnInspector();
 				}
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
+				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
 				{
-					auto& pythonEngine = m_Engine.GetPythonEngine();
-					for(auto& pyInfo : pythonEngine.GetPyComponentsInfoFromEntity(selectedEntity))
+					auto* pythonEngine = m_Engine.GetPythonEngine();
+					for(auto& pyInfo : pythonEngine->GetPyComponentsInfoFromEntity(selectedEntity))
 					{
 						pyInfo.DrawOnInspector();
 					}
 				}
+				 */
+				for(auto& drawableComponentManager: m_DrawableObservers)
+                {
+				  drawableComponentManager->DrawOnInspector(selectedEntity);
+                }
 
 			}
 			ImGui::End();
@@ -215,5 +221,9 @@ void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
 		window->setTitle(oss.str());
 	}
 
+}
+void Editor::AddDrawableObserver(editor::IDrawableManager *observer)
+{
+	m_DrawableObservers.emplace(observer);
 }
 }

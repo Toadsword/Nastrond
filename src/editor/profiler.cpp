@@ -41,7 +41,7 @@ void ProfilerEditorWindow::Update ()
     << "Fixed Update: "<<m_ProfilerFrameData.frameFixedUpdate.asMicroseconds ()<<", "<<m_ProfilerFrameData.frameFixedUpdate.asSeconds ()/m_ProfilerFrameData.frameTotalTime.asSeconds ()*100.0f<<"%\n"
     <<"Graphics Update: "<<m_ProfilerFrameData.graphicsTime.asMicroseconds ()<<", "<<m_ProfilerFrameData.graphicsTime.asSeconds ()/m_ProfilerFrameData.frameTotalTime.asSeconds ()*100.0f;
 
-    ImGui::Text(oss.str().c_str());
+    ImGui::Text("%s", oss.str().c_str());
   }
 
   ImGui::End();

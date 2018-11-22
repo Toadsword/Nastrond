@@ -40,7 +40,7 @@ namespace sfge
 
 void Graphics2dManager::Init()
 {
-	if (const auto configPtr = m_Engine.GetConfig().lock())
+	if (const auto configPtr = m_Engine.GetConfig())
 	{
 
 		if (!m_Windowless)
@@ -107,24 +107,24 @@ std::shared_ptr<sf::RenderWindow> Graphics2dManager::GetWindow()
 	return m_Window;
 }
 
-SpriteManager& Graphics2dManager::GetSpriteManager()
+SpriteManager* Graphics2dManager::GetSpriteManager()
 {
-	return m_SpriteManager;
+	return &m_SpriteManager;
 }
 
-AnimationManager& Graphics2dManager::GetAnimationManager()
+AnimationManager* Graphics2dManager::GetAnimationManager()
 {
-	return m_AnimationManager;
+	return &m_AnimationManager;
 }
 
-TextureManager& Graphics2dManager::GetTextureManager()
+TextureManager* Graphics2dManager::GetTextureManager()
 {
-	return m_TextureManager;
+	return &m_TextureManager;
 }
 
-ShapeManager& Graphics2dManager::GetShapeManager()
+ShapeManager* Graphics2dManager::GetShapeManager()
 {
-	return m_ShapeManager;
+	return &m_ShapeManager;
 }
 
 void Graphics2dManager::CheckVersion() const

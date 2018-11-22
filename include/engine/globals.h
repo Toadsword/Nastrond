@@ -34,10 +34,9 @@
 
 #define SFGE_VERSION 0.2
 
-
 using Entity = unsigned;
 const Entity INVALID_ENTITY = 0U;
-
+const size_t  MULTIPLE_COMPONENTS_MULTIPLIER = 4;
 enum class ModuleType
 {
 	ENTITY,

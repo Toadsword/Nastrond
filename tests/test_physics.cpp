@@ -30,9 +30,9 @@ TEST(TestPhysics, TestPhysics)
 	sfge::Engine engine;
 	engine.Init();
 
-	auto sceneManager = engine.GetSceneManager();
+	auto* sceneManager = engine.GetSceneManager();
 
-	sceneManager.LoadSceneFromPath("data/scenes/test_physics.scene");
+	sceneManager->LoadSceneFromPath("data/scenes/test_physics.scene");
 	engine.Start();
 
 }

@@ -6,7 +6,7 @@ class PlanetComponent(Component):
     gravity_const = 1000.0
     planet_mass: float
     center_mass: float
-    screen_size: Vector2f
+    screen_size: Vec2f
     body: Body2d
     transform: Transform2d
 

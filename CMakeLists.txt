@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.3)
 project(SFGE)
 
-include(cmake/IntelCompileFeatures.cmake)
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(IntelCompileFeatures)
 
-include(cmake/EnumeratedOption.cmake)
-include(cmake/CheckCXXFeature.cmake)
-include(cmake/CheckCXXStandardLibrary.cmake)
+include(EnumeratedOption)
+include(CheckCXXFeature)
+include(CheckCXXStandardLibrary)
+
+include(cotire)
 
 message(STATUS "CXX compiler ID: '${CMAKE_CXX_COMPILER_ID}'")
 message(STATUS "CXX compiler Version: '${CMAKE_CXX_COMPILER_VERSION}'")
@@ -30,8 +33,13 @@ message(STATUS "List of CXX features known to CMake")
 		message("  ${_f}")
 endforeach()
 
+if(WIN32)
+add_compile_definitions(NOMINMAX)
+endif(WIN32)
+
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/externals)
 
@@ -61,13 +69,6 @@ source_group("Utility"            FILES ${SFGE_UTILITY_SRC})
 List(APPEND SFGE_SRC  ${SFGE_AUDIO_SRC} ${SFGE_ENGINE_SRC} ${SFGE_EDITOR_SRC} ${SFGE_GRAPHICS_SRC}
 ${SFGE_INPUT_SRC} ${SFGE_PHYSICS_SRC}  ${SFGE_PYTHON_SRC} ${SFGE_UTILITY_SRC})
 
-#Google Test
-set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest)
-add_subdirectory(${GOOGLE_TEST_DIR})
-include_directories(${GOOGLE_TEST_DIR}/include)
-set_target_properties (gtest gtest_main PROPERTIES
-    FOLDER GTest
-)
 #SFML
 set(SFML_DIR ${EXTERNAL_DIR}/SFML)
 set(SFML_BUILD_EXAMPLES FALSE)
@@ -80,6 +81,13 @@ LIST(APPEND SFGE_LIBRARIES
 	sfml-audio
 	sfml-network)
 
+#Google Test
+set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest)
+add_subdirectory(${GOOGLE_TEST_DIR})
+include_directories(${GOOGLE_TEST_DIR}/include)
+set_target_properties (gtest gtest_main PROPERTIES
+		FOLDER GTest
+		)
 #SFML Imgui
 set(SFML_IMGUI ${EXTERNAL_DIR}/imgui-sfml/)
 set(IMGUI_ROOT ${EXTERNAL_DIR}/imgui/)
@@ -104,6 +112,7 @@ LIST(APPEND SFGE_LIBRARIES
 
 
 
+
 #PYTHON
 #IF(NOT WIN32)
 #	add_definitions(-Wall -Wextra -pedantic -std=c++11)
@@ -119,26 +128,26 @@ LIST(APPEND SFGE_LIBRARIES
 #	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 #ENDIF()
 
+IF(WIN32)
+find_package(PythonLibs 3.6 EXACT REQUIRED)
 
-#find_package(PythonLibs 3 EXACT REQUIRED)
-
-#include_directories(${PYTHON_INCLUDE_DIR})
-
-#LIST(APPEND SFGE_LIBRARIES ${PYTHON_LIBRARY})
+include_directories(${PYTHON_INCLUDE_DIR})
+LIST(APPEND SFGE_LIBRARIES ${PYTHON_LIBRARY})
+endif()
+#
 
 #PYBIND11
 if(UNIX AND NOT APPLE)
 	set(PYTHON_EXECUTABLE "/usr/bin/python3")
 elseif(APPLE)
-
 	set(PYTHON_EXECUTABLE "/usr/local/bin/python3")
 endif()
 set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
 set(PYBIND11_DIR ${EXTERNAL_DIR}/pybind11/)
 add_subdirectory(${PYBIND11_DIR})
 include_directories(${PYBIND11_DIR})
-LIST(APPEND SFGE_LIBRARIES
-  pybind11::embed)
+LIST(APPEND SFGE_LIBRARIES pybind11::embed)
+
 
 if(APPLE)
 	set(boost_min_ver 1.50.0)
@@ -177,16 +186,18 @@ ENDIF()
 file(GLOB_RECURSE SFGE_EXTENSIONS_SRC extensions/src/*.cpp extensions/include/*.h)
 source_group("Extensions"            FILES ${SFGE_EXTENSIONS_SRC})
 add_library(SFGE_COMMON STATIC ${SFGE_SRC} ${SFGE_EXTENSIONS_SRC})
+
 include_directories(include/)
 include_directories(extensions/include/)
 target_link_libraries(SFGE_COMMON PUBLIC ${SFGE_LIBRARIES})
 set_property(TARGET SFGE_COMMON PROPERTY CXX_STANDARD 17)
+
 if(APPLE)
 set_target_properties(SFGE_COMMON PROPERTIES
 ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
-
+cotire(SFGE_COMMON)
 #SFGE COURSES
 SET(SFGE_COURSE_DIR ${CMAKE_SOURCE_DIR}/courses)
 file(GLOB COURSE_FILES ${SFGE_COURSE_DIR}/*.cpp )
@@ -225,6 +236,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -masm=intel" )
 endif()
+cotire(SFGE_TEST)
 #SFGE
 add_executable(SFGE src/main.cpp)
 

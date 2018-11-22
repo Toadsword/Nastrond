@@ -47,7 +47,7 @@ TEST(TestAnimation, TestAnimation)
 
 	sceneJson["entities"] = json::array({ entityJson });
 	sceneJson["name"] = "Test Animation";
-	engine.GetSceneManager().LoadSceneFromJson(sceneJson);
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 	
 	engine.Start();
 }

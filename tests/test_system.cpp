@@ -27,6 +27,7 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
+#include <engine/component.h>
 
 
 TEST(TestSystem, PlanetPyComponent)
@@ -40,7 +41,7 @@ TEST(TestSystem, PlanetPyComponent)
 	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 
-	const auto config = engine.GetConfig().lock();
+	const auto config = engine.GetConfig();
 	json sceneJson = {
 		{ "name", "Test Planet Component" } };
 	json entitiesArray = json::array();
@@ -83,8 +84,8 @@ TEST(TestSystem, PlanetPyComponent)
 		entitiesArray.push_back(entityJson);
 	}
 	sceneJson["entities"] = entitiesArray;
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }
@@ -104,8 +105,8 @@ TEST(TestSystem, PlanetPySystem)
 		{"script_path", "scripts/planet_system.py"}
 	};
 	sceneJson["systems"] = json::array({ systemJson });
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }
@@ -125,8 +126,8 @@ TEST(TestSystem, PlanetPySystemCpp)
 	};
 
 	sceneJson["systems"] = json::array({ systemJson });
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }

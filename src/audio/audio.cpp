@@ -32,26 +32,26 @@ namespace sfge
 {
 void AudioManager::Init()
 {
-
+	m_SoundManager.Init();
 };
 void AudioManager::Update(float dt)
 {
 
 };
 
-SoundManager&  AudioManager::GetSoundManager()
+SoundManager* AudioManager::GetSoundManager()
 {
-	return m_SoundManager;
+	return &m_SoundManager;
 }
 
-MusicManager&  AudioManager::GetMusicManager()
+MusicManager* AudioManager::GetMusicManager()
 {
-	return m_MusicManager;
+	return &m_MusicManager;
 }
 
-SoundBufferManager& AudioManager::GetSoundBufferManager()
+SoundBufferManager* AudioManager::GetSoundBufferManager()
 {
-	return m_SoundBufferManager;
+	return &m_SoundBufferManager;
 }
 
 void AudioManager::Clear()

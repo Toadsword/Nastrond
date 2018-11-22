@@ -91,12 +91,11 @@ struct AnimationInfo : ComponentInfo
 /**
 * \brief Animation manager caching all the animations and rendering them at the end of the frame
 */
-class AnimationManager : public ComponentManager<Animation, editor::AnimationInfo>, 
-	public LayerComponentManager<Sprite>, public System, public ResizeObserver
+class AnimationManager : public SingleComponentManager<Animation, editor::AnimationInfo, ComponentType::ANIMATION2D>,
+	public LayerComponentManager<Animation>
 {
 public:
-	AnimationManager(Engine& engine);
-	AnimationManager& operator=(const AnimationManager&) = delete;
+	using SingleComponentManager::SingleComponentManager;
 	void Init() override;
 	void Update(float dt) override;
 	void Draw(sf::RenderWindow& window);
@@ -107,11 +106,9 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
-	void OnResize(size_t new_size) override;
 protected:
-	Graphics2dManager& m_GraphicsManager;
-	Transform2dManager& m_Transform2dManager;
-	EntityManager& m_EntityManager;
+	Graphics2dManager* m_GraphicsManager;
+	Transform2dManager* m_Transform2dManager;
 };
 
 

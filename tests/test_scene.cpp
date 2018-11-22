@@ -27,14 +27,15 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
+#include <graphics/shape2d.h>
 
 TEST(TestScene, TestLoadScene)
 {
 	sfge::Engine engine;
 	engine.Init();
 
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromPath ("data/scenes/test.scene");
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromPath ("data/scenes/test.scene");
 
 
 	engine.Start();
@@ -47,7 +48,7 @@ TEST(TestScene, TestLotOfEntites)
 	
 	sfge::Engine engine;
 	engine.Init();
-	const auto config = engine.GetConfig().lock();
+	const auto config = engine.GetConfig();
 	json sceneJson = {
 		{"name", "Lot Of Entities Scene"}};
 	json entitiesArray = json::array();
@@ -65,7 +66,7 @@ TEST(TestScene, TestLotOfEntites)
 		{
 			{"size", {10,10}},
 			{"type", static_cast<int>(sfge::ComponentType::SHAPE2D)},
-			{"shape_type", static_cast<int>(sfge::ShapeType::RECTANGLE)}
+			{"shape_type", static_cast<int>(sfge::ShapeType ::RECTANGLE)}
 		};
 
 		std::ostringstream oss;
@@ -81,8 +82,8 @@ TEST(TestScene, TestLotOfEntites)
 		entitiesArray.push_back(entityJson);
 	}
 	sceneJson["entities"] = entitiesArray;
-	auto& sceneManager = engine.GetSceneManager();
-	sceneManager.LoadSceneFromJson(sceneJson);
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }

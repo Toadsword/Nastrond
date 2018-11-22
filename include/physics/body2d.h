@@ -65,10 +65,10 @@ private:
 };
 }
 
-class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System, public ResizeObserver
+class Body2dManager : public SingleComponentManager<Body2d, editor::Body2dInfo, ComponentType::BODY2D>
 {
 public:
-	Body2dManager(Engine& engine);
+	using SingleComponentManager::SingleComponentManager;
 	void Init() override;
 	void FixedUpdate() override;
 	Body2d* AddComponent(Entity entity) override;
@@ -78,8 +78,7 @@ public:
 	void OnResize(size_t new_size) override;
 
 private:
-	EntityManager& m_EntityManager;
-	Transform2dManager& m_Transform2dManager;
+	Transform2dManager* m_Transform2dManager;
 	std::weak_ptr<b2World> m_WorldPtr;
 };
 

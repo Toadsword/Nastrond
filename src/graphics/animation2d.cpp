@@ -106,7 +106,7 @@ void Animation::Update(float dt)
 		*/
 	}
 	
-	sf::Vector2f pos = m_Offset;
+	Vec2f pos = m_Offset;
 	if(m_Transform != nullptr)
 	{
 		pos += m_Transform->Position;
@@ -132,38 +132,32 @@ void editor::AnimationInfo::DrawOnInspector()
 	}
 }
 
-AnimationManager::AnimationManager(Engine& engine):
-	ComponentManager<Animation, editor::AnimationInfo>(),
-	System(engine),
-	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager()),
-	m_EntityManager(m_Engine.GetEntityManager())
-{
-}
+
 
 Animation* AnimationManager::AddComponent(Entity entity)
 {
 	auto& animation = GetComponentRef(entity);
 	auto& animationInfo = GetComponentInfo(entity);
 
-	animation.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
+	animation.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	animationInfo.animation = &animation;
 
-	m_EntityManager.AddComponentType(entity, ComponentType::ANIMATION2D);
+	m_EntityManager->AddComponentType(entity, ComponentType::ANIMATION2D);
 	return &animation;
 }
 
 void AnimationManager::Init()
 {
-	System::Init();
-	m_EntityManager.AddObserver(this);
+	SingleComponentManager::Init();
+	m_GraphicsManager = m_Engine.GetGraphics2dManager();
+	m_Transform2dManager = m_Engine.GetTransform2dManager();
 }
 
 void AnimationManager::Update(float dt)
 {
 	for(int i = 0; i < m_Components.size();i++)
 	{
-		if(m_EntityManager.HasComponent(i+1, ComponentType::ANIMATION2D))
+		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D))
 		{
 			m_Components[i].Update(dt);
 		}
@@ -176,7 +170,7 @@ void AnimationManager::Draw(sf::RenderWindow& window)
 	
 	for (int i = 0; i<m_Components.size();i++)
 	{
-		if(m_EntityManager.HasComponent(i + 1, ComponentType::ANIMATION2D))
+		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D))
 			m_Components[i].Draw(window);
 	}
 	
@@ -216,7 +210,7 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 		auto & newAnimation = m_Components[entity - 1];
 		auto & newAnimationInfo = m_ComponentsInfo[entity - 1];
 		
-		newAnimation.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
+		newAnimation.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 		
 		std::string name = "";
 		if (CheckJsonParameter(*framesInfosPtr, "name", json::value_t::string))
@@ -242,7 +236,7 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 		if(CheckJsonParameter((*framesInfosPtr), "frames", json::value_t::array))
 		{
 			std::vector<AnimationFrame> newFrameList;
-			auto& textureManager = m_GraphicsManager.GetTextureManager();
+			auto* textureManager = m_GraphicsManager->GetTextureManager();
 			for (auto& frameJson : (*framesInfosPtr)["frames"])
 			{
 				AnimationFrame newFrame;
@@ -250,11 +244,11 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 				{
 					newFrame.filename = frameJson["filename"].get<std::string>();
 					std::string texturePath = ANIM_FOLER + name + "/" + newFrame.filename;
-					const TextureId textureId = textureManager.LoadTexture(texturePath);
+					const TextureId textureId = textureManager->LoadTexture(texturePath);
 					
 					if (textureId != INVALID_TEXTURE)
 					{
-						newFrame.texture = textureManager.GetTexture(textureId);
+						newFrame.texture = textureManager->GetTexture(textureId);
 					}
 					else
 					{
@@ -298,9 +292,4 @@ void AnimationManager::DestroyComponent(Entity entity)
 {
 }
 
-void AnimationManager::OnResize(size_t new_size)
-{
-	m_Components.resize(new_size);
-	m_ComponentsInfo.resize(new_size);
-}
 }

@@ -42,9 +42,6 @@ class Graphics2dManager : public System
 public:
 	using System::System;
 
-  	Graphics2dManager& operator=(const Graphics2dManager&) = delete;
-
-  	Graphics2dManager(Graphics2dManager&& graphics2dManager) = default;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/
@@ -74,10 +71,11 @@ public:
 	* \return The SFML window
 	*/
 	std::shared_ptr<sf::RenderWindow> GetWindow();
-	ShapeManager& GetShapeManager();
-	SpriteManager& GetSpriteManager();
-	AnimationManager& GetAnimationManager();
-	TextureManager& GetTextureManager();
+
+	AnimationManager* GetAnimationManager();
+	ShapeManager* GetShapeManager();
+	SpriteManager* GetSpriteManager();
+	TextureManager* GetTextureManager();
 
 protected:
 	bool m_Windowless = false;

@@ -29,14 +29,25 @@
 #include <memory>
 
 #include <engine/entity.h>
-#include <python/python_engine.h>
 #include <utility/python_utility.h>
 //STL
 #include <engine/component.h>
 
 namespace sfge
 {
+class PyComponent;
 
+using InstanceId = unsigned;
+using ModuleId = unsigned;
+namespace editor
+{
+struct PyComponentInfo : public ComponentInfo, public PathEditorComponent
+{
+  void DrawOnInspector() override;
+
+  PyComponent* pyComponent = nullptr;
+};
+}
 struct ColliderData;
 
 class Component : LayerComponent
@@ -86,17 +97,58 @@ public:
     void OnTriggerExit(ColliderData * collider) override;
 };
 
-namespace editor
+class PyComponentManager: public MultipleComponentManager<PyComponent*, editor::PyComponentInfo, ComponentType::PYCOMPONENT>
 {
-struct PyComponentInfo : NamableEditorComponent, PathEditorComponent, IDrawableInspector
-{
-	void DrawOnInspector() override;
+public:
 
-	PyComponent* pyComponent = nullptr;
+	using MultipleComponentManager::MultipleComponentManager;
+	~PyComponentManager(){};
+	void Init() override;
+	void Update(float dt) override;
+	void FixedUpdate() override;
+
+	void CreateComponent(json& componentJson, Entity entity) override;
+	virtual PyComponent** AddComponent(Entity entity) override;
+	virtual void DestroyComponent(Entity entity) override;
+	virtual PyComponent** GetComponentPtr(Entity entity) override;
+
+	void OnTriggerEnter(Entity entity, ColliderData* colliderData);
+	void OnTriggerExit(Entity entity, ColliderData* colliderData);
+	void OnCollisionEnter(Entity entity, ColliderData* colliderData);
+	void OnCollisionExit(Entity entity, ColliderData* colliderData);
+
+	void OnResize(size_t newSize) override;
+
+	void RemovePyComponentsFrom(Entity entity);
+
+	void Destroy() override;
+	/**
+	 * \brief Get a python component object
+	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
+	 * \return pyComponent PyComponent pointer that interacts with the python script
+	 */
+	PyComponent* GetPyComponentFromInstanceId(InstanceId instanceId);
+
+	py::object GetPyComponentFromType(py::object type, Entity entity);
+
+	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
+
+	void InitPyComponents();
+protected:
+	int GetFreeComponentIndex() override;
+	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+
+	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
+
+	InstanceId m_IncrementalInstanceId = 1U;
+
+	PythonEngine* m_PythonEngine = nullptr;
 };
-}
+
 
 }
+
+
 
 
 #endif 

@@ -10,10 +10,6 @@ System::System(Engine& engine) : m_Engine(engine)
 {
 }
 
-System::System(const System& system) : 
-	m_Engine(system.GetEngine())
-{
-}
 
 void System::Init()
 {

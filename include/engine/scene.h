@@ -32,10 +32,14 @@
 
 #include <engine/system.h>
 #include <utility/json_utility.h>
-#include <engine/transform2d.h>
+#include <engine/entity.h>
+
+
 
 namespace sfge
 {
+enum class ComponentType: int;
+class IComponentFactory;
 
 namespace editor
 {
@@ -74,10 +78,12 @@ public:
 	 * \return the list of scenes in the data folder
 	 */
 	std::list<std::string> GetAllScenes();
+
+	void AddComponentManager(IComponentFactory* componentFactory, ComponentType componentType);
 private:
 
-	EntityManager& m_EntityManager;
-
+	EntityManager* m_EntityManager = nullptr;
+	std::vector<IComponentFactory*> m_ComponentManager{sizeof(ComponentType)*8};
 	std::map<std::string, std::string> m_ScenePathMap;
 
 };
