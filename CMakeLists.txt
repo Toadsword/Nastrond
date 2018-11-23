@@ -240,7 +240,6 @@ cotire(SFGE_TEST)
 #SFGE
 add_executable(SFGE src/main.cpp)
 
-
 target_link_libraries(SFGE PUBLIC SFGE_COMMON)
 set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
 if(APPLE)
@@ -248,10 +247,12 @@ if(APPLE)
 		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
+cotire(SFGE)
 
 #SFGE TOOLS
 SET(SFGE_TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
 file(GLOB TOOLS_DIR ${SFGE_TOOLS_DIR}/*)
+
 foreach(tool_dir ${TOOLS_DIR})
 
     get_filename_component(tool_name ${tool_dir} NAME)
@@ -269,8 +270,14 @@ foreach(tool_dir ${TOOLS_DIR})
 			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	ENDIF()
 	cotire(${tool_name})
+	LIST(APPEND tools \"${tool_name}\")
 endforeach()
 
+#copy folder to build
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
 
+
+#write tool config file
+string(REPLACE " " "," tools_list ${tools})
+file(WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}]}")

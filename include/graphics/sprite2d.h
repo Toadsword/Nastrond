@@ -84,7 +84,7 @@ public:
 
 	void Init() override;
 	void Update(float dt) override;
-	void Draw(sf::RenderWindow& window);
+	void DrawSprites(sf::RenderWindow &window);
 
 	void Reset();
 	void Collect() override;

@@ -26,9 +26,9 @@ SOFTWARE.
 #include <xxhash.hpp>
 #include <gtest/gtest.h>
 
-TEST(TestAsset, AssetImport)
+TEST(Engine, TestAssetImport)
 {
-	std::vector<std::string> filenames{
+	std::vector<std::string> filenames {
 		"data/sprites/other_play.png",
 		"data/editor/play.png",
 		"data/editor/star.png",

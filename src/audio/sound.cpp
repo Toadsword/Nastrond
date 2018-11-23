@@ -47,7 +47,7 @@ static std::set<std::string> sndExtensionSet
 
 
 
-SoundManager::SoundManager(Engine& engine): MultipleComponentManager(engine)
+SoundManager::SoundManager(Engine& engine): BasicComponentManager(engine)
 {
 	m_Components.resize(MAX_SOUND_CHANNELS-MUSIC_INSTANCES_NMB);
 	m_ComponentsInfo.resize(MAX_SOUND_CHANNELS-MUSIC_INSTANCES_NMB);
@@ -103,12 +103,6 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 			const SoundBufferId soundBufferId = m_SoundBufferManager->LoadSoundBuffer(path);
 			if (soundBufferId != INVALID_SOUND_BUFFER)
 			{
-				/*{
-					std::ostringstream oss;
-					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
-					sfge::Log::GetInstance()->Msg(oss.str());
-				}*/
-
 				soundInfo->SetEntity(entity);
 				soundInfo->path = path;
 				soundBuffer = m_SoundBufferManager->GetSoundBuffer(soundBufferId);
@@ -157,6 +151,8 @@ void Sound::SetBuffer(sf::SoundBuffer* buffer)
 
 void SoundManager::Init()
 {
+	m_Components.resize(MAX_SOUND_CHANNELS);
+	m_ComponentsInfo.resize(MAX_SOUND_CHANNELS);
 	m_SoundBufferManager = m_Engine.GetAudioManager()->GetSoundBufferManager();
 }
 void SoundManager::Reset()

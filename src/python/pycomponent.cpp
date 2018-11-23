@@ -65,12 +65,12 @@ void editor::PyComponentInfo::DrawOnInspector()
 	}
 }
 
-Component::Component(Engine& engine, Entity entity) :
+Behavior::Behavior(Engine& engine, Entity entity) :
 	m_Engine(engine)
 {
 	m_Entity = entity;
 }
-void PyComponent::Init()
+void PyBehavior::Init()
 {
 	//Log::GetInstance()->Msg("Init PyComponent from C++");
 	try
@@ -79,7 +79,7 @@ void PyComponent::Init()
         //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
-			Component,
+			Behavior,
 			"init",
 			Init,
 
@@ -93,7 +93,7 @@ void PyComponent::Init()
 	}
 }
 
-void PyComponent::Update(float dt)
+void PyBehavior::Update(float dt)
 {
 	
 	try
@@ -101,7 +101,7 @@ void PyComponent::Update(float dt)
         //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
-			Component,
+			Behavior,
 			"update",
 			Update,
 			dt
@@ -115,7 +115,7 @@ void PyComponent::Update(float dt)
 	}
 }
 
-	void PyComponent::FixedUpdate(float fixedDeltaTime)
+	void PyBehavior::FixedUpdate(float fixedDeltaTime)
 	{
 		try
 		{
@@ -123,7 +123,7 @@ void PyComponent::Update(float dt)
 			//py::gil_scoped_release release;
 			PYBIND11_OVERLOAD_NAME(
 				void,
-				Component,
+				Behavior,
 				"fixed_update",
 				FixedUpdate,
 				fixedDeltaTime
@@ -137,7 +137,7 @@ void PyComponent::Update(float dt)
 		}
 	}
 
-	py::object Component::GetComponent(ComponentType componentType) const
+	py::object Behavior::GetComponent(ComponentType componentType) const
 	{
 		
 		switch (componentType)
@@ -181,20 +181,20 @@ void PyComponent::Update(float dt)
 		return py::none();
 	}
 
-	py::object Component::GetPyComponent(py::object type)
+	py::object Behavior::GetPyComponent(py::object type)
 	{
 		return m_Engine.GetPythonEngine()->GetPyComponentManager().GetPyComponentFromType(type, m_Entity);
 	}
 
 	
-    void PyComponent::OnCollisionEnter(ColliderData * collider)
+    void PyBehavior::OnCollisionEnter(ColliderData * collider)
 	{
 	try
 	{
         //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
-			Component,
+			Behavior,
 			"on_collision_enter",
 			OnCollisionEnter,
 			collider
@@ -207,14 +207,14 @@ void PyComponent::Update(float dt)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerEnter(ColliderData * collider)
+void PyBehavior::OnTriggerEnter(ColliderData * collider)
 {
 	try
 	{
         //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
-			Component,
+			Behavior,
 			"on_trigger_enter",
 			OnTriggerEnter,
 			collider
@@ -227,14 +227,14 @@ void PyComponent::OnTriggerEnter(ColliderData * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnCollisionExit(ColliderData * collider)
+void PyBehavior::OnCollisionExit(ColliderData * collider)
 {
 	try
 	{
         //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
-			Component,
+			Behavior,
 			"on_collision_exit",
 			OnCollisionExit,
 			collider
@@ -247,14 +247,14 @@ void PyComponent::OnCollisionExit(ColliderData * collider)
 		Log::GetInstance()->Error(oss.str());
 	}
 }
-void PyComponent::OnTriggerExit(ColliderData * collider)
+void PyBehavior::OnTriggerExit(ColliderData * collider)
 {
 	try
 	{
         //py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
-			Component,
+			Behavior,
 			"on_trigger_exit",
 			OnTriggerExit,
 			collider
@@ -270,16 +270,16 @@ void PyComponent::OnTriggerExit(ColliderData * collider)
 
 
 
-Entity Component::GetEntity()
+Entity Behavior::GetEntity()
 {
 	return m_Entity;
 }
-unsigned int Component::GetInstanceId() const
+unsigned int Behavior::GetInstanceId() const
 {
 	return m_InstanceId;
 }
 
-void Component::SetInstanceId(unsigned int instanceId)
+void Behavior::SetInstanceId(unsigned int instanceId)
 {
 	m_InstanceId = instanceId;
 }
@@ -362,7 +362,7 @@ std::list<editor::PyComponentInfo> PyComponentManager::GetPyComponentsInfoFromEn
 
 
 
-PyComponent* PyComponentManager::GetPyComponentFromInstanceId(InstanceId instanceId)
+PyBehavior* PyComponentManager::GetPyComponentFromInstanceId(InstanceId instanceId)
 {
 	if (instanceId > m_IncrementalInstanceId)
 	{
@@ -372,13 +372,13 @@ PyComponent* PyComponentManager::GetPyComponentFromInstanceId(InstanceId instanc
 
 		return nullptr;
 	}
-	return m_PythonInstances[instanceId].cast<PyComponent*>();
+	return m_PythonInstances[instanceId].cast<PyBehavior*>();
 }
 
 
 py::object PyComponentManager::GetPyComponentFromType(py::object type, Entity entity)
 {
-	for (PyComponent* pyComponent : m_Components)
+	for (PyBehavior* pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr and
 			pyComponent->GetEntity() == entity and
@@ -451,7 +451,7 @@ void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 		if(pyInstance.is_none() || pyInstance.ptr() == nullptr ) continue;
 		try
 		{
-			if(pyInstance.cast<PyComponent*>() != nullptr && pyInstance.cast<PyComponent*>()->GetEntity() == entity)
+			if(pyInstance.cast<PyBehavior*>() != nullptr && pyInstance.cast<PyBehavior*>()->GetEntity() == entity)
 			{
 				m_PythonInstances.erase(m_PythonInstances.begin()+i);
 				i--;
@@ -497,12 +497,12 @@ void PyComponentManager::DestroyComponent(Entity entity)
 
 }
 
-PyComponent **PyComponentManager::AddComponent(Entity entity)
+PyBehavior **PyComponentManager::AddComponent(Entity entity)
 {
 	return nullptr;
 }
 
-PyComponent **PyComponentManager::GetComponentPtr(Entity entity) {
+PyBehavior **PyComponentManager::GetComponentPtr(Entity entity) {
 	return nullptr;
 }
 void PyComponentManager::InitPyComponents()

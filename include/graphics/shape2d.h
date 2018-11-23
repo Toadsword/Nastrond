@@ -84,7 +84,7 @@ public:
 	ShapeManager(ShapeManager&& shapeManager) = default;
 
 	void Init() override;
-	void Draw(sf::RenderWindow& window);
+	void DrawShapes(sf::RenderWindow &window);
 	void Update(float dt) override;
 	void Clear() override;
 

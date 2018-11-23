@@ -110,9 +110,9 @@ struct SoundInfo : ComponentInfo, PathEditorComponent
 };
 }
 
-const size_t MAX_SOUND_CHANNELS = 256;
+const size_t MAX_SOUND_CHANNELS = 16;
 
-class SoundManager : public MultipleComponentManager<Sound, editor::SoundInfo, ComponentType::SOUND>
+class SoundManager : public BasicComponentManager<Sound, editor::SoundInfo, ComponentType::SOUND>
 {
 public:
 	SoundManager(Engine& engine);
@@ -130,7 +130,6 @@ public:
 
 	Sound* GetComponentPtr(Entity entity) override;
 
-    virtual void OnResize(size_t newSize) override{};
 protected:
 	int GetFreeComponentIndex() override {return -1;};
 	EntityManager* m_EntityManager = nullptr;

@@ -130,7 +130,7 @@ void SpriteManager::Update(float dt)
 }
 
 
-void SpriteManager::Draw(sf::RenderWindow& window)
+void SpriteManager::DrawSprites(sf::RenderWindow &window)
 {
 	
 	for (int i = 0; i<m_Components.size();i++)

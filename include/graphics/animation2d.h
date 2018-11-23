@@ -98,7 +98,7 @@ public:
 	using SingleComponentManager::SingleComponentManager;
 	void Init() override;
 	void Update(float dt) override;
-	void Draw(sf::RenderWindow& window);
+	void DrawAnimations(sf::RenderWindow &window);
 
 	void Reset();
 	void Collect() override;

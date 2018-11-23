@@ -35,7 +35,7 @@
 
 namespace sfge
 {
-class PyComponent;
+class PyBehavior;
 
 using InstanceId = unsigned;
 using ModuleId = unsigned;
@@ -45,16 +45,16 @@ struct PyComponentInfo : public ComponentInfo, public PathEditorComponent
 {
   void DrawOnInspector() override;
 
-  PyComponent* pyComponent = nullptr;
+  PyBehavior* pyComponent = nullptr;
 };
 }
 struct ColliderData;
 
-class Component : LayerComponent
+class Behavior : LayerComponent
 {
 public:
-    Component(Engine& engine, Entity entity);
-    ~Component() = default;
+    Behavior(Engine& engine, Entity entity);
+    virtual ~Behavior() = default;
     
     virtual void Init() {};
     virtual void Update(float dt) {};
@@ -83,10 +83,10 @@ protected:
 	/**
  * \brief Python abstraction of Component
  */
-class PyComponent : public Component
+class PyBehavior : public Behavior
 {
 public:
-    using Component::Component; 
+    using Behavior::Behavior;
     void Init() override;
     void Update(float dt)  override;
     void FixedUpdate(float fixedDeltaTime) override;
@@ -97,7 +97,7 @@ public:
     void OnTriggerExit(ColliderData * collider) override;
 };
 
-class PyComponentManager: public MultipleComponentManager<PyComponent*, editor::PyComponentInfo, ComponentType::PYCOMPONENT>
+class PyComponentManager: public MultipleComponentManager<PyBehavior*, editor::PyComponentInfo, ComponentType::PYCOMPONENT>
 {
 public:
 
@@ -108,9 +108,9 @@ public:
 	void FixedUpdate() override;
 
 	void CreateComponent(json& componentJson, Entity entity) override;
-	virtual PyComponent** AddComponent(Entity entity) override;
+	virtual PyBehavior** AddComponent(Entity entity) override;
 	virtual void DestroyComponent(Entity entity) override;
-	virtual PyComponent** GetComponentPtr(Entity entity) override;
+	virtual PyBehavior** GetComponentPtr(Entity entity) override;
 
 	void OnTriggerEnter(Entity entity, ColliderData* colliderData);
 	void OnTriggerExit(Entity entity, ColliderData* colliderData);
@@ -127,7 +127,7 @@ public:
 	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
 	 * \return pyComponent PyComponent pointer that interacts with the python script
 	 */
-	PyComponent* GetPyComponentFromInstanceId(InstanceId instanceId);
+	PyBehavior* GetPyComponentFromInstanceId(InstanceId instanceId);
 
 	py::object GetPyComponentFromType(py::object type, Entity entity);
 

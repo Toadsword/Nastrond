@@ -35,7 +35,7 @@ SOFTWARE.
 #include <gtest/gtest.h>
 
 
-TEST(TestSprite, TestSprite)
+TEST(Graphics, TestSprite)
 {
 	sfge::Engine engine;
 	engine.Init();

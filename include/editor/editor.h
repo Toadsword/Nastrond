@@ -46,6 +46,7 @@ class EntityManager;
 class SceneManager;
 class Physics2dManager;
 class SoundManager;
+struct Configuration;
 
 
 
@@ -78,14 +79,10 @@ public:
 protected:
 	sf::RenderWindow* m_Window = nullptr;
 	Graphics2dManager* m_GraphicsManager = nullptr;
-	SceneManager* m_SceneManager = nullptr;
 	EntityManager* m_EntityManager = nullptr;
-	Transform2dManager* m_TransformManager = nullptr;
-	Physics2dManager* m_PhysicsManager = nullptr;
-	SoundManager* m_SoundManager = nullptr;
+	Configuration* m_Config = nullptr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
-	bool m_IsImguiInit = false;
 	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};
 	Entity selectedEntity = INVALID_ENTITY;
 

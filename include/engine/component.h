@@ -148,6 +148,8 @@ public:
       ComponentManager<T, componentType>::m_Engine.GetEditor()->AddDrawableObserver(this);
       ComponentManager<T, componentType>::m_Engine.GetSceneManager()->AddComponentManager(this, componentType);
     }
+protected:
+	virtual int GetFreeComponentIndex() = 0;
 };
 
 template<class T, class TInfo, ComponentType componentType>
@@ -208,6 +210,9 @@ public:
 		BasicComponentManager<T,TInfo, componentType>::m_Components.resize(newSize);
 		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo.resize(newSize);
 	}
+protected:
+
+	virtual int GetFreeComponentIndex() override { return 0; };
 
 };
 
@@ -237,7 +242,6 @@ class MultipleComponentManager :
       BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ newSize * MULTIPLE_COMPONENTS_MULTIPLIER };
     }
 protected:
-    virtual int GetFreeComponentIndex() = 0;
 
 };
 

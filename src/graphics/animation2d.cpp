@@ -165,7 +165,7 @@ void AnimationManager::Update(float dt)
 }
 
 
-void AnimationManager::Draw(sf::RenderWindow& window)
+void AnimationManager::DrawAnimations(sf::RenderWindow &window)
 {
 	
 	for (int i = 0; i<m_Components.size();i++)

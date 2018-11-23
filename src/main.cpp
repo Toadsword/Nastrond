@@ -30,7 +30,11 @@ int main()
 {
     sfge::Log::GetInstance()->Msg("SFGE 0.1 by SAE Institute Switzerland AG");
     sfge::Engine engine;
-	engine.Init();
+    std::unique_ptr<sfge::Configuration> config = std::make_unique<sfge::Configuration>();
+    config->devMode = false;
+    config->editor = false;
+	engine.Init(std::move(config));
+	config = nullptr;
 	engine.Start();
 #ifdef WIN32
 	system("pause");

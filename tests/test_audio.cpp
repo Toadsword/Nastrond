@@ -28,12 +28,12 @@ SOFTWARE.
 #include <audio/sound.h>
 #include <SFML/Audio.hpp>
 
-TEST(TestAudio, Sound)
+TEST(Audio, TestSoundComponent)
 {
 	sfge::Engine engine;
 	auto config = std::make_unique<sfge::Configuration>();
 	config->devMode = false;
-	config->windowLess = true;
+	config->windowLess = false ;
 	engine.Init(std::move(config));
 
 	json sceneJson;

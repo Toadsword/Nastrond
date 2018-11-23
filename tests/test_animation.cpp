@@ -34,15 +34,17 @@ SOFTWARE.
 #include <SFML/Graphics.hpp>
 #include <gtest/gtest.h>
 
-TEST(TestAnimation, TestAnimation)
+TEST(Graphics, TestSpriteAnimation)
 {
 	sfge::Engine engine;
 	engine.Init();
+
 	json sceneJson;
 	json entityJson;
 	json animationJson;
 	animationJson["path"] = "data/animSaves/cowboy_walk.json";
 	animationJson["type"] = static_cast<int>(sfge::ComponentType::ANIMATION2D);
+
 	entityJson["components"] = json::array({ animationJson });
 
 	sceneJson["entities"] = json::array({ entityJson });

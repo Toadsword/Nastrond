@@ -37,6 +37,9 @@ class Sprite:
     def set_texture(self, texture):
         pass
 
+    def load_texture(self, texture_name: str):
+        pass
+
 class Timer:
     """Timer used for update loop and """
     def __init__(self, time, period):

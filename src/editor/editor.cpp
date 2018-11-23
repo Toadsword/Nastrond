@@ -38,6 +38,7 @@ SOFTWARE.
 #include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
 #include <python/python_engine.h>
+#include <engine/config.h>
 
 namespace sfge
 {
@@ -52,11 +53,9 @@ Editor::Editor(Engine& engine):
 void Editor::Init()
 {
 	m_GraphicsManager = m_Engine.GetGraphics2dManager();
-	m_SceneManager = m_Engine.GetSceneManager();
 	m_EntityManager = m_Engine.GetEntityManager();
-	m_TransformManager = m_Engine.GetTransform2dManager();
-	m_PhysicsManager = m_Engine.GetPhysicsManager();
-	m_SoundManager = m_Engine.GetAudioManager()->GetSoundManager();
+	m_Config = m_Engine.GetConfig();
+	m_Enable = m_Config == nullptr || m_Config->editor;
 	if (m_Enable)
 	{
 		m_Window = m_GraphicsManager->GetWindow();
@@ -65,7 +64,6 @@ void Editor::Init()
 		if(m_Window)
 		{
 			ImGui::SFML::Init(*m_Window, true);
-			m_IsImguiInit = true;
 		}
 		else
 		{
@@ -104,56 +102,12 @@ void Editor::Update(float dt)
 			ImGui::SetNextWindowPos(ImVec2(configPtr->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Inspector");
-			//TODO ADD THE SELECTED ENTITY COMPONENTS ON THE WINDOW
+
 			if(selectedEntity != INVALID_ENTITY)
 			{
 				auto& entityInfo = m_EntityManager->GetEntityInfo(selectedEntity);
 				ImGui::InputText("Name", &entityInfo.name[0u], 15);
-				/*if(m_EntityManager->HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
-				{
-					auto& transformInfo = m_TransformManager->GetComponentInfo(selectedEntity);
-					transformInfo.DrawOnInspector();
-				}
 
-				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::BODY2D))
-				{
-					
-					auto* bodyManager = m_PhysicsManager->GetBodyManager();
-					auto& bodyInfo = bodyManager->GetComponentInfo(selectedEntity);
-					bodyInfo.DrawOnInspector();
-					
-				}
-
-				if (m_EntityManager->HasComponent(selectedEntity, ComponentType::SPRITE2D))
-				{
-					
-					auto* spriteManager = m_GraphicsManager->GetSpriteManager();
-					auto& spriteInfo = spriteManager->GetComponentInfo(selectedEntity);
-					spriteInfo.DrawOnInspector();
-
-					
-				}
-				if (m_EntityManager->HasComponent(selectedEntity, ComponentType::SHAPE2D))
-				{
-					auto* shapeManager = m_GraphicsManager->GetShapeManager();
-					auto& shapeInfo = shapeManager->GetComponentInfo (selectedEntity);
-					shapeInfo.DrawOnInspector();
-				}
-
-				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::SOUND))
-				{
-					auto& soundInfo = m_SoundManager->GetComponentInfo(selectedEntity);
-					soundInfo.DrawOnInspector();
-				}
-				if(m_EntityManager->HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
-				{
-					auto* pythonEngine = m_Engine.GetPythonEngine();
-					for(auto& pyInfo : pythonEngine->GetPyComponentsInfoFromEntity(selectedEntity))
-					{
-						pyInfo.DrawOnInspector();
-					}
-				}
-				 */
 				for(auto& drawableComponentManager: m_DrawableObservers)
                 {
 				  drawableComponentManager->DrawOnInspector(selectedEntity);

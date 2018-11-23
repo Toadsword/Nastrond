@@ -42,7 +42,7 @@ void Graphics2dManager::Init()
 {
 	if (const auto configPtr = m_Engine.GetConfig())
 	{
-
+		m_Windowless = configPtr->windowLess;
 		if (!m_Windowless)
 		{
 			m_Window = std::make_unique<sf::RenderWindow>(
@@ -77,9 +77,9 @@ void Graphics2dManager::Update(float dt)
 		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
 
-		m_SpriteManager.Draw(*m_Window);
-		m_AnimationManager.Draw(*m_Window);
-		m_ShapeManager.Draw(*m_Window);
+		m_SpriteManager.DrawSprites(*m_Window);
+		m_AnimationManager.DrawAnimations(*m_Window);
+		m_ShapeManager.DrawShapes(*m_Window);
 	}
 }
 
