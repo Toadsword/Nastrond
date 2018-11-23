@@ -90,7 +90,6 @@ class ComponentManager:
   virtual ~ComponentManager()
   {
     m_Components.clear();
-    //m_ComponentsInfo.clear();
   }
 
 
@@ -144,10 +143,10 @@ public:
     }
     virtual void Init() override
     {
-      ComponentManager<T, componentType>::Init();
-      ComponentManager<T, componentType>::m_Engine.GetEditor()->AddDrawableObserver(this);
-      ComponentManager<T, componentType>::m_Engine.GetSceneManager()->AddComponentManager(this, componentType);
-    }
+		ComponentManager<T, componentType>::Init();
+		ComponentManager<T, componentType>::m_Engine.GetEditor()->AddDrawableObserver(this);
+		ComponentManager<T, componentType>::m_Engine.GetSceneManager()->AddComponentManager(this, componentType);
+	}
 protected:
 	virtual int GetFreeComponentIndex() = 0;
 };

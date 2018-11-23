@@ -68,7 +68,7 @@ public:
 	void SetEntity(Entity newEntity);
 protected:
 	sf::Sound m_Sound;
-	Entity m_Entity;
+	Entity m_Entity = INVALID_ENTITY;
 };
 
 class SoundBufferManager : public System
@@ -131,8 +131,7 @@ public:
 	Sound* GetComponentPtr(Entity entity) override;
 
 protected:
-	int GetFreeComponentIndex() override {return -1;};
-	EntityManager* m_EntityManager = nullptr;
+	int GetFreeComponentIndex() override;
 	SoundBufferManager* m_SoundBufferManager = nullptr;
 };
 }

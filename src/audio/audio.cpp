@@ -24,15 +24,14 @@ SOFTWARE.
 
 #include <audio/audio.h>
 #include <audio/sound.h>
-#include <iostream>
-#include <utility/file_utility.h>
-#include <utility/log.h>
 
 namespace sfge
 {
 void AudioManager::Init()
 {
 	m_SoundManager.Init();
+	m_SoundBufferManager.Init();
+	
 };
 void AudioManager::Update(float dt)
 {

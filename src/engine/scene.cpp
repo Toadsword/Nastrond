@@ -207,7 +207,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 					if (CheckJsonExists(componentJson, "type"))
 					{
 						const ComponentType componentType = componentJson["type"];
-						int index = (int)log2((double)componentType);
+						const auto index = static_cast<int>(log2(static_cast<double>(componentType)));
 						if(m_ComponentManager[index] != nullptr)
 						{
 							m_ComponentManager[index]->CreateComponent(componentJson, entity);
@@ -289,7 +289,7 @@ void SceneManager::LoadSceneFromName(const std::string& sceneName)
 }
 void SceneManager::AddComponentManager(IComponentFactory *componentFactory, ComponentType componentType)
 {
-	int index = static_cast<int>(log2((double)componentType));
+	const auto index = static_cast<int>(log2((double)componentType));
 	m_ComponentManager[index] = componentFactory;
 }
 
