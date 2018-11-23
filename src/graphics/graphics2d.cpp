@@ -42,10 +42,10 @@ void Graphics2dManager::Init()
 {
 	if (const auto configPtr = m_Engine.GetConfig())
 	{
-
+		m_Windowless = configPtr->windowLess;
 		if (!m_Windowless)
 		{
-			m_Window = std::make_shared<sf::RenderWindow>(
+			m_Window = std::make_unique<sf::RenderWindow>(
 				sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
 				"SFGE 0.1");
 			if (configPtr->maxFramerate)
@@ -77,9 +77,9 @@ void Graphics2dManager::Update(float dt)
 		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
 
-		m_SpriteManager.Draw(*m_Window);
-		m_AnimationManager.Draw(*m_Window);
-		m_ShapeManager.Draw(*m_Window);
+		m_SpriteManager.DrawSprites(*m_Window);
+		m_AnimationManager.DrawAnimations(*m_Window);
+		m_ShapeManager.DrawShapes(*m_Window);
 	}
 }
 
@@ -102,9 +102,9 @@ void Graphics2dManager::DrawLine(sf::Vector2f from, sf::Vector2f to, sf::Color c
 	m_Window->draw(vertices, 2, sf::Lines);
 }
 
-std::shared_ptr<sf::RenderWindow> Graphics2dManager::GetWindow()
+sf::RenderWindow* Graphics2dManager::GetWindow()
 {
-	return m_Window;
+	return m_Window.get();
 }
 
 SpriteManager* Graphics2dManager::GetSpriteManager()

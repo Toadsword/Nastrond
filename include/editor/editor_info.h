@@ -42,6 +42,7 @@ struct ComponentInfo;
 class IDrawableInspector
 {
 public:
+	virtual ~IDrawableInspector(){};
     void SetEntity(Entity entity);
     Entity GetEntity();
     virtual void DrawOnInspector() = 0;

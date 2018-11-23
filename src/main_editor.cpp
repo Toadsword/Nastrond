@@ -22,40 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-//Engine
-#include <engine/engine.h>
-#include <graphics/sprite2d.h>
-#include <engine/transform2d.h>
-#include <utility/json_utility.h>
-#include <utility/log.h>
-#include <engine/config.h>
-#include <engine/scene.h>
-//Dependencies
-#include <SFML/Graphics.hpp>
-#include <gtest/gtest.h>
-
-
-TEST(TestSprite, TestSprite)
+#include <tool_engine.h>
+int main()
 {
-	sfge::Engine engine;
-	engine.Init();
-	json sceneJson;
-	json entityJson;
-	json spriteJson;
-	spriteJson["path"] = "data/sprites/roguelikeDungeon_transparent.png";
-	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
-	entityJson["components"] = json::array({ spriteJson });
-
-	json fakeEntityJson;
-	json fakeSpriteJson;
-	fakeSpriteJson["path"] = "fake/path/prout.jpg";
-	fakeSpriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
-	fakeEntityJson["components"] = json::array({ fakeSpriteJson });
 
 
-	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
-	sceneJson["name"] = "Test Sprite";
-	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
-	
-	engine.Start();
+	return EXIT_SUCCESS;
 }

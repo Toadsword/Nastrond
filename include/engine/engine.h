@@ -109,7 +109,7 @@ public:
 protected:
 	void InitModules();
 	ctpl::thread_pool m_ThreadPool;
-	std::shared_ptr<sf::RenderWindow> m_Window;
+	sf::RenderWindow* m_Window = nullptr;
 	std::unique_ptr<Configuration> m_Config;
 
 

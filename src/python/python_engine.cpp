@@ -66,7 +66,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
 
 	
-	py::class_<Engine> engine(m, "Engine");
+	py::class_<Engine> engine(m, "tool_engine");
 	engine
 		.def_property_readonly("config", [](Engine* engine)
 	{
@@ -144,7 +144,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
 
-	py::class_<TextureManager> textureManager(m, "TextureManager");
+	py::class_<TextureManager> textureManager(m, "texture_manager");
 	textureManager
 		.def("load_texture", [](TextureManager* textureManager, std::string name)
 		{
@@ -169,19 +169,19 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			return py::cast(pythonEngineInstance->GetPyComponentManager().GetPyComponentFromInstanceId(pyComponentId));
 		}, py::return_value_policy::reference);
 
-	py::class_<Component, PyComponent> component(m, "Component");
+	py::class_<Behavior, PyBehavior> component(m, "Component");
 	component
 		.def(py::init<Engine&, Entity>(), py::return_value_policy::reference)
-		.def("init", &Component::Init)
-		.def("update", &Component::Update)
-		.def("fixed_update", &Component::FixedUpdate)
-		.def_property_readonly("entity", &Component::GetEntity)
-		.def("get_component", &Component::GetComponent)
-		.def("get_component", &Component::GetPyComponent)
-		.def("on_trigger_enter", &Component::OnTriggerEnter)
-		.def("on_collision_enter", &Component::OnCollisionEnter)
-		.def("on_trigger_exit", &Component::OnTriggerExit)
-		.def("on_collision_exit", &Component::OnCollisionExit)
+		.def("init", &Behavior::Init)
+		.def("update", &Behavior::Update)
+		.def("fixed_update", &Behavior::FixedUpdate)
+		.def_property_readonly("entity", &Behavior::GetEntity)
+		.def("get_component", &Behavior::GetComponent)
+		.def("get_component", &Behavior::GetPyComponent)
+		.def("on_trigger_enter", &Behavior::OnTriggerEnter)
+		.def("on_collision_enter", &Behavior::OnCollisionEnter)
+		.def("on_trigger_exit", &Behavior::OnTriggerExit)
+		.def("on_collision_exit", &Behavior::OnCollisionExit)
 	;
 
 	py::enum_<ComponentType>(component, "ComponentType")

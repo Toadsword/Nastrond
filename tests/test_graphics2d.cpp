@@ -21,21 +21,67 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <sstream>
-#include <engine/engine.h>
-#include <engine/config.h>
-#include <graphics/graphics2d.h>
-#include <graphics/texture.h>
-#include <utility/log.h>
-#include <gtest/gtest.h>
 
-TEST(TextureTest, BadTexture)
+#include <gtest/gtest.h>
+#include "engine/engine.h"
+#include "engine/component.h"
+#include "graphics/texture.h"
+#include <graphics/graphics2d.h>
+
+TEST(Graphics2d, TestSpriteAnimation)
+{
+	sfge::Engine engine;
+	engine.Init();
+
+	json sceneJson;
+	json entityJson;
+	json animationJson;
+	animationJson["path"] = "data/animSaves/cowboy_walk.json";
+	animationJson["type"] = static_cast<int>(sfge::ComponentType::ANIMATION2D);
+
+	entityJson["components"] = json::array({ animationJson });
+
+	sceneJson["entities"] = json::array({ entityJson });
+	sceneJson["name"] = "Test Animation";
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+
+TEST(Graphics2d, TestSprite)
+{
+	sfge::Engine engine;
+	engine.Init();
+	json sceneJson;
+	json entityJson;
+	json spriteJson;
+	spriteJson["path"] = "data/sprites/roguelikeDungeon_transparent.png";
+	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	entityJson["components"] = json::array({ spriteJson });
+
+	json fakeEntityJson;
+	json fakeSpriteJson;
+	fakeSpriteJson["path"] = "fake/path/prout.jpg";
+	fakeSpriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	fakeEntityJson["components"] = json::array({ fakeSpriteJson });
+
+
+	sceneJson["entities"] = json::array({ entityJson, fakeEntityJson });
+	sceneJson["name"] = "Test Sprite";
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+
+TEST(Graphics2d, TestTexture)
 {
 	sfge::Engine engine;
 	auto config = std::make_unique<sfge::Configuration>();
 	config->devMode = false;
 	config->windowLess = true;
-	engine.Init (std::move (config));
+	engine.Init(std::move(config));
 
 	auto* textureManager = engine.GetGraphics2dManager()->GetTextureManager();
 
@@ -49,9 +95,9 @@ TEST(TextureTest, BadTexture)
 
 	sf::Sprite sprite;
 
-	ASSERT_EQ (badTextId, sfge::INVALID_TEXTURE);
-	ASSERT_EQ (badTextExtId, sfge::INVALID_TEXTURE);
-	ASSERT_NE (goodTextId, sfge::INVALID_TEXTURE);
+	ASSERT_EQ(badTextId, sfge::INVALID_TEXTURE);
+	ASSERT_EQ(badTextExtId, sfge::INVALID_TEXTURE);
+	ASSERT_NE(goodTextId, sfge::INVALID_TEXTURE);
 
 	if (badTextId != sfge::INVALID_TEXTURE)
 	{
@@ -100,5 +146,6 @@ TEST(TextureTest, BadTexture)
 		// end the current frame
 		window.display();
 	}
-	engine.Destroy ();
+	engine.Destroy();
 }
+

@@ -103,7 +103,7 @@ void PlanetSystem::Init()
 
 void PlanetSystem::Update(float dt)
 {
-
+	(void) dt;
 }
 
 void PlanetSystem::UpdateRange(int startIndex, int endIndex)

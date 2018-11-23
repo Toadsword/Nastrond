@@ -29,7 +29,7 @@ SOFTWARE.
 #include <string>
 //Dependencies
 #include <SFML/Graphics.hpp>
-//Engine
+//tool_engine
 #include <engine/component.h>
 #include <engine/transform2d.h>
 #include <editor/editor.h>
@@ -98,7 +98,7 @@ public:
 	using SingleComponentManager::SingleComponentManager;
 	void Init() override;
 	void Update(float dt) override;
-	void Draw(sf::RenderWindow& window);
+	void DrawAnimations(sf::RenderWindow &window);
 
 	void Reset();
 	void Collect() override;

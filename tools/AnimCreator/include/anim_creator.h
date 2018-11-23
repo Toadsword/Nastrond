@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2017 SAE Institute Switzerland AG
+Copyright (c) 2018 SAE Institute Switzerland AG
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,35 +20,39 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 */
 
-//Engine
-#include <engine/engine.h>
-#include <graphics/sprite2d.h>
-#include <engine/transform2d.h>
-#include <utility/json_utility.h>
-#include <utility/log.h>
-#include <engine/config.h>
-#include <engine/scene.h>
-//Dependencies
-#include <SFML/Graphics.hpp>
-#include <gtest/gtest.h>
+#ifndef SFGE_ANIMCREATOR_H
+#define SFGE_ANIMCREATOR_H
 
-TEST(TestAnimation, TestAnimation)
+#include <engine/system.h>
+#include <graphics_manager.h>
+#include <animation_manager.h>
+
+namespace sfge::tools
 {
-	sfge::Engine engine;
-	engine.Init();
-	json sceneJson;
-	json entityJson;
-	json animationJson;
-	animationJson["path"] = "data/animSaves/cowboy_walk.json";
-	animationJson["type"] = static_cast<int>(sfge::ComponentType::ANIMATION2D);
-	entityJson["components"] = json::array({ animationJson });
+//TODO refactor and use this class instead of ToolEngine as a starting point to the tool
+//This will allow to call the tools directly from a central executable called SFGE_EDITOR
+class AnimCreator : public System
+{
+public:
+	using System::System;
 
-	sceneJson["entities"] = json::array({ entityJson });
-	sceneJson["name"] = "Test Animation";
-	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
-	
-	engine.Start();
+protected:
+	/**
+	 * \brief Pointer to the Graphics Manager of the Engine.
+	 */
+	GraphicsManager m_GraphicsManager;
+	/**
+	 * \brief Pointer to the Texture Manager of the Engine.
+	 */
+	TextureManager m_textureManager;
+	/**
+	 * \brief Pointer to the Animation Manager of the Engine.
+	 */
+	AnimationManager m_AnimationManager;
+};
 }
 
+#endif //SFGE_ANIMCREATOR_H

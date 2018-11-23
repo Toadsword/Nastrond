@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2017 SAE Institute Switzerland AG
+Copyright (c) 2018 SAE Institute Switzerland AG
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,47 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
+#include <anim_creator.h>
+
+#include <utility/python_utility.h>
 #include <engine/engine.h>
-#include <utility/log.h>
-#include <python/pycomponent.h>
-#include <utility/json_utility.h>
-#include <graphics/shape2d.h>
-#include <engine/scene.h>
-#include <gtest/gtest.h>
 
-TEST(Python, TestPyComponent)
+namespace sfge::tools
 {
-	sfge::Engine engine;
-	engine.Init();
 
-	auto* sceneManager = engine.GetSceneManager();
-	json sceneJson;
-	json gameObjectJson = {
-	{"name", "PyGameObject" },
-	{"components",
-	{
-		{
-			{"type", static_cast<int>(sfge::ComponentType::TRANSFORM2D)}
-		},
-		{
-			{"type", static_cast<int>(sfge::ComponentType::PYCOMPONENT) },
-			{"script_path", "scripts/component_test.py" }
-		},
-		{
-			{ "type", static_cast<int>(sfge::ComponentType::PYCOMPONENT) },
-			{ "script_path", "scripts/sprite_test.py" }
-		},
-		{
-			{"type", static_cast<int>(sfge::ComponentType::SHAPE2D) },
-			{"shape_type",static_cast<int>(sfge::ShapeType::CIRCLE)},
-			{"offset",{ 100,300 }},
-			{ "radius", 500.0 }
-		}
-	}
-	}
-	};
-	sceneJson["entities"] = json::array({gameObjectJson});
-	sceneManager->LoadSceneFromJson(sceneJson);
-	
-	engine.Start();
+void ExtendPython(py::module& m)
+{
+	py::class_<AnimCreator, System> planetSystem(m, "AnimCreator");
+	planetSystem
+		.def(py::init<Engine&>());
+}
+
 }

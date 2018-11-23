@@ -119,7 +119,7 @@ void editor::AnimationInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Animation");
-	ImGui::LabelText("Animation name", name.c_str());
+	ImGui::LabelText("Animation name", "%s", name.c_str());
 	//ImGui::InputInt("Texture Id", (int*)&textureId);
 	if(animation)
 	{
@@ -165,7 +165,7 @@ void AnimationManager::Update(float dt)
 }
 
 
-void AnimationManager::Draw(sf::RenderWindow& window)
+void AnimationManager::DrawAnimations(sf::RenderWindow &window)
 {
 	
 	for (int i = 0; i<m_Components.size();i++)

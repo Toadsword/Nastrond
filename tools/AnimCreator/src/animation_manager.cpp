@@ -29,7 +29,7 @@ Project : AnimationTool for SFGE
 
 #include <map>
 
-#include <AnimationManager.h>
+#include <animation_manager.h>
 #include <iostream>
 
 void AnimationManager::Init()

@@ -25,15 +25,17 @@ SOFTWARE.
 #include <engine/config.h>
 #include <engine/scene.h>
 #include <gtest/gtest.h>
+#include <audio/audio.h>
 #include <audio/sound.h>
+#include <utility/json_utility.h>
 #include <SFML/Audio.hpp>
 
-TEST(TestAudio, Sound)
+TEST(Audio, TestSoundComponent)
 {
 	sfge::Engine engine;
 	auto config = std::make_unique<sfge::Configuration>();
 	config->devMode = false;
-	config->windowLess = true;
+	config->windowLess = false ;
 	engine.Init(std::move(config));
 
 	json sceneJson;
@@ -60,4 +62,62 @@ TEST(TestAudio, Sound)
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
+}
+
+
+TEST(Audio, TestSoundBuffer)
+{
+	sfge::Engine engine;
+
+	auto config = std::make_unique<sfge::Configuration>();
+	config->devMode = false;
+	config->windowLess = true;
+	engine.Init(std::move(config));
+
+	auto* soundBufferManager = engine.GetAudioManager()->GetSoundBufferManager();
+
+	const std::string goodSoundBufferPath = "data/sounds/doorClose_1.ogg";
+	const std::string badTextPath = "fake/path/prout.ogg";
+	const std::string badTextPathWithoutExtension = "fake/path/prout";
+
+	const auto goodSndBufferId = soundBufferManager->LoadSoundBuffer(goodSoundBufferPath);
+	const auto badSndBufferId = soundBufferManager->LoadSoundBuffer(badTextPath);
+	const auto badExtSndBufferId = soundBufferManager->LoadSoundBuffer(badTextPathWithoutExtension);
+
+
+	ASSERT_EQ(badExtSndBufferId, sfge::INVALID_SOUND_BUFFER);
+	ASSERT_EQ(badSndBufferId, sfge::INVALID_SOUND_BUFFER);
+	ASSERT_NE(goodSndBufferId, sfge::INVALID_SOUND_BUFFER);
+
+	sf::Sound sound;
+	if (badSndBufferId != sfge::INVALID_SOUND_BUFFER)
+	{
+		sfge::Log::GetInstance()->Error("Loading Bad File");
+		sound.setBuffer(*soundBufferManager->GetSoundBuffer(badSndBufferId));
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "Bad file: " << badTextPath << " could not be loaded";
+		sfge::Log::GetInstance()->Error(oss.str());
+	}
+	if (goodSndBufferId != sfge::INVALID_SOUND_BUFFER)
+	{
+
+		sfge::Log::GetInstance()->Msg("Loading Good File");
+		sound.setBuffer(*soundBufferManager->GetSoundBuffer(goodSndBufferId));
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "Bad file: " << goodSoundBufferPath << " could not be loaded";
+		sfge::Log::GetInstance()->Error(oss.str());
+	}
+
+	sound.play();
+
+	std::this_thread::sleep_for(std::chrono::milliseconds
+	(soundBufferManager->GetSoundBuffer(goodSndBufferId)->getDuration().asMilliseconds()));
+
+	engine.Destroy();
 }

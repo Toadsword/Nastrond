@@ -45,6 +45,7 @@ const SoundBufferId INVALID_SOUND_BUFFER = 0U;
 const auto MAX_SOUND_BUFFER_SIZE = 1'000'000ll;
 
 
+
 /**
 * \brief Sound class child is a Component
 */
@@ -67,7 +68,7 @@ public:
 	void SetEntity(Entity newEntity);
 protected:
 	sf::Sound m_Sound;
-	Entity m_Entity;
+	Entity m_Entity = INVALID_ENTITY;
 };
 
 class SoundBufferManager : public System
@@ -109,9 +110,9 @@ struct SoundInfo : ComponentInfo, PathEditorComponent
 };
 }
 
-const size_t MAX_SOUND_CHANNELS = 256;
+const size_t MAX_SOUND_CHANNELS = 16;
 
-class SoundManager : public MultipleComponentManager<Sound, editor::SoundInfo, ComponentType::SOUND>
+class SoundManager : public BasicComponentManager<Sound, editor::SoundInfo, ComponentType::SOUND>
 {
 public:
 	SoundManager(Engine& engine);
@@ -129,10 +130,8 @@ public:
 
 	Sound* GetComponentPtr(Entity entity) override;
 
-    virtual void OnResize(size_t newSize) override{};
 protected:
-	int GetFreeComponentIndex() override {return -1;};
-	EntityManager* m_EntityManager = nullptr;
+	int GetFreeComponentIndex() override;
 	SoundBufferManager* m_SoundBufferManager = nullptr;
 };
 }

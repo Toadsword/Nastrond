@@ -27,23 +27,22 @@ Date : November 2018
 Project : AnimationTool for SFGE
 */
 
-#include <json.hpp>
 
 #include <iostream>
 #include <fstream>
 
 #include <utility/file_utility.h>
+#include <utility/json_utility.h>
 
-#include <AnimationManager.h>
-#include <TextureManager.h>
-#include <Utilities.h>
+#include <animation_manager.h>
+#include <texture_manager.h>
+#include <utilities.h>
 
-using json = nlohmann::json;
 
-LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
+LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
 {
 	json value;
-	std::string animName = anim->GetName();
+	const std::string animName = anim->GetName();
 
 	//Creating base folder
 	if(!sfge::CreateDirectory(DATA_FOLDER) && !sfge::CreateDirectory(SAVE_FOLDER))
@@ -52,7 +51,7 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 
 	}
 
-	if (!sfge::CreateDirectory((SAVE_FOLDER + animName + "/")))
+	if (!sfge::CreateDirectory(SAVE_FOLDER + animName + "/"))
 	{
 		return SAVE_FAILURE;
 	}
@@ -78,11 +77,11 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 	for (auto frame : frames)
 	{
 		TextureInfos* textToApply = nullptr;
-		for(auto textu : *textures)
+		for(auto texture : *textures)
 		{
-			if (textu->id == frame.second)
+			if (texture->id == frame.second)
 			{
-				textToApply = textu;
+				textToApply = texture;
 				break;
 			}
 		}
@@ -138,9 +137,10 @@ LogSaveError Utilities::ExportToJson(AnimationManager* anim, std::vector<Texture
 	return SAVE_SUCCESS;
 }
 
-char* Utilities::ConvertStringToArrayChar(std::string string, size_t size)
+//This is simply horrible....
+char* ConvertStringToArrayChar(std::string string, size_t size)
 {
-	char * result = new char[size];
+	const auto result = new char[size];
 	strcpy(result, string.c_str());
 	return result;
 }

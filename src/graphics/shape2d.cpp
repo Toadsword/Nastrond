@@ -127,7 +127,7 @@ void ShapeManager::Init()
 }
 
 
-void ShapeManager::Draw(sf::RenderWindow& window)
+void ShapeManager::DrawShapes(sf::RenderWindow &window)
 {
 	for(int i = 0; i < m_Components.size(); i++)
 	{
