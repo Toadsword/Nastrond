@@ -254,32 +254,54 @@ ENDIF()
 if(UNIX)
 cotire(SFGE)
 endif()
+
 #SFGE TOOLS
 SET(SFGE_TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
 file(GLOB TOOLS_DIR ${SFGE_TOOLS_DIR}/*)
+
 
 foreach(tool_dir ${TOOLS_DIR})
 
     get_filename_component(tool_name ${tool_dir} NAME)
 	message("Tool name: ${tool_name} ${tool_dir}")
 	include_directories(${tool_dir}/include/)
-	file(GLOB_RECURSE TOOL_SRC ${tool_dir}/include/*.h ${tool_dir}/src/*.cpp ${tool_dir}/main.cpp)
-	add_executable(${tool_name} ${TOOL_SRC})
-
+	file(GLOB_RECURSE TOOL_SRC ${tool_dir}/include/*.h ${tool_dir}/src/*.cpp)
+	add_executable(${tool_name} ${TOOL_SRC} ${tool_dir}/main.cpp)
+	add_library(${tool_name}_library STATIC ${TOOL_SRC})
+		LIST(APPEND TOOL_LIBRARIES ${tool_name}_library)
 	target_link_libraries(${tool_name} PUBLIC SFGE_COMMON)
+	target_link_libraries(${tool_name}_library PUBLIC SFGE_COMMON)
 	set_property(TARGET ${tool_name} PROPERTY CXX_STANDARD 17)
+	set_property(TARGET ${tool_name}_library PROPERTY CXX_STANDARD 17)
 	set_target_properties (${tool_name} PROPERTIES FOLDER Tools)
+	set_target_properties (${tool_name}_library PROPERTIES FOLDER Tools)
 	if(APPLE)
 		set_target_properties(${tool_name} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+		set_target_properties(${tool_name}_library PROPERTIES
+				RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+				RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	ENDIF()
 	if(UNIX)
 	cotire(${tool_name})
+	cotire(${tool_name}_library)
 	endif()
 	LIST(APPEND tools \"${tool_name}\")
 endforeach()
+#SFGE EDITOR
+add_executable(SFGE_EDITOR src/main_editor.cpp)
 
+target_link_libraries(SFGE_EDITOR PUBLIC SFGE_COMMON ${TOOL_LIBRARIES})
+set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
+if(APPLE)
+	set_target_properties(SFGE_EDITOR PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+ENDIF()
+if(UNIX)
+	cotire(SFGE_EDITOR)
+endif()
 #copy folder to build
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)

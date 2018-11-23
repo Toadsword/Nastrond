@@ -66,7 +66,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
 
 	
-	py::class_<Engine> engine(m, "Engine");
+	py::class_<Engine> engine(m, "tool_engine");
 	engine
 		.def_property_readonly("config", [](Engine* engine)
 	{
@@ -144,7 +144,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
 
-	py::class_<TextureManager> textureManager(m, "TextureManager");
+	py::class_<TextureManager> textureManager(m, "texture_manager");
 	textureManager
 		.def("load_texture", [](TextureManager* textureManager, std::string name)
 		{

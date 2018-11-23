@@ -33,8 +33,8 @@ Project : AnimationTool for SFGE
 
 #include <SFML/Graphics.hpp>
 
-#include <Utilities.h>
-#include <TextureManager.h>
+#include <utilities.h>
+#include <texture_manager.h>
 
 /**
  * Constants
@@ -49,13 +49,14 @@ const int TIME_TO_DOUBLE_CLICK = 500;
 /**
  * Prototype
  */
-class Engine;
+class ToolEngine;
 
 /**
  * \brief GraphicsManager : Deals with all the graphics of the application.
  * Display the window, sort all the elements using ImGui and deals with the User Interface.
  */
-class GraphicsManager{
+class GraphicsManager {
+
 public:
 
 	/**
@@ -67,7 +68,7 @@ public:
 	 * \brief Initializer of the Graphics Manager. This function must be called before running, at it creates all the graphics needs.
 	 * \return The pointer to the created windows.
 	 */
-	sf::RenderWindow* Init(Engine* engine);
+	sf::RenderWindow* Init(ToolEngine* engine);
 	/**
 	 * \brief Updates the graphic state every frames.
 	 * \param dt Time passed between the last frame and the current one.
@@ -213,11 +214,11 @@ private:
 	/**
 	 * \brief Reference to the Engine.
 	 */
-	Engine* m_engine = nullptr;
+	ToolEngine* m_Engine = nullptr;
 	/**
 	 * \brief Reference to the graphic window.
 	 */
-	sf::RenderWindow* m_window = nullptr;
+	sf::RenderWindow* m_Window = nullptr;
 };
 
 #endif // ifndef GRAPHICS_MANAGER_H

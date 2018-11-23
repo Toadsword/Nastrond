@@ -72,11 +72,11 @@ void Engine::InitModules()
 {
 	if (m_Config == nullptr)
 	{
-		Log::GetInstance()->Error("[Error] Game Engine Configuration");
+		Log::GetInstance()->Error("[Error] Game tool_engine Configuration");
 	}
 	else
 	{
-		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
+		Log::GetInstance()->Msg("Game tool_engine Configuration Successfull");
 	}
     {
         std::ostringstream oss;

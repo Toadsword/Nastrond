@@ -33,7 +33,7 @@ Project : AnimationTool for SFGE
 
 #include <iostream>
 
-#include <TextureManager.h>
+#include <texture_manager.h>
 #include <json.hpp>
 
 void TextureManager::Init()

@@ -29,7 +29,7 @@ SOFTWARE.
 #include <string>
 //Dependencies
 #include <SFML/Graphics.hpp>
-//Engine
+//tool_engine
 #include <engine/component.h>
 #include <engine/transform2d.h>
 #include <editor/editor.h>

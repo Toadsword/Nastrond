@@ -34,9 +34,9 @@ Project : AnimationTool for SFGE
 #include <utility/file_utility.h>
 #include <utility/json_utility.h>
 
-#include <AnimationManager.h>
-#include <TextureManager.h>
-#include <Utilities.h>
+#include <animation_manager.h>
+#include <texture_manager.h>
+#include <utilities.h>
 
 
 LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)

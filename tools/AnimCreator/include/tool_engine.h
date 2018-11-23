@@ -33,21 +33,21 @@ Project : AnimationTool for SFGE
 
 #include <SFML/Graphics.hpp>
 
-#include <AnimationManager.h>
-#include <TextureManager.h>
-#include <GraphicsManager.h>
+#include <animation_manager.h>
+#include <texture_manager.h>
+#include <graphics_manager.h>
 
 /**
  * \brief Engine : Core of the application, manages all the managers.
  * Creates, Destroys managers and deals with the global function of the application.
  */
-class Engine
+class ToolEngine
 {
 public:
 	/**
 	 * \brief Constructor of the Engine.
 	 */
-	Engine() {};
+	ToolEngine() {};
 
 	/**
 	 * \brief Initializer of the Engine. This function must be called before running, at it creates every Managers the tool need to function.
@@ -91,19 +91,19 @@ private:
 	/**
 	 * \brief Pointer to the Graphics Manager of the Engine.
 	 */
-	GraphicsManager* m_graphicsManager;
+	GraphicsManager m_GraphicsManager;
 	/**
 	 * \brief Pointer to the Texture Manager of the Engine.
 	 */
-	TextureManager* m_textureManager;
+	TextureManager m_TextureManager;
 	/**
 	 * \brief Pointer to the Animation Manager of the Engine.
 	 */
-	AnimationManager* m_animationManager;
+	AnimationManager m_AnimationManager;
 	/**
 	 * \brief Pointer to the graphics windows of the Engine.
 	 */
-	sf::RenderWindow* m_window = nullptr;
+	sf::RenderWindow* m_Window = nullptr;
 
 	/**
 	 * \brief Current running state. Is set to "true" once the engine is initialized.
