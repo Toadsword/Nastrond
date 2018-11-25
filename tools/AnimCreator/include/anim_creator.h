@@ -30,14 +30,19 @@ SOFTWARE.
 #include <graphics_manager.h>
 #include <animation_manager.h>
 
-namespace sfge::tools
+namespace sfge
 {
+class Engine;
+
+namespace tools
+{
+
 //TODO refactor and use this class instead of ToolEngine as a starting point to the tool
 //This will allow to call the tools directly from a central executable called SFGE_EDITOR
 class AnimCreator : public System
 {
 public:
-	using System::System;
+	AnimCreator(sfge::Engine& engine);
 
 protected:
 	/**
@@ -53,6 +58,7 @@ protected:
 	 */
 	AnimationManager m_AnimationManager;
 };
+}
 }
 
 #endif //SFGE_ANIMCREATOR_H

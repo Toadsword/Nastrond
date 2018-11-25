@@ -35,6 +35,8 @@ SOFTWARE.
 namespace sfge::ext
 {
 
+static std::vector<std::function<void(py::module&)>> m_OtherPythonExtensions;
+
 void ExtendPython(py::module& m)
 {
 	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
@@ -44,6 +46,15 @@ void ExtendPython(py::module& m)
 	py::class_<PirateSystem, System> pirateSystem(m, "PirateSystemCpp");
 	pirateSystem
 			.def(py::init<Engine&>());
+
+	for(auto& otherExtensions : m_OtherPythonExtensions)
+	{
+		otherExtensions(m);
+	}
+
+}
+void SubscribePythonExtension(std::function<void(pybind11::module &)> newExtendingFunction)
+{
 
 }
 

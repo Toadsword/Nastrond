@@ -309,4 +309,4 @@ file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
 
 #write tool config file
 string(REPLACE " " "," tools_list ${tools})
-file(WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}]}")
+file(WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}], \"src_dir\": \"${CMAKE_SOURCE_DIR}\", \"bin_dir\": \"${CMAKE_BINARY_DIR}\"}")

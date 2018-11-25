@@ -24,17 +24,22 @@ SOFTWARE.
 
 #include <anim_creator.h>
 
-#include <utility/python_utility.h>
 #include <engine/engine.h>
+
+#include <extensions/python_extensions.h>
 
 namespace sfge::tools
 {
 
-void ExtendPython(py::module& m)
+void AddAnimCreatorToPython(py::module& m)
 {
-	py::class_<AnimCreator, System> planetSystem(m, "AnimCreator");
-	planetSystem
+	py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
+	animCreator
 		.def(py::init<Engine&>());
 }
 
+AnimCreator::AnimCreator(Engine &engine) : System(engine)
+{
+	sfge::ext::SubscribePythonExtension(AddAnimCreatorToPython);
+}
 }

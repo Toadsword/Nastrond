@@ -136,7 +136,7 @@ private:
 	/**
 	 * \brief Currently selected texture.
 	 */
-	short m_selectedTextureId = -1;
+	short m_SelectedTextureId = -1;
 
 	// Preview section window
 	/**
