@@ -45,20 +45,21 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 	const std::string animName = anim->GetName();
 
 	//Creating base folder
-	if(!sfge::CreateDirectory(DATA_FOLDER) && !sfge::CreateDirectory(SAVE_FOLDER))
+	if(!sfge::IsDirectory(DATA_FOLDER) && !sfge::CreateDirectory(DATA_FOLDER))
 	{
+		std::cout << "Couldn't create DATA folder";
 		return SAVE_FAILURE;
-
 	}
-
-	if (!sfge::CreateDirectory(SAVE_FOLDER + animName + "/"))
+	if(!sfge::IsDirectory(SAVE_FOLDER) && !sfge::CreateDirectory(SAVE_FOLDER))
 	{
+		std::cout << "Couldn't create SAVE_FOLDER folder";
 		return SAVE_FAILURE;
 	}
 
 	//Check if file already exists. If so, we ask if the user wants to replace it
-	if (confirmedReplacement)
+	if (confirmedReplacement && sfge::IsDirectory(SAVE_FOLDER + animName + "/"))
 		sfge::RemoveDirectory(SAVE_FOLDER + animName + "/");
+	
 	{
 		std::ifstream doAnimExists(SAVE_FOLDER + animName + ".json");
 		confirmedReplacement = !confirmedReplacement && doAnimExists;
@@ -67,12 +68,18 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 	if(confirmedReplacement)
 		return SAVE_DO_REPLACE;
 
+	if (!sfge::IsDirectory(SAVE_FOLDER + animName + "/") && !sfge::CreateDirectory(SAVE_FOLDER + animName + "/"))
+	{
+		std::cout << "Couldn't create ANIMATION folder";
+		return SAVE_FAILURE;
+	}
+
 	// Json construction
 	value["name"] = anim->GetName();
 	value["isLooped"] = anim->GetIsLooped();
 	value["speed"] = anim->GetSpeed();
 	auto frames = anim->GetAnim();
-	short index = 0;
+	short arrayIndex = 0;
 
 	for (auto frame : frames)
 	{
@@ -90,17 +97,10 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 			continue;
 
 		//Get the file name from the path
-		std::string fileName = textToApply->path;
-		std::size_t found = fileName.find("/");
-		while (found < fileName.length())
-		{
-			fileName = fileName.substr(found + 1);
-			found = fileName.find("/");
-		}
+		std::string fileName = textToApply->fileName;
 
 		//Copy file into save folder
-		std::ifstream myImage(SAVE_FOLDER + animName + "/" + fileName);
-		if (!myImage.good())
+		if (!sfge::FileExists(SAVE_FOLDER + animName + "/" + fileName))
 		{
 			//std::cout << "saving image \n";
 			std::ifstream  src(textToApply->path, std::ios::binary);
@@ -113,17 +113,16 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 		{
 			//std::cout << "image already copied\n";
 		}
-		myImage.close();
 
 		//Registering information of the frame
-		value["frames"][index]["key"] = frame.first;		
-		value["frames"][index]["filename"] = fileName;
-		value["frames"][index]["position"]["x"] = textToApply->position.x;
-		value["frames"][index]["position"]["y"] = textToApply->position.y;
-		value["frames"][index]["size"]["x"] = textToApply->size.x;
-		value["frames"][index]["size"]["y"] = textToApply->size.y;
+		value["frames"][arrayIndex]["key"] = frame.first;		
+		value["frames"][arrayIndex]["filename"] = fileName;
+		value["frames"][arrayIndex]["position"]["x"] = textToApply->position.x;
+		value["frames"][arrayIndex]["position"]["y"] = textToApply->position.y;
+		value["frames"][arrayIndex]["size"]["x"] = textToApply->size.x;
+		value["frames"][arrayIndex]["size"]["y"] = textToApply->size.y;
 		
-		index++;
+		arrayIndex++;
 	}
 
 	// File write
@@ -138,6 +137,7 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 }
 
 //This is simply horrible....
+// -> WorkAround?
 char* ConvertStringToArrayChar(std::string string, size_t size)
 {
 	const auto result = new char[size];

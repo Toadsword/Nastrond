@@ -622,11 +622,11 @@ void GraphicsManager::OpenModalAddTexture()
 		ImGui::Text("Num Columns"); ImGui::NextColumn();
 		ImGui::InputInt("##Num Columns", &m_inputNumCols); ImGui::NextColumn();
 
-		ImGui::Text("Start position x"); ImGui::NextColumn();
-		ImGui::InputInt("##Start position x", &m_inputOffsetX); ImGui::NextColumn();
+		ImGui::Text("Offset x"); ImGui::NextColumn();
+		ImGui::InputInt("##Offset x", &m_inputOffsetX); ImGui::NextColumn();
 
-		ImGui::Text("Start position y"); ImGui::NextColumn();
-		ImGui::InputInt("##Start position y", &m_inputOffsetY); ImGui::NextColumn();
+		ImGui::Text("Offset y"); ImGui::NextColumn();
+		ImGui::InputInt("##Offset y", &m_inputOffsetY); ImGui::NextColumn();
 
 		ImGui::Columns(1, "idColAddSprite");
 

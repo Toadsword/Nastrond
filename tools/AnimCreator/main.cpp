@@ -30,13 +30,11 @@ Project : AnimationTool for SFGE
 #include <tool_engine.h>
 int main()
 {
-
 	{
 		ToolEngine engine;
 
 		engine.Init();
 		engine.Start();
-
 	}
 
 #ifdef WIN32

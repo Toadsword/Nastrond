@@ -32,6 +32,7 @@ namespace sfge::tools
 
 void ExtendPython(py::module& m)
 {
+	// ???
 	py::class_<AnimCreator, System> planetSystem(m, "AnimCreator");
 	planetSystem
 		.def(py::init<Engine&>());

@@ -78,7 +78,6 @@ void ToolEngine::StopEngine()
 {
 	m_GraphicsManager.Stop();
 	m_Window = nullptr;
-
 }
 
 GraphicsManager* ToolEngine::GetGraphicsManager()
