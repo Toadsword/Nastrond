@@ -38,6 +38,7 @@ void PySystem::Init()
 
 void PySystem::Update(float dt)
 {
+
 	try
 	{
 
@@ -201,6 +202,10 @@ void PySystemManager::InitPySystems()
 void PySystemManager::Update(float dt)
 {
 	System::Update(dt);
+
+
+	rmt_ScopedCPUSample(PySystemUpdate,0);
+
 	for (auto pySystem : m_PySystems)
 	{
 		if (pySystem != nullptr)
@@ -210,6 +215,9 @@ void PySystemManager::Update(float dt)
 void PySystemManager::FixedUpdate()
 {
 	System::FixedUpdate();
+
+	rmt_ScopedCPUSample(PySystemFixedUpdate,0);
+
 	for (auto pySystem : m_PySystems)
 	{
 		if (pySystem != nullptr)
@@ -221,5 +229,14 @@ void PySystemManager::Destroy()
 	System::Destroy();
 	m_PySystems.clear();
 	m_PythonInstances.clear();
+}
+void PySystemManager::Draw()
+{
+	rmt_ScopedCPUSample(PySystemDraw,0);
+	for(auto pySystem : m_PySystems)
+	{
+		if(pySystem != nullptr)
+			pySystem->Draw();
+	}
 }
 }

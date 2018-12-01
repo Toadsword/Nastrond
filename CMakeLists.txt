@@ -171,6 +171,11 @@ if(UNIX AND NOT APPLE)
 endif()
 
 
+set(REMOTERY_DIR ${EXTERNAL_DIR}/Remotery)
+add_subdirectory(${REMOTERY_DIR})
+include_directories(${REMOTERY_DIR})
+LIST(APPEND SFGE_LIBRARIES Remotery)
+
 #SFGE_COMMON
 
 LIST(APPEND SFGE_LIBRARIES)

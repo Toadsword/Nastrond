@@ -35,6 +35,7 @@ SOFTWARE.
 #include <utility/json_utility.h>
 
 #include <editor/profiler.h>
+#include <Remotery.h>
 namespace sf
 {
 class RenderWindow;
@@ -113,6 +114,7 @@ protected:
 	std::unique_ptr<Configuration> m_Config;
 
 
+	Remotery* rmt;
 	//
 	std::unique_ptr<SystemsContainer> m_SystemsContainer;
 

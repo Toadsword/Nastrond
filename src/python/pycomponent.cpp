@@ -524,6 +524,9 @@ void PyComponentManager::Destroy()
 void PyComponentManager::FixedUpdate()
 {
 	System::FixedUpdate();
+
+	rmt_ScopedCPUSample(PyComponentFixedUpdate,0);
+
 	auto config = m_Engine.GetConfig();
 	for(auto* pyComponent:m_Components)
 	{
@@ -536,6 +539,10 @@ void PyComponentManager::FixedUpdate()
 void PyComponentManager::Update(float dt)
 {
 	System::Update(dt);
+
+
+	rmt_ScopedCPUSample(PyComponentUpdate,0);
+
 	for(auto* pyComponent:m_Components)
 	{
 		if(pyComponent != nullptr)

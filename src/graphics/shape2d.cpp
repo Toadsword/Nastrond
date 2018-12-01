@@ -129,6 +129,8 @@ void ShapeManager::Init()
 
 void ShapeManager::DrawShapes(sf::RenderWindow &window)
 {
+
+	rmt_ScopedCPUSample(ShapeDraw,0)
 	for(int i = 0; i < m_Components.size(); i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
@@ -140,7 +142,8 @@ void ShapeManager::DrawShapes(sf::RenderWindow &window)
 
 void ShapeManager::Update(const float dt)
 {
-	
+
+	rmt_ScopedCPUSample(ShapeUpdate,0)
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		if (m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))

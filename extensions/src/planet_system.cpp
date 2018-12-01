@@ -153,7 +153,7 @@ void PlanetSystem::FixedUpdate()
 		auto bodyPtr = m_Engine.GetPhysicsManager()->GetBodyManager()->GetComponentPtr(i + 1);
 		bodyPtr->ApplyForce(CalculateNewForce(transformPtr->Position));
 #else
-		auto transformPtr = m_Engine.GetTransform2dManager().GetComponentPtr(i + 1);
+		auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(i + 1);
 		const auto force = meter2pixel(CalculateNewForce(transformPtr->Position));
 
 		m_Velocities[i] += force / planetMass * fixedDeltaTime;

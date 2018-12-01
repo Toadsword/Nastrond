@@ -30,7 +30,7 @@ SOFTWARE.
 #include <engine/component.h>
 
 
-TEST(TestSystem, PlanetPyComponent)
+TEST(System, TestPlanetPyComponent)
 {
 	const int entityNmb = 10'000;
 	sfge::Engine engine;
@@ -88,9 +88,10 @@ TEST(TestSystem, PlanetPyComponent)
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
+
 }
 
-TEST(TestSystem, PlanetPySystem)
+TEST(System, TestPlanetPySystem)
 {
 	sfge::Engine engine;
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
@@ -111,7 +112,7 @@ TEST(TestSystem, PlanetPySystem)
 	engine.Start();
 }
 
-TEST(TestSystem, PlanetPySystemCpp)
+TEST(System, TestPlanetPySystemCpp)
 {
 	sfge::Engine engine;
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();

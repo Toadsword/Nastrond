@@ -120,6 +120,8 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 
 void SpriteManager::Update(float dt)
 {
+
+	rmt_ScopedCPUSample(SpriteUpdate,0)
 	for(int i = 0; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D))
@@ -132,7 +134,8 @@ void SpriteManager::Update(float dt)
 
 void SpriteManager::DrawSprites(sf::RenderWindow &window)
 {
-	
+
+	rmt_ScopedCPUSample(SpriteDraw,0)
 	for (int i = 0; i<m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))

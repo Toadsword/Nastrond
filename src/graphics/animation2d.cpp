@@ -155,6 +155,8 @@ void AnimationManager::Init()
 
 void AnimationManager::Update(float dt)
 {
+
+	rmt_ScopedCPUSample(Animation2dUpdate,0)
 	for(int i = 0; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D))
@@ -167,7 +169,8 @@ void AnimationManager::Update(float dt)
 
 void AnimationManager::DrawAnimations(sf::RenderWindow &window)
 {
-	
+
+	rmt_ScopedCPUSample(Animation2dDraw,0)
 	for (int i = 0; i<m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D))

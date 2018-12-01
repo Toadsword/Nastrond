@@ -58,6 +58,7 @@ public:
 
 	void Update(float dt) override;
 	void FixedUpdate() override;
+	void Draw() override;
 
 	void Destroy() override;
 

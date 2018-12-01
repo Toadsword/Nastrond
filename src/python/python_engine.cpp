@@ -411,18 +411,23 @@ void PythonEngine::InitScriptsInstances()
 
 void PythonEngine::Update(float dt)
 {
+	rmt_ScopedCPUSample(PythonUpdate,0);
 	m_PyComponentManager.Update(dt);
 	m_PySystemManager.Update(dt);
 }
 
 void PythonEngine::FixedUpdate()
 {
+
+	rmt_ScopedCPUSample(PythonFixedUpdate,0);
 	m_PyComponentManager.FixedUpdate();
 	m_PySystemManager.FixedUpdate();
 }
 
 void PythonEngine::Draw()
 {
+	rmt_ScopedCPUSample(PythonDraw,0);
+	m_PyComponentManager.Draw();
 	m_PySystemManager.Draw();
 }
 
@@ -532,7 +537,7 @@ void PythonEngine::LoadScripts(std::string dirname)
 			}
 		}
 
-		if (IsDirectory(entry))
+		if (IsDirectory(entry) and entry.find("tools") == std::string::npos)
 		{
 			IterateDirectory(entry, LoadAllPyModules);
 		}

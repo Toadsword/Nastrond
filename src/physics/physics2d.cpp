@@ -52,6 +52,7 @@ void Physics2dManager::Update(float dt)
 
 void Physics2dManager::FixedUpdate()
 {
+	rmt_ScopedCPUSample(Physics2dManager,0);
 	const auto config = m_Engine.GetConfig();
 	if (config != nullptr and m_World != nullptr)
 	{
