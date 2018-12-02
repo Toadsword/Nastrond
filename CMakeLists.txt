@@ -202,6 +202,7 @@ ENDIF()
 if(UNIX)
 cotire(SFGE_COMMON)
 endif()
+
 #SFGE COURSES
 SET(SFGE_COURSE_DIR ${CMAKE_SOURCE_DIR}/courses)
 file(GLOB COURSE_FILES ${SFGE_COURSE_DIR}/*.cpp )
@@ -264,16 +265,16 @@ endif()
 SET(SFGE_TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
 file(GLOB TOOLS_DIR ${SFGE_TOOLS_DIR}/*)
 
-
 foreach(tool_dir ${TOOLS_DIR})
 
     get_filename_component(tool_name ${tool_dir} NAME)
+	LIST(APPEND TOOL_NAME_LIST ${tool_name})
 	message("Tool name: ${tool_name} ${tool_dir}")
 	include_directories(${tool_dir}/include/)
 	file(GLOB_RECURSE TOOL_SRC ${tool_dir}/include/*.h ${tool_dir}/src/*.cpp)
 	add_executable(${tool_name} ${TOOL_SRC} ${tool_dir}/main.cpp)
 	add_library(${tool_name}_library STATIC ${TOOL_SRC})
-		LIST(APPEND TOOL_LIBRARIES ${tool_name}_library)
+	LIST(APPEND TOOL_LIBRARIES ${tool_name}_library)
 	target_link_libraries(${tool_name} PUBLIC SFGE_COMMON)
 	target_link_libraries(${tool_name}_library PUBLIC SFGE_COMMON)
 	set_property(TARGET ${tool_name} PROPERTY CXX_STANDARD 17)
@@ -294,6 +295,12 @@ foreach(tool_dir ${TOOLS_DIR})
 	endif()
 	LIST(APPEND tools \"${tool_name}\")
 endforeach()
+
+execute_process(
+		COMMAND ${PYTHON_EXECUTABLE} "scripts/tools/generate_tool_bindings.py" ${TOOL_NAME_LIST}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE py_result
+)
 #SFGE EDITOR
 add_executable(SFGE_EDITOR src/main_editor.cpp)
 
@@ -314,4 +321,4 @@ file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
 
 #write tool config file
 string(REPLACE " " "," tools_list ${tools})
-file(WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}], \"src_dir\": \"${CMAKE_SOURCE_DIR}\", \"bin_dir\": \"${CMAKE_BINARY_DIR}\"}")
+file (WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}], \"src_dir\": \"${CMAKE_SOURCE_DIR}\", \"bin_dir\": \"${CMAKE_BINARY_DIR}\"}")

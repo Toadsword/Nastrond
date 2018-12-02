@@ -43,7 +43,7 @@ namespace sfge::ext
 
 
 //#define WITH_PHYSICS
-#define WITH_VERTEXARRAY
+//#define WITH_VERTEXARRAY
 //#define MULTI_THREAD
 
 class PlanetSystem : public System
