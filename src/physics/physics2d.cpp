@@ -47,7 +47,7 @@ void Physics2dManager::Init()
 
 void Physics2dManager::Update(float dt)
 {
-	
+	(void)dt;
 }
 
 void Physics2dManager::FixedUpdate()

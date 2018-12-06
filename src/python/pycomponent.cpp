@@ -437,7 +437,7 @@ void PyComponentManager::OnCollisionExit(Entity entity, ColliderData * colliderD
 
 void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 {
-	for(int i = 0; i < m_Components.size();i++)
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		auto& pyComponent = m_Components[i];
 		if(pyComponent != nullptr && entity == pyComponent->GetEntity())
@@ -445,7 +445,7 @@ void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 			pyComponent = nullptr;
 		}
 	}
-	for(int i = 0; i < m_PythonInstances.size();i++)
+	for(auto i = 0u; i < m_PythonInstances.size();i++)
 	{
 		auto& pyInstance = m_PythonInstances[i];
 		if(pyInstance.is_none() || pyInstance.ptr() == nullptr ) continue;
@@ -465,7 +465,7 @@ void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 }
 int PyComponentManager::GetFreeComponentIndex()
 {
-	for(int i = 0; i < m_Components.size();i++)
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		if (m_Components[i] == nullptr)
 		{
@@ -488,21 +488,27 @@ void PyComponentManager::CreateComponent(json &componentJson, Entity entity)
 		const ModuleId moduleId = m_PythonEngine->LoadPyModule(path);
 		auto moduleName = m_PythonEngine->GetModuleNameFrom(moduleId);
 		if(moduleId != INVALID_MODULE)
+		{
 			const InstanceId instanceId = LoadPyComponent(moduleId, entity);
+			(void) instanceId;
+		}
 	}
 }
 
 void PyComponentManager::DestroyComponent(Entity entity)
 {
-
+	RemovePyComponentsFrom(entity);
 }
 
 PyBehavior **PyComponentManager::AddComponent(Entity entity)
 {
+	(void) entity;
 	return nullptr;
 }
 
-PyBehavior **PyComponentManager::GetComponentPtr(Entity entity) {
+PyBehavior **PyComponentManager::GetComponentPtr(Entity entity)
+{
+	(void) entity;
 	return nullptr;
 }
 void PyComponentManager::InitPyComponents()

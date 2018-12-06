@@ -156,7 +156,7 @@ void Body2dManager::Init()
 
 void Body2dManager::FixedUpdate()
 {
-	for (int i = 0; i < m_Components.size(); i++)
+	for (auto i = 0u; i < m_Components.size(); i++)
 	{
 		const Entity entity = i + 1;
 		if (m_EntityManager->HasComponent(entity, ComponentType::BODY2D) &&
@@ -224,6 +224,7 @@ void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 
 void Body2dManager::DestroyComponent(Entity entity)
 {
+	(void) entity;
 }
 
 void Body2dManager::OnResize(size_t new_size)

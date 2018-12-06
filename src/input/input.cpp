@@ -65,10 +65,17 @@ void InputManager::Collect()
 
 void KeyboardManager::Update(float dt)
 {
+	(void) dt;
 	for (int i = 0; i < sf::Keyboard::KeyCount; i++)
 	{
 		keyPressedStatusArray[i].previousKeyPressed = keyPressedStatusArray[i].keyPressed;
 		keyPressedStatusArray[i].keyPressed = sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
+		if(IsKeyDown(static_cast<sf::Keyboard::Key>(i)))
+		{
+			std::ostringstream oss;
+			oss << "[Input] Pressing key: "<<i;
+			Log::GetInstance()->Msg(oss.str());
+		}
 	}
 }
 

@@ -167,7 +167,6 @@ sf::Texture* TextureManager::GetTexture(TextureId textureId)
 
 bool TextureManager::HasValidExtension(std::string filename)
 {
-	const auto folderLastIndex = filename.find_last_of('/');
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
 	if (filenameExtensionIndex >= filename.size())
 	{

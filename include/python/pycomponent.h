@@ -57,13 +57,13 @@ public:
     virtual ~Behavior() = default;
     
     virtual void Init() {};
-    virtual void Update(float dt) {};
-    virtual void FixedUpdate(float fixedDeltaTime) {};
+    virtual void Update(float dt) {(void) dt;};
+    virtual void FixedUpdate(float fixedDeltaTime) {(void)fixedDeltaTime;};
     
-    virtual void OnCollisionEnter(ColliderData* collider) {};
-    virtual void OnTriggerEnter(ColliderData * collider) {};
-    virtual  void OnCollisionExit(ColliderData* collider) {};
-    virtual void OnTriggerExit(ColliderData * collider) {};
+    virtual void OnCollisionEnter(ColliderData* collider) {(void) collider;};
+    virtual void OnTriggerEnter(ColliderData * collider) { (void) collider;};
+    virtual  void OnCollisionExit(ColliderData* collider) {(void) collider;};
+    virtual void OnTriggerExit(ColliderData * collider) {(void) collider;};
     
     
     py::object GetComponent(ComponentType componentType) const;

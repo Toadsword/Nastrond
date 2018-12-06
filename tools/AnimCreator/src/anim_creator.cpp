@@ -30,16 +30,16 @@ SOFTWARE.
 
 namespace sfge::tools
 {
-
-void AddAnimCreatorToPython(py::module& m)
+void AnimCreator::Init()
 {
-	py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-	animCreator
-		.def(py::init<Engine&>());
+
 }
-
-AnimCreator::AnimCreator(Engine &engine) : System(engine)
+void AnimCreator::Update(float dt)
 {
-	sfge::ext::SubscribePythonExtension(AddAnimCreatorToPython);
+    (void) dt;
+}
+void AnimCreator::Draw()
+{
+
 }
 }

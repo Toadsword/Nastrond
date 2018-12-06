@@ -51,7 +51,7 @@ public:
 	* \brief Called every frame to update the module
 	* \param dt The delta time since last frame
 	*/
-	virtual void Update(float dt) {}
+	virtual void Update(float dt) {(void) dt;}
 	/**
 	* \brief Called directly after the physics finished his job
 	*/

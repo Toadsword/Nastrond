@@ -63,7 +63,7 @@ void PlanetSystem::Init()
 	textureSize = sf::Vector2f(texture->getSize().x, texture->getSize().y);
 #endif
 
-	for (int i = 0; i < entitiesNmb; i++)
+	for (auto i = 0u; i < entitiesNmb; i++)
 	{
 		const auto newEntity = entityManager->CreateEntity(i + 1);
 
@@ -122,6 +122,9 @@ void PlanetSystem::UpdateRange(int startIndex, int endIndex)
 		m_VertexArray[4 * i + 2].position = pos + textureSize / 2.0f;
 		m_VertexArray[4 * i + 3].position = pos + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 	}
+#else
+	(void) startIndex;
+	(void) endIndex;
 #endif
 }
 
@@ -145,7 +148,7 @@ void PlanetSystem::FixedUpdate()
 		joinFutures[i].get();
 	}
 #else
-	for(int i = 0; i < entitiesNmb ; i++)
+	for(auto i = 0u; i < entitiesNmb ; i++)
 	{
 
 #ifdef WITH_PHYSICS

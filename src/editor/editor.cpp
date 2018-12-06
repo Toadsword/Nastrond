@@ -85,7 +85,7 @@ void Editor::Update(float dt)
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Entities");
 			
-			for (int i = 0; i < configPtr->currentEntitiesNmb; i++)
+			for (auto i = 0u; i < configPtr->currentEntitiesNmb; i++)
 			{
 				if(m_EntityManager->GetMask(i+1) != INVALID_ENTITY)
 				{

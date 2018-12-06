@@ -130,6 +130,7 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 
 void SoundManager::DestroyComponent(Entity entity)
 {
+	(void) entity;
 }
 
 sfge::Sound::Sound()
@@ -175,7 +176,7 @@ Sound *SoundManager::GetComponentPtr(Entity entity)
 
 int SoundManager::GetFreeComponentIndex()
 {
-	for (int i = 0; i < MAX_SOUND_CHANNELS; i++)
+	for (auto i = 0u; i < MAX_SOUND_CHANNELS; i++)
 	{
 		if (m_Components[i].GetEntity() == INVALID_ENTITY)
 		{
@@ -251,7 +252,6 @@ void SoundBufferManager::LoadSoundBuffers(std::string dataDirname)
 
 bool SoundBufferManager::HasValidExtension(std::string filename)
 {
-	const auto folderLastIndex = filename.find_last_of('/');
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
 	if (filenameExtensionIndex >= filename.size())
 	{

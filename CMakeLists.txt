@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.10)
 project(SFGE)
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -272,25 +272,17 @@ foreach(tool_dir ${TOOLS_DIR})
 	message("Tool name: ${tool_name} ${tool_dir}")
 	include_directories(${tool_dir}/include/)
 	file(GLOB_RECURSE TOOL_SRC ${tool_dir}/include/*.h ${tool_dir}/src/*.cpp)
-	add_executable(${tool_name} ${TOOL_SRC} ${tool_dir}/main.cpp)
 	add_library(${tool_name}_library STATIC ${TOOL_SRC})
 	LIST(APPEND TOOL_LIBRARIES ${tool_name}_library)
-	target_link_libraries(${tool_name} PUBLIC SFGE_COMMON)
 	target_link_libraries(${tool_name}_library PUBLIC SFGE_COMMON)
-	set_property(TARGET ${tool_name} PROPERTY CXX_STANDARD 17)
 	set_property(TARGET ${tool_name}_library PROPERTY CXX_STANDARD 17)
-	set_target_properties (${tool_name} PROPERTIES FOLDER Tools)
 	set_target_properties (${tool_name}_library PROPERTIES FOLDER Tools)
 	if(APPLE)
-		set_target_properties(${tool_name} PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
-			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 		set_target_properties(${tool_name}_library PROPERTIES
 				RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 				RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	ENDIF()
 	if(UNIX)
-	cotire(${tool_name})
 	cotire(${tool_name}_library)
 	endif()
 	LIST(APPEND tools \"${tool_name}\")
@@ -304,6 +296,7 @@ execute_process(
 #SFGE EDITOR
 add_executable(SFGE_EDITOR src/main_editor.cpp)
 target_link_libraries(SFGE_COMMON PUBLIC ${TOOL_LIBRARIES})
+target_sources(SFGE_COMMON PUBLIC ${CMAKE_SOURCE_DIR}/src/editor/tools_pch.cpp ${CMAKE_SOURCE_DIR}/include/editor/tools_pch.h)
 target_link_libraries(SFGE_EDITOR PUBLIC SFGE_COMMON ${TOOL_LIBRARIES})
 set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
 if(APPLE)

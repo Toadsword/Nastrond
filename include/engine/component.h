@@ -100,7 +100,7 @@ class ComponentManager:
     return m_Components;
   }
 
-  virtual void OnDestroy(Entity entity) override {}
+  virtual void OnDestroy(Entity entity) override { (void) entity; }
 
 };
 

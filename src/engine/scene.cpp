@@ -73,7 +73,6 @@ void SceneManager::SearchScenes(std::string& dataDirname)
 		
 		if (IsRegularFile(entry))
 		{
-			const auto folderLastIndex = entry.find_last_of('/');
 			const std::string::size_type filenameExtensionIndex = entry.find_last_of('.');
 			const std::string extension = entry.substr(filenameExtensionIndex);
 			if(extension == ".scene")
@@ -154,7 +153,9 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 				const ModuleId moduleId = pythonEngine->LoadPyModule(path);
 				if (moduleId != INVALID_MODULE)
 				{
+					//TODO Link PySystem into a container to be able to reference them
 					const InstanceId instanceId = pythonEngine->GetPySystemManager().LoadPySystem(moduleId);
+					(void) instanceId;
 				}
 				else
 				{

@@ -35,7 +35,7 @@ void AudioManager::Init()
 };
 void AudioManager::Update(float dt)
 {
-
+	(void)dt;
 };
 
 SoundManager* AudioManager::GetSoundManager()

@@ -69,7 +69,15 @@ namespace sfge::tools
 {
 class """ + tool_name + """ : public System
 {
-    """ + tool_name + """(sfge::Engine& engine);
+    using System::System;
+    /*
+    * \\brief Called at scene init (a good place to link to other Systems
+    */
+    void Init() override;
+    /*
+    * \\brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
+    */
+    void Update(float dt) override;
 };
 }
 }
@@ -82,18 +90,10 @@ class """ + tool_name + """ : public System
             tool_src_file.write("""
 #include <""" + tool_name_lowercase + """.h>
 #include <engine/engine.h>
-#include <extensions/python_extensions.h>
 
-void Add""" + tool_name + """ToPython(py::module& m)
-{
-	py::class_<""" + tool_name + """, System> """ + tool_name_lowercase + """(m, \"""" + tool_name + """\");
-	""" + tool_name_lowercase + """
-	    .def(py::init<Engine&>());
-}
 
 """+tool_name+"""::"""+tool_name+"""(Engine &engine) : System(engine)
 {
-	sfge::ext::SubscribePythonExtension(Add"""+tool_name+"""ToPython);
 }
 """)
             tool_src_file.close()

@@ -32,7 +32,7 @@ SOFTWARE.
 #include <extensions/planet_system.h>
 #include <extensions/pirate_system.h>
 
-#include <tools/tools_pch.h>
+#include <editor/tools_pch.h>
 
 namespace sfge::ext
 {

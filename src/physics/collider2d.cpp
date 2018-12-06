@@ -145,7 +145,7 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 }
 int ColliderManager::GetFreeComponentIndex()
 {
-	for(int i = 0; i < m_Components.size();i++)
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		if(m_Components[i].entity == INVALID_ENTITY)
 			return i;
@@ -154,14 +154,16 @@ int ColliderManager::GetFreeComponentIndex()
 }
 ColliderData *ColliderManager::AddComponent(Entity entity)
 {
+	(void) entity;
 	return nullptr;
 }
 void ColliderManager::DestroyComponent(Entity entity)
 {
-
+	(void) entity;
 }
 ColliderData *ColliderManager::GetComponentPtr(Entity entity)
 {
+	(void)entity;
 	return nullptr;
 }
 }
