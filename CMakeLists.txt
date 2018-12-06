@@ -303,7 +303,7 @@ execute_process(
 )
 #SFGE EDITOR
 add_executable(SFGE_EDITOR src/main_editor.cpp)
-
+target_link_libraries(SFGE_COMMON PUBLIC ${TOOL_LIBRARIES})
 target_link_libraries(SFGE_EDITOR PUBLIC SFGE_COMMON ${TOOL_LIBRARIES})
 set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
 if(APPLE)

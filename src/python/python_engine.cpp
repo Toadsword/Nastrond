@@ -64,8 +64,6 @@ namespace sfge
 
 PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
-
-	
 	py::class_<Engine> engine(m, "tool_engine");
 	engine
 		.def_property_readonly("config", [](Engine* engine)
@@ -545,12 +543,6 @@ void PythonEngine::LoadScripts(std::string dirname)
 	IterateDirectory(dirname, LoadAllPyModules);
 	SpreadClasses();
 }
-
-
-
-
-
-
 
 void PythonEngine::SpreadClasses()
 {

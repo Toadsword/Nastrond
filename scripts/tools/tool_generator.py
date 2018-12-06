@@ -54,17 +54,6 @@ def generate_new_tool(tool_name: str):
 
         if tools_dir.is_dir() and not new_tool_dir.exists():
             os.mkdir(new_tool_dir)
-            main_file = open(new_tool_dir / "main.cpp", "w")
-            main_file.write("/*\n" + get_license_str() + """
-*/
-            
-#include <""" + str(tool_name_lowercase) + """.h>
-
-int main()
-{
-    return 0;
-}""")
-            main_file.close()
             os.mkdir(new_tool_dir / "include")
             tool_include_file = open(new_tool_dir / "include" / (tool_name_lowercase + ".h"), "w")
             tool_include_file.write("/*\n" + get_license_str() + "\n*/")
@@ -89,7 +78,7 @@ class """ + tool_name + """ : public System
             tool_include_file.close()
             os.mkdir(new_tool_dir / "src")
             tool_src_file = open(new_tool_dir / "src" / (tool_name_lowercase + ".cpp"), "w")
-            tool_src_file.write("/*\n" + get_license_str() + "\n*/")
+            tool_src_file.write("/*\n" + get_license_str() + "\n*/\n")
             tool_src_file.write("""
 #include <""" + tool_name_lowercase + """.h>
 #include <engine/engine.h>

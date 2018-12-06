@@ -32,6 +32,8 @@ SOFTWARE.
 #include <extensions/planet_system.h>
 #include <extensions/pirate_system.h>
 
+#include <tools/tools_pch.h>
+
 namespace sfge::ext
 {
 
@@ -47,15 +49,7 @@ void ExtendPython(py::module& m)
 	pirateSystem
 			.def(py::init<Engine&>());
 
-	for(auto& otherExtensions : m_OtherPythonExtensions)
-	{
-		otherExtensions(m);
-	}
-
-}
-void SubscribePythonExtension(std::function<void(pybind11::module &)> newExtendingFunction)
-{
-
+	tools::ExtendPythonTools(m);
 }
 
 }
