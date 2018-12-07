@@ -117,7 +117,7 @@ void editor::Body2dInfo::DrawOnInspector()
 			auto& velocities = m_Velocities;
 			std::vector<float> xValues(velocities.size());
 			std::vector<float> yValues(velocities.size());
-			for (auto vIndex = 0; vIndex < velocities.size(); vIndex++)
+			for (auto vIndex = 0u; vIndex < velocities.size(); vIndex++)
 			{
 				xValues[vIndex] = velocities[vIndex].x;
 				yValues[vIndex] = velocities[vIndex].y;
@@ -186,7 +186,11 @@ Body2d* Body2dManager::AddComponent(Entity entity)
 		auto* body = world->CreateBody(&bodyDef);
 		m_Components[entity - 1] = Body2d(transform, sf::Vector2f());
 		m_Components[entity - 1].SetBody(body);
-		m_ComponentsInfo[entity - 1].body = &m_Components[entity - 1];
+
+		auto& componentInfo = m_ComponentsInfo[entity-1];
+		componentInfo.body = &m_Components[entity - 1];
+		componentInfo.name = "Body";
+
 		m_EntityManager->AddComponentType(entity, ComponentType::BODY2D);
 		return &m_Components[entity - 1];
 	}

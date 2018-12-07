@@ -153,7 +153,20 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<SpriteManager> spriteManager(m, "SpriteManager");
 	spriteManager
-		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
+		.def("create_component", [](SpriteManager* spriteManager, Entity entity, std::string texturePath)
+		{
+			TextureManager* textureManager = spriteManager->GetEngine().GetGraphics2dManager()->GetTextureManager();
+
+			const auto textureId = textureManager->LoadTexture(texturePath);
+			auto* texture = textureManager->GetTexture(textureId);
+			auto* sprite = spriteManager->AddComponent(entity);
+			sprite->SetTexture(texture);
+
+			auto& spriteInfo = spriteManager->GetComponentInfo(entity);
+			spriteInfo.name = "Sprite";
+			spriteInfo.textureId = textureId;
+			spriteInfo.texturePath = texturePath;
+		}, py::return_value_policy::reference);
 	py::class_<ShapeManager> shapeManager(m, "ShapeManager");
 	shapeManager
 		.def(py::init<Engine&>(), py::return_value_policy::reference);
@@ -166,7 +179,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			pythonEngineInstance->SpreadClasses();
 			return py::cast(pythonEngineInstance->GetPyComponentManager().GetPyComponentFromInstanceId(pyComponentId));
 		}, py::return_value_policy::reference);
-
+	py::class_<PySystemManager, System> pySystemManager(m, "pySystemManager");
+	pySystemManager
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
+		.def("get_pysystem", &PySystemManager::GetPySystemFromClassName, py::return_value_policy::reference);
 	py::class_<Behavior, PyBehavior> component(m, "Component");
 	component
 		.def(py::init<Engine&, Entity>(), py::return_value_policy::reference)
@@ -403,7 +419,6 @@ void PythonEngine::Init()
 void PythonEngine::InitScriptsInstances()
 {
 	m_PyComponentManager.InitPyComponents();
-	m_PySystemManager.InitPySystems();
 }
 
 

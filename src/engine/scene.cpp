@@ -26,6 +26,7 @@
 #endif
 
 #include <cmath>
+#include <vector>
 
 //SFGE includes
 #include <engine/scene.h>
@@ -37,6 +38,7 @@
 #include <engine/entity.h>
 #include <graphics/graphics2d.h>
 #include <python/python_engine.h>
+#include <python/pysystem.h>
 #include <physics/physics2d.h>
 #include <audio/audio.h>
 #include <engine/engine.h>
@@ -99,7 +101,7 @@ void SceneManager::SearchScenes(std::string& dataDirname)
 }
 
 
-void SceneManager::LoadSceneFromPath(const std::string& scenePath) const
+void SceneManager::LoadSceneFromPath(const std::string& scenePath)
 {
 	{
 		std::ostringstream oss;
@@ -124,7 +126,7 @@ void SceneManager::LoadSceneFromPath(const std::string& scenePath) const
 
 
 
-void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo) const
+void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo)
 {
 	m_Engine.Clear();
 	if(!sceneInfo)
@@ -155,7 +157,11 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 				{
 					//TODO Link PySystem into a container to be able to reference them
 					const InstanceId instanceId = pythonEngine->GetPySystemManager().LoadPySystem(moduleId);
-					(void) instanceId;
+					PySystem* pySystem = pythonEngine->GetPySystemManager().GetPySystemFromInstanceId(instanceId);
+					if(pySystem != nullptr)
+					{
+						m_ScenePySystems.push_back(pySystem);
+					}
 				}
 				else
 				{
@@ -167,7 +173,15 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 			if(CheckJsonExists(systemJson, "systemClassName"))
 			{
 				const std::string systemClassName = systemJson["systemClassName"];
-				pythonEngine->GetPySystemManager().LoadCppExtensionSystem(systemClassName);
+				auto instanceId = pythonEngine->GetPySystemManager().LoadCppExtensionSystem(systemClassName);
+				if(instanceId != INVALID_INSTANCE)
+				{
+					PySystem* pySystem = pythonEngine->GetPySystemManager().GetPySystemFromInstanceId(instanceId);
+					if(pySystem != nullptr)
+					{
+						m_ScenePySystems.push_back(pySystem);
+					}
+				}
 			}
 		}
 	}
@@ -247,6 +261,8 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	
 	auto* pythonEngine = m_Engine.GetPythonEngine();
 	pythonEngine->InitScriptsInstances();
+
+	InitScenePySystems();
 	
 	
 }
@@ -292,6 +308,45 @@ void SceneManager::AddComponentManager(IComponentFactory *componentFactory, Comp
 {
 	const auto index = static_cast<int>(log2((double)componentType));
 	m_ComponentManager[index] = componentFactory;
+}
+void SceneManager::Update(float dt)
+{
+	rmt_ScopedCPUSample(PySceneSystemUpdate,0);
+	for(auto* pySystem: m_ScenePySystems)
+	{
+		pySystem->Update(dt);
+	}
+}
+void SceneManager::FixedUpdate()
+{
+	rmt_ScopedCPUSample(PySceneSystemFixedUpdate,0);
+	for(auto* pySystem: m_ScenePySystems)
+	{
+		pySystem->FixedUpdate();
+	}
+}
+void SceneManager::Destroy()
+{
+	m_ScenePySystems.clear();
+}
+void SceneManager::InitScenePySystems()
+{
+	rmt_ScopedCPUSample(PySceneSystemInit,0);
+	for(auto* pySystem: m_ScenePySystems)
+	{
+		if(pySystem != nullptr)
+		{
+			pySystem->Init();
+		}
+	}
+}
+void SceneManager::Draw()
+{
+	rmt_ScopedCPUSample(PySceneSystemDraw,0);
+	for(auto* pySystem: m_ScenePySystems)
+	{
+		pySystem->Draw();
+	}
 }
 
 }

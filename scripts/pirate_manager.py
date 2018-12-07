@@ -43,9 +43,8 @@ class PirateManager(System):
             transform = transform2d_manager.add_component(new_entity)
             transform.position = Vec2f(random.randint(0, size_x),
                                           random.randint(0, size_y))
-            sprite = graphics2d_manager.sprite_manager.add_component(new_entity)
-            texture = graphics2d_manager.texture_manager.load_texture("data/pirates/Ships/ship (1).png")
-            sprite.set_texture(texture)
+            sprite = graphics2d_manager.sprite_manager.create_component(new_entity, "data/pirates/Ships/ship (1).png")
+
             pirate_data = PirateData()
             pirate_data.transform = transform
             pirate_data.entity = new_entity
@@ -96,9 +95,8 @@ class PirateManager(System):
             #print("Shoot bullet "+str(new_entity))
             transform = transform2d_manager.add_component(new_entity)
             transform.position = from_pirate.transform.position
-            sprite = graphics2d_manager.sprite_manager.add_component(new_entity)
-            texture = graphics2d_manager.texture_manager.load_texture("data/pirates/Effects/cannonBall.png")
-            sprite.set_texture(texture)
+            sprite = graphics2d_manager.sprite_manager.create_component(new_entity, "data/pirates/Effects/cannonBall.png")
+
             #bullet = python_engine.load_pycomponent(new_entity, "scripts/pirate_bullet.py")
             #bullet.pirate_manager = self
             bullet = BulletData()

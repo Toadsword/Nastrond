@@ -86,11 +86,18 @@ void PlanetSystem::Init()
 #endif
 		
 #ifndef WITH_VERTEXARRAY
-		const auto textureId = m_TextureManager->LoadTexture("data/sprites/round.png");
+		std::string texturePath = "data/sprites/round.png";
+		const auto textureId = m_TextureManager->LoadTexture(texturePath);
 		const auto texture = m_TextureManager->GetTexture(textureId);
 
 		auto sprite = m_SpriteManager->AddComponent(newEntity);
 		sprite->SetTexture(texture);
+
+		auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
+		spriteInfo.name = "Sprite";
+		spriteInfo.sprite = sprite;
+		spriteInfo.textureId = textureId;
+		spriteInfo.texturePath = texturePath;
 #else
 		m_VertexArray[4 * i].texCoords = sf::Vector2f(0, 0);
 		m_VertexArray[4 * i + 1].texCoords = sf::Vector2f(textureSize.x, 0);
@@ -130,6 +137,7 @@ void PlanetSystem::UpdateRange(int startIndex, int endIndex)
 
 void PlanetSystem::FixedUpdate()
 {
+	rmt_ScopedCPUSample(PlanetSystemFixedUpdate,0);
 #ifdef MULTI_THREAD
 	auto& threadPool = m_Engine.GetThreadPool();
 	const auto coreNmb = threadPool.size();
@@ -179,6 +187,7 @@ void PlanetSystem::FixedUpdate()
 
 void PlanetSystem::Draw()
 {
+	rmt_ScopedCPUSample(PlanetSystemDraw,0);
 #ifdef WITH_VERTEXARRAY
 	sf::RenderStates renderStates;
 	renderStates.texture = texture;

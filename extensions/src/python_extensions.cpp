@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include <extensions/python_extensions.h>
 #include <extensions/planet_system.h>
-#include <extensions/pirate_system.h>
 
 #include <editor/tools_pch.h>
 
@@ -45,9 +44,6 @@ void ExtendPython(py::module& m)
 	planetSystem
 		.def(py::init<Engine&>());
 	
-	py::class_<PirateSystem, System> pirateSystem(m, "PirateSystemCpp");
-	pirateSystem
-			.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);
 }

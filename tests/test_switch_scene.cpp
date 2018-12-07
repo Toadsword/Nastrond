@@ -27,17 +27,17 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
 
-TEST(TestScene, TestSwitchScene)
+TEST(Scene, TestSwitchScene)
 {
-	{
-		sfge::Engine engine;
-		engine.Init();
 
-		engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_switch.scene");
+	sfge::Engine engine;
+	engine.Init();
+
+	engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_switch.scene");
 
 
-		engine.Start(); 
-	}
+	engine.Start();
+
 
 
 }

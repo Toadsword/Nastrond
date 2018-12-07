@@ -21,25 +21,76 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#include <vector>
+
+#include <imgui.h>
 
 #include <editor/tools_manager.h>
+#include <input/input.h>
+#include <python/python_engine.h>
+#include <python/pysystem.h>
 #include <utility/json_utility.h>
 
-namespace sfge
+namespace sfge::editor
 {
 void ToolsManager::Init()
 {
-    json toolConfigJson = LoadJson("data/tools_config.json");
+	m_PySystemManager = &m_Engine.GetPythonEngine()->GetPySystemManager();
+
+    auto toolConfigJsonPtr = LoadJson("data/tools_config.json");
+	if(toolConfigJsonPtr != nullptr)
+	{
+		auto& toolConfigJson = *toolConfigJsonPtr.get();
+		if(CheckJsonExists(toolConfigJson, "tools") && CheckJsonParameter(toolConfigJson, "tools", json::value_t::array))
+		{
+			int i = 0;
+			for(auto& tool : toolConfigJson["tools"])
+			{
+				const InstanceId pySystemInstance = m_PySystemManager->LoadCppExtensionSystem(tool);
+				PySystem* pySystem = m_PySystemManager->GetPySystemFromInstanceId(pySystemInstance);
+				if(pySystem != nullptr)
+				{
+					m_ToolSystemsNames.push_back(tool);
+					m_ToolSystems.push_back(pySystemInstance);
+					m_WhichToolsIsActive[i] = false;
+					i++;
+				}
+			}
+		}
+	}
 
 }
 
 void ToolsManager::Update(float dt)
 {
-    System::Update(dt);
+	for(auto i = 0u; i < m_ToolSystems.size();i++)
+	{
+		if(m_ToolSystems[i] != INVALID_INSTANCE && m_WhichToolsIsActive[i])
+		{
+			auto* pySystem = m_PySystemManager->GetPySystemFromInstanceId(m_ToolSystems[i]);
+			pySystem->Update(dt);
+		}
+	}
 }
 
 void ToolsManager::Draw()
 {
-    System::Draw();
+	ImGui::Begin("Tool Window");
+	for(auto i = 0u; i < m_ToolSystemsNames.size();i++)
+	{
+		auto& toolName = m_ToolSystemsNames[i];
+		ImGui::Checkbox(toolName.c_str(), &m_WhichToolsIsActive[i]);
+	}
+	ImGui::End();
+
+	for(auto i = 0u; i < m_ToolSystems.size();i++)
+	{
+		if(m_ToolSystems[i] != INVALID_INSTANCE && m_WhichToolsIsActive[i])
+		{
+			auto* pySystem = m_PySystemManager->GetPySystemFromInstanceId(m_ToolSystems[i]);
+			pySystem->Draw();
+		}
+	}
+
 }
 }

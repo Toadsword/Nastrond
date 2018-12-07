@@ -50,7 +50,7 @@ struct PyComponentInfo : public ComponentInfo, public PathEditorComponent
 }
 struct ColliderData;
 
-class Behavior : LayerComponent
+class Behavior : public LayerComponent
 {
 public:
     Behavior(Engine& engine, Entity entity);

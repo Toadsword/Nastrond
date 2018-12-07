@@ -25,7 +25,7 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <gtest/gtest.h>
 
-TEST(TestPhysics, TestPhysics)
+TEST(Physics, TestBallFallingToGround)
 {
 	sfge::Engine engine;
 	engine.Init();

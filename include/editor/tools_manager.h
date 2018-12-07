@@ -25,15 +25,32 @@ SOFTWARE.
 #ifndef SFGE_TOOLS_MANAGER_H
 #define SFGE_TOOLS_MANAGER_H
 
-#include <engine/system.h>
+#include <string>
+#include <array>
 
+#include <engine/system.h>
+#include <SFML/Window/Keyboard.hpp>
 namespace sfge
+{
+class PySystemManager;
+class PySystem;
+using InstanceId = unsigned;
+
+namespace editor
 {
 class ToolsManager : public System
 {
+public:
+	using System::System;
     void Init() override;
     void Update(float dt) override;
     void Draw() override;
+private:
+	std::vector<InstanceId> m_ToolSystems;
+	std::vector<std::string> m_ToolSystemsNames;
+	std::array<bool, 256> m_WhichToolsIsActive; //because std::vector<bool> is shit
+	PySystemManager* m_PySystemManager = nullptr;
 };
+}
 }
 #endif

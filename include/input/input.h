@@ -37,16 +37,14 @@ namespace sfge
 
 struct KeyPressedStatus { bool previousKeyPressed; bool keyPressed; };
 
-class KeyboardManager
+class KeyboardManager : public System
 {
 public:
-	void Update(float dt);
+	using System::System;
+	void Update(float dt) override;
 	bool IsKeyHeld(sf::Keyboard::Key key) const;
 	bool IsKeyDown(sf::Keyboard::Key key) const;
 	bool IsKeyUp(sf::Keyboard::Key key) const;
-
-protected:
-
 
 private:
 	std::array<KeyPressedStatus, sf::Keyboard::Key::KeyCount> keyPressedStatusArray= {};
@@ -64,7 +62,6 @@ class InputManager : public System
 {
 public:
 	using System::System;
-
 	/**
 	 * \brief Initialize the Input Manager
 	 */
@@ -83,7 +80,7 @@ public:
 	MouseManager& GetMouseManager();
 
 protected:
-	KeyboardManager m_KeyboardManager;
+	KeyboardManager m_KeyboardManager{m_Engine};
 	MouseManager m_MouseManager;
 };
 

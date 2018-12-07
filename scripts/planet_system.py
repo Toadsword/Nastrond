@@ -28,9 +28,7 @@ class PlanetSystem(System):
             body2d = body2d_manager.add_component(new_entity)  # type: Body2d
             body2d.velocity = self.calculate_init_speed(transform)
 
-            texture = texture_manager.load_texture("data/sprites/round.png")
-            sprite = sprite_manager.add_component(new_entity)
-            sprite.set_texture(texture)
+            sprite_manager.create_component(new_entity, "data/sprites/round.png")
 
     def calculate_init_speed(self, transform):
         delta_to_center = self.screen_size / 2.0 - transform.position

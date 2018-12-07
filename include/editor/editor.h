@@ -34,6 +34,7 @@ SOFTWARE.
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <editor/editor_info.h>
 #include <editor/profiler.h>
+#include <editor/tools_manager.h>
 
 namespace sfge
 {
@@ -46,6 +47,7 @@ class EntityManager;
 class SceneManager;
 class Physics2dManager;
 class SoundManager;
+class KeyboardManager;
 struct Configuration;
 
 
@@ -81,12 +83,16 @@ protected:
 	Graphics2dManager* m_GraphicsManager = nullptr;
 	EntityManager* m_EntityManager = nullptr;
 	Configuration* m_Config = nullptr;
+	KeyboardManager* m_KeyboardManager = nullptr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};
+	editor::ToolsManager m_ToolWindow{m_Engine};
 	Entity selectedEntity = INVALID_ENTITY;
 
 	std::set<editor::IDrawableManager*> m_DrawableObservers;
+
+	const sf::Keyboard::Key enablingKey = static_cast<sf::Keyboard::Key>(54);
 };
 
 }

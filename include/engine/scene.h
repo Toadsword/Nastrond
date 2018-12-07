@@ -40,6 +40,7 @@ namespace sfge
 {
 enum class ComponentType: int;
 class IComponentFactory;
+class PySystem;
 
 namespace editor
 {
@@ -66,13 +67,13 @@ public:
 	* \param scenePath the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
-	void LoadSceneFromPath(const std::string& scenePath) const;
+	void LoadSceneFromPath(const std::string& scenePath);
 	/**
 	* \brief Load a Scene and create all its GameObject
 	* \param sceneName the scene path given by the configuration
 	* \return the heap Scene that is automatically destroyed when not used
 	*/
-	void LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo = nullptr) const;
+	void LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::SceneInfo> sceneInfo = nullptr);
 	/**
 	 * \brief Return a list of all the scenes available in the data folder, pretty useful for python and the editor
 	 * \return the list of scenes in the data folder
@@ -80,8 +81,16 @@ public:
 	std::list<std::string> GetAllScenes();
 
 	void AddComponentManager(IComponentFactory* componentFactory, ComponentType componentType);
+
+	void Update(float dt) override;
+	void FixedUpdate() override;
+	void Draw() override;
+	void Destroy() override;
 private:
 
+	void InitScenePySystems();
+
+	std::vector<PySystem*> m_ScenePySystems;
 	EntityManager* m_EntityManager = nullptr;
 	std::vector<IComponentFactory*> m_ComponentManager{sizeof(ComponentType)*8};
 	std::map<std::string, std::string> m_ScenePathMap;

@@ -7,9 +7,6 @@ include(IntelCompileFeatures)
 include(EnumeratedOption)
 include(CheckCXXFeature)
 include(CheckCXXStandardLibrary)
-if(UNIX)
-include(cotire)
-endif()
 message(STATUS "CXX compiler ID: '${CMAKE_CXX_COMPILER_ID}'")
 message(STATUS "CXX compiler Version: '${CMAKE_CXX_COMPILER_VERSION}'")
 
@@ -110,10 +107,6 @@ add_subdirectory(${BOX2D_DIR})
 include_directories(${BOX2D_DIR}/Box2D/)
 LIST(APPEND SFGE_LIBRARIES
 	Box2D)
-if(UNIX)
-cotire(Box2D)
-endif()
-
 
 #PYTHON
 set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
@@ -199,9 +192,6 @@ if(APPLE)
 		ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 		ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
-if(UNIX)
-cotire(SFGE_COMMON)
-endif()
 
 #SFGE COURSES
 SET(SFGE_COURSE_DIR ${CMAKE_SOURCE_DIR}/courses)
@@ -224,9 +214,6 @@ foreach(course_file ${COURSE_FILES} )
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
   ENDIF()
-  if(UNIX)
-  cotire(${course_name})
-  endif()
 endforeach()
 
 #SFGE TEST
@@ -244,9 +231,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -masm=intel" )
 endif()
-if(UNIX)
-cotire(SFGE_TEST)
-endif()
 #SFGE
 add_executable(SFGE src/main.cpp)
 
@@ -257,9 +241,6 @@ if(APPLE)
 		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
-if(UNIX)
-cotire(SFGE)
-endif()
 
 #SFGE TOOLS
 SET(SFGE_TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
@@ -282,9 +263,6 @@ foreach(tool_dir ${TOOLS_DIR})
 				RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 				RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	ENDIF()
-	if(UNIX)
-	cotire(${tool_name}_library)
-	endif()
 	LIST(APPEND tools \"${tool_name}\")
 endforeach()
 
@@ -293,20 +271,9 @@ execute_process(
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 		RESULT_VARIABLE py_result
 )
-#SFGE EDITOR
-add_executable(SFGE_EDITOR src/main_editor.cpp)
 target_link_libraries(SFGE_COMMON PUBLIC ${TOOL_LIBRARIES})
 target_sources(SFGE_COMMON PUBLIC ${CMAKE_SOURCE_DIR}/src/editor/tools_pch.cpp ${CMAKE_SOURCE_DIR}/include/editor/tools_pch.h)
-target_link_libraries(SFGE_EDITOR PUBLIC SFGE_COMMON ${TOOL_LIBRARIES})
-set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
-if(APPLE)
-	set_target_properties(SFGE_EDITOR PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
-			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-ENDIF()
-if(UNIX)
-	cotire(SFGE_EDITOR)
-endif()
+
 #copy folder to build
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)

@@ -25,6 +25,7 @@ SOFTWARE.
 #include <anim_creator.h>
 
 #include <engine/engine.h>
+#include <utility/log.h>
 
 #include <extensions/python_extensions.h>
 
@@ -32,14 +33,15 @@ namespace sfge::tools
 {
 void AnimCreator::Init()
 {
-
+    Log::GetInstance()->Msg("Init Anim Creator");
 }
 void AnimCreator::Update(float dt)
 {
     (void) dt;
+    Log::GetInstance()->Msg("Update Anim Creator");
 }
 void AnimCreator::Draw()
 {
-
+    Log::GetInstance()->Msg("Draw Anim Creator");
 }
 }

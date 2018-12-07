@@ -50,8 +50,6 @@ void editor::PyComponentInfo::DrawOnInspector()
 	ImGui::LabelText("Path", "%s", path.c_str());
 	if (pyComponent != nullptr)
 	{
-		//TODO check all variables from the cpp
-		std::ostringstream oss;
 		const auto pyCompObj = py::cast(pyComponent);
 		py::dict pyCompAttrDict = pyCompObj.attr("__dict__");
 		for(auto& elem : pyCompAttrDict)
@@ -59,9 +57,8 @@ void editor::PyComponentInfo::DrawOnInspector()
 			std::string key = py::str(elem.first);
 			std::string value = py::str(elem.second).cast<std::string>().c_str();
 
-			ImGui::LabelText("%s", key.c_str(), "%s",  value.c_str());
+			ImGui::LabelText(key.c_str(), value.c_str());
 		}
-		Log::GetInstance()->Msg(oss.str());
 	}
 }
 

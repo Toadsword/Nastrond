@@ -295,5 +295,4 @@ void AnimationManager::DestroyComponent(Entity entity)
 {
 	(void) entity;
 }
-
 }

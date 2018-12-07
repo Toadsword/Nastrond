@@ -147,6 +147,7 @@ public:
 		ComponentManager<T, componentType>::m_Engine.GetEditor()->AddDrawableObserver(this);
 		ComponentManager<T, componentType>::m_Engine.GetSceneManager()->AddComponentManager(this, componentType);
 	}
+
 protected:
 	virtual int GetFreeComponentIndex() = 0;
 };
