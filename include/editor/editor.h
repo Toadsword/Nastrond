@@ -91,8 +91,12 @@ protected:
 	Entity selectedEntity = INVALID_ENTITY;
 
 	std::set<editor::IDrawableManager*> m_DrawableObservers;
+#ifdef WIN32
 
+	const sf::Keyboard::Key enablingKey = static_cast<sf::Keyboard::Key>(52);
+#else
 	const sf::Keyboard::Key enablingKey = static_cast<sf::Keyboard::Key>(54);
+#endif
 };
 
 }
