@@ -26,9 +26,11 @@ import json
 import sys
 import os
 import re
-from license_generator import get_license_str
+
 
 from pathlib import Path
+
+from scripts.tools.license_generator import get_license_str
 
 
 def open_tools_config_json(tools_config_filename="data/tools_config.json"):
@@ -47,6 +49,7 @@ def generate_new_tool(tool_name: str):
     tools_config_json = open_tools_config_json()
     if tools_config_json is not None:
         src_dir = Path(tools_config_json["src_dir"])
+
         tools_dir = src_dir / "tools"
         new_tool_dir = tools_dir / tool_name
 
@@ -58,13 +61,10 @@ def generate_new_tool(tool_name: str):
             tool_include_file = open(new_tool_dir / "include" / (tool_name_lowercase + ".h"), "w")
             tool_include_file.write("/*\n" + get_license_str() + "\n*/")
             tool_include_file.write("""
-#ifndef """ + tool_name_lowercase.upper() + """
-#define """ + tool_name_lowercase.upper() + """
+#ifndef SFGE_TOOLS_""" + tool_name_lowercase.upper() + """_H
+#define SFGE_TOOLS_""" + tool_name_lowercase.upper() + """_H
 
 #include <engine/system.h>
-namespace sfge
-{
-class Engine;
 namespace sfge::tools
 {
 class """ + tool_name + """ : public System
@@ -78,8 +78,11 @@ class """ + tool_name + """ : public System
     * \\brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
     */
     void Update(float dt) override;
+     /*
+    * \\brief Called every graphic frame after Update
+    */
+    void Draw() override;
 };
-}
 }
 #endif"""
                                     )
@@ -89,11 +92,21 @@ class """ + tool_name + """ : public System
             tool_src_file.write("/*\n" + get_license_str() + "\n*/\n")
             tool_src_file.write("""
 #include <""" + tool_name_lowercase + """.h>
-#include <engine/engine.h>
 
-
-"""+tool_name+"""::"""+tool_name+"""(Engine &engine) : System(engine)
+namespace sfge::tools
 {
+void """+tool_name+"""::Init()
+{
+}
+
+void """+tool_name+"""::Update(float dt)
+{
+}
+
+
+void """+tool_name+"""::Draw()
+{
+}
 }
 """)
             tool_src_file.close()

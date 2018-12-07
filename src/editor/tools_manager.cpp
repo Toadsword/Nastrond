@@ -81,6 +81,22 @@ void ToolsManager::Draw()
 		auto& toolName = m_ToolSystemsNames[i];
 		ImGui::Checkbox(toolName.c_str(), &m_WhichToolsIsActive[i]);
 	}
+	if (ImGui::Button("Create New Tool..."))
+	{
+		ImGui::OpenPopup("NewTool");
+	}
+	if (ImGui::BeginPopup("NewTool"))
+	{
+		static char buf1[64] = ""; ImGui::InputText("default", buf1, 64);
+		if(ImGui::Button("Create"))
+		{
+			std::ostringstream oss;
+			oss << "from scripts.tools.tool_generator import generate_new_tool\ngenerate_new_tool(\""<<buf1<<"\")";
+			m_Engine.GetPythonEngine()->ExecutePythonCommand(oss.str());
+		}
+
+		ImGui::EndPopup();
+	}
 	ImGui::End();
 
 	for(auto i = 0u; i < m_ToolSystems.size();i++)

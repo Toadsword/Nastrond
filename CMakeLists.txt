@@ -263,7 +263,7 @@ foreach(tool_dir ${TOOLS_DIR})
 				RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 				RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	ENDIF()
-	LIST(APPEND tools \"${tool_name}\")
+	LIST(APPEND tools "\"${tool_name}\"")
 endforeach()
 
 execute_process(
@@ -272,7 +272,8 @@ execute_process(
 		RESULT_VARIABLE py_result
 )
 target_link_libraries(SFGE_COMMON PUBLIC ${TOOL_LIBRARIES})
-target_sources(SFGE_COMMON PUBLIC ${CMAKE_SOURCE_DIR}/src/editor/tools_pch.cpp ${CMAKE_SOURCE_DIR}/include/editor/tools_pch.h)
+target_sources(SFGE PUBLIC ${CMAKE_SOURCE_DIR}/src/tools/tools_pch.cpp ${CMAKE_SOURCE_DIR}/include/tools/tools_pch.h)
+target_sources(SFGE_TEST PUBLIC ${CMAKE_SOURCE_DIR}/src/tools/tools_pch.cpp ${CMAKE_SOURCE_DIR}/include/tools/tools_pch.h)
 
 #copy folder to build
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
@@ -280,5 +281,5 @@ file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
 
 
 #write tool config file
-string(REPLACE " " "," tools_list ${tools})
+string(REPLACE "\"\"" "\",\"" tools_list ${tools})
 file (WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}], \"src_dir\": \"${CMAKE_SOURCE_DIR}\", \"bin_dir\": \"${CMAKE_BINARY_DIR}\"}")

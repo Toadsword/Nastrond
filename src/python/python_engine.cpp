@@ -598,5 +598,17 @@ const pybind11::object & PythonEngine::GetModuleObjFrom(ModuleId moduleId)
 {
 	return m_PyModuleObjs[moduleId-1];
 }
+void PythonEngine::ExecutePythonCommand(std::string pythonCommand)
+{
+	try
+	{
+		py::exec(pythonCommand);
+	}
+	catch(py::error_already_set& e)
+	{
+		Log::GetInstance()->Error(e.what());
+	}
+
+}
 
 }

@@ -31,7 +31,7 @@ SOFTWARE.
 #include <extensions/python_extensions.h>
 #include <extensions/planet_system.h>
 
-#include <editor/tools_pch.h>
+#include <tools/tools_pch.h>
 
 namespace sfge::ext
 {
