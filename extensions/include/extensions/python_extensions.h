@@ -29,6 +29,17 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-void ExtendPython(py::module& m);
+
+/**
+ * \brief Called from PythonEngine to add new functionality to the python interpreter
+ */
+void ExtendPython(py::module &m);
+/**
+ * \brief Called by tools and other programs, used to add their class to the Python interpreter dynamically
+ * @param newExtendingFunction
+ */
+void SubscribePythonExtension(std::function<void(pybind11::module &)> newExtendingFunction);
+
+
 }
 #endif

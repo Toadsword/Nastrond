@@ -38,7 +38,7 @@ Project : AnimationTool for SFGE
 
 void TextureManager::Init()
 {
-	m_lastId = 0;
+	m_LastId = 0;
 }
 
 LoadFileResult TextureManager::LoadTexture(std::string path, int sizeX, int sizeY, int numRow, int numCol, int startPosX, int startPosY)
@@ -70,9 +70,9 @@ LoadFileResult TextureManager::LoadTexture(std::string path, int sizeX, int size
 
 				newTextureInfo->position = sf::Vector2i(startPosX + i*sizeX, startPosY + j*sizeY);
 				newTextureInfo->size = sf::Vector2i(sizeX, sizeY);;
-				newTextureInfo->id = m_lastId;
-				m_lastId++;
-				m_textures.push_back(newTextureInfo);
+				newTextureInfo->id = m_LastId;
+				m_LastId++;
+				m_Textures.push_back(newTextureInfo);
 			}
 		}
 		return LOAD_SUCCESS;
@@ -83,16 +83,16 @@ LoadFileResult TextureManager::LoadTexture(std::string path, int sizeX, int size
 
 std::vector<TextureInfos*>* TextureManager::GetAllTextures()
 {
-	return &m_textures;
+	return &m_Textures;
 }
 
 bool TextureManager::RemoveTexture(short id)
 {
-	for (auto iter = m_textures.begin(); iter != m_textures.end(); iter++)
+	for (auto iter = m_Textures.begin(); iter != m_Textures.end(); iter++)
 	{
 		if ((*iter)->id == id)
 		{
-			m_textures.erase(iter);
+			m_Textures.erase(iter);
 			return true;
 		}
 	}
@@ -101,7 +101,7 @@ bool TextureManager::RemoveTexture(short id)
 
 TextureInfos* TextureManager::GetTextureFromId(short id)
 {
-	for (auto element : m_textures)
+	for (auto element : m_Textures)
 	{
 		if (element->id == id)
 			return element;
@@ -112,7 +112,7 @@ TextureInfos* TextureManager::GetTextureFromId(short id)
 
 short TextureManager::GetLastId()
 {
-	return m_lastId;
+	return m_LastId;
 }
 
 void TextureManager::DisplayTexture(short id, bool selected)

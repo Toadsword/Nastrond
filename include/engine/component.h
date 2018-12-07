@@ -100,7 +100,7 @@ class ComponentManager:
     return m_Components;
   }
 
-  virtual void OnDestroy(Entity entity) override {}
+  virtual void OnDestroy(Entity entity) override { (void) entity; }
 
 };
 
@@ -147,6 +147,7 @@ public:
 		ComponentManager<T, componentType>::m_Engine.GetEditor()->AddDrawableObserver(this);
 		ComponentManager<T, componentType>::m_Engine.GetSceneManager()->AddComponentManager(this, componentType);
 	}
+
 protected:
 	virtual int GetFreeComponentIndex() = 0;
 };

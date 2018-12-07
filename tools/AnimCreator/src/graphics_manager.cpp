@@ -202,7 +202,7 @@ void GraphicsManager::DisplayFileWindow()
 			if (ImGui::Button((std::to_string(texture->id) + " : " + texture->fileName).c_str(), ImVec2(125, 0)))
 			{
 				//std::cout << "Texture " << texture->id << " selected.\n";
-				m_selectedTextureId = texture->id;
+				m_SelectedTextureId = texture->id;
 				if (m_doubleClicked)
 				{
 					if(m_currentFrame == -1)
@@ -255,7 +255,7 @@ void GraphicsManager::DisplayFileWindow()
 				ImGui::End();
 			}
 
-			m_Engine->GetTextureManager()->DisplayTexture(texture->id, m_selectedTextureId == texture->id);
+			m_Engine->GetTextureManager()->DisplayTexture(texture->id, m_SelectedTextureId == texture->id);
 			ImGui::NextColumn();
 		}
 	}
@@ -461,10 +461,10 @@ void GraphicsManager::DisplayAnimationInformationsWindow()
 		auto animManager = m_Engine->GetAnimationManager();
 
 		//***** BUTTONS *****//
-		if (ImGui::Button("Assign selected texture") && m_selectedTextureId != -1)
+		if (ImGui::Button("Assign selected texture") && m_SelectedTextureId != -1)
 		{
 			//std::cout << "Assigned texture " << m_selectedTextureId << " to frame " << m_currentFrame << ".\n";
-			animManager->AddOrInsertKey(m_currentFrame, m_selectedTextureId);
+			animManager->AddOrInsertKey(m_currentFrame, m_SelectedTextureId);
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -473,7 +473,7 @@ void GraphicsManager::DisplayAnimationInformationsWindow()
 			ImGui::SetNextWindowPos(ImVec2(m.x + 10, m.y + 10));
 			ImGui::Begin("2", NULL, ImGuiWindowFlags_Tooltip | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 			ImGui::Text("Currently selected texture : ");
-			m_Engine->GetTextureManager()->DisplayTexture(m_selectedTextureId);
+			m_Engine->GetTextureManager()->DisplayTexture(m_SelectedTextureId);
 			ImGui::End();
 		}
 		ImGui::SameLine();

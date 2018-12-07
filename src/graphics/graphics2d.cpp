@@ -71,6 +71,7 @@ void Graphics2dManager::Update(float dt)
 {
 	if (!m_Windowless)
 	{
+		rmt_ScopedCPUSample(Graphics2dUpdate,0)
 		m_Window->clear();
 
 		m_SpriteManager.Update(dt);
@@ -85,6 +86,8 @@ void Graphics2dManager::Update(float dt)
 
 void Graphics2dManager::Display()
 {
+
+	rmt_ScopedCPUSample(Graphics2dDisplay,0)
 	if (!m_Windowless)
 	{
 		m_Window->display();

@@ -155,7 +155,9 @@ void AnimationManager::Init()
 
 void AnimationManager::Update(float dt)
 {
-	for(int i = 0; i < m_Components.size();i++)
+
+	rmt_ScopedCPUSample(Animation2dUpdate,0)
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D))
 		{
@@ -167,8 +169,9 @@ void AnimationManager::Update(float dt)
 
 void AnimationManager::DrawAnimations(sf::RenderWindow &window)
 {
-	
-	for (int i = 0; i<m_Components.size();i++)
+
+	rmt_ScopedCPUSample(Animation2dDraw,0)
+	for (auto i = 0u; i<m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D))
 			m_Components[i].Draw(window);
@@ -290,6 +293,6 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 
 void AnimationManager::DestroyComponent(Entity entity)
 {
+	(void) entity;
 }
-
 }

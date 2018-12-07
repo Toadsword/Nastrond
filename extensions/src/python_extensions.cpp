@@ -30,10 +30,13 @@ SOFTWARE.
 
 #include <extensions/python_extensions.h>
 #include <extensions/planet_system.h>
-#include <extensions/pirate_system.h>
+
+#include <tools/tools_pch.h>
 
 namespace sfge::ext
 {
+
+static std::vector<std::function<void(py::module&)>> m_OtherPythonExtensions;
 
 void ExtendPython(py::module& m)
 {
@@ -41,10 +44,8 @@ void ExtendPython(py::module& m)
 	planetSystem
 		.def(py::init<Engine&>());
 	
-	py::class_<PirateSystem, System> pirateSystem(m, "PirateSystemCpp");
-	pirateSystem
-			.def(py::init<Engine&>());
 
+	tools::ExtendPythonTools(m);
 }
 
 }

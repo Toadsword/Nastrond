@@ -121,11 +121,11 @@ private:
 	/**
 	 * \brief List of loaded textures.
 	 */
-	std::vector<TextureInfos*> m_textures;
+	std::vector<TextureInfos*> m_Textures;
 	/**
 	 * \brief Last Id attributed to a loaded texture.
 	 */
-	short m_lastId = 0;
+	short m_LastId = 0;
 };
 
 #endif // ifndef TEXTURE_MANAGER_H

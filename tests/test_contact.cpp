@@ -26,7 +26,7 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <gtest/gtest.h>
 
-TEST(TestContact, LinkPythonWithPhysics)
+TEST(Physics, LinkPythonWithPhysics)
 {
 	sfge::Engine engine;
 	engine.Init();

@@ -64,8 +64,6 @@ namespace sfge
 
 PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
-
-	
 	py::class_<Engine> engine(m, "tool_engine");
 	engine
 		.def_property_readonly("config", [](Engine* engine)
@@ -155,7 +153,20 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<SpriteManager> spriteManager(m, "SpriteManager");
 	spriteManager
-		.def("add_component", &SpriteManager::AddComponent, py::return_value_policy::reference);
+		.def("create_component", [](SpriteManager* spriteManager, Entity entity, std::string texturePath)
+		{
+			TextureManager* textureManager = spriteManager->GetEngine().GetGraphics2dManager()->GetTextureManager();
+
+			const auto textureId = textureManager->LoadTexture(texturePath);
+			auto* texture = textureManager->GetTexture(textureId);
+			auto* sprite = spriteManager->AddComponent(entity);
+			sprite->SetTexture(texture);
+
+			auto& spriteInfo = spriteManager->GetComponentInfo(entity);
+			spriteInfo.name = "Sprite";
+			spriteInfo.textureId = textureId;
+			spriteInfo.texturePath = texturePath;
+		}, py::return_value_policy::reference);
 	py::class_<ShapeManager> shapeManager(m, "ShapeManager");
 	shapeManager
 		.def(py::init<Engine&>(), py::return_value_policy::reference);
@@ -168,7 +179,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			pythonEngineInstance->SpreadClasses();
 			return py::cast(pythonEngineInstance->GetPyComponentManager().GetPyComponentFromInstanceId(pyComponentId));
 		}, py::return_value_policy::reference);
-
+	py::class_<PySystemManager, System> pySystemManager(m, "pySystemManager");
+	pySystemManager
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
+		.def("get_pysystem", &PySystemManager::GetPySystemFromClassName, py::return_value_policy::reference);
 	py::class_<Behavior, PyBehavior> component(m, "Component");
 	component
 		.def(py::init<Engine&, Entity>(), py::return_value_policy::reference)
@@ -405,24 +419,28 @@ void PythonEngine::Init()
 void PythonEngine::InitScriptsInstances()
 {
 	m_PyComponentManager.InitPyComponents();
-	m_PySystemManager.InitPySystems();
 }
 
 
 void PythonEngine::Update(float dt)
 {
+	rmt_ScopedCPUSample(PythonUpdate,0);
 	m_PyComponentManager.Update(dt);
 	m_PySystemManager.Update(dt);
 }
 
 void PythonEngine::FixedUpdate()
 {
+
+	rmt_ScopedCPUSample(PythonFixedUpdate,0);
 	m_PyComponentManager.FixedUpdate();
 	m_PySystemManager.FixedUpdate();
 }
 
 void PythonEngine::Draw()
 {
+	rmt_ScopedCPUSample(PythonDraw,0);
+	m_PyComponentManager.Draw();
 	m_PySystemManager.Draw();
 }
 
@@ -532,7 +550,7 @@ void PythonEngine::LoadScripts(std::string dirname)
 			}
 		}
 
-		if (IsDirectory(entry))
+		if (IsDirectory(entry) and entry.find("tools") == std::string::npos)
 		{
 			IterateDirectory(entry, LoadAllPyModules);
 		}
@@ -540,12 +558,6 @@ void PythonEngine::LoadScripts(std::string dirname)
 	IterateDirectory(dirname, LoadAllPyModules);
 	SpreadClasses();
 }
-
-
-
-
-
-
 
 void PythonEngine::SpreadClasses()
 {
@@ -585,6 +597,18 @@ const std::string &PythonEngine::GetModulePathFrom(ModuleId moduleId)
 const pybind11::object & PythonEngine::GetModuleObjFrom(ModuleId moduleId)
 {
 	return m_PyModuleObjs[moduleId-1];
+}
+void PythonEngine::ExecutePythonCommand(std::string pythonCommand)
+{
+	try
+	{
+		py::exec(pythonCommand);
+	}
+	catch(py::error_already_set& e)
+	{
+		Log::GetInstance()->Error(e.what());
+	}
+
 }
 
 }

@@ -117,7 +117,7 @@ void editor::Body2dInfo::DrawOnInspector()
 			auto& velocities = m_Velocities;
 			std::vector<float> xValues(velocities.size());
 			std::vector<float> yValues(velocities.size());
-			for (auto vIndex = 0; vIndex < velocities.size(); vIndex++)
+			for (auto vIndex = 0u; vIndex < velocities.size(); vIndex++)
 			{
 				xValues[vIndex] = velocities[vIndex].x;
 				yValues[vIndex] = velocities[vIndex].y;
@@ -156,7 +156,7 @@ void Body2dManager::Init()
 
 void Body2dManager::FixedUpdate()
 {
-	for (int i = 0; i < m_Components.size(); i++)
+	for (auto i = 0u; i < m_Components.size(); i++)
 	{
 		const Entity entity = i + 1;
 		if (m_EntityManager->HasComponent(entity, ComponentType::BODY2D) &&
@@ -186,7 +186,11 @@ Body2d* Body2dManager::AddComponent(Entity entity)
 		auto* body = world->CreateBody(&bodyDef);
 		m_Components[entity - 1] = Body2d(transform, sf::Vector2f());
 		m_Components[entity - 1].SetBody(body);
-		m_ComponentsInfo[entity - 1].body = &m_Components[entity - 1];
+
+		auto& componentInfo = m_ComponentsInfo[entity-1];
+		componentInfo.body = &m_Components[entity - 1];
+		componentInfo.name = "Body";
+
 		m_EntityManager->AddComponentType(entity, ComponentType::BODY2D);
 		return &m_Components[entity - 1];
 	}
@@ -224,6 +228,7 @@ void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 
 void Body2dManager::DestroyComponent(Entity entity)
 {
+	(void) entity;
 }
 
 void Body2dManager::OnResize(size_t new_size)

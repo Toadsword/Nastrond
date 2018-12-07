@@ -42,11 +42,13 @@ namespace sfge
 
 Engine::Engine()
 {
-  m_SystemsContainer = std::make_unique<SystemsContainer>(*this);
+	m_SystemsContainer = std::make_unique<SystemsContainer>(*this);
+
+	rmt_CreateGlobalInstance(&rmt);
 }
 Engine::~Engine()
 {
-  m_SystemsContainer = nullptr;
+	m_SystemsContainer = nullptr;
 }
 
 void Engine::Init(std::string configFilename)
@@ -54,6 +56,7 @@ void Engine::Init(std::string configFilename)
 	const auto configJsonPtr = LoadJson(configFilename);
 	if (configJsonPtr)
 		Init(*configJsonPtr);
+
 }
 
 void Engine::Init(json& configJson)
@@ -110,8 +113,14 @@ void Engine::Start()
 	sf::Time previousFixedUpdateTime = globalClock.getElapsedTime();
 	sf::Time deltaFixedUpdateTime = sf::Time();
 	sf::Time dt = sf::Time();
+
+	rmt_BindOpenGL();
 	while (running && m_Window != nullptr)
 	{
+
+		rmt_ScopedOpenGLSample(SFGE_Frame_GL);
+		rmt_ScopedCPUSample(SFGE_Frame,0)
+
 		bool isFixedUpdateFrame = false;
 		sf::Event event{};
 		while (m_Window != nullptr && 
@@ -135,9 +144,9 @@ void Engine::Start()
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
 			fixedUpdateClock.restart ();
-            m_SystemsContainer->physicsManager.FixedUpdate();
+			m_SystemsContainer->physicsManager.FixedUpdate();
 			previousFixedUpdateTime = globalClock.getElapsedTime();
-            m_SystemsContainer->pythonEngine.FixedUpdate();
+			m_SystemsContainer->pythonEngine.FixedUpdate();
             m_SystemsContainer->sceneManager.FixedUpdate();
 			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime ();
 			m_FrameData.frameFixedUpdate = deltaFixedUpdateTime;
@@ -162,6 +171,8 @@ void Engine::Start()
 			m_FrameData.frameTotalTime = dt;
 		}
 	}
+
+	rmt_UnbindOpenGL();
 	Destroy();
 }
 
@@ -176,6 +187,7 @@ void Engine::Destroy()
 	m_SystemsContainer->inputManager.Destroy();
 	m_SystemsContainer->editor.Destroy();
 	m_SystemsContainer->physicsManager.Destroy();
+	rmt_DestroyGlobalInstance(rmt);
 
 }
 

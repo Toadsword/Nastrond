@@ -42,7 +42,7 @@ namespace sfge::ext
 {
 
 
-#define WITH_PHYSICS
+//#define WITH_PHYSICS
 //#define WITH_VERTEXARRAY
 //#define MULTI_THREAD
 
@@ -76,15 +76,15 @@ private:
 	const float gravityConst = 1000.0f;
 	const float centerMass = 1000.0f;
 	const float planetMass = 1.0f;
-	const size_t entitiesNmb = 100;
+	const size_t entitiesNmb = 10'000;
 
 #ifndef WITH_PHYSICS
-	std::vector<sf::Vector2f> m_Velocities{entitiesNmb};
+	std::vector<Vec2f> m_Velocities{entitiesNmb};
 #endif
 
 	sf::Vector2f screenSize;
 #ifdef WITH_VERTEXARRAY
-	sf::VertexArray m_VertexArray{sf::Quads, MULTIPLE_COMPONENTS_MULTIPLIER * entitiesNmb};
+	sf::VertexArray m_VertexArray{sf::Quads, 4 * entitiesNmb};
 	Graphics2dManager* m_Graphics2DManager;
 	sf::Texture* texture = nullptr;
 	sf::Vector2f textureSize;

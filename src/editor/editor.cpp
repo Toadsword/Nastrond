@@ -39,6 +39,7 @@ SOFTWARE.
 #include <physics/physics2d.h>
 #include <python/python_engine.h>
 #include <engine/config.h>
+#include <input/input.h>
 
 namespace sfge
 {
@@ -56,23 +57,27 @@ void Editor::Init()
 	m_EntityManager = m_Engine.GetEntityManager();
 	m_Config = m_Engine.GetConfig();
 	m_Enable = m_Config == nullptr || m_Config->editor;
-	if (m_Enable)
+	m_KeyboardManager = &m_Engine.GetInputManager()->GetKeyboardManager();
+	m_Window = m_GraphicsManager->GetWindow();
+	m_ToolWindow.Init();
+	Log::GetInstance()->Msg("Enabling Editor");
+	if(m_Window)
 	{
-		m_Window = m_GraphicsManager->GetWindow();
-		
-		Log::GetInstance()->Msg("Enabling Editor");
-		if(m_Window)
-		{
-			ImGui::SFML::Init(*m_Window, true);
-		}
-		else
-		{
-			Log::GetInstance()->Msg("Could not enable Editor");
-		}
+		ImGui::SFML::Init(*m_Window, true);
 	}
+	else
+	{
+		Log::GetInstance()->Msg("Could not enable Editor");
+	}
+
 }
 void Editor::Update(float dt)
 {
+	if(m_KeyboardManager->IsKeyDown(enablingKey))
+	{
+		m_Enable = !m_Enable;
+		m_Config->editor = m_Enable;
+	}
 	if (m_Enable)
 	{
 		const auto configPtr = m_Engine.GetConfig();
@@ -85,7 +90,7 @@ void Editor::Update(float dt)
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Entities");
 			
-			for (int i = 0; i < configPtr->currentEntitiesNmb; i++)
+			for (auto i = 0u; i < configPtr->currentEntitiesNmb; i++)
 			{
 				if(m_EntityManager->GetMask(i+1) != INVALID_ENTITY)
 				{
@@ -116,9 +121,13 @@ void Editor::Update(float dt)
 			}
 			ImGui::End();
 			m_ProfilerWindow.Update();
+			m_ToolWindow.Update(dt);
+			m_ToolWindow.Draw();
 		}
 		
 	}
+
+
 }
 /**
 * \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed

@@ -65,6 +65,7 @@ void Shape::SetFillColor(sf::Color color) const
 
 void Shape::Update(float dt) const
 {
+	(void) dt;
 	auto newPosition = m_Offset;
 
 	if(m_Transform != nullptr)
@@ -129,7 +130,9 @@ void ShapeManager::Init()
 
 void ShapeManager::DrawShapes(sf::RenderWindow &window)
 {
-	for(int i = 0; i < m_Components.size(); i++)
+
+	rmt_ScopedCPUSample(ShapeDraw,0)
+	for(auto i = 0u; i < m_Components.size(); i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
 		{
@@ -140,8 +143,9 @@ void ShapeManager::DrawShapes(sf::RenderWindow &window)
 
 void ShapeManager::Update(const float dt)
 {
-	
-	for (int i = 0; i < m_Components.size(); i++)
+
+	rmt_ScopedCPUSample(ShapeUpdate,0)
+	for (auto i = 0u; i < m_Components.size(); i++)
 	{
 		if (m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
 		{
@@ -242,6 +246,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 
 void ShapeManager::DestroyComponent(Entity entity)
 {
+	(void) entity;
 }
 
 void ShapeManager::OnResize(size_t new_size)

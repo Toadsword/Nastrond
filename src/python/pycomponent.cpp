@@ -50,8 +50,6 @@ void editor::PyComponentInfo::DrawOnInspector()
 	ImGui::LabelText("Path", "%s", path.c_str());
 	if (pyComponent != nullptr)
 	{
-		//TODO check all variables from the cpp
-		std::ostringstream oss;
 		const auto pyCompObj = py::cast(pyComponent);
 		py::dict pyCompAttrDict = pyCompObj.attr("__dict__");
 		for(auto& elem : pyCompAttrDict)
@@ -59,9 +57,8 @@ void editor::PyComponentInfo::DrawOnInspector()
 			std::string key = py::str(elem.first);
 			std::string value = py::str(elem.second).cast<std::string>().c_str();
 
-			ImGui::LabelText("%s", key.c_str(), "%s",  value.c_str());
+			ImGui::LabelText(key.c_str(), value.c_str());
 		}
-		Log::GetInstance()->Msg(oss.str());
 	}
 }
 
@@ -437,7 +434,7 @@ void PyComponentManager::OnCollisionExit(Entity entity, ColliderData * colliderD
 
 void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 {
-	for(int i = 0; i < m_Components.size();i++)
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		auto& pyComponent = m_Components[i];
 		if(pyComponent != nullptr && entity == pyComponent->GetEntity())
@@ -445,7 +442,7 @@ void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 			pyComponent = nullptr;
 		}
 	}
-	for(int i = 0; i < m_PythonInstances.size();i++)
+	for(auto i = 0u; i < m_PythonInstances.size();i++)
 	{
 		auto& pyInstance = m_PythonInstances[i];
 		if(pyInstance.is_none() || pyInstance.ptr() == nullptr ) continue;
@@ -465,7 +462,7 @@ void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 }
 int PyComponentManager::GetFreeComponentIndex()
 {
-	for(int i = 0; i < m_Components.size();i++)
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		if (m_Components[i] == nullptr)
 		{
@@ -488,21 +485,27 @@ void PyComponentManager::CreateComponent(json &componentJson, Entity entity)
 		const ModuleId moduleId = m_PythonEngine->LoadPyModule(path);
 		auto moduleName = m_PythonEngine->GetModuleNameFrom(moduleId);
 		if(moduleId != INVALID_MODULE)
+		{
 			const InstanceId instanceId = LoadPyComponent(moduleId, entity);
+			(void) instanceId;
+		}
 	}
 }
 
 void PyComponentManager::DestroyComponent(Entity entity)
 {
-
+	RemovePyComponentsFrom(entity);
 }
 
 PyBehavior **PyComponentManager::AddComponent(Entity entity)
 {
+	(void) entity;
 	return nullptr;
 }
 
-PyBehavior **PyComponentManager::GetComponentPtr(Entity entity) {
+PyBehavior **PyComponentManager::GetComponentPtr(Entity entity)
+{
+	(void) entity;
 	return nullptr;
 }
 void PyComponentManager::InitPyComponents()
@@ -524,6 +527,9 @@ void PyComponentManager::Destroy()
 void PyComponentManager::FixedUpdate()
 {
 	System::FixedUpdate();
+
+	rmt_ScopedCPUSample(PyComponentFixedUpdate,0);
+
 	auto config = m_Engine.GetConfig();
 	for(auto* pyComponent:m_Components)
 	{
@@ -536,6 +542,10 @@ void PyComponentManager::FixedUpdate()
 void PyComponentManager::Update(float dt)
 {
 	System::Update(dt);
+
+
+	rmt_ScopedCPUSample(PyComponentUpdate,0);
+
 	for(auto* pyComponent:m_Components)
 	{
 		if(pyComponent != nullptr)

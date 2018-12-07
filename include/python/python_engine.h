@@ -82,6 +82,8 @@ public:
 	PyComponentManager& GetPyComponentManager(){ return m_PyComponentManager; }
 	PySystemManager& GetPySystemManager(){ return m_PySystemManager; }
 
+	void ExecutePythonCommand(std::string pythonCommand);
+
 	const std::string& GetClassNameFrom(ModuleId moduleId);
 	const std::string& GetModuleNameFrom(ModuleId moduleId);
 	const std::string& GetModulePathFrom(ModuleId moduleId);

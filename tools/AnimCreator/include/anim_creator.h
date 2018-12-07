@@ -32,13 +32,16 @@ SOFTWARE.
 
 namespace sfge::tools
 {
+
 //TODO refactor and use this class instead of ToolEngine as a starting point to the tool
 //This will allow to call the tools directly from a central executable called SFGE_EDITOR
 class AnimCreator : public System
 {
 public:
 	using System::System;
-
+	void Init() override;
+	void Update(float dt) override;
+	void Draw() override;
 protected:
 	/**
 	 * \brief Pointer to the Graphics Manager of the Engine.

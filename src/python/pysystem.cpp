@@ -38,6 +38,7 @@ void PySystem::Init()
 
 void PySystem::Update(float dt)
 {
+
 	try
 	{
 
@@ -62,7 +63,6 @@ void PySystem::FixedUpdate()
 {
 	try
 	{
-
 		//py::gil_scoped_release release;
 		PYBIND11_OVERLOAD_NAME(
 			void,
@@ -119,6 +119,7 @@ InstanceId PySystemManager::LoadPySystem(ModuleId moduleId)
 		//Load PySystem
 		m_PythonInstances[pyInstanceId] =
 			moduleObj.attr(className.c_str())(m_Engine);
+		m_PySystemNames[pyInstanceId] = className;
 		const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
 		if (pySystem != nullptr)
 		{
@@ -155,19 +156,21 @@ InstanceId PySystemManager::LoadPySystem(ModuleId moduleId)
 }
 
 
-void PySystemManager::LoadCppExtensionSystem(std::string systemClassName)
+InstanceId PySystemManager::LoadCppExtensionSystem(std::string systemClassName)
 {
 	const auto pyInstanceId = m_IncrementalInstanceId;
 	try
 	{
 		py::module sfge = py::module::import("SFGE");
 		m_PythonInstances[pyInstanceId] = sfge.attr(systemClassName.c_str())(m_Engine);
+		m_PySystemNames[pyInstanceId] = systemClassName;
 		const auto pySystem = GetPySystemFromInstanceId(pyInstanceId);
 		if (pySystem != nullptr)
 		{
 			m_PySystems.push_back(pySystem);
 		}
 		m_IncrementalInstanceId++;
+		return pyInstanceId;
 	}
 	catch(std::runtime_error& e)
 	{
@@ -175,6 +178,7 @@ void PySystemManager::LoadCppExtensionSystem(std::string systemClassName)
 		oss << "[PYTHON ERROR] trying to instantiate System from C++: " << systemClassName << "\n" << e.what() << "\n";
 		Log::GetInstance()->Error(oss.str());
 	}
+	return INVALID_INSTANCE;
 }
 
 
@@ -190,36 +194,22 @@ PySystem* PySystemManager::GetPySystemFromInstanceId(InstanceId instanceId)
 	}
 	return m_PythonInstances[instanceId].cast<PySystem*>();
 }
-void PySystemManager::InitPySystems()
-{
-	for (auto pySystem : m_PySystems)
-	{
-		if (pySystem != nullptr)
-			pySystem->Init();
-	}
-}
-void PySystemManager::Update(float dt)
-{
-	System::Update(dt);
-	for (auto pySystem : m_PySystems)
-	{
-		if (pySystem != nullptr)
-			pySystem->Update(dt);
-	}
-}
-void PySystemManager::FixedUpdate()
-{
-	System::FixedUpdate();
-	for (auto pySystem : m_PySystems)
-	{
-		if (pySystem != nullptr)
-			pySystem->FixedUpdate();
-	}
-}
 void PySystemManager::Destroy()
 {
 	System::Destroy();
 	m_PySystems.clear();
 	m_PythonInstances.clear();
+}
+
+PySystem *PySystemManager::GetPySystemFromClassName(std::string className)
+{
+	for(int i = 0; i< m_PySystemNames.size();i++)
+	{
+		if(m_PySystemNames[i] == className)
+		{
+			return m_PySystems[i];
+		}
+	}
+	return nullptr;
 }
 }

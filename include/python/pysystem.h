@@ -44,9 +44,6 @@ public:
 	void FixedUpdate() override;
 	void Draw() override;
 
-	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
-
-	void LoadCppExtensionSystem(std::string moduleName);
 };
 
 class PySystemManager : public System
@@ -56,19 +53,17 @@ public:
 	using System::System;
 	void Init() override;
 
-	void Update(float dt) override;
-	void FixedUpdate() override;
-
 	void Destroy() override;
 
 	InstanceId LoadPySystem(ModuleId moduleId);
-	void LoadCppExtensionSystem(std::string systemClassName);
+	InstanceId LoadCppExtensionSystem(std::string systemClassName);
 	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
 
-	void InitPySystems();
+	PySystem* GetPySystemFromClassName(std::string className);
+
 protected:
 	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
-
+	std::vector<std::string> m_PySystemNames {INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER};
 	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
 	InstanceId m_IncrementalInstanceId = 1U;
 

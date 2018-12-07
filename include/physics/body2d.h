@@ -61,7 +61,7 @@ struct Body2dInfo : ComponentInfo
 	Body2d* body = nullptr;
 private:
 	std::deque<b2Vec2> m_Velocities;
-	const int m_VelocitiesMaxSize = 120;
+	const size_t m_VelocitiesMaxSize = 120;
 };
 }
 

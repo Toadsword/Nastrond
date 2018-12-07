@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.10)
 project(SFGE)
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -7,9 +7,6 @@ include(IntelCompileFeatures)
 include(EnumeratedOption)
 include(CheckCXXFeature)
 include(CheckCXXStandardLibrary)
-if(UNIX)
-include(cotire)
-endif()
 message(STATUS "CXX compiler ID: '${CMAKE_CXX_COMPILER_ID}'")
 message(STATUS "CXX compiler Version: '${CMAKE_CXX_COMPILER_VERSION}'")
 
@@ -110,10 +107,6 @@ add_subdirectory(${BOX2D_DIR})
 include_directories(${BOX2D_DIR}/Box2D/)
 LIST(APPEND SFGE_LIBRARIES
 	Box2D)
-if(UNIX)
-cotire(Box2D)
-endif()
-
 
 #PYTHON
 set(PYBIND11_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for compiling modules")
@@ -171,6 +164,11 @@ if(UNIX AND NOT APPLE)
 endif()
 
 
+set(REMOTERY_DIR ${EXTERNAL_DIR}/Remotery)
+add_subdirectory(${REMOTERY_DIR})
+include_directories(${REMOTERY_DIR})
+LIST(APPEND SFGE_LIBRARIES Remotery)
+
 #SFGE_COMMON
 
 LIST(APPEND SFGE_LIBRARIES)
@@ -194,9 +192,7 @@ if(APPLE)
 		ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 		ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
-if(UNIX)
-cotire(SFGE_COMMON)
-endif()
+
 #SFGE COURSES
 SET(SFGE_COURSE_DIR ${CMAKE_SOURCE_DIR}/courses)
 file(GLOB COURSE_FILES ${SFGE_COURSE_DIR}/*.cpp )
@@ -218,9 +214,6 @@ foreach(course_file ${COURSE_FILES} )
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
   ENDIF()
-  if(UNIX)
-  cotire(${course_name})
-  endif()
 endforeach()
 
 #SFGE TEST
@@ -238,9 +231,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -masm=intel" )
 endif()
-if(UNIX)
-cotire(SFGE_TEST)
-endif()
 #SFGE
 add_executable(SFGE src/main.cpp)
 
@@ -251,62 +241,45 @@ if(APPLE)
 		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 ENDIF()
-if(UNIX)
-cotire(SFGE)
-endif()
 
 #SFGE TOOLS
 SET(SFGE_TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
 file(GLOB TOOLS_DIR ${SFGE_TOOLS_DIR}/*)
 
-
 foreach(tool_dir ${TOOLS_DIR})
 
     get_filename_component(tool_name ${tool_dir} NAME)
+	LIST(APPEND TOOL_NAME_LIST ${tool_name})
 	message("Tool name: ${tool_name} ${tool_dir}")
 	include_directories(${tool_dir}/include/)
 	file(GLOB_RECURSE TOOL_SRC ${tool_dir}/include/*.h ${tool_dir}/src/*.cpp)
-	add_executable(${tool_name} ${TOOL_SRC} ${tool_dir}/main.cpp)
 	add_library(${tool_name}_library STATIC ${TOOL_SRC})
-		LIST(APPEND TOOL_LIBRARIES ${tool_name}_library)
-	target_link_libraries(${tool_name} PUBLIC SFGE_COMMON)
+	LIST(APPEND TOOL_LIBRARIES ${tool_name}_library)
 	target_link_libraries(${tool_name}_library PUBLIC SFGE_COMMON)
-	set_property(TARGET ${tool_name} PROPERTY CXX_STANDARD 17)
 	set_property(TARGET ${tool_name}_library PROPERTY CXX_STANDARD 17)
-	set_target_properties (${tool_name} PROPERTIES FOLDER Tools)
 	set_target_properties (${tool_name}_library PROPERTIES FOLDER Tools)
 	if(APPLE)
-		set_target_properties(${tool_name} PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
-			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 		set_target_properties(${tool_name}_library PROPERTIES
 				RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
 				RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	ENDIF()
-	if(UNIX)
-	cotire(${tool_name})
-	cotire(${tool_name}_library)
-	endif()
-	LIST(APPEND tools \"${tool_name}\")
+	LIST(APPEND tools "\"${tool_name}\"")
 endforeach()
-#SFGE EDITOR
-add_executable(SFGE_EDITOR src/main_editor.cpp)
 
-target_link_libraries(SFGE_EDITOR PUBLIC SFGE_COMMON ${TOOL_LIBRARIES})
-set_property(TARGET SFGE PROPERTY CXX_STANDARD 17)
-if(APPLE)
-	set_target_properties(SFGE_EDITOR PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}
-			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-ENDIF()
-if(UNIX)
-	cotire(SFGE_EDITOR)
-endif()
+execute_process(
+		COMMAND ${PYTHON_EXECUTABLE} "scripts/tools/generate_tool_bindings.py" ${TOOL_NAME_LIST}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE py_result
+)
+target_link_libraries(SFGE_COMMON PUBLIC ${TOOL_LIBRARIES})
+target_sources(SFGE PUBLIC ${CMAKE_SOURCE_DIR}/src/tools/tools_pch.cpp ${CMAKE_SOURCE_DIR}/include/tools/tools_pch.h)
+target_sources(SFGE_TEST PUBLIC ${CMAKE_SOURCE_DIR}/src/tools/tools_pch.cpp ${CMAKE_SOURCE_DIR}/include/tools/tools_pch.h)
+
 #copy folder to build
 file(COPY data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 file(COPY scripts/ DESTINATION ${CMAKE_BINARY_DIR}/scripts/)
 
 
 #write tool config file
-string(REPLACE " " "," tools_list ${tools})
-file(WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}]}")
+string(REPLACE "\"\"" "\",\"" tools_list ${tools})
+file (WRITE "${CMAKE_BINARY_DIR}/data/tools_config.json" "{\"tools\" : [${tools_list}], \"src_dir\": \"${CMAKE_SOURCE_DIR}\", \"bin_dir\": \"${CMAKE_BINARY_DIR}\"}")
