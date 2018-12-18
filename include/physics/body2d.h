@@ -38,7 +38,7 @@ class Body2d: public TransformRequiredComponent, public Offsetable
 {
 public:
 	Body2d();
-	Body2d(Transform2d* transform, sf::Vector2f offset);
+	Body2d(Transform2d *transform, Vec2f offset);
 
 	b2Vec2 GetLinearVelocity();
 	void SetLinearVelocity(b2Vec2 velocity);

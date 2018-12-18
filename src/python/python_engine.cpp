@@ -167,9 +167,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			spriteInfo.textureId = textureId;
 			spriteInfo.texturePath = texturePath;
 		}, py::return_value_policy::reference);
+
 	py::class_<ShapeManager> shapeManager(m, "ShapeManager");
 	shapeManager
 		.def(py::init<Engine&>(), py::return_value_policy::reference);
+
 	py::class_<PythonEngine> pythonEngine(m, "PythonEngine");
 	pythonEngine
 	    .def(py::init<Engine&>(), py::return_value_policy::reference)
@@ -179,10 +181,12 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			pythonEngineInstance->SpreadClasses();
 			return py::cast(pythonEngineInstance->GetPyComponentManager().GetPyComponentFromInstanceId(pyComponentId));
 		}, py::return_value_policy::reference);
+
 	py::class_<PySystemManager, System> pySystemManager(m, "pySystemManager");
 	pySystemManager
 		.def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def("get_pysystem", &PySystemManager::GetPySystemFromClassName, py::return_value_policy::reference);
+
 	py::class_<Behavior, PyBehavior> component(m, "Component");
 	component
 		.def(py::init<Engine&, Entity>(), py::return_value_policy::reference)

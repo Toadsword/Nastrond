@@ -52,6 +52,7 @@ EntityMask EntityManager::GetMask(Entity entity)
 
 Entity EntityManager::CreateEntity(Entity wantedEntity)
 {
+
     if(wantedEntity == INVALID_ENTITY)
     {
         for (Entity entity = 1U; entity <= m_MaskArray.size(); entity++)

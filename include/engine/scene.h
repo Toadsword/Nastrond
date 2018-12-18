@@ -86,6 +86,8 @@ public:
 	void FixedUpdate() override;
 	void Draw() override;
 	void Destroy() override;
+
+	void Clear() override;
 private:
 
 	void InitScenePySystems();

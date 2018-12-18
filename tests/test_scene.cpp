@@ -41,3 +41,21 @@ TEST(Scene, TestSwitchScene)
 
 
 }
+
+TEST(Scene, TestSwitchSceneLeak)
+{
+
+	sfge::Engine engine;
+	engine.Init();
+
+
+    engine.GetSceneManager()->LoadSceneFromPath("data/scenes/scene_many_entities.scene");
+
+
+
+
+    engine.Start();
+
+
+
+}

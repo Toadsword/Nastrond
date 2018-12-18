@@ -35,7 +35,7 @@ Body2d::Body2d() : TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f(
 {
 }
 
-Body2d::Body2d(Transform2d * transform, sf::Vector2f offset) : 
+Body2d::Body2d(Transform2d *transform, Vec2f offset) :
 	TransformRequiredComponent(transform), Offsetable(offset)
 {
 	
@@ -64,7 +64,7 @@ void Body2d::ApplyForce(b2Vec2 force)
 
 b2BodyType Body2d::GetType()
 {
-	if(m_Body)
+	if(m_Body != nullptr)
 		return m_Body->GetType();
 	return b2_staticBody;
 }
@@ -96,7 +96,6 @@ void editor::Body2dInfo::DrawOnInspector()
 		switch (b2Body->GetType())
 		{
 		case b2_staticBody:
-
 			ImGui::LabelText("Type", "Static");
 			break;
 		case b2_dynamicBody:
@@ -176,8 +175,6 @@ Body2d* Body2dManager::AddComponent(Entity entity)
 	{
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
-
-
 
 		auto* transform = m_Transform2dManager->GetComponentPtr(entity);
 		const auto pos = transform->Position;

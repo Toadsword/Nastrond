@@ -349,4 +349,8 @@ void SceneManager::Draw()
 	}
 }
 
+	void SceneManager::Clear() {
+		Destroy();
+	}
+
 }

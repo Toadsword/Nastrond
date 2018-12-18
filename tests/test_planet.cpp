@@ -100,7 +100,7 @@ TEST(System, TestPlanetPySystem)
 	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 	json sceneJson = {
-		{ "name", "Test Planet Component" } 
+		{ "name", "Test Planet System" }
 	};
 	json systemJson = {
 		{"script_path", "scripts/planet_system.py"}

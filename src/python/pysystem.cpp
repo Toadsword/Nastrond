@@ -203,7 +203,7 @@ void PySystemManager::Destroy()
 
 PySystem *PySystemManager::GetPySystemFromClassName(std::string className)
 {
-	for(int i = 0; i< m_PySystemNames.size();i++)
+	for(auto i = 0u; i< m_PySystemNames.size();i++)
 	{
 		if(m_PySystemNames[i] == className)
 		{
