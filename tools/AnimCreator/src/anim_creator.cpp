@@ -24,10 +24,7 @@ SOFTWARE.
 
 #include <anim_creator.h>
 
-#include <engine/engine.h>
 #include <utility/log.h>
-
-#include <extensions/python_extensions.h>
 
 namespace sfge::tools
 {
@@ -45,8 +42,6 @@ namespace sfge::tools
 		if (!m_isInit)
 			Init();
 
-	    (void) dt;
-	    Log::GetInstance()->Msg("Update Anim Creator");
 		m_GraphicsManager.Update(dt);
 	}
 	void AnimCreator::Draw()
@@ -54,7 +49,6 @@ namespace sfge::tools
 		if (!m_isInit)
 			return;
 
-	    Log::GetInstance()->Msg("Draw Anim Creator");
 		m_GraphicsManager.Draw();
 	}
 	GraphicsManager* AnimCreator::GetGraphicsManager()

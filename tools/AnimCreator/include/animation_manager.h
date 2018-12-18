@@ -30,9 +30,24 @@ Project : AnimationTool for SFGE
 #define ANIMATION_MANAGER_H
 
 #include <map>
+#include <vector>
 
 namespace sfge::tools
 {
+const std::string DATA_FOLDER = "../data/";
+const std::string SAVE_FOLDER = "../data/animSaves/";
+
+/**
+ * \brief Enum used to reference the state of last saved animation in the application.
+ */
+enum LogSaveError {
+	SAVE_SUCCESS,
+	SAVE_FAILURE,
+	SAVE_DO_REPLACE,
+};
+
+struct TextureInfos;
+
 /**
  * \brief AnimationManager : Store and manager the animation of the application.
  */
@@ -152,6 +167,15 @@ public:
 	 * \return Id of the Texture stored in keyframe given, -1 if not found.
 	 */
 	short GetTextureIdFromKeyframe(short key);
+
+	/**
+	 * \brief Export the current animation to Json, ready for SFGE.
+	 * \param anim AnimationManager that stores all the informations
+	 * \param textures All the textures loaded in the application.
+	 * \param confirmedReplacement True if the application ignores the existent files, false otherwise.
+	 * \return The state of the exportation.
+	 */
+	LogSaveError ExportToJson(std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
 
 private:
 	/**

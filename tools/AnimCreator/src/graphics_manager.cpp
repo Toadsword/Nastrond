@@ -31,99 +31,121 @@ Project : AnimationTool for SFGE
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#include <iostream>
-
-#include <tool_engine.h>
 #include <graphics_manager.h>
-#include <utilities.h>
-#include "anim_creator.h"
+#include <anim_creator.h>
 
 namespace sfge::tools
 {
-void GraphicsManager::Init(AnimCreator* engine)
-{
-	m_AnimCreator = engine;
-	m_isInit = true;
-}
-
-void GraphicsManager::Update(int dt)
-{
-	if (!m_isInit)
-		return;
-
-	/*
-	sf::Event event;
-	while (m_Window->pollEvent(event))
+	void GraphicsManager::Init(AnimCreator* engine)
 	{
-		ImGui::SFML::ProcessEvent(event);
+		m_AnimCreator = engine;
+		m_isInit = true;
+	}
 
-		switch (event.type)
-		{
-		case sf::Event::Closed:
-			m_AnimCreator->ExitApplication();
+	void GraphicsManager::Update(int dt)
+	{
+		if (!m_isInit)
 			return;
 
-			//Shortcuts
-		case sf::Event::KeyPressed:
-			if (event.key.control && event.key.code == sf::Keyboard::Key::S)
+		/*
+		sf::Event event;
+		while (m_Window->pollEvent(event))
+		{
+			ImGui::SFML::ProcessEvent(event);
+
+			switch (event.type)
 			{
-				m_saveResult = ExportToJson(m_AnimCreator->GetAnimationManager(), m_AnimCreator->GetTextureManager()->GetAllTextures());
-				m_openModalSave = m_saveResult != SAVE_SUCCESS;
+			case sf::Event::Closed:
+				m_AnimCreator->ExitApplication();
+				return;
+
+				//Shortcuts
+			case sf::Event::KeyPressed:
+				if (event.key.control && event.key.code == sf::Keyboard::Key::S)
+				{
+					m_saveResult = ExportToJson(m_AnimCreator->GetAnimationManager(), m_AnimCreator->GetTextureManager()->GetAllTextures());
+					m_openModalSave = m_saveResult != SAVE_SUCCESS;
+				}
+				if (event.key.control && event.key.code == sf::Keyboard::Key::O)
+				{
+					m_openAddTexture = true;
+				}
+				if (event.key.control && event.key.code == sf::Keyboard::Key::P)
+					m_doPlayAnimation = !m_doPlayAnimation;
+				if (event.key.control && event.key.code == sf::Keyboard::Key::L)
+					m_AnimCreator->GetAnimationManager()->SetIsLooped(!m_AnimCreator->GetAnimationManager()->GetIsLooped());
+				if (event.key.control && event.key.code == sf::Keyboard::Key::Add)
+					m_AnimCreator->GetAnimationManager()->AddOrInsertKey();
+				if (event.key.control && event.key.code == sf::Keyboard::Key::Subtract)
+					m_AnimCreator->GetAnimationManager()->RemoveKey();
+				break;
+			case sf::Event::MouseButtonPressed:
+				if (m_timeSinceLastClick < TIME_TO_DOUBLE_CLICK)
+					m_doubleClicked = true;
+				else
+					m_doubleClicked = false;
+				m_timeSinceLastClick = 0;
+				break;
+			default:
+				break;
 			}
-			if (event.key.control && event.key.code == sf::Keyboard::Key::O)
-			{
-				m_openModalAddTexture = true;
-			}
-			if (event.key.control && event.key.code == sf::Keyboard::Key::P)
-				m_doPlayAnimation = !m_doPlayAnimation;
-			if (event.key.control && event.key.code == sf::Keyboard::Key::L)
-				m_AnimCreator->GetAnimationManager()->SetIsLooped(!m_AnimCreator->GetAnimationManager()->GetIsLooped());
-			if (event.key.control && event.key.code == sf::Keyboard::Key::Add)
-				m_AnimCreator->GetAnimationManager()->AddOrInsertKey();
-			if (event.key.control && event.key.code == sf::Keyboard::Key::Subtract)
-				m_AnimCreator->GetAnimationManager()->RemoveKey();
-			break;
-		case sf::Event::MouseButtonPressed:
-			if (m_timeSinceLastClick < TIME_TO_DOUBLE_CLICK)
-				m_doubleClicked = true;
-			else
-				m_doubleClicked = false;
-			m_timeSinceLastClick = 0;
-			break;
-		default:
-			break;
 		}
+		*/
+
+		auto animManager = m_AnimCreator->GetAnimationManager();
+		if (m_doPlayAnimation)
+		{
+			m_elapsedTimeSinceNewFrame += dt;
+			if (m_elapsedTimeSinceNewFrame >= animManager->GetSpeed())
+			{
+				m_elapsedTimeSinceNewFrame = 0;
+				m_currentFrame++;
+				if (m_currentFrame > animManager->GetHighestKeyNum())
+				{
+					m_currentFrame = 0;
+					if (!animManager->GetIsLooped())
+						m_doPlayAnimation = false;
+				}
+			}
+		}
+		//ImGui::ShowDemoWindow();
 	}
-	*/
 
-	//ImGui::ShowDemoWindow();
+	void GraphicsManager::Draw()
+	{
+		if (!m_isInit)
+			return;
 
-}
+		ImGui::SetNextWindowPos(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin(WINDOW_NAME, NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar))
+		{
+			DisplayMenuWindow();
+			DisplayFileWindow();
+			if (m_openAddTexture) OpenAddTexture();
+		}
+		ImGui::End();
 
-void GraphicsManager::Draw()
-{
-	if (!m_isInit)
-		return;
+		ImGui::SetNextWindowPos(ImVec2(750.0f, 100.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(450.0f, 300.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("PreviewWindow", NULL, ImGuiWindowFlags_NoCollapse))
+		{
+			DisplayPreviewWindow();
+		}
+		ImGui::End();
 
-	DisplayAnimationInformationsWindow();
-	DisplayFileWindow();
-	DisplayPreviewWindow(15.0f);
-	DisplayMenuWindow();
-}
+		ImGui::SetNextWindowPos(ImVec2(750.0f, 400.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(450.0f, 300.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("FrameInfoWindow", NULL, ImGuiWindowFlags_NoCollapse))
+		{
+			DisplayAnimationInformationsWindow();
+		}
+		ImGui::End();
+		if (m_openModalSave) OpenModalSave();
+		if (m_openModalConfirmNew) OpenModalConfirmNew();
+	}
 
-void GraphicsManager::DisplayMenuWindow()
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_MenuBar;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-	ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(900.0f, 0.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("MenuWindow", NULL, window_flags))
+	void GraphicsManager::DisplayMenuWindow()
 	{
 		if (ImGui::BeginMenuBar())
 		{
@@ -135,11 +157,11 @@ void GraphicsManager::DisplayMenuWindow()
 				}
 				if (ImGui::MenuItem("Open new sprite", "Ctrl+O"))
 				{
-					m_openModalAddTexture = true;
+					m_openAddTexture = true;
 				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
-					m_saveResult = ExportToJson(m_AnimCreator->GetAnimationManager(), m_AnimCreator->GetTextureManager()->GetAllTextures());
+					m_saveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
 					m_openModalSave = m_saveResult != SAVE_SUCCESS;
 				}
 				if (ImGui::MenuItem("Quit", "Alt+F4"))
@@ -151,28 +173,12 @@ void GraphicsManager::DisplayMenuWindow()
 			ImGui::EndMenuBar();
 		}
 	}
-	ImGui::End();
 
-	if (m_openModalSave) OpenModalSave();
-	if (m_openModalConfirmNew) OpenModalConfirmNew();
-}
-
-void GraphicsManager::DisplayFileWindow()
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-	ImGui::SetNextWindowPos(ImVec2(0.0f, 20.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(450.0f, 580.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("FileWindow", NULL, window_flags))
+	void GraphicsManager::DisplayFileWindow()
 	{
 		ImGui::Columns(2);
 		if (ImGui::Button("Add a texture"))
-			m_openModalAddTexture = true;
+			m_openAddTexture = true;
 
 		ImGui::NextColumn();
 		ImGui::Text("All Sprites");
@@ -247,42 +253,13 @@ void GraphicsManager::DisplayFileWindow()
 			m_AnimCreator->GetTextureManager()->DisplayTexture(texture->id, m_SelectedTextureId == texture->id);
 			ImGui::NextColumn();
 		}
+		ImGui::Columns(1);
 	}
-	ImGui::End();
 
-	if (m_openModalAddTexture) OpenModalAddTexture();
-}
-
-void GraphicsManager::DisplayPreviewWindow(int dt)
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-	ImGui::SetNextWindowPos(ImVec2(450.0f, 20.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(450.0f, 280.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("PreviewWindow", NULL, window_flags))
+	void GraphicsManager::DisplayPreviewWindow()
 	{
 		auto animManager = m_AnimCreator->GetAnimationManager();
-		if (m_doPlayAnimation)
-		{
-			m_elapsedTimeSinceNewFrame += dt;
-			if (m_elapsedTimeSinceNewFrame >= animManager->GetSpeed())
-			{
-				m_elapsedTimeSinceNewFrame = 0;
-				m_currentFrame++;
-				if (m_currentFrame > animManager->GetHighestKeyNum())
-				{
-					m_currentFrame = 0;
-					if (!animManager->GetIsLooped())
-						m_doPlayAnimation = false;
-				}
-			}
-		}
-		ImGui::SliderInt("All Frames", &m_currentFrame, 0, std::max(0, m_AnimCreator->GetAnimationManager()->GetHighestKeyNum()));
+		ImGui::SliderInt("All Frames", &m_currentFrame, 0, std::max(0, animManager->GetHighestKeyNum()));
 
 		ImGui::Columns(9, "colsEditorBtns", false);
 		//Frame at the beginning
@@ -431,21 +408,8 @@ void GraphicsManager::DisplayPreviewWindow(int dt)
 			m_AnimCreator->GetTextureManager()->DisplayTexture(idCurrentTexture);
 		}
 	}
-	ImGui::End();
-}
 
-void GraphicsManager::DisplayAnimationInformationsWindow()
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-
-	ImGui::SetNextWindowPos(ImVec2(450.0f, 300.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(450, 300.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("FrameInfoWindow", NULL, window_flags))
+	void GraphicsManager::DisplayAnimationInformationsWindow()
 	{
 		auto animManager = m_AnimCreator->GetAnimationManager();
 
@@ -474,11 +438,16 @@ void GraphicsManager::DisplayAnimationInformationsWindow()
 		}
 
 		//***** FILE INFORMATIONS *****//
-		if (ImGui::CollapsingHeader("Animation informations"))
+		if (ImGui::CollapsingHeader("Animation informations"), ImGuiTreeNodeFlags_DefaultOpen)
 		{
 			ImGui::Columns(2, "infoCols");
 			//Name
-			char* nameInChar = ConvertStringToArrayChar(animManager->GetName(), 32);
+			std::string animName = animManager->GetName();
+			// Tell me it's ugly, and I'll let you find something better. Write me a message before.
+			char nameInChar[32] = "                         ";
+			for (int i = 0; i < animName.length(); i++)
+				nameInChar[i] = animName[i];
+			
 			ImGui::Text("Animation name"); ImGui::NextColumn();
 			ImGui::InputText("##name", nameInChar, 32);
 			animManager->SetName(nameInChar);
@@ -510,13 +479,11 @@ void GraphicsManager::DisplayAnimationInformationsWindow()
 		short currentTextId = animManager->GetTextureIdFromKeyframe(m_currentFrame);
 		TextureInfos* currFrame = m_AnimCreator->GetTextureManager()->GetTextureFromId(currentTextId);
 		if (currFrame == nullptr)
-		{
-			ImGui::End();
 			return;
-		}
+		
 
 		//**** FRAME INFORMATIONS *****//
-		if (ImGui::CollapsingHeader("Frame informations")) {
+		if (ImGui::CollapsingHeader("Frame informations"), ImGuiTreeNodeFlags_DefaultOpen) {
 			ImGui::Columns(2, "infoCols");
 			// Frame informations
 			// Id
@@ -540,62 +507,53 @@ void GraphicsManager::DisplayAnimationInformationsWindow()
 			ImGui::Text((std::to_string(currFrame->size.x) + ", " + std::to_string(currFrame->size.y)).c_str()); ImGui::NextColumn();
 		}
 	}
-	ImGui::End();
-}
 
-void GraphicsManager::OpenModalSave()
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_Modal;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoResize;
-
-	ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(600.0f, 100.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Save Current...", &m_openModalSave, window_flags))
+	void GraphicsManager::OpenModalSave()
 	{
-		if (m_saveResult == SAVE_FAILURE)
+		ImGuiWindowFlags window_flags = 0;
+		window_flags |= ImGuiWindowFlags_Modal;
+		window_flags |= ImGuiWindowFlags_NoCollapse;
+		window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+
+		ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(600.0f, 100.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("Save Current...", &m_openModalSave, window_flags))
 		{
-			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "Couldn't save animation");
-			if (ImGui::Button("Oh ok"))
+			if (m_saveResult == SAVE_FAILURE)
 			{
-				m_saveResult = SAVE_SUCCESS;
-				m_openModalSave = false;
+				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "Couldn't save animation");
+				if (ImGui::Button("Oh ok"))
+				{
+					m_saveResult = SAVE_SUCCESS;
+					m_openModalSave = false;
+				}
+			}
+			if (m_saveResult == SAVE_DO_REPLACE)
+			{
+				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "An animation already exists with this name... Do you want to replace it?");
+				ImGui::Columns(4, "yes_or_no", false);
+				ImGui::NextColumn();
+				if (ImGui::Button("Yes"))
+				{
+					m_saveResult =  m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures(), true);
+					m_saveResult = SAVE_SUCCESS;
+					m_openModalSave = false;
+				}
+				ImGui::NextColumn();
+				if (ImGui::Button("No"))
+				{
+					m_saveResult = SAVE_SUCCESS;
+					m_openModalSave = false;
+				}
 			}
 		}
-		if (m_saveResult == SAVE_DO_REPLACE)
-		{
-			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "An animation already exists with this name... Do you want to replace it?");
-			ImGui::Columns(4, "yes_or_no", false);
-			ImGui::NextColumn();
-			if (ImGui::Button("Yes"))
-			{
-				m_saveResult = ExportToJson(m_AnimCreator->GetAnimationManager(), m_AnimCreator->GetTextureManager()->GetAllTextures(), true);
-				m_saveResult = SAVE_SUCCESS;
-				m_openModalSave = false;
-			}
-			ImGui::NextColumn();
-			if (ImGui::Button("No"))
-			{
-				m_saveResult = SAVE_SUCCESS;
-				m_openModalSave = false;
-			}
-		}
+		ImGui::End();
 	}
-	ImGui::End();
-}
 
-void GraphicsManager::OpenModalAddTexture()
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_Modal;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoResize;
-
-	ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(600.0f, 150.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Load new sprite...", &m_openModalAddTexture, window_flags))
+	void GraphicsManager::OpenAddTexture()
 	{
+		ImGui::Separator();
+
 		ImGui::InputText("FilePath (from C:)", m_inputNameNewFile, IM_ARRAYSIZE(m_inputNameNewFile));
 
 		ImGui::Columns(4, "idColAddSprite");
@@ -611,11 +569,11 @@ void GraphicsManager::OpenModalAddTexture()
 		ImGui::Text("Num Columns"); ImGui::NextColumn();
 		ImGui::InputInt("##Num Columns", &m_inputNumCols); ImGui::NextColumn();
 
-		ImGui::Text("Start position x"); ImGui::NextColumn();
-		ImGui::InputInt("##Start position x", &m_inputOffsetX); ImGui::NextColumn();
+		ImGui::Text("Offset x"); ImGui::NextColumn();
+		ImGui::InputInt("##Offset x", &m_inputOffsetX); ImGui::NextColumn();
 
-		ImGui::Text("Start position y"); ImGui::NextColumn();
-		ImGui::InputInt("##Start position y", &m_inputOffsetY); ImGui::NextColumn();
+		ImGui::Text("Offset y"); ImGui::NextColumn();
+		ImGui::InputInt("##Offset y", &m_inputOffsetY); ImGui::NextColumn();
 
 		ImGui::Columns(1, "idColAddSprite");
 
@@ -648,34 +606,31 @@ void GraphicsManager::OpenModalAddTexture()
 			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Error while loading file : Does it really exists?");
 		}
 	}
-	ImGui::End();
-}
 
-void GraphicsManager::OpenModalConfirmNew()
-{
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_Modal;
-	window_flags |= ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoResize;
-
-	ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(600.0f, 50.0f), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("New animation...", &m_openModalConfirmNew, window_flags))
+	void GraphicsManager::OpenModalConfirmNew()
 	{
-		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "Are you sure you want to begin a new animation?");
-		ImGui::Columns(4, "yes_or_no", false);
-		ImGui::NextColumn();
-		if (ImGui::Button("Yes"))
+		ImGuiWindowFlags window_flags = 0;
+		window_flags |= ImGuiWindowFlags_Modal;
+		window_flags |= ImGuiWindowFlags_NoCollapse;
+
+		ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(600.0f, 50.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("New animation...", &m_openModalConfirmNew, window_flags))
 		{
-			m_AnimCreator->GetAnimationManager()->Init();
-			m_openModalConfirmNew = false;
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "Are you sure you want to begin a new animation?");
+			ImGui::Columns(4, "yes_or_no", false);
+			ImGui::NextColumn();
+			if (ImGui::Button("Yes"))
+			{
+				m_AnimCreator->GetAnimationManager()->Init();
+				m_openModalConfirmNew = false;
+			}
+			ImGui::NextColumn();
+			if (ImGui::Button("No"))
+			{
+				m_openModalConfirmNew = false;
+			}
 		}
-		ImGui::NextColumn();
-		if (ImGui::Button("No"))
-		{
-			m_openModalConfirmNew = false;
-		}
-	}
-	ImGui::End();
-}
+		ImGui::End();
+	}	
 }

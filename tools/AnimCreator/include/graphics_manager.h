@@ -33,8 +33,8 @@ Project : AnimationTool for SFGE
 
 #include <SFML/Graphics.hpp>
 
-#include <utilities.h>
 #include <texture_manager.h>
+#include <animation_manager.h>
 
 namespace sfge::tools
 {
@@ -45,7 +45,7 @@ class AnimCreator;
 const int WINDOW_WIDTH = 900;
 const int WINDOW_HEIGHT = 600;
 const int MAX_FRAMERATE = 60;
-const std::string WINDOW_NAME = "AnimCreator";
+const char WINDOW_NAME[] = "AnimCreator";
 
 const int TIME_TO_DOUBLE_CLICK = 500;
 
@@ -94,7 +94,7 @@ public:
 	 * \brief Display the animation preview section of the application.
 	 * \param dt Time passed between the last frame and the current one.
 	 */
-	void DisplayPreviewWindow(int dt);
+	void DisplayPreviewWindow();
 	/**
 	 * \brief Display the information section of the animation and of the current Frame of the application.
 	 */
@@ -107,7 +107,7 @@ public:
 	/**
 	 * \brief Display the modal used to add textures to the application.
 	 */
-	void OpenModalAddTexture();
+	void OpenAddTexture();
 	/**
 	 * \brief Display the modal used to confirm the reset of the animation to the application.
 	 */
@@ -159,7 +159,7 @@ private:
 	/**
 	 * \brief true if we display the modal to add a texture, false otherwise.
 	 */
-	bool m_openModalAddTexture = false;
+	bool m_openAddTexture = false;
 	/**
 	 * \brief Name of the new texture sheet to add.
 	 */

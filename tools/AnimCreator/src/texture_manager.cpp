@@ -31,8 +31,6 @@ Project : AnimationTool for SFGE
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#include <iostream>
-
 #include <texture_manager.h>
 #include <json.hpp>
 
