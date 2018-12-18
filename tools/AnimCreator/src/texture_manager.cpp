@@ -36,6 +36,8 @@ Project : AnimationTool for SFGE
 #include <texture_manager.h>
 #include <json.hpp>
 
+namespace sfge::tools
+{
 void TextureManager::Init()
 {
 	m_LastId = 0;
@@ -126,5 +128,6 @@ void TextureManager::DisplayTexture(short id, bool selected)
 		else
 			ImGui::Image(texture->texture, imgRect);
 	}
+}
 }
 

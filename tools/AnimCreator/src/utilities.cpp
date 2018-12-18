@@ -38,14 +38,15 @@ Project : AnimationTool for SFGE
 #include <texture_manager.h>
 #include <utilities.h>
 
-
+namespace sfge::tools
+{
 LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* textures, bool confirmedReplacement)
 {
 	json value;
 	const std::string animName = anim->GetName();
 
 	//Creating base folder
-	if(!sfge::CreateDirectory(DATA_FOLDER) && !sfge::CreateDirectory(SAVE_FOLDER))
+	if (!sfge::CreateDirectory(DATA_FOLDER) && !sfge::CreateDirectory(SAVE_FOLDER))
 	{
 		return SAVE_FAILURE;
 
@@ -64,7 +65,7 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 		confirmedReplacement = !confirmedReplacement && doAnimExists;
 	}
 
-	if(confirmedReplacement)
+	if (confirmedReplacement)
 		return SAVE_DO_REPLACE;
 
 	// Json construction
@@ -77,7 +78,7 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 	for (auto frame : frames)
 	{
 		TextureInfos* textToApply = nullptr;
-		for(auto texture : *textures)
+		for (auto texture : *textures)
 		{
 			if (texture->id == frame.second)
 			{
@@ -116,13 +117,13 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 		myImage.close();
 
 		//Registering information of the frame
-		value["frames"][index]["key"] = frame.first;		
+		value["frames"][index]["key"] = frame.first;
 		value["frames"][index]["filename"] = fileName;
 		value["frames"][index]["position"]["x"] = textToApply->position.x;
 		value["frames"][index]["position"]["y"] = textToApply->position.y;
 		value["frames"][index]["size"]["x"] = textToApply->size.x;
 		value["frames"][index]["size"]["y"] = textToApply->size.y;
-		
+
 		index++;
 	}
 
@@ -132,7 +133,7 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
 	myfile << std::setw(4) << value << std::endl;
 	myfile.close();
 
-	std::cout << "Animation saved in "<< SAVE_FOLDER << animName << "/ \n";
+	std::cout << "Animation saved in " << SAVE_FOLDER << animName << "/ \n";
 
 	return SAVE_SUCCESS;
 }
@@ -143,4 +144,5 @@ char* ConvertStringToArrayChar(std::string string, size_t size)
 	const auto result = new char[size];
 	strcpy(result, string.c_str());
 	return result;
+}
 }

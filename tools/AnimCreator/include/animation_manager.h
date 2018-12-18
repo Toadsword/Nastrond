@@ -31,11 +31,13 @@ Project : AnimationTool for SFGE
 
 #include <map>
 
+namespace sfge::tools
+{
 /**
  * \brief AnimationManager : Store and manager the animation of the application.
  */
 class AnimationManager
-{	
+{
 public:
 
 	/**
@@ -85,7 +87,7 @@ public:
 	 * \brief Change the texture Id of given keyframe Id.
 	 * \param key Id of the keyframe to apply the new texture.
 	 * \param textureId Id of the texture to apply.
-	 * \return 
+	 * \return
 	 */
 	bool SetTextureOnKey(short key, short textureId);
 	/**
@@ -137,7 +139,7 @@ public:
 	 * \return Highest Id found among the keyframes.
 	 */
 	int GetHighestKeyNum();
-	
+
 	/**
 	 * \brief Getter of the animation.
 	 * \return the reference on the whole animation.
@@ -158,7 +160,7 @@ private:
 	bool m_looped = true;
 
 	/**
-	 * \brief Speed of the animation in miliseconds(ms) per frame; Default value : 100ms per frame
+	 * \brief Speed of the animation in milliseconds(ms) per frame; Default value : 100ms per frame
 	 */
 	int m_animSpeed = 100;
 
@@ -172,5 +174,6 @@ private:
 	 */
 	std::map<const short, short> m_animation;
 };
+}
 
 #endif // ifndef ANIMATION_MANAGER_H

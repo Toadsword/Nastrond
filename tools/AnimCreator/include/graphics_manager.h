@@ -36,9 +36,12 @@ Project : AnimationTool for SFGE
 #include <utilities.h>
 #include <texture_manager.h>
 
+namespace sfge::tools
+{
+class AnimCreator;
 /**
  * Constants
- */   
+ */
 const int WINDOW_WIDTH = 900;
 const int WINDOW_HEIGHT = 600;
 const int MAX_FRAMERATE = 60;
@@ -68,16 +71,16 @@ public:
 	 * \brief Initializer of the Graphics Manager. This function must be called before running, at it creates all the graphics needs.
 	 * \return The pointer to the created windows.
 	 */
-	sf::RenderWindow* Init(ToolEngine* engine);
+	void Init(AnimCreator* engine);
 	/**
 	 * \brief Updates the graphic state every frames.
 	 * \param dt Time passed between the last frame and the current one.
 	 */
 	void Update(int dt);
 	/**
-	 * \brief Called when the application is meant to be closed. Stops Imgui properly and deleted the window.
+	 * \brief Displays the graphics of the tool of the current frame.
 	 */
-	void Stop();
+	void Draw();
 
 	/**
 	 * \brief Display the menu of the application.
@@ -198,7 +201,7 @@ private:
 	/**
 	 * \brief true if we display the modal to confirm the save the animation, false otherwise.
 	 */
-	bool m_openModalSave = false; 
+	bool m_openModalSave = false;
 	/**
 	 * \brief Result of the saved animation. Used to allow the user to confirm the possible replacement of the animation.
 	 */
@@ -214,11 +217,11 @@ private:
 	/**
 	 * \brief Reference to the Engine.
 	 */
-	ToolEngine* m_Engine = nullptr;
+	AnimCreator* m_AnimCreator = nullptr;
 	/**
 	 * \brief Reference to the graphic window.
 	 */
 	sf::RenderWindow* m_Window = nullptr;
 };
-
+}
 #endif // ifndef GRAPHICS_MANAGER_H

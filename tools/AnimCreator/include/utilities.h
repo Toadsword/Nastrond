@@ -32,7 +32,8 @@ Project : AnimationTool for SFGE
 
 #include <vector>
 #include <map>
-
+namespace sfge::tools
+{
 const std::string DATA_FOLDER = "../data/";
 const std::string SAVE_FOLDER = "../data/animSaves/";
 
@@ -65,6 +66,6 @@ LogSaveError ExportToJson(AnimationManager* anim, std::vector<TextureInfos*>* te
  * \return Pointer to the array of char.
  */
 char* ConvertStringToArrayChar(std::string string, size_t size);
-
+}
 
 #endif // ifndef UTILITIES_H

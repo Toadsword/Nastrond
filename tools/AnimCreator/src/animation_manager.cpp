@@ -31,7 +31,8 @@ Project : AnimationTool for SFGE
 
 #include <animation_manager.h>
 #include <iostream>
-
+namespace sfge::tools
+{
 void AnimationManager::Init()
 {
 	m_animSpeed = 100;
@@ -48,7 +49,7 @@ void AnimationManager::AddNewKey(short key, short textureId)
 	AddOrInsertKey();
 
 	//Move to the right every frames until key is reached
-	for(int i = GetHighestKeyNum(); i != key; i--)
+	for (int i = GetHighestKeyNum(); i != key; i--)
 	{
 		SwapKeyTextures(i, i - 1);
 	}
@@ -80,9 +81,9 @@ bool AnimationManager::RemoveKey(short key)
 {
 	if (m_animation.find(key) != m_animation.end())
 	{
-		for(auto frame : m_animation)
+		for (auto frame : m_animation)
 		{
-			if(frame.first >= key && frame.first < GetHighestKeyNum())
+			if (frame.first >= key && frame.first < GetHighestKeyNum())
 			{
 				SwapKeyTextures(frame.first, frame.first + 1);
 			}
@@ -173,4 +174,5 @@ short AnimationManager::GetTextureIdFromKeyframe(short key)
 		return m_animation[key];
 	}
 	return -1;
+}
 }

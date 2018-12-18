@@ -42,6 +42,10 @@ public:
 	void Init() override;
 	void Update(float dt) override;
 	void Draw() override;
+
+	GraphicsManager* GetGraphicsManager();
+	TextureManager* GetTextureManager();
+	AnimationManager* GetAnimationManager();
 protected:
 	/**
 	 * \brief Pointer to the Graphics Manager of the Engine.
@@ -50,11 +54,13 @@ protected:
 	/**
 	 * \brief Pointer to the Texture Manager of the Engine.
 	 */
-	TextureManager m_textureManager;
+	TextureManager m_TextureManager;
 	/**
 	 * \brief Pointer to the Animation Manager of the Engine.
 	 */
 	AnimationManager m_AnimationManager;
+
+	bool m_isInit = false;
 };
 }
 
