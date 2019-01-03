@@ -26,12 +26,14 @@ SOFTWARE.
 
 #include "engine/system.h"
 #include <vector>
-#include "SFML/System/Vector2.hpp"
 #include "engine/vector.h"
 #include "graphics/graphics2d.h"
 
 namespace sfge::ext
 {
+/**
+ * \author Nicolas Schneider
+ */
 struct GraphNode {
 	short cost;
 	std::vector<int> neighborsIndex;
@@ -42,6 +44,9 @@ struct GraphNode {
 	const static int NORMAL_COST = 2;
 };
 
+/**
+ * \author Nicolas Schneider
+ */
 class NavigationGraphManager : public System {
 public:
 	NavigationGraphManager(Engine& engine);
@@ -54,12 +59,17 @@ public:
 
 	void Draw() override;
 
+	std::vector<Vec2f> GetPathFromTo(Vec2f origin, Vec2f destination);
+
 private:
 	void BuildGraphFromArray(const std::vector<std::vector<int>> map);
 
 	std::vector<GraphNode> m_Graph;
 
 	Graphics2dManager* m_Graphics2DManager;
+
+	float GetSquaredDistance(Vec2f v1, Vec2f v2) const;
+	float ComputeHeuristic(short index1, short index2) const;
 };
 }
 

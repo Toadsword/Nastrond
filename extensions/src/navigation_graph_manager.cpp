@@ -25,11 +25,7 @@ SOFTWARE.
 #include <extensions/navigation_graph_manager.h>
 #include <engine/engine.h>
 #include <iostream>
-#include "SFML/Graphics/RenderStates.hpp"
-
-namespace sf {
-	class String;
-}
+#include "utility/priority_queue.h"
 
 namespace sfge::ext
 {
@@ -108,7 +104,6 @@ namespace sfge::ext
 	/**
 	 * \brief Create graph nodes from an array 2x2 of cost
 	 * \param map array 2x2 of cost
-	 * \author Nicolas Schneider
 	 */
 	void NavigationGraphManager::BuildGraphFromArray(const std::vector<std::vector<int>> map)
 	{
@@ -156,6 +151,101 @@ namespace sfge::ext
 				m_Graph[index] = node;
 			}
 		}
+	}
+
+	/**
+	 * \brief Function to get a path from a point to another 
+	 * \param origin position from where the path must start
+	 * \param destination position where the agent want to go
+	 * \return the path between the origin and the destination
+	 */
+	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f origin, Vec2f destination)
+	{
+		GraphNode originNode;
+		GraphNode destinationNode;
+
+		float distanceOrigin = INFINITY;
+		float distanceDestination = INFINITY;
+
+		short indexOrigin, indexDestination;
+
+		for(int i = 0; i < m_Graph.size(); i++) {
+			float dist1 = GetSquaredDistance(origin, m_Graph[i].pos);
+
+			if(dist1 < distanceOrigin) {
+				distanceOrigin = dist1;
+				indexOrigin = i;
+			}
+
+			float dist2 = GetSquaredDistance(destination, m_Graph[i].pos);
+
+			if (dist2 < distanceDestination) {
+				distanceDestination = dist2;
+				indexDestination = i;
+			}
+		}
+
+		originNode = m_Graph[indexOrigin];
+		destinationNode = m_Graph[indexDestination];
+
+		PriorityQueue<short, float> openNodes;
+		openNodes.Put(indexOrigin, 0);
+
+		std::unordered_map<short, short> cameFrom;
+		std::unordered_map<short, float> costSoFar;
+
+		cameFrom[indexOrigin] = indexOrigin;
+		costSoFar[indexOrigin] = 0;
+
+		while(!openNodes.Empty()) {
+			int indexCurrent = openNodes.Get();
+
+			if(indexCurrent == indexDestination) {
+				break;
+			}
+
+			GraphNode currentNode = m_Graph[indexCurrent];
+
+			for(int i = 0; i < currentNode.neighborsIndex.size(); i++) {
+				int indexNext = currentNode.neighborsIndex[i];
+				float newCost = costSoFar[indexCurrent] + m_Graph[indexNext].cost;
+
+				if(costSoFar.find(indexNext) == costSoFar.end() ||
+					newCost < costSoFar[indexNext]) {
+					costSoFar[indexNext] = newCost;
+					float priority = newCost + ComputeHeuristic(indexNext, indexDestination);
+					openNodes.Put(indexNext, priority);
+					cameFrom[indexNext] = indexCurrent;
+				}
+			}
+		}
+
+		std::vector<GraphNode> path;
+		short currentNodeIndex = indexDestination;
+		while(currentNodeIndex != indexOrigin) {
+			path.push_back(m_Graph[currentNodeIndex]);
+			currentNodeIndex = cameFrom[currentNodeIndex];
+		}
+		path.push_back(m_Graph[indexOrigin]);
+		std::reverse(path.begin(), path.end());
+
+		//TODO finir de retourner le chemin, il faut choisir ce qui est retourner et faire un mod de debug pour afficher correctement les informations voulue (Utilisations d'une struct spécial pour ça)
+
+		return std::vector<Vec2f>();
+	}
+
+	float NavigationGraphManager::GetSquaredDistance(Vec2f v1, Vec2f v2) const {
+		return (std::abs(v1.x - v2.x) * std::abs(v1.x - v2.x)) + (std::abs(v1.y - v2.y) * std::abs(v1.y - v2.y));
+	}
+
+	float NavigationGraphManager::ComputeHeuristic(short index1, short index2) const {
+		int D = 1; 
+		int D2 = std::sqrt(2);
+
+		float dx = std::abs(m_Graph[index1].pos.x - m_Graph[index2].pos.x);
+		float dy = std::abs(m_Graph[index1].pos.y - m_Graph[index2].pos.y);
+
+		return D * (dx + dy) + (D2 - 2 * D) * std::min(dx, dy);
 	}
 }
 
