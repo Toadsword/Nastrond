@@ -21,42 +21,37 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#ifndef NAVIGATION_GRAPH_MANAGER_H
+#define NAVIGATION_GRAPH_MANAGER_H
 
-#include <gtest/gtest.h>
-#include <utility/priority_queue.h>
+#include "engine/system.h"
+#include <vector>
 
-#include "engine/engine.h"
-#include "engine/scene.h"
-
-TEST(AI, PriorityQueue)
+namespace sfge::ext
 {
-	sfge::PriorityQueue<std::string, int> testList;
+struct GraphNode {
+	short cost;
+	int neighbors[9];
+};
 
-	testList.Put("0 => 10", 10);
-	testList.Put("1 => 0", 0);
-	testList.Put("2 => 3", 3);
-	testList.Put("4 => 1", 1);
+class NavigationGraphManager : public System {
+public:
+	NavigationGraphManager(Engine& engine);
 
-	while(!testList.Empty()) {
-		std::cout << testList.Get() << "\n";
-	}
+	void Init() override;
+
+	void Update(float dt) override;
+
+	void FixedUpdate() override;
+
+	void Draw() override;
+
+private:
+	void BuildGraphFromArray(std::vector<std::vector<int>> map);
+
+	std::vector<GraphNode> m_Graph;
+};
 }
 
-TEST(AI, MapReading) 
-{
-	sfge::Engine engine;
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+#endif
 
-	engine.Init(std::move(initConfig));
-	json sceneJson = {
-		{ "name", "Test Navigation Graph SystemCPP" } };
-	json systemJson = {
-		{ "systemClassName", "NavigationGraphManager" }
-	};
-
-	sceneJson["systems"] = json::array({ systemJson });
-	auto* sceneManager = engine.GetSceneManager();
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}

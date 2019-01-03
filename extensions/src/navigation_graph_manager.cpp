@@ -22,35 +22,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <engine/system.h>
-#include <engine/engine.h>
-
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-
-#include <extensions/python_extensions.h>
-#include <extensions/planet_system.h>
 #include <extensions/navigation_graph_manager.h>
+#include <engine/engine.h>
+#include <iostream>
 
-#include <tools/tools_pch.h>
+namespace sf {
+	class String;
+}
 
 namespace sfge::ext
 {
+	NavigationGraphManager::NavigationGraphManager(Engine & engine) :
+	System(engine)
+	{
+	}
 
-static std::vector<std::function<void(py::module&)>> m_OtherPythonExtensions;
+	void NavigationGraphManager::Init()
+	{
+		std::vector<std::vector<int>> map{ 
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+			{0, 1, 0, 1, 0, 0, 1, 1, 1, 0},
+			{0, 1, 0, 1, 0, 0, 1, 1, 1, 0},
+			{0, 1, 0, 1, 0, 0, 1, 1, 1, 0},
+			{0, 1, 0, 1, 1, 1, 1, 1, 1, 0},
+			{0, 1, 0, 1, 0, 0, 0, 0, 1, 0},
+			{0, 1, 0, 1, 0, 0, 0, 0, 1, 0},
+			{0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+		};
 
-void ExtendPython(py::module& m)
-{
-	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
-	planetSystem
-		.def(py::init<Engine&>());
+		BuildGraphFromArray(map);
+	}
+	void NavigationGraphManager::Update(float dt)
+	{
+		(void)dt;
+	}
 
-	py::class_<NavigationGraphManager, System> navigationGraphManager(m, "NavigationGraphManager");
-	navigationGraphManager
-		.def(py::init<Engine&>());
-	
+	void NavigationGraphManager::FixedUpdate() {
+	}
 
-	tools::ExtendPythonTools(m);
+	void NavigationGraphManager::Draw() {
+	}
+
+	void NavigationGraphManager::BuildGraphFromArray(std::vector<std::vector<int>> map)
+	{
+		for(int y = 0; y < map.size(); y++) {
+			std::string s;
+			for(int x = 0; x < map.at(y).size(); x++) {
+				s += std::to_string(map.at(y).at(x));
+			}
+			std::cout << s + "\n";
+		}
+	}
 }
 
-}
+
