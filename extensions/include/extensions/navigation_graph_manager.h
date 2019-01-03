@@ -34,8 +34,12 @@ namespace sfge::ext
 {
 struct GraphNode {
 	short cost;
-	int neighbors[9];
+	std::vector<int> neighborsIndex;
 	Vec2f pos;
+
+	const static int SOLID_COST = 0;
+	const static int ROAD_COST = 1;
+	const static int NORMAL_COST = 2;
 };
 
 class NavigationGraphManager : public System {

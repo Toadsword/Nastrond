@@ -45,9 +45,9 @@ namespace sfge::ext
 		std::vector<std::vector<int>> map{ 
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-			{0, 1, 0, 1, 0, 0, 1, 1, 1, 0},
-			{0, 1, 0, 1, 0, 0, 1, 1, 1, 0},
-			{0, 1, 0, 1, 0, 0, 1, 1, 1, 0},
+			{0, 1, 0, 1, 0, 1, 2, 2, 1, 0},
+			{0, 1, 0, 1, 0, 1, 2, 2, 1, 0},
+			{0, 1, 0, 1, 0, 1, 2, 2, 1, 0},
 			{0, 1, 0, 1, 1, 1, 1, 1, 1, 0},
 			{0, 1, 0, 1, 0, 0, 0, 0, 1, 0},
 			{0, 1, 0, 1, 0, 0, 0, 0, 1, 0},
@@ -74,12 +74,6 @@ namespace sfge::ext
 
 		Vec2f extends = Vec2f(10, 10);
 
-		// define the color of the quad's points
-		quad[0].color = sf::Color::White;
-		quad[1].color = sf::Color::White;
-		quad[2].color = sf::Color::White;
-		quad[3].color = sf::Color::White;
-
 		for(int i = 0; i < m_Graph.size(); i++) {
 
 			Vec2f pos = m_Graph[i].pos;
@@ -90,10 +84,32 @@ namespace sfge::ext
 			quad[2].position = sf::Vector2f(pos.x + extends.x / 2.f, pos.y + extends.y / 2.f);
 			quad[3].position = sf::Vector2f(pos.x - extends.x / 2.f, pos.y + extends.y / 2.f);
 
+			// define the color of the quad's points
+			if (m_Graph[i].cost == GraphNode::SOLID_COST) {
+				quad[0].color = sf::Color::Red;
+				quad[1].color = sf::Color::Red;
+				quad[2].color = sf::Color::Red;
+				quad[3].color = sf::Color::Red;
+			}else {
+				quad[0].color = sf::Color::White;
+				quad[1].color = sf::Color::White;
+				quad[2].color = sf::Color::White;
+				quad[3].color = sf::Color::White;
+			}
+
 			window->draw(quad);
+
+			for (int j = 0; j < m_Graph[i].neighborsIndex.size(); j++) {
+				m_Graphics2DManager->DrawLine(m_Graph[i].pos, m_Graph[m_Graph[i].neighborsIndex[j]].pos, sf::Color::White);
+			}
 		}
 	}
 
+	/**
+	 * \brief Create graph nodes from an array 2x2 of cost
+	 * \param map array 2x2 of cost
+	 * \author Nicolas Schneider
+	 */
 	void NavigationGraphManager::BuildGraphFromArray(const std::vector<std::vector<int>> map)
 	{
 		for(int y = 0; y < map.size(); y++) {
@@ -106,7 +122,40 @@ namespace sfge::ext
 			}
 		}
 
-		std::cout << "size = " + std::to_string(m_Graph.size()) + "\n";
+		for (int y = 0; y < map.size(); y++) {
+			for (int x = 0; x < map[y].size(); x++) {
+				const int index = y * map.size() + x;
+
+				GraphNode node = m_Graph[index];
+
+				if(node.cost == GraphNode::SOLID_COST) {
+					continue;
+				}
+
+				for(int i = -1; i < 2; i++) {
+					for(int j = -1; j < 2; j++) {
+						if (i == 0 && j == 0) continue;
+						
+						if (y + i < 0 || y + i >= map.size() || x + j < 0 || x + j >= map[y].size()) continue;
+
+						const int indexNeighbor = (y + i) * map.size() + (x + j);
+
+						if(m_Graph[indexNeighbor].cost == GraphNode::SOLID_COST) continue;
+
+						//Add cross without checking other neighbors
+						if (i == 0 || j == 0) {
+							node.neighborsIndex.push_back(indexNeighbor);
+						}else {
+							if(m_Graph[y * map.size() + (x + j)].cost != GraphNode::SOLID_COST &&
+							   m_Graph[(y + i) * map.size() + x].cost != GraphNode::SOLID_COST) {
+								node.neighborsIndex.push_back(indexNeighbor);
+							}
+						}
+					}
+				}
+				m_Graph[index] = node;
+			}
+		}
 	}
 }
 
