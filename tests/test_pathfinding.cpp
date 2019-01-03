@@ -22,35 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <engine/system.h>
-#include <engine/engine.h>
+#include <gtest/gtest.h>
+#include <utility/priority_queue.h>
 
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
+#include "engine/engine.h"
+#include "engine/scene.h"
 
-#include <extensions/python_extensions.h>
-#include <extensions/planet_system.h>
-#include <extensions/navigation_graph_manager.h>
-
-#include <tools/tools_pch.h>
-
-namespace sfge::ext
+TEST(AI, PriorityQueue)
 {
+	sfge::PriorityQueue<std::string, int> testList;
 
-static std::vector<std::function<void(py::module&)>> m_OtherPythonExtensions;
+	testList.Put("0 => 10", 10);
+	testList.Put("1 => 0", 0);
+	testList.Put("2 => 3", 3);
+	testList.Put("4 => 1", 1);
 
-void ExtendPython(py::module& m)
-{
-	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
-	planetSystem
-		.def(py::init<Engine&>());
-
-	py::class_<NavigationGraphManager, System> navigationGraphManager(m, "NavigationGraphManager");
-	navigationGraphManager
-		.def(py::init<Engine&>());
-	
-
-	tools::ExtendPythonTools(m);
+	while(!testList.Empty()) {
+		std::cout << testList.Get() << "\n";
+	}
 }
 
+TEST(AI, NavigationGraphManager) 
+{
+	sfge::Engine engine;
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+
+	engine.Init(std::move(initConfig));
+	json sceneJson = {
+		{ "name", "Test Navigation Graph SystemCPP" } };
+	json systemJson = {
+		{ "systemClassName", "NavigationGraphManager" }
+	};
+
+	sceneJson["systems"] = json::array({ systemJson });
+	auto* sceneManager = engine.GetSceneManager();
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
 }

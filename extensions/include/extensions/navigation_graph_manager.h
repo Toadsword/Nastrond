@@ -21,36 +21,47 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#ifndef NAVIGATION_GRAPH_MANAGER_H
+#define NAVIGATION_GRAPH_MANAGER_H
 
-#include <engine/system.h>
-#include <engine/engine.h>
-
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-
-#include <extensions/python_extensions.h>
-#include <extensions/planet_system.h>
-#include <extensions/navigation_graph_manager.h>
-
-#include <tools/tools_pch.h>
+#include "engine/system.h"
+#include <vector>
+#include "SFML/System/Vector2.hpp"
+#include "engine/vector.h"
+#include "graphics/graphics2d.h"
 
 namespace sfge::ext
 {
+struct GraphNode {
+	short cost;
+	std::vector<int> neighborsIndex;
+	Vec2f pos;
 
-static std::vector<std::function<void(py::module&)>> m_OtherPythonExtensions;
+	const static int SOLID_COST = 0;
+	const static int ROAD_COST = 1;
+	const static int NORMAL_COST = 2;
+};
 
-void ExtendPython(py::module& m)
-{
-	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
-	planetSystem
-		.def(py::init<Engine&>());
+class NavigationGraphManager : public System {
+public:
+	NavigationGraphManager(Engine& engine);
 
-	py::class_<NavigationGraphManager, System> navigationGraphManager(m, "NavigationGraphManager");
-	navigationGraphManager
-		.def(py::init<Engine&>());
-	
+	void Init() override;
 
-	tools::ExtendPythonTools(m);
+	void Update(float dt) override;
+
+	void FixedUpdate() override;
+
+	void Draw() override;
+
+private:
+	void BuildGraphFromArray(const std::vector<std::vector<int>> map);
+
+	std::vector<GraphNode> m_Graph;
+
+	Graphics2dManager* m_Graphics2DManager;
+};
 }
 
-}
+#endif
+
