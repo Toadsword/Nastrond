@@ -155,11 +155,14 @@ void Engine::Start()
         m_SystemsContainer->pythonEngine.Update(dt.asSeconds());
 
         m_SystemsContainer->sceneManager.Update(dt.asSeconds());
-
+		
         m_SystemsContainer->editor.Update(dt.asSeconds());
 		graphicsUpdateClock.restart ();
         m_SystemsContainer->transformManager.Update(dt.asSeconds());
         m_SystemsContainer->graphics2dManager.Update(dt.asSeconds());
+
+		m_SystemsContainer->sceneManager.Draw();
+
         m_SystemsContainer->pythonEngine.Draw();
         m_SystemsContainer->editor.Draw();
         m_SystemsContainer->graphics2dManager.Display();

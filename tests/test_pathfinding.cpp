@@ -42,7 +42,7 @@ TEST(AI, PriorityQueue)
 	}
 }
 
-TEST(AI, MapReading) 
+TEST(AI, NavigationGraphManager) 
 {
 	sfge::Engine engine;
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();

@@ -25,6 +25,7 @@ SOFTWARE.
 #include <extensions/navigation_graph_manager.h>
 #include <engine/engine.h>
 #include <iostream>
+#include "SFML/Graphics/RenderStates.hpp"
 
 namespace sf {
 	class String;
@@ -39,6 +40,8 @@ namespace sfge::ext
 
 	void NavigationGraphManager::Init()
 	{
+		m_Graphics2DManager = m_Engine.GetGraphics2dManager();
+
 		std::vector<std::vector<int>> map{ 
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -63,17 +66,47 @@ namespace sfge::ext
 	}
 
 	void NavigationGraphManager::Draw() {
+		rmt_ScopedCPUSample(NavigationGraphManagerDraw, 0);
+		
+		auto window = m_Graphics2DManager->GetWindow();
+
+		sf::VertexArray quad(sf::Quads, 4);
+
+		Vec2f extends = Vec2f(10, 10);
+
+		// define the color of the quad's points
+		quad[0].color = sf::Color::White;
+		quad[1].color = sf::Color::White;
+		quad[2].color = sf::Color::White;
+		quad[3].color = sf::Color::White;
+
+		for(int i = 0; i < m_Graph.size(); i++) {
+
+			Vec2f pos = m_Graph[i].pos;
+
+			// define the position of the quad's points
+			quad[0].position = sf::Vector2f(pos.x - extends.x / 2.f, pos.y - extends.y / 2.f);
+			quad[1].position = sf::Vector2f(pos.x + extends.x / 2.f, pos.y - extends.y / 2.f);
+			quad[2].position = sf::Vector2f(pos.x + extends.x / 2.f, pos.y + extends.y / 2.f);
+			quad[3].position = sf::Vector2f(pos.x - extends.x / 2.f, pos.y + extends.y / 2.f);
+
+			window->draw(quad);
+		}
 	}
 
-	void NavigationGraphManager::BuildGraphFromArray(std::vector<std::vector<int>> map)
+	void NavigationGraphManager::BuildGraphFromArray(const std::vector<std::vector<int>> map)
 	{
 		for(int y = 0; y < map.size(); y++) {
-			std::string s;
-			for(int x = 0; x < map.at(y).size(); x++) {
-				s += std::to_string(map.at(y).at(x));
+			for(int x = 0; x < map[y].size(); x++) {
+				GraphNode node;
+				node.cost = map[y][x];
+				node.pos = Vec2f(x * 50 + 25, y * 50 + 25);
+
+				m_Graph.push_back(node);
 			}
-			std::cout << s + "\n";
 		}
+
+		std::cout << "size = " + std::to_string(m_Graph.size()) + "\n";
 	}
 }
 

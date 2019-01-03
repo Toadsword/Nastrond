@@ -26,12 +26,16 @@ SOFTWARE.
 
 #include "engine/system.h"
 #include <vector>
+#include "SFML/System/Vector2.hpp"
+#include "engine/vector.h"
+#include "graphics/graphics2d.h"
 
 namespace sfge::ext
 {
 struct GraphNode {
 	short cost;
 	int neighbors[9];
+	Vec2f pos;
 };
 
 class NavigationGraphManager : public System {
@@ -47,9 +51,11 @@ public:
 	void Draw() override;
 
 private:
-	void BuildGraphFromArray(std::vector<std::vector<int>> map);
+	void BuildGraphFromArray(const std::vector<std::vector<int>> map);
 
 	std::vector<GraphNode> m_Graph;
+
+	Graphics2dManager* m_Graphics2DManager;
 };
 }
 
