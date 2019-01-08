@@ -77,7 +77,7 @@ TEST(AI, DwarfMovement)
 	json sceneJson = {
 		{ "name", "Dwarf Movements" } };
 	json entitiesArray = json::array();
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		//Adding transform
 		json transformJson =
@@ -89,22 +89,22 @@ TEST(AI, DwarfMovement)
 
 		json spriteJson =
 		{
-			{ "path", "data/sprites/round.png" },
+			{ "path", "data/sprites/triangle.png" },
 			{ "type", static_cast<int>(sfge::ComponentType::SPRITE2D) }
 		};
 
-		/*json pyComponentJson =
+		json pyComponentJson =
 		{
 			{ "type", static_cast<int>(sfge::ComponentType::PYCOMPONENT) },
-			{ "script_path", "scripts/planet_component.py" }
-		};*/
+			{ "script_path", "scripts/ai_path_behaviour.py" }
+		};
 		std::ostringstream oss;
 		oss << "Entity " << i;
 		const json entityJson =
 		{
 			{ "name", oss.str() },
 		{ "components",{
-			transformJson, spriteJson, /*pyComponentJson*/
+			transformJson, spriteJson, pyComponentJson
 		}
 		}
 		};

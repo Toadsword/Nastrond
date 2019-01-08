@@ -127,10 +127,14 @@ class EntityManager(System):
     def has_components(self, entity, component):
         pass
 
+class NavigationGraphManager(System):
+    def get_path_from_to(self, vec2f, vecf2):
+        pass
+    def test(self, int):
+        pass
 
 class Body2dManager(System, ComponentManager):
     pass
-
 
 class Physics2dManager(System):
     body2d_manager = None # type: Body2dManager
@@ -240,3 +244,4 @@ physics2d_manager = Physics2dManager()
 body2d_manager = Body2dManager()
 graphics2d_manager = Graphics2dManager()
 python_engine = PythonEngine()
+navigation_graph_manager = NavigationGraphManager()

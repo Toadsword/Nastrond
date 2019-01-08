@@ -113,13 +113,13 @@ namespace sfge::ext
 	}
 
 	void NavigationGraphManager::FixedUpdate() {
-		auto t1 = std::chrono::high_resolution_clock::now();
+		/*auto t1 = std::chrono::high_resolution_clock::now();
 		for(auto i = 0; i < 1; i++)
 			GetPathFromTo(4 * m_mapSize.y + 1, 8 * m_mapSize.y + 20);
 		auto t2 = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-		std::cout << "Time: " << duration << "\n";
+		std::cout << "Time: " << duration << "\n";*/
 	}
 
 	void NavigationGraphManager::Draw() {
@@ -270,6 +270,7 @@ namespace sfge::ext
 	 */
 	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& destination)
 	{
+		std::cout << "ola ketal\n";
 		float distanceOrigin = INFINITY;
 		float distanceDestination = INFINITY;
 
@@ -361,6 +362,11 @@ namespace sfge::ext
 		std::reverse(path.begin(), path.end());
 
 		return std::vector<Vec2f>();
+	}
+
+	void NavigationGraphManager::Test(int i)
+	{
+		std::cout << "ola ketal\n";
 	}
 
 	float NavigationGraphManager::GetSquaredDistance(Vec2f& v1, Vec2f& v2) {

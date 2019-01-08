@@ -47,8 +47,8 @@ void ExtendPython(py::module& m)
 
 	py::class_<NavigationGraphManager, System> navigationGraphManager(m, "NavigationGraphManager");
 	navigationGraphManager
-		.def(py::init<Engine&>());
-	
+		.def(py::init<Engine&>())
+		.def("test", &ext::NavigationGraphManager::Test);
 
 	tools::ExtendPythonTools(m);
 }
