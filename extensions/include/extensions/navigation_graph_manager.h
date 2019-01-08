@@ -35,13 +35,9 @@ namespace sfge::ext
  * \author Nicolas Schneider
  */
 struct GraphNode {
-	short cost;
-	std::vector<int> neighborsIndex;
+	unsigned short cost;
+	std::vector<unsigned int> neighborsIndex;
 	Vec2f pos;
-
-	const static int SOLID_COST = 0;
-	const static int ROAD_COST = 1;
-	const static int NORMAL_COST = 2;
 };
 
 struct GraphNodeDebug : GraphNode {
@@ -74,6 +70,7 @@ public:
 	void Draw() override;
 
 	std::vector<Vec2f> GetPathFromTo(Vec2f origin, Vec2f destination);
+	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
 private:
 	void BuildGraphFromArray(const std::vector<std::vector<int>> map);
@@ -87,7 +84,16 @@ private:
 	Graphics2dManager* m_Graphics2DManager;
 
 	float GetSquaredDistance(Vec2f v1, Vec2f v2) const;
-	float ComputeHeuristic(short index1, short index2) const;
+	float ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const;
+
+	//Heuristic for pathfinding
+	const float HEURISTIC_1 = 1;
+	const float HEURISTIC_2 = sqrt(2);
+
+	//Constant for cost
+	const static short SOLID_COST = 0;
+	const static short ROAD_COST = 1;
+	const static short NORMAL_COST = 2;
 };
 }
 

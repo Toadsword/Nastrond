@@ -51,19 +51,19 @@ namespace sfge::ext
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 		};*/
 
-		std::vector<std::vector<int>> map{
-			{1, 1, 1, 1, 1, 100, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 100, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+		/*std::vector<std::vector<int>> map{
+			{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
@@ -74,11 +74,34 @@ namespace sfge::ext
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1}
+		};*/
+
+		std::vector<std::vector<int>> map{
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1}
 		};
 
 		BuildGraphFromArray(map);
-
-		GetPathFromTo(Vec2f(100, 100), Vec2f(600, 300));
 	}
 	void NavigationGraphManager::Update(float dt)
 	{
@@ -86,6 +109,13 @@ namespace sfge::ext
 	}
 
 	void NavigationGraphManager::FixedUpdate() {
+		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+		for(int i = 0; i < 200; i++)
+			GetPathFromTo(4 * 22 + 1, 8 * 22 + 20);
+		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+		std::cout << "Time: " << duration << "\n";
 	}
 
 	void NavigationGraphManager::Draw() {
@@ -95,20 +125,22 @@ namespace sfge::ext
 
 		sf::VertexArray quad(sf::Quads, 4);
 
-		Vec2f extends = Vec2f(10, 10);
-
-		for(int i = 0; i < m_Graph.size(); i++) {
-
-			Vec2f pos = m_Graph[i].pos;
+		Vec2f extends = Vec2f(10 * 0.5f, 10 * 0.5f);
+#ifdef DEBUG_MOD
+		for (GraphNodeDebug node : m_Graph) {
+#else
+		for (GraphNode node : m_Graph) {
+#endif
+			Vec2f pos = node.pos;
 
 			// define the position of the quad's points
-			quad[0].position = sf::Vector2f(pos.x - extends.x / 2.f, pos.y - extends.y / 2.f);
-			quad[1].position = sf::Vector2f(pos.x + extends.x / 2.f, pos.y - extends.y / 2.f);
-			quad[2].position = sf::Vector2f(pos.x + extends.x / 2.f, pos.y + extends.y / 2.f);
-			quad[3].position = sf::Vector2f(pos.x - extends.x / 2.f, pos.y + extends.y / 2.f);
+			quad[0].position = sf::Vector2f(pos.x - extends.x, pos.y - extends.y);
+			quad[1].position = sf::Vector2f(pos.x + extends.x, pos.y - extends.y);
+			quad[2].position = sf::Vector2f(pos.x + extends.x, pos.y + extends.y);
+			quad[3].position = sf::Vector2f(pos.x - extends.x, pos.y + extends.y);
 
 #ifdef DEBUG_MOD
-			switch (m_Graph[i].state) {
+			switch (node.state) {
 			case GraphNodeDebug::VISITED: 
 				quad[0].color = sf::Color::Yellow;
 				quad[1].color = sf::Color::Yellow;
@@ -134,7 +166,7 @@ namespace sfge::ext
 				quad[3].color = sf::Color::Cyan;
 				break;
 			case GraphNodeDebug::OTHER:
-				if (m_Graph[i].cost == GraphNode::SOLID_COST) {
+				if (node.cost == SOLID_COST) {
 					quad[0].color = sf::Color::Red;
 					quad[1].color = sf::Color::Red;
 					quad[2].color = sf::Color::Red;
@@ -151,7 +183,7 @@ namespace sfge::ext
 			}
 #else
 			// define the color of the quad's points
-			if (m_Graph[i].cost == GraphNode::SOLID_COST) {
+			if (node.cost == SOLID_COST) {
 				quad[0].color = sf::Color::Red;
 				quad[1].color = sf::Color::Red;
 				quad[2].color = sf::Color::Red;
@@ -167,8 +199,8 @@ namespace sfge::ext
 
 			window->draw(quad);
 #ifndef DEBUG_MOD
-			for (int j = 0; j < m_Graph[i].neighborsIndex.size(); j++) {
-				m_Graphics2DManager->DrawLine(m_Graph[i].pos, m_Graph[m_Graph[i].neighborsIndex[j]].pos, sf::Color::White);
+			for (auto neighborsIndex : node.neighborsIndex) {
+				m_Graphics2DManager->DrawLine(pos, m_Graph[neighborsIndex].pos, sf::Color::White);
 			}
 #endif
 		}
@@ -206,7 +238,7 @@ namespace sfge::ext
 					GraphNode node = m_Graph[index];
 #endif
 
-				if(node.cost == GraphNode::SOLID_COST) {
+				if(node.cost == SOLID_COST) {
 					continue;
 				}
 
@@ -218,14 +250,14 @@ namespace sfge::ext
 
 						const int indexNeighbor = (y + i) * map.size() + (x + j);
 
-						if(m_Graph[indexNeighbor].cost == GraphNode::SOLID_COST) continue;
+						if(m_Graph[indexNeighbor].cost == SOLID_COST) continue;
 
 						//Add cross without checking other neighbors
 						if (i == 0 || j == 0) {
 							node.neighborsIndex.push_back(indexNeighbor);
 						}else {
-							if(m_Graph[y * map.size() + (x + j)].cost != GraphNode::SOLID_COST &&
-							   m_Graph[(y + i) * map.size() + x].cost != GraphNode::SOLID_COST) {
+							if(m_Graph[y * map.size() + (x + j)].cost != SOLID_COST &&
+							   m_Graph[(y + i) * map.size() + x].cost != SOLID_COST) {
 								node.neighborsIndex.push_back(indexNeighbor);
 							}
 						}
@@ -247,7 +279,7 @@ namespace sfge::ext
 		float distanceOrigin = INFINITY;
 		float distanceDestination = INFINITY;
 
-		short indexOrigin, indexDestination;
+		unsigned int indexOrigin, indexDestination;
 
 		for(int i = 0; i < m_Graph.size(); i++) {
 			float dist1 = GetSquaredDistance(origin, m_Graph[i].pos);
@@ -265,95 +297,87 @@ namespace sfge::ext
 			}
 		}
 
+		return GetPathFromTo(indexOrigin, indexDestination);
+	}
+
+	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int originIndex,const unsigned int destinationIndex)
+	{
 #ifdef DEBUG_MOD	
-		GraphNodeDebug originNode;
-		GraphNodeDebug destinationNode;
+		GraphNodeDebug destinationNode = m_Graph[destinationIndex];
 #else
-		GraphNode originNode;
-		GraphNode destinationNode;
+		GraphNode destinationNode = m_Graph[destinationIndex];
 #endif
 
-		originNode = m_Graph[indexOrigin];
-		destinationNode = m_Graph[indexDestination];
+		PriorityQueue<unsigned int, float> openNodes;
+		openNodes.Put(originIndex, 0);
 
-		PriorityQueue<short, float> openNodes;
-		openNodes.Put(indexOrigin, 0);
+		std::unordered_map<unsigned int, unsigned int> cameFrom;
+		std::unordered_map<unsigned int, unsigned short> costSoFar;
 
-		std::unordered_map<short, short> cameFrom;
-		std::unordered_map<short, float> costSoFar;
+		cameFrom[originIndex] = originIndex;
+		costSoFar[originIndex] = 0;
 
-		cameFrom[indexOrigin] = indexOrigin;
-		costSoFar[indexOrigin] = 0;
+		while (!openNodes.Empty()) {
+			const auto indexCurrent = openNodes.Get();
 
-		while(!openNodes.Empty()) {
-			int indexCurrent = openNodes.Get();
-
-			if(indexCurrent == indexDestination) {
+			if (indexCurrent == destinationIndex) {
 				break;
 			}
 
 #ifdef DEBUG_MOD
-			GraphNodeDebug currentNode = m_Graph[indexCurrent];
 			m_Graph[indexCurrent].state = GraphNodeDebug::State::VISITED;
-#else
-			GraphNode currentNode = m_Graph[indexCurrent];
 #endif
+			for (auto neighborsIndex : m_Graph[indexCurrent].neighborsIndex) {
+				const unsigned short newCost = costSoFar[indexCurrent] + m_Graph[neighborsIndex].cost;
 
-			for(int i = 0; i < currentNode.neighborsIndex.size(); i++) {
-				int indexNext = currentNode.neighborsIndex[i];
-				float newCost = costSoFar[indexCurrent] + m_Graph[indexNext].cost;
+				if (costSoFar.find(neighborsIndex) == costSoFar.end() ||
+					newCost < costSoFar[neighborsIndex]) {
+					costSoFar[neighborsIndex] = newCost;
 
-				if(costSoFar.find(indexNext) == costSoFar.end() ||
-					newCost < costSoFar[indexNext]) {
-					costSoFar[indexNext] = newCost;
-					
-					float priority = newCost + ComputeHeuristic(indexNext, indexDestination);
-					openNodes.Put(indexNext, priority);
-					cameFrom[indexNext] = indexCurrent;
+					openNodes.Put(neighborsIndex, newCost + ComputeHeuristic(neighborsIndex, destinationIndex));
+					cameFrom[neighborsIndex] = indexCurrent;
 				}
 			}
 		}
 #ifdef DEBUG_MOD
 		std::vector<GraphNodeDebug> path;
-		m_Graph[indexDestination].state = GraphNodeDebug::State::END_POSITION;
-		m_Graph[indexOrigin].state = GraphNodeDebug::State::START_POSITION;
+		m_Graph[destinationIndex].state = GraphNodeDebug::State::END_POSITION;
+		m_Graph[originIndex].state = GraphNodeDebug::State::START_POSITION;
 
 		bool isEndPoint = true;
 #else
 		std::vector<GraphNode> path;
 #endif
 
-		short currentNodeIndex = indexDestination;
-		while(currentNodeIndex != indexOrigin) {
+		auto currentNodeIndex = destinationIndex;
+		while (currentNodeIndex != originIndex) {
 #ifdef DEBUG_MOD
-			if(isEndPoint) {
-				m_Graph[indexDestination].state = GraphNodeDebug::State::END_POSITION;
+			if (isEndPoint) {
+				m_Graph[destinationIndex].state = GraphNodeDebug::State::END_POSITION;
 				isEndPoint = false;
-			}else {
+			}
+			else {
 				m_Graph[currentNodeIndex].state = GraphNodeDebug::State::PASSAGE_POSITION;
 			}
 #endif
 			path.push_back(m_Graph[currentNodeIndex]);
 			currentNodeIndex = cameFrom[currentNodeIndex];
 		}
-		path.push_back(m_Graph[indexOrigin]);
+		path.push_back(m_Graph[originIndex]);
 		std::reverse(path.begin(), path.end());
-		
+
 		return std::vector<Vec2f>();
 	}
 
 	float NavigationGraphManager::GetSquaredDistance(Vec2f v1, Vec2f v2) const {
-		return (std::abs(v1.x - v2.x) * std::abs(v1.x - v2.x)) + (std::abs(v1.y - v2.y) * std::abs(v1.y - v2.y));
+		return ((v1.x - v2.x) * (v1.x - v2.x)) + ((v1.y - v2.y) * (v1.y - v2.y));
 	}
 
-	float NavigationGraphManager::ComputeHeuristic(short currentNode, short destinationNode) const {
-		float D = 1; 
-		float D2 = std::sqrt(2);
-			
-		float dx = std::abs(m_Graph[currentNode].pos.x / 50 - m_Graph[destinationNode].pos.x / 50); //Divide pos by tile size
-		float dy = std::abs(m_Graph[currentNode].pos.y / 50 - m_Graph[destinationNode].pos.y / 50); //Divide pos by tile size
+	float NavigationGraphManager::ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const {
+		const auto dx = std::abs(m_Graph[currentNode].pos.x - m_Graph[destinationNode].pos.x) / 50; //Divide pos by tile size
+		const auto dy = std::abs(m_Graph[currentNode].pos.y - m_Graph[destinationNode].pos.y) / 50; //Divide pos by tile size
 
-		return D * (dx + dy) + (D2 - 2 * D) * std::min(dx, dy);
+		return HEURISTIC_1 * (dx + dy) + (HEURISTIC_2 - 2 * HEURISTIC_1) * std::min(dx, dy);
 	}
 }
 
