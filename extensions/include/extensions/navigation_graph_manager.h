@@ -76,21 +76,12 @@ public:
 private:
 	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
 
-#ifdef DEBUG_MOD
-	std::vector<GraphNodeDebug> m_Graph;
-#else
-	std::vector<GraphNode> m_Graph;
-#endif
-
-#ifdef DEBUG_MAP
-	const Vec2f m_tileExtends = Vec2f(50, 50);
-	Vec2f m_mapSize;
-#endif
-
-	Graphics2dManager* m_Graphics2DManager;
-
 	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 	float ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const;
+
+	void DrawQuad(sf::RenderWindow* window, Vec2f pos, sf::Color col);
+
+	Graphics2dManager* m_Graphics2DManager;
 
 	//Heuristic for pathfinding
 	const float HEURISTIC_1 = 1;
@@ -100,6 +91,19 @@ private:
 	const static short SOLID_COST = 0;
 	const static short ROAD_COST = 1;
 	const static short NORMAL_COST = 2;
+
+	//Type of node
+#ifdef DEBUG_MOD
+	std::vector<GraphNodeDebug> m_Graph;
+#else
+	std::vector<GraphNode> m_Graph;
+#endif
+
+	//Map info
+#ifdef DEBUG_MAP
+	const Vec2f m_tileExtends = Vec2f(10, 10);
+	Vec2f m_mapSize;
+#endif
 };
 }
 

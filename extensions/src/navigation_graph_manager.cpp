@@ -127,8 +127,6 @@ namespace sfge::ext
 		
 		auto window = m_Graphics2DManager->GetWindow();
 
-		sf::VertexArray quad(sf::Quads, 4);
-
 #ifdef DEBUG_MOD
 		for (GraphNodeDebug node : m_Graph) {
 #else
@@ -136,50 +134,26 @@ namespace sfge::ext
 #endif
 			Vec2f pos = node.pos;
 
-			// define the position of the quad's points
-			quad[0].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
-			quad[1].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
-			quad[2].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
-			quad[3].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
-
 #ifdef DEBUG_MOD
 			switch (node.state) {
 			case GraphNodeDebug::VISITED: 
-				quad[0].color = sf::Color::Yellow;
-				quad[1].color = sf::Color::Yellow;
-				quad[2].color = sf::Color::Yellow;
-				quad[3].color = sf::Color::Yellow;
+				DrawQuad(window, pos, sf::Color::Yellow);
 				break;
 			case GraphNodeDebug::START_POSITION:
-				quad[0].color = sf::Color::Green;
-				quad[1].color = sf::Color::Green;
-				quad[2].color = sf::Color::Green;
-				quad[3].color = sf::Color::Green;
+				DrawQuad(window, pos, sf::Color::Green);
 				break;
 			case GraphNodeDebug::END_POSITION:
-				quad[0].color = sf::Color::Magenta;
-				quad[1].color = sf::Color::Magenta;
-				quad[2].color = sf::Color::Magenta;
-				quad[3].color = sf::Color::Magenta;
+				DrawQuad(window, pos, sf::Color::Magenta);
 				break;
 			case GraphNodeDebug::PASSAGE_POSITION:
-				quad[0].color = sf::Color::Cyan;
-				quad[1].color = sf::Color::Cyan;
-				quad[2].color = sf::Color::Cyan;
-				quad[3].color = sf::Color::Cyan;
+				DrawQuad(window, pos, sf::Color::Cyan);
 				break;
 			case GraphNodeDebug::OTHER:
 				if (node.cost == SOLID_COST) {
-					quad[0].color = sf::Color::Red;
-					quad[1].color = sf::Color::Red;
-					quad[2].color = sf::Color::Red;
-					quad[3].color = sf::Color::Red;
+					DrawQuad(window, pos, sf::Color::Red);
 				}
 				else {
-					quad[0].color = sf::Color::White;
-					quad[1].color = sf::Color::White;
-					quad[2].color = sf::Color::White;
-					quad[3].color = sf::Color::White;
+					DrawQuad(window, pos, sf::Color::White);
 				}
 				break;
 			default: ;
@@ -187,32 +161,43 @@ namespace sfge::ext
 #else
 			// define the color of the quad's points
 			if (node.cost == SOLID_COST) {
-				quad[0].color = sf::Color::Red;
-				quad[1].color = sf::Color::Red;
-				quad[2].color = sf::Color::Red;
-				quad[3].color = sf::Color::Red;
+				DrawQuad(window, pos, sf::Color::Red);
 			}
 			else {
-				quad[0].color = sf::Color::White;
-				quad[1].color = sf::Color::White;
-				quad[2].color = sf::Color::White;
-				quad[3].color = sf::Color::White;
+				DrawQuad(window, pos, sf::Color::White);
 			}
 #endif
 
-			//Draw outline
-			m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
-			m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
-			m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
-			m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
-
-			window->draw(quad);
 #ifndef DEBUG_MOD
 			for (auto neighborsIndex : node.neighborsIndex) {
 				m_Graphics2DManager->DrawLine(pos, m_Graph[neighborsIndex].pos, sf::Color::White);
 			}
 #endif
 		}
+	}
+
+	void NavigationGraphManager::DrawQuad(sf::RenderWindow* window, Vec2f pos, sf::Color col)
+	{
+		sf::VertexArray quad(sf::Quads, 4);
+
+		// set position
+		quad[0].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
+		quad[1].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
+		quad[2].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
+		quad[3].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
+
+		// set colors
+		quad[0].color = col;
+		quad[1].color = col;
+		quad[2].color = col;
+		quad[3].color = col;
+
+		window->draw(quad);
+
+		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
+		m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
+		m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
+		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
 	}
 
 	/**
@@ -231,7 +216,7 @@ namespace sfge::ext
 				GraphNode node;
 #endif
 
-				node.cost = map[y][x];
+				node.cost = map[y][x] * m_tileExtends.x;
 				node.pos = Vec2f(x * m_tileExtends.x + m_tileExtends.x * 0.5f, y * m_tileExtends.y + m_tileExtends.y * 0.5f);
 
 				m_Graph.push_back(node);
@@ -383,8 +368,8 @@ namespace sfge::ext
 	}
 
 	float NavigationGraphManager::ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const {
-		const auto dx = std::abs(m_Graph[currentNode].pos.x - m_Graph[destinationNode].pos.x) / m_tileExtends.x; //Divide pos by tile size
-		const auto dy = std::abs(m_Graph[currentNode].pos.y - m_Graph[destinationNode].pos.y) / m_tileExtends.y; //Divide pos by tile size
+		const auto dx = std::abs(m_Graph[currentNode].pos.x - m_Graph[destinationNode].pos.x);
+		const auto dy = std::abs(m_Graph[currentNode].pos.y - m_Graph[destinationNode].pos.y);
 
 		return HEURISTIC_1 * (dx + dy) + (HEURISTIC_2 - 2 * HEURISTIC_1) * std::min(dx, dy);
 	}
