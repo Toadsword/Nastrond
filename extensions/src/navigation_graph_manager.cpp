@@ -38,6 +38,7 @@ namespace sfge::ext
 	{
 		m_Graphics2DManager = m_Engine.GetGraphics2dManager();
 
+#ifdef DEBUG_MAP
 		/*std::vector<std::vector<int>> map{ 
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -101,7 +102,10 @@ namespace sfge::ext
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1}
 		};
 
+		m_mapSize = Vec2f(map.size(), map[0].size());
+
 		BuildGraphFromArray(map);
+#endif
 	}
 	void NavigationGraphManager::Update(float dt)
 	{
@@ -109,10 +113,10 @@ namespace sfge::ext
 	}
 
 	void NavigationGraphManager::FixedUpdate() {
-		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-		for(int i = 0; i < 200; i++)
-			GetPathFromTo(4 * 22 + 1, 8 * 22 + 20);
-		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+		auto t1 = std::chrono::high_resolution_clock::now();
+		for(auto i = 0; i < 1; i++)
+			GetPathFromTo(4 * m_mapSize.y + 1, 8 * m_mapSize.y + 20);
+		auto t2 = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 		std::cout << "Time: " << duration << "\n";
@@ -125,7 +129,6 @@ namespace sfge::ext
 
 		sf::VertexArray quad(sf::Quads, 4);
 
-		Vec2f extends = Vec2f(10 * 0.5f, 10 * 0.5f);
 #ifdef DEBUG_MOD
 		for (GraphNodeDebug node : m_Graph) {
 #else
@@ -134,10 +137,10 @@ namespace sfge::ext
 			Vec2f pos = node.pos;
 
 			// define the position of the quad's points
-			quad[0].position = sf::Vector2f(pos.x - extends.x, pos.y - extends.y);
-			quad[1].position = sf::Vector2f(pos.x + extends.x, pos.y - extends.y);
-			quad[2].position = sf::Vector2f(pos.x + extends.x, pos.y + extends.y);
-			quad[3].position = sf::Vector2f(pos.x - extends.x, pos.y + extends.y);
+			quad[0].position = sf::Vector2f(pos.x - m_tileExtends.x, pos.y - m_tileExtends.y);
+			quad[1].position = sf::Vector2f(pos.x + m_tileExtends.x, pos.y - m_tileExtends.y);
+			quad[2].position = sf::Vector2f(pos.x + m_tileExtends.x, pos.y + m_tileExtends.y);
+			quad[3].position = sf::Vector2f(pos.x - m_tileExtends.x, pos.y + m_tileExtends.y);
 
 #ifdef DEBUG_MOD
 			switch (node.state) {
@@ -197,6 +200,12 @@ namespace sfge::ext
 			}
 #endif
 
+			//Draw outline
+			m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
+			m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
+			m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
+			m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
+
 			window->draw(quad);
 #ifndef DEBUG_MOD
 			for (auto neighborsIndex : node.neighborsIndex) {
@@ -210,10 +219,10 @@ namespace sfge::ext
 	 * \brief Create graph nodes from an array 2x2 of cost
 	 * \param map array 2x2 of cost
 	 */
-	void NavigationGraphManager::BuildGraphFromArray(const std::vector<std::vector<int>> map)
+	void NavigationGraphManager::BuildGraphFromArray(std::vector<std::vector<int>>& map)
 	{
-		for(int y = 0; y < map.size(); y++) {
-			for(int x = 0; x < map[y].size(); x++) {
+		for(auto y = 0; y < map.size(); y++) {
+			for(auto x = 0; x < map[y].size(); x++) {
 
 #ifdef DEBUG_MOD
 				GraphNodeDebug node;
@@ -223,7 +232,7 @@ namespace sfge::ext
 #endif
 
 				node.cost = map[y][x];
-				node.pos = Vec2f(x * 50 + 25, y * 50 + 25);
+				node.pos = Vec2f(x * m_tileExtends.x + m_tileExtends.x * 0.5f, y * m_tileExtends.y + m_tileExtends.y * 0.5f);
 
 				m_Graph.push_back(node);
 			}
@@ -274,7 +283,7 @@ namespace sfge::ext
 	 * \param destination position where the agent want to go
 	 * \return the path between the origin and the destination
 	 */
-	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f origin, Vec2f destination)
+	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& destination)
 	{
 		float distanceOrigin = INFINITY;
 		float distanceDestination = INFINITY;
@@ -369,16 +378,14 @@ namespace sfge::ext
 		return std::vector<Vec2f>();
 	}
 
-	float NavigationGraphManager::GetSquaredDistance(Vec2f v1, Vec2f v2) const {
+	float NavigationGraphManager::GetSquaredDistance(Vec2f& v1, Vec2f& v2) {
 		return ((v1.x - v2.x) * (v1.x - v2.x)) + ((v1.y - v2.y) * (v1.y - v2.y));
 	}
 
 	float NavigationGraphManager::ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const {
-		const auto dx = std::abs(m_Graph[currentNode].pos.x - m_Graph[destinationNode].pos.x) / 50; //Divide pos by tile size
-		const auto dy = std::abs(m_Graph[currentNode].pos.y - m_Graph[destinationNode].pos.y) / 50; //Divide pos by tile size
+		const auto dx = std::abs(m_Graph[currentNode].pos.x - m_Graph[destinationNode].pos.x) / m_tileExtends.x; //Divide pos by tile size
+		const auto dy = std::abs(m_Graph[currentNode].pos.y - m_Graph[destinationNode].pos.y) / m_tileExtends.y; //Divide pos by tile size
 
 		return HEURISTIC_1 * (dx + dy) + (HEURISTIC_2 - 2 * HEURISTIC_1) * std::min(dx, dy);
 	}
 }
-
-

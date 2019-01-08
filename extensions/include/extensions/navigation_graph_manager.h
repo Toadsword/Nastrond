@@ -53,6 +53,7 @@ struct GraphNodeDebug : GraphNode {
 };
 
 #define DEBUG_MOD
+#define DEBUG_MAP
 
 /**
  * \author Nicolas Schneider
@@ -69,21 +70,26 @@ public:
 
 	void Draw() override;
 
-	std::vector<Vec2f> GetPathFromTo(Vec2f origin, Vec2f destination);
+	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
 private:
-	void BuildGraphFromArray(const std::vector<std::vector<int>> map);
+	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
 
-#if defined DEBUG_MOD
+#ifdef DEBUG_MOD
 	std::vector<GraphNodeDebug> m_Graph;
 #else
 	std::vector<GraphNode> m_Graph;
 #endif
 
+#ifdef DEBUG_MAP
+	const Vec2f m_tileExtends = Vec2f(10, 10);
+	Vec2f m_mapSize;
+#endif
+
 	Graphics2dManager* m_Graphics2DManager;
 
-	float GetSquaredDistance(Vec2f v1, Vec2f v2) const;
+	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 	float ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const;
 
 	//Heuristic for pathfinding
