@@ -31,8 +31,12 @@ Project : AnimationTool for SFGE
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#include <engine/engine.h>
+#include <input/input.h>
+
 #include <graphics_manager.h>
 #include <anim_creator.h>
+#include <iostream>
 
 namespace sfge::tools
 {
@@ -42,56 +46,44 @@ namespace sfge::tools
 		m_isInit = true;
 	}
 
-	void GraphicsManager::Update(int dt)
+	void GraphicsManager::Update(float dt)
 	{
 		if (!m_isInit)
 			return;
 
-		/*
-		sf::Event event;
-		while (m_Window->pollEvent(event))
+		InputManager* inputManager = m_AnimCreator->GetEngine().GetInputManager();
+
+		//Keyboard
+		KeyboardManager& keyboardManager = inputManager->GetKeyboardManager();
+		
+		bool isControlHeld = keyboardManager.IsKeyHeld(sf::Keyboard::LControl) || keyboardManager.IsKeyHeld(sf::Keyboard::RControl);
+		if(isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::S))
 		{
-			ImGui::SFML::ProcessEvent(event);
-
-			switch (event.type)
-			{
-			case sf::Event::Closed:
-				m_AnimCreator->ExitApplication();
-				return;
-
-				//Shortcuts
-			case sf::Event::KeyPressed:
-				if (event.key.control && event.key.code == sf::Keyboard::Key::S)
-				{
-					m_saveResult = ExportToJson(m_AnimCreator->GetAnimationManager(), m_AnimCreator->GetTextureManager()->GetAllTextures());
-					m_openModalSave = m_saveResult != SAVE_SUCCESS;
-				}
-				if (event.key.control && event.key.code == sf::Keyboard::Key::O)
-				{
-					m_openAddTexture = true;
-				}
-				if (event.key.control && event.key.code == sf::Keyboard::Key::P)
-					m_doPlayAnimation = !m_doPlayAnimation;
-				if (event.key.control && event.key.code == sf::Keyboard::Key::L)
-					m_AnimCreator->GetAnimationManager()->SetIsLooped(!m_AnimCreator->GetAnimationManager()->GetIsLooped());
-				if (event.key.control && event.key.code == sf::Keyboard::Key::Add)
-					m_AnimCreator->GetAnimationManager()->AddOrInsertKey();
-				if (event.key.control && event.key.code == sf::Keyboard::Key::Subtract)
-					m_AnimCreator->GetAnimationManager()->RemoveKey();
-				break;
-			case sf::Event::MouseButtonPressed:
-				if (m_timeSinceLastClick < TIME_TO_DOUBLE_CLICK)
-					m_doubleClicked = true;
-				else
-					m_doubleClicked = false;
-				m_timeSinceLastClick = 0;
-				break;
-			default:
-				break;
-			}
+			m_saveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
+			m_openModalSave = m_saveResult != SAVE_SUCCESS;
 		}
-		*/
+		if(isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::P))
+			m_doPlayAnimation = !m_doPlayAnimation;
+		if (isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::L))
+			m_AnimCreator->GetAnimationManager()->SetIsLooped(!m_AnimCreator->GetAnimationManager()->GetIsLooped());
+		if (isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::Add))
+			m_AnimCreator->GetAnimationManager()->AddOrInsertKey();
+		if (isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::Subtract))
+			m_AnimCreator->GetAnimationManager()->RemoveKey();
 
+		//Mouse
+		MouseManager& mouseManager = inputManager->GetMouseManager();
+		m_timeSinceLastClick += dt;
+		if(mouseManager.IsButtonDown(sf::Mouse::Left))
+		{
+			if (m_timeSinceLastClick < TIME_TO_DOUBLE_CLICK)
+				m_doubleClicked = true;
+			else
+				m_doubleClicked = false;
+			m_timeSinceLastClick = 0;			
+		}
+
+		//Animations
 		auto animManager = m_AnimCreator->GetAnimationManager();
 		if (m_doPlayAnimation)
 		{
@@ -108,6 +100,16 @@ namespace sfge::tools
 				}
 			}
 		}
+		if(m_fileImportResult != LOAD_NONE)
+		{
+			m_lastTimeTextureLoaded += dt;
+			if (m_lastTimeTextureLoaded >= TIME_BEFORE_REFRESH_LOADED_TEXTURE_STATUS)
+			{
+				m_fileImportResult = LOAD_NONE;
+				m_lastTimeTextureLoaded = 0;
+			}
+		}
+
 		//ImGui::ShowDemoWindow();
 	}
 
@@ -122,7 +124,6 @@ namespace sfge::tools
 		{
 			DisplayMenuWindow();
 			DisplayFileWindow();
-			if (m_openAddTexture) OpenAddTexture();
 		}
 		ImGui::End();
 
@@ -176,27 +177,89 @@ namespace sfge::tools
 
 	void GraphicsManager::DisplayFileWindow()
 	{
+		// Texture add section
+		ImGui::Text("Add a new sprite...");
+		ImGui::Separator();
+
+		ImGui::InputText("FilePath (from C:)", m_inputNameNewFile, IM_ARRAYSIZE(m_inputNameNewFile));
+
+		ImGui::Columns(4, "idColAddSprite");
+		ImGui::Text("Size X"); ImGui::NextColumn();
+		ImGui::InputInt("##Size X", &m_inputSizeX); ImGui::NextColumn();
+
+		ImGui::Text("Size Y"); ImGui::NextColumn();
+		ImGui::InputInt("##Size Y", &m_inputSizeY); ImGui::NextColumn();
+
+		ImGui::Text("Num Rows"); ImGui::NextColumn();
+		ImGui::InputInt("##Num Rows", &m_inputNumRows); ImGui::NextColumn();
+
+		ImGui::Text("Num Columns"); ImGui::NextColumn();
+		ImGui::InputInt("##Num Columns", &m_inputNumCols); ImGui::NextColumn();
+
+		ImGui::Text("Offset x"); ImGui::NextColumn();
+		ImGui::InputInt("##Offset x", &m_inputOffsetX); ImGui::NextColumn();
+
+		ImGui::Text("Offset y"); ImGui::NextColumn();
+		ImGui::InputInt("##Offset y", &m_inputOffsetY); ImGui::NextColumn();
+
+		ImGui::Columns(1, "idColAddSprite");
+
+		auto textManager = m_AnimCreator->GetTextureManager();
+		if (ImGui::Button("Load"))
+		{
+			m_lastIdBeforeNewTextLoad = m_AnimCreator->GetTextureManager()->GetLastId();
+			m_fileImportResult = textManager->LoadTexture(m_inputNameNewFile, m_inputSizeX, m_inputSizeY, m_inputNumRows, m_inputNumCols, m_inputOffsetX, m_inputOffsetY);
+			if(m_fileImportResult == LOAD_FAILURE && m_lastIdBeforeNewTextLoad == 0)
+				m_lastIdBeforeNewTextLoad = -1;			
+		}
+		if (m_lastIdBeforeNewTextLoad != -1)
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Undo"))
+			{
+				int currentId = m_AnimCreator->GetTextureManager()->GetLastId();
+				for (int i = m_lastIdBeforeNewTextLoad; i <= currentId; i++)
+					textManager->RemoveTexture(i);
+
+				m_lastIdBeforeNewTextLoad = -1;
+				m_lastTimeTextureLoaded = 0;
+				m_fileImportResult = LOAD_NONE;
+			}
+		}
+
+		if (m_fileImportResult == LOAD_SUCCESS)
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(0, 1, 0, 1), "Textures loaded successfully");
+		}
+		else if (m_fileImportResult == LOAD_FAILURE)
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Error while loading file : Does it really exists?");
+		}
+
+		ImGui::Separator();
+
+		// All sprites section
 		ImGui::Columns(2);
-		if (ImGui::Button("Add a texture"))
-			m_openAddTexture = true;
+		ImGui::Text("All Sprites");
+		ImGui::Separator();
 
 		ImGui::NextColumn();
-		ImGui::Text("All Sprites");
-
 		ImGui::NextColumn();
 		auto* loadedTextures = m_AnimCreator->GetTextureManager()->GetAllTextures();
 		if (loadedTextures->empty())
 		{
 			ImGui::Columns(1);
 			ImGui::Text("There are currently no sprites in here...");
-			ImGui::Text("Begin by adding some sprites ! (Button above)");
+			ImGui::Text("Begin by adding some sprites !");
 			ImGui::Columns(2);
 		}
+
 		for (auto* texture : *loadedTextures)
 		{
 			if (ImGui::Button((std::to_string(texture->id) + " : " + texture->fileName).c_str(), ImVec2(125, 0)))
 			{
-				//std::cout << "Texture " << texture->id << " selected.\n";
 				m_SelectedTextureId = texture->id;
 				if (m_doubleClicked)
 				{
@@ -221,7 +284,12 @@ namespace sfge::tools
 			if (ImGui::Button((" + ##TextureId" + std::to_string(texture->id)).c_str(), ImVec2(35, 0)))
 			{
 				auto animManager = m_AnimCreator->GetAnimationManager();
-				animManager->AddOrInsertKey(animManager->GetHighestKeyNum() + 1, texture->id);
+				if(animManager->GetHighestKeyNum() == 0 && animManager->GetTextureIdFromKeyframe(0) == -1)
+					animManager->AddOrInsertKey(animManager->GetHighestKeyNum(), texture->id);
+				else
+					animManager->AddOrInsertKey(animManager->GetHighestKeyNum() + 1, texture->id);
+
+				m_currentFrame = animManager->GetHighestKeyNum();
 			}
 			if (ImGui::IsItemHovered())
 			{
@@ -232,8 +300,9 @@ namespace sfge::tools
 				ImGui::Text("Add a frame with this texture.");
 				ImGui::End();
 			}
-			ImGui::SameLine();
 
+			/*
+			ImGui::SameLine();
 			if (ImGui::Button((" - ##TextureId" + std::to_string(texture->id)).c_str(), ImVec2(35, 0)))
 			{
 				auto textManager = m_AnimCreator->GetTextureManager();
@@ -249,6 +318,7 @@ namespace sfge::tools
 				ImGui::Text("Remove this texture from here.");
 				ImGui::End();
 			}
+			*/
 
 			m_AnimCreator->GetTextureManager()->DisplayTexture(texture->id, m_SelectedTextureId == texture->id);
 			ImGui::NextColumn();
@@ -416,7 +486,6 @@ namespace sfge::tools
 		//***** BUTTONS *****//
 		if (ImGui::Button("Assign selected texture") && m_SelectedTextureId != -1)
 		{
-			//std::cout << "Assigned texture " << m_selectedTextureId << " to frame " << m_currentFrame << ".\n";
 			animManager->AddOrInsertKey(m_currentFrame, m_SelectedTextureId);
 		}
 		if (ImGui::IsItemHovered())
@@ -461,12 +530,12 @@ namespace sfge::tools
 			ImGui::NextColumn();
 
 			//Speed
-			int speed = animManager->GetSpeed();
+			float speed = animManager->GetSpeed() * 1000;
 
 			ImGui::Text("Speed"); ImGui::NextColumn();
-			ImGui::DragInt("##speed", &speed); ImGui::SameLine();
+			ImGui::DragFloat("##speed", &speed); ImGui::SameLine();
 			ImGui::Text("ms");
-			animManager->SetSpeed(speed);
+			animManager->SetSpeed(speed / 1000);
 			ImGui::NextColumn();
 
 			//NumFrames
@@ -548,63 +617,6 @@ namespace sfge::tools
 			}
 		}
 		ImGui::End();
-	}
-
-	void GraphicsManager::OpenAddTexture()
-	{
-		ImGui::Separator();
-
-		ImGui::InputText("FilePath (from C:)", m_inputNameNewFile, IM_ARRAYSIZE(m_inputNameNewFile));
-
-		ImGui::Columns(4, "idColAddSprite");
-		ImGui::Text("Size X"); ImGui::NextColumn();
-		ImGui::InputInt("##Size X", &m_inputSizeX); ImGui::NextColumn();
-
-		ImGui::Text("Size Y"); ImGui::NextColumn();
-		ImGui::InputInt("##Size Y", &m_inputSizeY); ImGui::NextColumn();
-
-		ImGui::Text("Num Rows"); ImGui::NextColumn();
-		ImGui::InputInt("##Num Rows", &m_inputNumRows); ImGui::NextColumn();
-
-		ImGui::Text("Num Columns"); ImGui::NextColumn();
-		ImGui::InputInt("##Num Columns", &m_inputNumCols); ImGui::NextColumn();
-
-		ImGui::Text("Offset x"); ImGui::NextColumn();
-		ImGui::InputInt("##Offset x", &m_inputOffsetX); ImGui::NextColumn();
-
-		ImGui::Text("Offset y"); ImGui::NextColumn();
-		ImGui::InputInt("##Offset y", &m_inputOffsetY); ImGui::NextColumn();
-
-		ImGui::Columns(1, "idColAddSprite");
-
-		auto textManager = m_AnimCreator->GetTextureManager();
-		if (ImGui::Button("Load"))
-		{
-			m_lastIdBeforeNewTextLoad = m_AnimCreator->GetTextureManager()->GetLastId();
-			m_fileImportResult = textManager->LoadTexture(m_inputNameNewFile, m_inputSizeX, m_inputSizeY, m_inputNumRows, m_inputNumCols, m_inputOffsetX, m_inputOffsetY);
-		}
-		ImGui::SameLine();
-		if (m_fileImportResult != LOAD_NONE)
-		{
-			if (ImGui::Button("Undo"))
-			{
-				int currentId = m_AnimCreator->GetTextureManager()->GetLastId();
-				for (int i = m_lastIdBeforeNewTextLoad; i <= currentId; i++)
-					textManager->RemoveTexture(i);
-
-				m_lastIdBeforeNewTextLoad = currentId;
-			}
-			ImGui::SameLine();
-		}
-
-		if (m_fileImportResult == LOAD_SUCCESS)
-		{
-			ImGui::TextColored(ImVec4(0, 1, 0, 1), "Textures loaded successfully");
-		}
-		else if (m_fileImportResult == LOAD_FAILURE)
-		{
-			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Error while loading file : Does it really exists?");
-		}
 	}
 
 	void GraphicsManager::OpenModalConfirmNew()

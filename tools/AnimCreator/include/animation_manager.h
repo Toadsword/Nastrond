@@ -37,6 +37,8 @@ namespace sfge::tools
 const std::string DATA_FOLDER = "../data/";
 const std::string SAVE_FOLDER = "../data/animSaves/";
 
+const float DEFAULT_SPEED_VALUE = 0.1f;
+
 /**
  * \brief Enum used to reference the state of last saved animation in the application.
  */
@@ -117,13 +119,13 @@ public:
 	 * \brief Setter of the speed of the animation.
 	 * \param newSpeed New speed of the animation.
 	 */
-	void SetSpeed(int newSpeed);
+	void SetSpeed(float newSpeed);
 
 	/**
 	 * \brief Getter of the speed of the animation.
 	 * \return Current speed of the animation.
 	 */
-	int GetSpeed();
+	float GetSpeed();
 
 	/**
 	 * \brief Setter of the name of the animation.
@@ -186,7 +188,7 @@ private:
 	/**
 	 * \brief Speed of the animation in milliseconds(ms) per frame; Default value : 100ms per frame
 	 */
-	int m_animSpeed = 100;
+	float m_animSpeed = DEFAULT_SPEED_VALUE;
 
 	/**
 	 * \brief Name of the animation; Default value : "NewAnimation"

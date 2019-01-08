@@ -28,7 +28,6 @@ SOFTWARE.
 #include <utility/log.h>
 #include <SFML/Window.hpp>
 #include <imgui-SFML.h>
-#include <imgui.h>
 
 namespace sfge
 {
@@ -51,6 +50,7 @@ void InputManager::Init()
 void InputManager::Update(float dt)
 {
 	m_KeyboardManager.Update(dt);
+	m_MouseManager.Update(dt);
 }
 
 void InputManager::Destroy()
@@ -72,12 +72,14 @@ void KeyboardManager::Update(float dt)
 	{
 		keyPressedStatusArray[i].previousKeyPressed = keyPressedStatusArray[i].keyPressed;
 		keyPressedStatusArray[i].keyPressed = sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
+		/*
 		if(IsKeyDown(static_cast<sf::Keyboard::Key>(i)))
 		{
 			std::ostringstream oss;
 			oss << "[Input] Pressing key: "<<i;
 			Log::GetInstance()->Msg(oss.str());
 		}
+		*/
 	}
 }
 
@@ -95,8 +97,38 @@ bool KeyboardManager::IsKeyUp(sf::Keyboard::Key key) const
 	return !keyPressedStatusArray[(int)key].keyPressed && keyPressedStatusArray[(int)key].previousKeyPressed;
 }
 
+void MouseManager::Update(float dt)
+{
+	(void)dt;
+	for (int i = 0; i < sf::Mouse::ButtonCount; i++)
+	{
+		buttonPressedStatusArray[i].previousKeyPressed = buttonPressedStatusArray[i].keyPressed;
+		buttonPressedStatusArray[i].keyPressed = sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
+		/*
+		if (IsButtonDown(static_cast<sf::Mouse::Button>(i)))
+		{
+			std::ostringstream oss;
+			oss << "[Input] Pressing key: " << i;
+			Log::GetInstance()->Msg(oss.str());
+		}
+		*/
+	}
+}
+
 sf::Vector2i MouseManager::GetLocalPosition(sf::Window& window) const
 {
 	return sf::Mouse::getPosition(window);
+}
+bool MouseManager::IsButtonHeld(sf::Mouse::Button button) const
+{
+	return buttonPressedStatusArray[(int)button].keyPressed;
+}
+bool MouseManager::IsButtonDown(sf::Mouse::Button button) const
+{
+	return !buttonPressedStatusArray[(int)button].previousKeyPressed && buttonPressedStatusArray[(int)button].keyPressed;
+}
+bool MouseManager::IsButtonUp(sf::Mouse::Button button) const
+{
+	return !buttonPressedStatusArray[(int)button].keyPressed && buttonPressedStatusArray[(int)button].previousKeyPressed;
 }
 }

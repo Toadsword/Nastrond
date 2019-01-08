@@ -40,7 +40,7 @@ namespace sfge::tools
 {
 void AnimationManager::Init()
 {
-	m_animSpeed = 100;
+	m_animSpeed = DEFAULT_SPEED_VALUE;
 	m_looped = true;
 	m_animName = "NewAnimation";
 
@@ -126,13 +126,13 @@ bool AnimationManager::SwapKeyTextures(short first, short second)
 	return false;
 }
 
-void AnimationManager::SetSpeed(int newSpeed)
+void AnimationManager::SetSpeed(float newSpeed)
 {
 	if (newSpeed > 0.0f)
 		m_animSpeed = newSpeed;
 }
 
-int AnimationManager::GetSpeed()
+float AnimationManager::GetSpeed()
 {
 	return m_animSpeed;
 }

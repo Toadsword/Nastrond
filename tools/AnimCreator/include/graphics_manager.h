@@ -47,7 +47,8 @@ const int WINDOW_HEIGHT = 600;
 const int MAX_FRAMERATE = 60;
 const char WINDOW_NAME[] = "AnimCreator";
 
-const int TIME_TO_DOUBLE_CLICK = 500;
+const float TIME_TO_DOUBLE_CLICK = 0.5;
+const float TIME_BEFORE_REFRESH_LOADED_TEXTURE_STATUS = 5;
 
 /**
  * Prototype
@@ -76,7 +77,7 @@ public:
 	 * \brief Updates the graphic state every frames.
 	 * \param dt Time passed between the last frame and the current one.
 	 */
-	void Update(int dt);
+	void Update(float dt);
 	/**
 	 * \brief Displays the graphics of the tool of the current frame.
 	 */
@@ -105,10 +106,6 @@ public:
 	 */
 	void OpenModalSave();
 	/**
-	 * \brief Display the modal used to add textures to the application.
-	 */
-	void OpenAddTexture();
-	/**
 	 * \brief Display the modal used to confirm the reset of the animation to the application.
 	 */
 	void OpenModalConfirmNew();
@@ -129,7 +126,7 @@ private:
 	/**
 	 * \brief Stored time since the user last clicked.
 	 */
-	int m_timeSinceLastClick = 0;
+	float m_timeSinceLastClick = 0;
 	/**
 	 * \brief Stored input if the user double clicked last frame.
 	 */
@@ -153,7 +150,7 @@ private:
 	/**
 	 * \brief Time elapsed since the last keyframe of animation has passed. Used when the animation is playing.
 	 */
-	int m_elapsedTimeSinceNewFrame = 0;
+	float m_elapsedTimeSinceNewFrame = 0;
 
 	/* -------------------------------------- Modal Add Texture ----------------------------------- */
 	/**
@@ -191,7 +188,11 @@ private:
 	/**
 	 * \brief Last stored Id before insertion of the new texture(s). Used to allow an "undo" action to the user.
 	 */
-	int m_lastIdBeforeNewTextLoad = 0;
+	int m_lastIdBeforeNewTextLoad = -1;
+	/**
+	 * \brief Last time we loaded a texture. Used to refresh the status of the last loaded texture.
+	 */
+	float m_lastTimeTextureLoaded = 0;
 	/**
 	 * \brief Result of the loaded texture(s). Used to allow an "undo" action to the user.
 	 */

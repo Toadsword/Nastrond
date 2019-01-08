@@ -24,5 +24,13 @@
 *.out
 *.app
 
-# Build
-build/
+# Folders
+build
+.idea
+
+# Automatic generated files
+tools_pch.h
+tools_pch.cpp
+
+# python license
+*.pyc
