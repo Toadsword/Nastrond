@@ -102,7 +102,6 @@ void SpriteManager::Init()
 	SingleComponentManager::Init();
 	m_GraphicsManager = m_Engine.GetGraphics2dManager();
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
-
 }
 
 Sprite* SpriteManager::AddComponent(Entity entity)

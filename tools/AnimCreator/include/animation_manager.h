@@ -34,8 +34,8 @@ Project : AnimationTool for SFGE
 
 namespace sfge::tools
 {
-const std::string DATA_FOLDER = "../data/";
-const std::string SAVE_FOLDER = "../data/animSaves/";
+const std::string DATA_FOLDER = "./data/";
+const std::string SAVE_FOLDER = "./data/animSaves/";
 
 const float DEFAULT_SPEED_VALUE = 0.1f;
 

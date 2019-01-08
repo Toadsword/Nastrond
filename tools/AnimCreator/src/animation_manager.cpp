@@ -187,27 +187,31 @@ LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures
 	json value;	
 
 	//Creating base folder
-	if (!sfge::CreateDirectory(DATA_FOLDER) && !sfge::CreateDirectory(SAVE_FOLDER))
+	if ((!sfge::IsDirectory(DATA_FOLDER) && sfge::CreateDirectory(DATA_FOLDER)) || 
+		(!sfge::IsDirectory(SAVE_FOLDER) && sfge::CreateDirectory(SAVE_FOLDER)))
 	{
-		return SAVE_FAILURE;
-
-	}
-
-	if (!sfge::CreateDirectory(SAVE_FOLDER + m_animName + "/"))
-	{
+		std::cout << sfge::IsDirectory(DATA_FOLDER) << " " << sfge::CreateDirectory(DATA_FOLDER) << " " << sfge::IsDirectory(SAVE_FOLDER) << " " << sfge::CreateDirectory(SAVE_FOLDER) << "\n";
+		std::cout << "cannot create base Directory \n";
 		return SAVE_FAILURE;
 	}
 
 	//Check if file already exists. If so, we ask if the user wants to replace it
-	if (confirmedReplacement)
-		sfge::RemoveDirectory(SAVE_FOLDER + m_animName + "/");
+	if (!confirmedReplacement)
 	{
+		std::cout << "confirmedReplacement\n";
 		std::ifstream doAnimExists(SAVE_FOLDER + m_animName + ".json");
 		confirmedReplacement = !confirmedReplacement && doAnimExists;
 	}
 
 	if (confirmedReplacement)
 		return SAVE_DO_REPLACE;
+
+	sfge::RemoveDirectory(SAVE_FOLDER + m_animName + "/");
+	if (!sfge::CreateDirectory(SAVE_FOLDER + m_animName + "/"))
+	{
+		std::cout << "cannot create animation to save Directory \n";
+		return SAVE_FAILURE;
+	}
 
 	// Json construction
 	value["name"] = m_animName;
@@ -242,10 +246,6 @@ LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures
 			dst << src.rdbuf();
 			dst.close();
 		}
-		else
-		{
-			//std::cout << "image already copied\n";
-		}
 		myImage.close();
 
 		//Registering information of the frame
@@ -262,6 +262,7 @@ LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures
 	// File write
 	std::ofstream myfile;
 	myfile.open(SAVE_FOLDER + m_animName + ".json");
+	myfile.flush();
 	myfile << std::setw(4) << value << std::endl;
 	myfile.close();
 

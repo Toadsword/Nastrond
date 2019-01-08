@@ -331,7 +331,8 @@ namespace sfge::tools
 		auto animManager = m_AnimCreator->GetAnimationManager();
 		ImGui::SliderInt("All Frames", &m_currentFrame, 0, std::max(0, animManager->GetHighestKeyNum()));
 
-		ImGui::Columns(9, "colsEditorBtns", false);
+		ImGui::Columns(5, "colsEditorBtns", false);
+		/*
 		//Frame at the beginning
 		if (ImGui::Button(" <<+ "))
 		{
@@ -359,9 +360,9 @@ namespace sfge::tools
 			ImGui::End();
 		}
 		ImGui::NextColumn();
-
+		*/
 		//Frame before/after
-		if (ImGui::Button(" <+ "))
+		if (ImGui::Button("   <+   "))
 		{
 			animManager->AddNewKey(m_currentFrame - 1);
 			m_currentFrame--;
@@ -376,7 +377,7 @@ namespace sfge::tools
 		}
 		ImGui::NextColumn();
 
-		if (ImGui::Button(" < "))
+		if (ImGui::Button("   <   "))
 		{
 			animManager->SwapKeyTextures(m_currentFrame, m_currentFrame - 1);
 			m_currentFrame--;
@@ -394,7 +395,7 @@ namespace sfge::tools
 		ImGui::NextColumn();
 		if (!m_doPlayAnimation)
 		{
-			if (ImGui::Button("Play", ImVec2(40, 20)))
+			if (ImGui::Button(" Play ", ImVec2(60, 20)))
 			{
 				m_doPlayAnimation = true;
 				m_elapsedTimeSinceNewFrame = 0;
@@ -402,12 +403,12 @@ namespace sfge::tools
 		}
 		else
 		{
-			if (ImGui::Button("Pause", ImVec2(40, 20)))
+			if (ImGui::Button(" Pause ", ImVec2(60, 20)))
 				m_doPlayAnimation = false;
 		}
 		ImGui::NextColumn();
 
-		if (ImGui::Button(" > "))
+		if (ImGui::Button("   >   "))
 		{
 			animManager->SwapKeyTextures(m_currentFrame, m_currentFrame + 1);
 			m_currentFrame++;
@@ -424,7 +425,7 @@ namespace sfge::tools
 		}
 		ImGui::NextColumn();
 
-		if (ImGui::Button(" +> "))
+		if (ImGui::Button("   +>   "))
 		{
 			animManager->AddNewKey(m_currentFrame + 1);
 			m_currentFrame++;
@@ -437,7 +438,7 @@ namespace sfge::tools
 			ImGui::Text("Add a frame after the current one.");
 			ImGui::End();
 		}
-
+		/*
 		//Frame at the end
 		ImGui::NextColumn();
 		if (ImGui::Button(" ->> "))
@@ -469,6 +470,7 @@ namespace sfge::tools
 			ImGui::Text("Add new frame at the end.");
 			ImGui::End();
 		}
+		*/
 		ImGui::Columns(1, "colsEditorBtns", false);
 
 		//Display Image
@@ -530,12 +532,12 @@ namespace sfge::tools
 			ImGui::NextColumn();
 
 			//Speed
-			float speed = animManager->GetSpeed() * 1000;
+			int speed = animManager->GetSpeed() * 1000;
 
 			ImGui::Text("Speed"); ImGui::NextColumn();
-			ImGui::DragFloat("##speed", &speed); ImGui::SameLine();
+			ImGui::DragInt("##speed", &speed); ImGui::SameLine();
 			ImGui::Text("ms");
-			animManager->SetSpeed(speed / 1000);
+			animManager->SetSpeed(speed / 1000.0f);
 			ImGui::NextColumn();
 
 			//NumFrames
