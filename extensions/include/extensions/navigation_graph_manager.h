@@ -44,6 +44,20 @@ struct GraphNode {
 	const static int NORMAL_COST = 2;
 };
 
+struct GraphNodeDebug : GraphNode {
+	enum State {
+		VISITED,
+		START_POSITION,
+		END_POSITION,
+		PASSAGE_POSITION,
+		OTHER,
+	};
+
+	State state;
+};
+
+#define DEBUG_MOD
+
 /**
  * \author Nicolas Schneider
  */
@@ -64,7 +78,11 @@ public:
 private:
 	void BuildGraphFromArray(const std::vector<std::vector<int>> map);
 
+#if defined DEBUG_MOD
+	std::vector<GraphNodeDebug> m_Graph;
+#else
 	std::vector<GraphNode> m_Graph;
+#endif
 
 	Graphics2dManager* m_Graphics2DManager;
 
