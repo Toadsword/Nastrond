@@ -59,6 +59,8 @@ public:
 	*/
 	void Destroy() override;
 
+	void Draw() override;
+
 	void Clear() override;
 	
 	void Collect() override;
