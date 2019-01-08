@@ -52,18 +52,18 @@ namespace sfge::ext
 		};*/
 
 		std::vector<std::vector<int>> map{
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
-			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 100, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 100, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
+			{1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1},
@@ -306,6 +306,7 @@ namespace sfge::ext
 				if(costSoFar.find(indexNext) == costSoFar.end() ||
 					newCost < costSoFar[indexNext]) {
 					costSoFar[indexNext] = newCost;
+					
 					float priority = newCost + ComputeHeuristic(indexNext, indexDestination);
 					openNodes.Put(indexNext, priority);
 					cameFrom[indexNext] = indexCurrent;
@@ -345,12 +346,12 @@ namespace sfge::ext
 		return (std::abs(v1.x - v2.x) * std::abs(v1.x - v2.x)) + (std::abs(v1.y - v2.y) * std::abs(v1.y - v2.y));
 	}
 
-	float NavigationGraphManager::ComputeHeuristic(short index1, short index2) const {
-		int D = 1; 
-		int D2 = std::sqrt(2);
-
-		float dx = std::abs(m_Graph[index1].pos.x - m_Graph[index2].pos.x);
-		float dy = std::abs(m_Graph[index1].pos.y - m_Graph[index2].pos.y);
+	float NavigationGraphManager::ComputeHeuristic(short currentNode, short destinationNode) const {
+		float D = 1; 
+		float D2 = std::sqrt(2);
+			
+		float dx = std::abs(m_Graph[currentNode].pos.x / 50 - m_Graph[destinationNode].pos.x / 50); //Divide pos by tile size
+		float dy = std::abs(m_Graph[currentNode].pos.y / 50 - m_Graph[destinationNode].pos.y / 50); //Divide pos by tile size
 
 		return D * (dx + dy) + (D2 - 2 * D) * std::min(dx, dy);
 	}
