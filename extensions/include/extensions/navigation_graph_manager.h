@@ -83,7 +83,7 @@ private:
 #endif
 
 #ifdef DEBUG_MAP
-	const Vec2f m_tileExtends = Vec2f(10, 10);
+	const Vec2f m_tileExtends = Vec2f(50, 50);
 	Vec2f m_mapSize;
 #endif
 

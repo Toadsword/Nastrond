@@ -137,10 +137,10 @@ namespace sfge::ext
 			Vec2f pos = node.pos;
 
 			// define the position of the quad's points
-			quad[0].position = sf::Vector2f(pos.x - m_tileExtends.x, pos.y - m_tileExtends.y);
-			quad[1].position = sf::Vector2f(pos.x + m_tileExtends.x, pos.y - m_tileExtends.y);
-			quad[2].position = sf::Vector2f(pos.x + m_tileExtends.x, pos.y + m_tileExtends.y);
-			quad[3].position = sf::Vector2f(pos.x - m_tileExtends.x, pos.y + m_tileExtends.y);
+			quad[0].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
+			quad[1].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
+			quad[2].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
+			quad[3].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
 
 #ifdef DEBUG_MOD
 			switch (node.state) {
