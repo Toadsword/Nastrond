@@ -85,7 +85,7 @@ private:
 
 	//Heuristic for pathfinding
 	const float HEURISTIC_1 = 1;
-	const float HEURISTIC_2 = sqrt(2);
+	const float HEURISTIC_2 = sqrt(2.f);
 
 	//Constant for cost
 	const static short SOLID_COST = 0;

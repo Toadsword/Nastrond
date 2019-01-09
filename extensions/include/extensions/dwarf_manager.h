@@ -31,6 +31,8 @@ SOFTWARE.
 namespace sfge::ext
 {
 
+#define DEBUG_DRAW_PATH
+
 /**
  * \author Nicolas Schneider
  */
@@ -53,7 +55,7 @@ private:
 
 	NavigationGraphManager* m_NavigationGraphManager;
 
-	const size_t m_entitiesNmb = 10000;
+	const size_t m_entitiesNmb = 10;
 
 	//State management
 	enum State
@@ -66,6 +68,16 @@ private:
 	//Path management
 	std::vector<std::vector<Vec2f>> m_paths{ m_entitiesNmb };
 
+#ifdef DEBUG_DRAW_PATH
+	std::vector<sf::Color> m_colors{ 
+		sf::Color::Black, 
+		sf::Color::Blue, 
+		sf::Color::Cyan, 
+		sf::Color::Green, 
+		sf::Color::Magenta, 
+		sf::Color::Red, 
+		sf::Color::Yellow};
+#endif
 };
 }
 

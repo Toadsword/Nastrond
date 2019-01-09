@@ -43,10 +43,7 @@ namespace sfge::ext
 		auto* pyEngine = m_Engine.GetPythonEngine();
 		PySystem* tmpSystem = pyEngine->GetPySystemManager().GetPySystemFromClassName("NavigationGraphManager");
 
-		/*
-		 * TO CHANGE 
-		 */
-		m_NavigationGraphManager = pyEngine->GetPySystemManager().GetNavigationGraphManager();
+		m_NavigationGraphManager = pyEngine->GetPySystemManager().GetPySystem<NavigationGraphManager>("NavigationGraphManager");
 
 		auto config = m_Engine.GetConfig();
 		Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
@@ -130,21 +127,12 @@ namespace sfge::ext
 
 	void DwarfManager::Draw()
 	{
-		return; 
+#ifdef DEBUG_DRAW_PATH
 		auto graphics2DManager = m_Engine.GetGraphics2dManager();
 		auto window = graphics2DManager->GetWindow();
 
-		std::vector<sf::Color> colors;
-		colors.push_back(sf::Color::Black);
-		colors.push_back(sf::Color::Blue);
-		colors.push_back(sf::Color::Cyan);
-		colors.push_back(sf::Color::Green);
-		colors.push_back(sf::Color::Magenta);
-		colors.push_back(sf::Color::Red);
-		colors.push_back(sf::Color::Yellow);
-
 		for(int i = 0u; i < m_entitiesNmb; i++) {
-			const auto color = colors[i % colors.size()];
+			const auto color = m_colors[i % m_colors.size()];
 
 			sf::VertexArray lines{sf::LineStrip, m_paths[i].size()};
 			for(int j = 0u; j < m_paths[i].size(); j++) {
@@ -155,5 +143,6 @@ namespace sfge::ext
 
 			window->draw(lines);
 		}
+#endif
 	}
 }
