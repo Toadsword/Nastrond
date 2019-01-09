@@ -53,7 +53,7 @@ private:
 
 	NavigationGraphManager* m_NavigationGraphManager;
 
-	const size_t m_entitiesNmb = 100000;
+	const size_t m_entitiesNmb = 10000;
 
 	//State management
 	enum State

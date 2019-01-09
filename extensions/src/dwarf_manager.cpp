@@ -43,7 +43,6 @@ namespace sfge::ext
 		auto* pyEngine = m_Engine.GetPythonEngine();
 		PySystem* tmpSystem = pyEngine->GetPySystemManager().GetPySystemFromClassName("NavigationGraphManager");
 
-		
 		/*
 		 * TO CHANGE 
 		 */
@@ -110,7 +109,7 @@ namespace sfge::ext
 
 				Vec2f dir = m_paths[i][0] - transformPtr->Position;
 
-				if(dir.GetMagnitude() < 10)
+				if(dir.GetMagnitude() < 5)
 				{
 					std::reverse(m_paths[i].begin(), m_paths[i].end());
 					m_paths[i].pop_back();
@@ -128,7 +127,33 @@ namespace sfge::ext
 			}
 		}
 	}
+
 	void DwarfManager::Draw()
 	{
+		return; 
+		auto graphics2DManager = m_Engine.GetGraphics2dManager();
+		auto window = graphics2DManager->GetWindow();
+
+		std::vector<sf::Color> colors;
+		colors.push_back(sf::Color::Black);
+		colors.push_back(sf::Color::Blue);
+		colors.push_back(sf::Color::Cyan);
+		colors.push_back(sf::Color::Green);
+		colors.push_back(sf::Color::Magenta);
+		colors.push_back(sf::Color::Red);
+		colors.push_back(sf::Color::Yellow);
+
+		for(int i = 0u; i < m_entitiesNmb; i++) {
+			const auto color = colors[i % colors.size()];
+
+			sf::VertexArray lines{sf::LineStrip, m_paths[i].size()};
+			for(int j = 0u; j < m_paths[i].size(); j++) {
+				lines[j].position = m_paths[i][j];
+				
+				lines[j].color = color;
+			}
+
+			window->draw(lines);
+		}
 	}
 }

@@ -52,7 +52,7 @@ struct GraphNodeDebug : GraphNode {
 	State state;
 };
 
-#define DEBUG_MOD
+//#define DEBUG_MOD
 #define DEBUG_MAP
 
 /**
@@ -97,11 +97,12 @@ private:
 	std::vector<GraphNodeDebug> m_Graph;
 #else
 	std::vector<GraphNode> m_Graph;
+	sf::VertexArray vertexArray;
 #endif
 
 	//Map info
 #ifdef DEBUG_MAP
-	const Vec2f m_tileExtends = Vec2f(50, 50);
+	const Vec2f m_tileExtends = Vec2f(6, 6);
 	Vec2f m_mapSize;
 #endif
 };
