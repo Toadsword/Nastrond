@@ -66,9 +66,9 @@ namespace sfge::ext
 			}
 		}
 
-		vertexArray = sf::VertexArray(sf::Quads, 4 * map.size() * map[0].size());
+		m_VertexArray = sf::VertexArray(sf::Quads, 4 * map.size() * map[0].size());
 
-		m_mapSize = Vec2f(map.size(), map[0].size());
+		m_MapSize = Vec2f(map.size(), map[0].size());
 
 		BuildGraphFromArray(map);
 #endif
@@ -87,7 +87,7 @@ namespace sfge::ext
 		rmt_ScopedCPUSample(NavigationGraphManagerDraw, 0);
 		
 		auto window = m_Graphics2DManager->GetWindow();
-		window->draw(vertexArray);
+		window->draw(m_VertexArray);
 		return;
 #ifdef DEBUG_MOD
 		for (GraphNodeDebug node : m_Graph) {
@@ -143,10 +143,10 @@ namespace sfge::ext
 		sf::VertexArray quad(sf::Quads, 4);
 
 		// set position
-		quad[0].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
-		quad[1].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y - m_tileExtends.y * 0.5f);
-		quad[2].position = sf::Vector2f(pos.x + m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
-		quad[3].position = sf::Vector2f(pos.x - m_tileExtends.x * 0.5f, pos.y + m_tileExtends.y * 0.5f);
+		quad[0].position = sf::Vector2f(pos.x - m_TileExtends.x * 0.5f, pos.y - m_TileExtends.y * 0.5f);
+		quad[1].position = sf::Vector2f(pos.x + m_TileExtends.x * 0.5f, pos.y - m_TileExtends.y * 0.5f);
+		quad[2].position = sf::Vector2f(pos.x + m_TileExtends.x * 0.5f, pos.y + m_TileExtends.y * 0.5f);
+		quad[3].position = sf::Vector2f(pos.x - m_TileExtends.x * 0.5f, pos.y + m_TileExtends.y * 0.5f);
 
 		// set colors
 		quad[0].color = col;
@@ -156,10 +156,10 @@ namespace sfge::ext
 
 		window->draw(quad);
 
-		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
-		m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, -m_tileExtends.y) * 0.5f, pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
-		m_Graphics2DManager->DrawLine(pos + Vec2f(m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, sf::Color::Black);
-		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
+		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_TileExtends.x, -m_TileExtends.y) * 0.5f, pos + Vec2f(m_TileExtends.x, -m_TileExtends.y) * 0.5f, sf::Color::Black);
+		m_Graphics2DManager->DrawLine(pos + Vec2f(m_TileExtends.x, -m_TileExtends.y) * 0.5f, pos + Vec2f(m_TileExtends.x, m_TileExtends.y) * 0.5f, sf::Color::Black);
+		m_Graphics2DManager->DrawLine(pos + Vec2f(m_TileExtends.x, m_TileExtends.y) * 0.5f, pos + Vec2f(-m_TileExtends.x, m_TileExtends.y) * 0.5f, sf::Color::Black);
+		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_TileExtends.x, m_TileExtends.y) * 0.5f, pos + Vec2f(-m_TileExtends.x, -m_TileExtends.y) * 0.5f, sf::Color::Black);
 	}
 
 	/**
@@ -178,28 +178,28 @@ namespace sfge::ext
 				GraphNode node;
 #endif
 
-				node.cost = map[y][x] * m_tileExtends.x;
-				node.pos = Vec2f(x * m_tileExtends.x + m_tileExtends.x * 0.5f, y * m_tileExtends.y + m_tileExtends.y * 0.5f);
+				node.cost = map[y][x] * m_TileExtends.x;
+				node.pos = Vec2f(x * m_TileExtends.x + m_TileExtends.x * 0.5f, y * m_TileExtends.y + m_TileExtends.y * 0.5f);
 
 				// set position
-				vertexArray[4 * ((y * map.size()) + x)].position = sf::Vector2f(node.pos.x - m_tileExtends.x * 0.5f, node.pos.y - m_tileExtends.y * 0.5f);
-				vertexArray[4 * ((y * map.size()) + x) + 1].position = sf::Vector2f(node.pos.x + m_tileExtends.x * 0.5f, node.pos.y - m_tileExtends.y * 0.5f);
-				vertexArray[4 * ((y * map.size()) + x) + 2].position = sf::Vector2f(node.pos.x + m_tileExtends.x * 0.5f, node.pos.y + m_tileExtends.y * 0.5f);
-				vertexArray[4 * ((y * map.size()) + x) + 3].position = sf::Vector2f(node.pos.x - m_tileExtends.x * 0.5f, node.pos.y + m_tileExtends.y * 0.5f);
+				m_VertexArray[4 * ((y * map.size()) + x)].position = sf::Vector2f(node.pos.x - m_TileExtends.x * 0.5f, node.pos.y - m_TileExtends.y * 0.5f);
+				m_VertexArray[4 * ((y * map.size()) + x) + 1].position = sf::Vector2f(node.pos.x + m_TileExtends.x * 0.5f, node.pos.y - m_TileExtends.y * 0.5f);
+				m_VertexArray[4 * ((y * map.size()) + x) + 2].position = sf::Vector2f(node.pos.x + m_TileExtends.x * 0.5f, node.pos.y + m_TileExtends.y * 0.5f);
+				m_VertexArray[4 * ((y * map.size()) + x) + 3].position = sf::Vector2f(node.pos.x - m_TileExtends.x * 0.5f, node.pos.y + m_TileExtends.y * 0.5f);
 
 				if(node.cost == SOLID_COST) {
 
 					// set colors
-					vertexArray[4 * ((y * map.size()) + x)].color = sf::Color::Red;
-					vertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::Red;
-					vertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::Red;
-					vertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::Red;
+					m_VertexArray[4 * ((y * map.size()) + x)].color = sf::Color::Red;
+					m_VertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::Red;
+					m_VertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::Red;
+					m_VertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::Red;
 				}else {
 					// set colors
-					vertexArray[4 * ((y * map.size()) + x)].color = sf::Color::White;
-					vertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::White;
-					vertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::White;
-					vertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::White;
+					m_VertexArray[4 * ((y * map.size()) + x)].color = sf::Color::White;
+					m_VertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::White;
+					m_VertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::White;
+					m_VertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::White;
 				}
 
 				m_Graph.push_back(node);
