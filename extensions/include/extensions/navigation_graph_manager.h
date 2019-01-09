@@ -73,8 +73,6 @@ public:
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
-	void Test(int i);
-
 private:
 	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
 

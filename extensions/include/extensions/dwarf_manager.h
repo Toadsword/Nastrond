@@ -21,40 +21,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#ifndef DWARF_MANAGER_H
+#define DWARF_MANAGER_H
 
 #include <engine/system.h>
-#include <engine/engine.h>
-
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-
-#include <extensions/python_extensions.h>
-#include <extensions/planet_system.h>
-#include <extensions/navigation_graph_manager.h>
-#include <extensions/dwarf_manager.h>
-
-#include <tools/tools_pch.h>
+#include <graphics/graphics2d.h>
+#include "navigation_graph_manager.h"
 
 namespace sfge::ext
 {
 
-static std::vector<std::function<void(py::module&)>> m_OtherPythonExtensions;
+/**
+ * \author Nicolas Schneider
+ */
+class DwarfManager : public System {
+public:
+	DwarfManager(Engine& engine);
 
-void ExtendPython(py::module& m)
-{
-	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
-	planetSystem
-		.def(py::init<Engine&>());
+	void Init() override;
 
-	py::class_<DwarfManager, System> dwarfManager(m, "DwarfManager");
-	dwarfManager
-		.def(py::init<Engine&>());
+	void Update(float dt) override;
 
-	py::class_<NavigationGraphManager, System> navigationGraphManager(m, "NavigationGraphManager");
-	navigationGraphManager
-		.def(py::init<Engine&>());
+	void FixedUpdate() override;
 
-	tools::ExtendPythonTools(m);
+	void Draw() override;
+
+private:
+	Transform2dManager * m_Transform2DManager;
+	TextureManager* m_TextureManager;
+	SpriteManager* m_SpriteManager;
+
+	NavigationGraphManager* m_NavigationGraphManager;
+
+	const size_t m_entitiesNmb = 100000;
+
+	//State management
+	enum State
+	{
+		IDLE,
+		WALKING
+	};
+	std::vector<State> m_states{ m_entitiesNmb };
+
+	//Path management
+	std::vector<std::vector<Vec2f>> m_paths{ m_entitiesNmb };
+
+};
 }
 
-}
+#endif
+

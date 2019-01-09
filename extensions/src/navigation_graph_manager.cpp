@@ -270,13 +270,17 @@ namespace sfge::ext
 	 */
 	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& destination)
 	{
-		std::cout << "ola ketal\n";
 		float distanceOrigin = INFINITY;
 		float distanceDestination = INFINITY;
 
 		unsigned int indexOrigin, indexDestination;
 
-		for(int i = 0; i < m_Graph.size(); i++) {
+		for(auto i = 0u; i < m_Graph.size(); i++) {
+			if(m_Graph[i].cost == SOLID_COST)
+			{
+				continue;
+			}
+
 			float dist1 = GetSquaredDistance(origin, m_Graph[i].pos);
 
 			if(dist1 < distanceOrigin) {
@@ -343,9 +347,11 @@ namespace sfge::ext
 #else
 		std::vector<GraphNode> path;
 #endif
-
+		std::vector<Vec2f> pathPos;
 		auto currentNodeIndex = destinationIndex;
 		while (currentNodeIndex != originIndex) {
+			pathPos.push_back(m_Graph[currentNodeIndex].pos);
+
 #ifdef DEBUG_MOD
 			if (isEndPoint) {
 				m_Graph[destinationIndex].state = GraphNodeDebug::State::END_POSITION;
@@ -359,14 +365,11 @@ namespace sfge::ext
 			currentNodeIndex = cameFrom[currentNodeIndex];
 		}
 		path.push_back(m_Graph[originIndex]);
+		pathPos.push_back(m_Graph[originIndex].pos);
 		std::reverse(path.begin(), path.end());
+		std::reverse(pathPos.begin(), pathPos.end());
 
-		return std::vector<Vec2f>();
-	}
-
-	void NavigationGraphManager::Test(int i)
-	{
-		std::cout << "ola ketal\n";
+		return pathPos;
 	}
 
 	float NavigationGraphManager::GetSquaredDistance(Vec2f& v1, Vec2f& v2) {

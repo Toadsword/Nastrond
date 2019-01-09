@@ -76,47 +76,14 @@ TEST(AI, DwarfMovement)
 
 	json sceneJson = {
 		{ "name", "Dwarf Movements" } };
-	json entitiesArray = json::array();
-	for (int i = 0; i < 10; i++)
-	{
-		//Adding transform
-		json transformJson =
-		{
-			{ "position",{ rand() % config->screenResolution.x, rand() % config->screenResolution.y } },
-			{ "angle", 0.0f },
-			{ "type", static_cast<int>(sfge::ComponentType::TRANSFORM2D) },
-		};
-
-		json spriteJson =
-		{
-			{ "path", "data/sprites/triangle.png" },
-			{ "type", static_cast<int>(sfge::ComponentType::SPRITE2D) }
-		};
-
-		json pyComponentJson =
-		{
-			{ "type", static_cast<int>(sfge::ComponentType::PYCOMPONENT) },
-			{ "script_path", "scripts/ai_path_behaviour.py" }
-		};
-		std::ostringstream oss;
-		oss << "Entity " << i;
-		const json entityJson =
-		{
-			{ "name", oss.str() },
-		{ "components",{
-			transformJson, spriteJson, pyComponentJson
-		}
-		}
-		};
-		entitiesArray.push_back(entityJson);
-	}
-	sceneJson["entities"] = entitiesArray;
-
-	json systemJson = {
+	json systemJsonNavigation = {
 		{ "systemClassName", "NavigationGraphManager" }
+	}; 
+	json systemJsonDwarf = {
+		{ "systemClassName", "DwarfManager" }
 	};
 
-	sceneJson["systems"] = json::array({ systemJson });
+	sceneJson["systems"] = json::array({ systemJsonNavigation, systemJsonDwarf });
 
 	auto* sceneManager = engine.GetSceneManager();
 	sceneManager->LoadSceneFromJson(sceneJson);
