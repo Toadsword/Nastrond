@@ -212,15 +212,4 @@ PySystem *PySystemManager::GetPySystemFromClassName(std::string className)
 	}
 	return nullptr;
 }
-ext::NavigationGraphManager * PySystemManager::GetNavigationGraphManager()
-{
-	for (auto i = 0u; i< m_PySystemNames.size(); i++)
-	{
-		if (m_PySystemNames[i] == "NavigationGraphManager")
-		{
-			return m_PythonInstances[i].cast<ext::NavigationGraphManager*>();
-		}
-	}
-	return nullptr;
-}
 }
