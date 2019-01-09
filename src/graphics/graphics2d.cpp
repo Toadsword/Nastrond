@@ -77,7 +77,13 @@ void Graphics2dManager::Update(float dt)
 		m_SpriteManager.Update(dt);
 		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
+	}
+}
 
+void Graphics2dManager::Draw()
+{
+	if(!m_Windowless)
+	{
 		m_SpriteManager.DrawSprites(*m_Window);
 		m_AnimationManager.DrawAnimations(*m_Window);
 		m_ShapeManager.DrawShapes(*m_Window);

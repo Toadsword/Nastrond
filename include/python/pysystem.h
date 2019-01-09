@@ -29,6 +29,7 @@
 
 #include <engine/system.h>
 #include <engine/component.h>
+#include "extensions/navigation_graph_manager.h"
 
 namespace sfge
 {
@@ -60,6 +61,18 @@ public:
 	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
 
 	PySystem* GetPySystemFromClassName(std::string className);
+
+	template<class T>
+	T* GetPySystem(std::string className) {
+		for (auto i = 0u; i < m_PySystemNames.size(); i++)
+		{
+			if (m_PySystemNames[i] == className)
+			{
+				return m_PythonInstances[i].cast<T*>();
+			}
+		}
+		return nullptr;
+	}
 
 protected:
 	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
