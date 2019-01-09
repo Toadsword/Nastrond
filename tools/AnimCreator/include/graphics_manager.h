@@ -120,17 +120,17 @@ private:
 	/**
 	 * \brief Initialized state of the graphics.
 	 */
-	bool m_isInit = false;
+	bool m_IsInit = false;
 
 	/* ------------------------------------ Input control ---------------------------------------- */
 	/**
 	 * \brief Stored time since the user last clicked.
 	 */
-	float m_timeSinceLastClick = 0;
+	float m_TimeSinceLastClick = 0;
 	/**
 	 * \brief Stored input if the user double clicked last frame.
 	 */
-	bool m_doubleClicked = false;
+	bool m_DoubleClicked = false;
 
 	/* ------------------------------------ Texture section----------------------------------------- */
 	/**
@@ -142,77 +142,77 @@ private:
 	/**
 	 * \brief Current frame selected and displayed.
 	 */
-	int m_currentFrame = 0;
+	int m_CurrentFrame = 0;
 	/**
 	 * \brief State of play of the animation.
 	 */
-	bool m_doPlayAnimation = false;
+	bool m_DoPlayAnimation = false;
 	/**
 	 * \brief Time elapsed since the last keyframe of animation has passed. Used when the animation is playing.
 	 */
-	float m_elapsedTimeSinceNewFrame = 0;
+	float m_ElapsedTimeSinceNewFrame = 0;
 
 	/* -------------------------------------- Modal Add Texture ----------------------------------- */
 	/**
 	 * \brief true if we display the modal to add a texture, false otherwise.
 	 */
-	bool m_openAddTexture = false;
+	bool m_OpenAddTexture = false;
 	/**
 	 * \brief Name of the new texture sheet to add.
 	 */
-	char m_inputNameNewFile[128] = "C:/Users/myUser/Images/default.png";
+	char m_InputNameNewFile[128] = "C:/Users/myUser/Images/default.png";
 	/**
 	 * \brief Num of columns of the new texture.
 	 */
-	int m_inputNumCols = 0;
+	int m_InputNumCols = 0;
 	/**
 	 * \brief Num of rows of the new texture.
 	 */
-	int m_inputNumRows = 0;
+	int m_InputNumRows = 0;
 	/**
 	 * \brief Size in x of the new texture.
 	 */
-	int m_inputSizeX = 0;
+	int m_InputSizeX = 0;
 	/**
 	 * \brief Size in y of the new texture.
 	 */
-	int m_inputSizeY = 0;
+	int m_InputSizeY = 0;
 	/**
 	 * \brief Offset in x of the new texture.
 	 */
-	int m_inputOffsetX = 0;
+	int m_InputOffsetX = 0;
 	/**
 	 * \brief Offset in y of the new texture.
 	 */
-	int m_inputOffsetY = 0;
+	int m_InputOffsetY = 0;
 	/**
 	 * \brief Last stored Id before insertion of the new texture(s). Used to allow an "undo" action to the user.
 	 */
-	int m_lastIdBeforeNewTextLoad = -1;
+	int m_LastIdBeforeNewTextLoad = -1;
 	/**
 	 * \brief Last time we loaded a texture. Used to refresh the status of the last loaded texture.
 	 */
-	float m_lastTimeTextureLoaded = 0;
+	float m_LastTimeTextureLoaded = 0;
 	/**
 	 * \brief Result of the loaded texture(s). Used to allow an "undo" action to the user.
 	 */
-	LoadFileResult m_fileImportResult = LOAD_NONE;
+	LoadFileResult m_FileImportResult = LOAD_NONE;
 
 	/* -------------------------------------- Modal Save  ----------------------------------- */
 	/**
 	 * \brief true if we display the modal to confirm the save the animation, false otherwise.
 	 */
-	bool m_openModalSave = false;
+	bool m_OpenModalSave = false;
 	/**
 	 * \brief Result of the saved animation. Used to allow the user to confirm the possible replacement of the animation.
 	 */
-	LogSaveError m_saveResult = SAVE_SUCCESS;
+	LogSaveError m_SaveResult = SAVE_SUCCESS;
 
 	/* -------------------------------------- Modal new animation  ----------------------------------- */
 	/**
 	 * \brief true if we display the modal to confirm the reset of the animation, false otherwise.
 	 */
-	bool m_openModalConfirmNew = false;
+	bool m_OpenModalConfirmNew = false;
 
 	/* -------------------------------------- Others ----------------------------------- */
 	/**
