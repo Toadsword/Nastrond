@@ -36,7 +36,6 @@ Project : AnimationTool for SFGE
 
 #include <graphics_manager.h>
 #include <anim_creator.h>
-#include <iostream>
 
 namespace sfge::tools
 {

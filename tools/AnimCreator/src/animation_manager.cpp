@@ -35,7 +35,6 @@ Project : AnimationTool for SFGE
 #include <utility/file_utility.h>
 #include <utility/json_utility.h>
 
-#include <iostream>
 namespace sfge::tools
 {
 void AnimationManager::Init()
