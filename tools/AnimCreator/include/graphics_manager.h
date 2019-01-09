@@ -33,18 +33,22 @@ Project : AnimationTool for SFGE
 
 #include <SFML/Graphics.hpp>
 
-#include <utilities.h>
 #include <texture_manager.h>
+#include <animation_manager.h>
 
+namespace sfge::tools
+{
+class AnimCreator;
 /**
  * Constants
- */   
+ */
 const int WINDOW_WIDTH = 900;
 const int WINDOW_HEIGHT = 600;
 const int MAX_FRAMERATE = 60;
-const std::string WINDOW_NAME = "AnimCreator";
+const char WINDOW_NAME[] = "AnimCreator";
 
-const int TIME_TO_DOUBLE_CLICK = 500;
+const float TIME_TO_DOUBLE_CLICK = 0.5;
+const float TIME_BEFORE_REFRESH_LOADED_TEXTURE_STATUS = 5;
 
 /**
  * Prototype
@@ -68,16 +72,16 @@ public:
 	 * \brief Initializer of the Graphics Manager. This function must be called before running, at it creates all the graphics needs.
 	 * \return The pointer to the created windows.
 	 */
-	sf::RenderWindow* Init(ToolEngine* engine);
+	void Init(AnimCreator* engine);
 	/**
 	 * \brief Updates the graphic state every frames.
 	 * \param dt Time passed between the last frame and the current one.
 	 */
-	void Update(int dt);
+	void Update(float dt);
 	/**
-	 * \brief Called when the application is meant to be closed. Stops Imgui properly and deleted the window.
+	 * \brief Displays the graphics of the tool of the current frame.
 	 */
-	void Stop();
+	void Draw();
 
 	/**
 	 * \brief Display the menu of the application.
@@ -91,7 +95,7 @@ public:
 	 * \brief Display the animation preview section of the application.
 	 * \param dt Time passed between the last frame and the current one.
 	 */
-	void DisplayPreviewWindow(int dt);
+	void DisplayPreviewWindow();
 	/**
 	 * \brief Display the information section of the animation and of the current Frame of the application.
 	 */
@@ -101,10 +105,6 @@ public:
 	 * \brief Display the modal used to save the animation.
 	 */
 	void OpenModalSave();
-	/**
-	 * \brief Display the modal used to add textures to the application.
-	 */
-	void OpenModalAddTexture();
 	/**
 	 * \brief Display the modal used to confirm the reset of the animation to the application.
 	 */
@@ -126,7 +126,7 @@ private:
 	/**
 	 * \brief Stored time since the user last clicked.
 	 */
-	int m_timeSinceLastClick = 0;
+	float m_timeSinceLastClick = 0;
 	/**
 	 * \brief Stored input if the user double clicked last frame.
 	 */
@@ -150,13 +150,13 @@ private:
 	/**
 	 * \brief Time elapsed since the last keyframe of animation has passed. Used when the animation is playing.
 	 */
-	int m_elapsedTimeSinceNewFrame = 0;
+	float m_elapsedTimeSinceNewFrame = 0;
 
 	/* -------------------------------------- Modal Add Texture ----------------------------------- */
 	/**
 	 * \brief true if we display the modal to add a texture, false otherwise.
 	 */
-	bool m_openModalAddTexture = false;
+	bool m_openAddTexture = false;
 	/**
 	 * \brief Name of the new texture sheet to add.
 	 */
@@ -188,7 +188,11 @@ private:
 	/**
 	 * \brief Last stored Id before insertion of the new texture(s). Used to allow an "undo" action to the user.
 	 */
-	int m_lastIdBeforeNewTextLoad = 0;
+	int m_lastIdBeforeNewTextLoad = -1;
+	/**
+	 * \brief Last time we loaded a texture. Used to refresh the status of the last loaded texture.
+	 */
+	float m_lastTimeTextureLoaded = 0;
 	/**
 	 * \brief Result of the loaded texture(s). Used to allow an "undo" action to the user.
 	 */
@@ -198,7 +202,7 @@ private:
 	/**
 	 * \brief true if we display the modal to confirm the save the animation, false otherwise.
 	 */
-	bool m_openModalSave = false; 
+	bool m_openModalSave = false;
 	/**
 	 * \brief Result of the saved animation. Used to allow the user to confirm the possible replacement of the animation.
 	 */
@@ -214,11 +218,11 @@ private:
 	/**
 	 * \brief Reference to the Engine.
 	 */
-	ToolEngine* m_Engine = nullptr;
+	AnimCreator* m_AnimCreator = nullptr;
 	/**
 	 * \brief Reference to the graphic window.
 	 */
 	sf::RenderWindow* m_Window = nullptr;
 };
-
+}
 #endif // ifndef GRAPHICS_MANAGER_H

@@ -1,4 +1,5 @@
 /*
+
 MIT License
 
 Copyright (c) 2018 SAE Institute Switzerland AG
@@ -20,47 +21,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 */
+#ifndef SFGE_TOOL_PCH_H
+#define SFGE_TOOL_PCH_H
 
-#include <anim_creator.h>
-
-#include <utility/log.h>
+#include <utility/python_utility.h>
 
 namespace sfge::tools
 {
-	void AnimCreator::Init()
-	{
-	    Log::GetInstance()->Msg("Init Anim Creator");
-		m_AnimationManager.Init();
-		m_TextureManager.Init();
-		m_GraphicsManager.Init(this);
-
-		m_isInit = true;
-	}
-	void AnimCreator::Update(float dt)
-	{
-		if (!m_isInit)
-			Init();
-
-		m_GraphicsManager.Update(dt);
-	}
-	void AnimCreator::Draw()
-	{
-		if (!m_isInit)
-			return;
-
-		m_GraphicsManager.Draw();
-	}
-	GraphicsManager* AnimCreator::GetGraphicsManager()
-	{
-		return &m_GraphicsManager;
-	}
-	TextureManager* AnimCreator::GetTextureManager()
-	{
-		return &m_TextureManager;
-	}
-	AnimationManager* AnimCreator::GetAnimationManager()
-	{
-		return &m_AnimationManager;
-	}
+void ExtendPythonTools(py::module& m);
 }
+
+#endif

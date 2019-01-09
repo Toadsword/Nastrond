@@ -30,12 +30,31 @@ Project : AnimationTool for SFGE
 #define ANIMATION_MANAGER_H
 
 #include <map>
+#include <vector>
+
+namespace sfge::tools
+{
+const std::string DATA_FOLDER = "./data/";
+const std::string SAVE_FOLDER = "./data/animSaves/";
+
+const float DEFAULT_SPEED_VALUE = 0.1f;
+
+/**
+ * \brief Enum used to reference the state of last saved animation in the application.
+ */
+enum LogSaveError {
+	SAVE_SUCCESS,
+	SAVE_FAILURE,
+	SAVE_DO_REPLACE,
+};
+
+struct TextureInfos;
 
 /**
  * \brief AnimationManager : Store and manager the animation of the application.
  */
 class AnimationManager
-{	
+{
 public:
 
 	/**
@@ -85,7 +104,7 @@ public:
 	 * \brief Change the texture Id of given keyframe Id.
 	 * \param key Id of the keyframe to apply the new texture.
 	 * \param textureId Id of the texture to apply.
-	 * \return 
+	 * \return
 	 */
 	bool SetTextureOnKey(short key, short textureId);
 	/**
@@ -100,13 +119,13 @@ public:
 	 * \brief Setter of the speed of the animation.
 	 * \param newSpeed New speed of the animation.
 	 */
-	void SetSpeed(int newSpeed);
+	void SetSpeed(float newSpeed);
 
 	/**
 	 * \brief Getter of the speed of the animation.
 	 * \return Current speed of the animation.
 	 */
-	int GetSpeed();
+	float GetSpeed();
 
 	/**
 	 * \brief Setter of the name of the animation.
@@ -137,7 +156,7 @@ public:
 	 * \return Highest Id found among the keyframes.
 	 */
 	int GetHighestKeyNum();
-	
+
 	/**
 	 * \brief Getter of the animation.
 	 * \return the reference on the whole animation.
@@ -151,6 +170,15 @@ public:
 	 */
 	short GetTextureIdFromKeyframe(short key);
 
+	/**
+	 * \brief Export the current animation to Json, ready for SFGE.
+	 * \param anim AnimationManager that stores all the informations
+	 * \param textures All the textures loaded in the application.
+	 * \param confirmedReplacement True if the application ignores the existent files, false otherwise.
+	 * \return The state of the exportation.
+	 */
+	LogSaveError ExportToJson(std::vector<TextureInfos*>* textures, bool confirmedReplacement = false);
+
 private:
 	/**
 	 * \brief Loop state of the animation; Default value : false
@@ -158,9 +186,9 @@ private:
 	bool m_looped = true;
 
 	/**
-	 * \brief Speed of the animation in miliseconds(ms) per frame; Default value : 100ms per frame
+	 * \brief Speed of the animation in milliseconds(ms) per frame; Default value : 100ms per frame
 	 */
-	int m_animSpeed = 100;
+	float m_animSpeed = DEFAULT_SPEED_VALUE;
 
 	/**
 	 * \brief Name of the animation; Default value : "NewAnimation"
@@ -172,5 +200,6 @@ private:
 	 */
 	std::map<const short, short> m_animation;
 };
+}
 
 #endif // ifndef ANIMATION_MANAGER_H

@@ -34,6 +34,8 @@ Project : AnimationTool for SFGE
 
 #include <vector>
 
+namespace sfge::tools
+{
 /**
  * \brief Enum used to reference the state of the last loaded texture in the application.
  */
@@ -67,8 +69,8 @@ public:
 	/**
 	 * \brief Constructor of the Texture Manager.
 	 */
-	TextureManager(){};
-	
+	TextureManager() {};
+
 	/**
 	 * \brief Initializer of the Texture Manager. This function must be called before running, at it initializes the needed variables.
 	 */
@@ -83,12 +85,12 @@ public:
 	 * \param numCol Number of columns of the spriteSheet.
 	 * \param offsetX Offset X of the spriteSheet.
 	 * \param offsetY Offset Y of the spriteSheet.
-	 * \return 
+	 * \return
 	 */
 	LoadFileResult LoadTexture(std::string path, int sizeX = 0, int sizeY = 0, int numRow = 0, int numCol = 0, int offsetX = 0, int offsetY = 0);
 	/**
 	 * \brief Return of all the textures loaded.
-	 * \return 
+	 * \return
 	 */
 	std::vector<TextureInfos*>* GetAllTextures();
 	/**
@@ -127,5 +129,5 @@ private:
 	 */
 	short m_LastId = 0;
 };
-
+}
 #endif // ifndef TEXTURE_MANAGER_H

@@ -30,11 +30,16 @@ Project : AnimationTool for SFGE
 #include <map>
 
 #include <animation_manager.h>
-#include <iostream>
+#include <texture_manager.h>
 
+#include <utility/file_utility.h>
+#include <utility/json_utility.h>
+
+namespace sfge::tools
+{
 void AnimationManager::Init()
 {
-	m_animSpeed = 100;
+	m_animSpeed = DEFAULT_SPEED_VALUE;
 	m_looped = true;
 	m_animName = "NewAnimation";
 
@@ -48,7 +53,7 @@ void AnimationManager::AddNewKey(short key, short textureId)
 	AddOrInsertKey();
 
 	//Move to the right every frames until key is reached
-	for(int i = GetHighestKeyNum(); i != key; i--)
+	for (int i = GetHighestKeyNum(); i != key; i--)
 	{
 		SwapKeyTextures(i, i - 1);
 	}
@@ -60,6 +65,7 @@ bool AnimationManager::AddOrInsertKey()
 {
 	return AddOrInsertKey(GetHighestKeyNum() + 1, -1);
 }
+
 bool AnimationManager::AddOrInsertKey(short key, short textureId)
 {
 	if (m_animation.find(key) == m_animation.end())
@@ -80,9 +86,9 @@ bool AnimationManager::RemoveKey(short key)
 {
 	if (m_animation.find(key) != m_animation.end())
 	{
-		for(auto frame : m_animation)
+		for (auto frame : m_animation)
 		{
-			if(frame.first >= key && frame.first < GetHighestKeyNum())
+			if (frame.first >= key && frame.first < GetHighestKeyNum())
 			{
 				SwapKeyTextures(frame.first, frame.first + 1);
 			}
@@ -119,13 +125,13 @@ bool AnimationManager::SwapKeyTextures(short first, short second)
 	return false;
 }
 
-void AnimationManager::SetSpeed(int newSpeed)
+void AnimationManager::SetSpeed(float newSpeed)
 {
 	if (newSpeed > 0.0f)
 		m_animSpeed = newSpeed;
 }
 
-int AnimationManager::GetSpeed()
+float AnimationManager::GetSpeed()
 {
 	return m_animSpeed;
 }
@@ -173,4 +179,95 @@ short AnimationManager::GetTextureIdFromKeyframe(short key)
 		return m_animation[key];
 	}
 	return -1;
+}
+
+LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures, bool confirmedReplacement)
+{
+	json value;	
+
+	//Creating base folder
+	if ((!sfge::IsDirectory(DATA_FOLDER) && sfge::CreateDirectory(DATA_FOLDER)) || 
+		(!sfge::IsDirectory(SAVE_FOLDER) && sfge::CreateDirectory(SAVE_FOLDER)))
+	{
+		std::cout << sfge::IsDirectory(DATA_FOLDER) << " " << sfge::CreateDirectory(DATA_FOLDER) << " " << sfge::IsDirectory(SAVE_FOLDER) << " " << sfge::CreateDirectory(SAVE_FOLDER) << "\n";
+		std::cout << "cannot create base Directory \n";
+		return SAVE_FAILURE;
+	}
+
+	//Check if file already exists. If so, we ask if the user wants to replace it
+	if (!confirmedReplacement)
+	{
+		std::cout << "confirmedReplacement\n";
+		std::ifstream doAnimExists(SAVE_FOLDER + m_animName + ".json");
+		confirmedReplacement = !confirmedReplacement && doAnimExists;
+	}
+
+	if (confirmedReplacement)
+		return SAVE_DO_REPLACE;
+
+	sfge::RemoveDirectory(SAVE_FOLDER + m_animName + "/");
+	if (!sfge::CreateDirectory(SAVE_FOLDER + m_animName + "/"))
+	{
+		std::cout << "cannot create animation to save Directory \n";
+		return SAVE_FAILURE;
+	}
+
+	// Json construction
+	value["name"] = m_animName;
+	value["isLooped"] = m_looped;
+	value["speed"] = m_animSpeed;
+	auto frames = m_animation;
+	short index = 0;
+
+	for (auto frame : frames)
+	{
+		TextureInfos* textToApply = nullptr;
+		for (auto texture : *textures)
+		{
+			if (texture->id == frame.second)
+			{
+				textToApply = texture;
+				break;
+			}
+		}
+
+		if (textToApply == nullptr)
+			continue;
+
+		//Copy file into save folder
+		std::ifstream myImage(SAVE_FOLDER + m_animName + "/" + textToApply->fileName);
+		if (!myImage.good())
+		{
+			//std::cout << "saving image \n";
+			std::ifstream  src(textToApply->path, std::ios::binary);
+			std::ofstream  dst(SAVE_FOLDER + m_animName + "/" + textToApply->fileName, std::ios::binary);
+
+			dst << src.rdbuf();
+			dst.close();
+		}
+		myImage.close();
+
+		//Registering information of the frame
+		value["frames"][index]["key"] = frame.first;
+		value["frames"][index]["filename"] = textToApply->fileName;
+		value["frames"][index]["position"]["x"] = textToApply->position.x;
+		value["frames"][index]["position"]["y"] = textToApply->position.y;
+		value["frames"][index]["size"]["x"] = textToApply->size.x;
+		value["frames"][index]["size"]["y"] = textToApply->size.y;
+
+		index++;
+	}
+
+	// File write
+	std::ofstream myfile;
+	myfile.open(SAVE_FOLDER + m_animName + ".json");
+	myfile.flush();
+	myfile << std::setw(4) << value << std::endl;
+	myfile.close();
+
+	std::cout << "Animation saved in " << SAVE_FOLDER << m_animName << "/ \n";
+
+	return SAVE_SUCCESS;
+}
+
 }

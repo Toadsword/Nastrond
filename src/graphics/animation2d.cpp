@@ -225,7 +225,7 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 		float speed = 0.1f;
 		if (CheckJsonParameter(*framesInfosPtr, "speed", json::value_t::number_unsigned))
 		{
-			speed = (*framesInfosPtr)["speed"].get<float>() / 1000.0f;
+			speed = (*framesInfosPtr)["speed"].get<float>();
 			newAnimationInfo.speed = speed;
 		}
 

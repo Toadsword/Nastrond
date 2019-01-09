@@ -37,9 +37,9 @@ void ProfilerEditorWindow::Update ()
   ImGui::Begin("Stats");
   {
     std::ostringstream oss;
-    oss << "FPS: "<< 1.0f/m_ProfilerFrameData.frameTotalTime.asSeconds ()<<"\n"
-    << "Fixed Update: "<<m_ProfilerFrameData.frameFixedUpdate.asMicroseconds ()<<", "<<m_ProfilerFrameData.frameFixedUpdate.asSeconds ()/m_ProfilerFrameData.frameTotalTime.asSeconds ()*100.0f<<"%\n"
-    <<"Graphics Update: "<<m_ProfilerFrameData.graphicsTime.asMicroseconds ()<<", "<<m_ProfilerFrameData.graphicsTime.asSeconds ()/m_ProfilerFrameData.frameTotalTime.asSeconds ()*100.0f;
+    oss << "FPS: " << 1.0f / m_ProfilerFrameData.frameTotalTime.asSeconds() << "\n"
+    << "Fixed Update: " << m_ProfilerFrameData.frameFixedUpdate.asMicroseconds() << ", " <<m_ProfilerFrameData.frameFixedUpdate.asSeconds() / m_ProfilerFrameData.frameTotalTime.asSeconds() * 100.0f << "%\n"
+    << "Graphics Update: " << m_ProfilerFrameData.graphicsTime.asMicroseconds() << ", " <<m_ProfilerFrameData.graphicsTime.asSeconds() / m_ProfilerFrameData.frameTotalTime.asSeconds() * 100.0f;
 
     ImGui::Text("%s", oss.str().c_str());
   }
