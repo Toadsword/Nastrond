@@ -39,11 +39,11 @@ namespace sfge::tools
 {
 void AnimationManager::Init()
 {
-	m_animSpeed = DEFAULT_SPEED_VALUE;
-	m_looped = true;
-	m_animName = "NewAnimation";
+	m_AnimSpeed = DEFAULT_SPEED_VALUE;
+	m_Looped = true;
+	m_AnimName = "NewAnimation";
 
-	m_animation.clear();
+	m_Animation.clear();
 	AddOrInsertKey(0);
 }
 
@@ -58,7 +58,7 @@ void AnimationManager::AddNewKey(short key, short textureId)
 		SwapKeyTextures(i, i - 1);
 	}
 	//Assign it
-	m_animation[key] = textureId;
+	m_Animation[key] = textureId;
 }
 
 bool AnimationManager::AddOrInsertKey()
@@ -68,12 +68,12 @@ bool AnimationManager::AddOrInsertKey()
 
 bool AnimationManager::AddOrInsertKey(short key, short textureId)
 {
-	if (m_animation.find(key) == m_animation.end())
+	if (m_Animation.find(key) == m_Animation.end())
 	{
-		m_animation.insert(std::make_pair(key, textureId));
+		m_Animation.insert(std::make_pair(key, textureId));
 		return true;
 	}
-	m_animation[key] = textureId;
+	m_Animation[key] = textureId;
 	return true;
 }
 
@@ -84,9 +84,9 @@ bool AnimationManager::RemoveKey()
 
 bool AnimationManager::RemoveKey(short key)
 {
-	if (m_animation.find(key) != m_animation.end())
+	if (m_Animation.find(key) != m_Animation.end())
 	{
-		for (auto frame : m_animation)
+		for (auto frame : m_Animation)
 		{
 			if (frame.first >= key && frame.first < GetHighestKeyNum())
 			{
@@ -94,9 +94,9 @@ bool AnimationManager::RemoveKey(short key)
 			}
 		}
 
-		m_animation.erase(GetHighestKeyNum());
+		m_Animation.erase(GetHighestKeyNum());
 
-		if (m_animation.empty())
+		if (m_Animation.empty())
 			AddOrInsertKey(0);
 		return true;
 	}
@@ -105,9 +105,9 @@ bool AnimationManager::RemoveKey(short key)
 
 bool AnimationManager::SetTextureOnKey(short key, short textureId)
 {
-	if (m_animation.find(key) != m_animation.end())
+	if (m_Animation.find(key) != m_Animation.end())
 	{
-		m_animation[key] = textureId;
+		m_Animation[key] = textureId;
 		return true;
 	}
 	return false;
@@ -115,11 +115,11 @@ bool AnimationManager::SetTextureOnKey(short key, short textureId)
 
 bool AnimationManager::SwapKeyTextures(short first, short second)
 {
-	if (m_animation.find(first) != m_animation.end() && m_animation.find(second) != m_animation.end())
+	if (m_Animation.find(first) != m_Animation.end() && m_Animation.find(second) != m_Animation.end())
 	{
-		short tmp = m_animation[first];
-		m_animation[first] = m_animation[second];
-		m_animation[second] = tmp;
+		short tmp = m_Animation[first];
+		m_Animation[first] = m_Animation[second];
+		m_Animation[second] = tmp;
 		return true;
 	}
 	return false;
@@ -128,38 +128,38 @@ bool AnimationManager::SwapKeyTextures(short first, short second)
 void AnimationManager::SetSpeed(float newSpeed)
 {
 	if (newSpeed > 0.0f)
-		m_animSpeed = newSpeed;
+		m_AnimSpeed = newSpeed;
 }
 
 float AnimationManager::GetSpeed()
 {
-	return m_animSpeed;
+	return m_AnimSpeed;
 }
 
 void AnimationManager::SetName(std::string newName)
 {
-	m_animName = newName;
+	m_AnimName = newName;
 }
 
 std::string AnimationManager::GetName()
 {
-	return m_animName;
+	return m_AnimName;
 }
 
 void AnimationManager::SetIsLooped(bool newLoop)
 {
-	m_looped = newLoop;
+	m_Looped = newLoop;
 }
 
 bool AnimationManager::GetIsLooped()
 {
-	return m_looped;
+	return m_Looped;
 }
 
 int AnimationManager::GetHighestKeyNum()
 {
 	int maxKey = 0;
-	for (auto element : m_animation)
+	for (auto element : m_Animation)
 	{
 		if (maxKey < element.first)
 			maxKey = element.first;
@@ -169,14 +169,14 @@ int AnimationManager::GetHighestKeyNum()
 
 std::map<const short, short>& AnimationManager::GetAnim()
 {
-	return m_animation;
+	return m_Animation;
 }
 
 short AnimationManager::GetTextureIdFromKeyframe(short key)
 {
-	if (m_animation.find(key) != m_animation.end())
+	if (m_Animation.find(key) != m_Animation.end())
 	{
-		return m_animation[key];
+		return m_Animation[key];
 	}
 	return -1;
 }
@@ -189,34 +189,30 @@ LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures
 	if ((!sfge::IsDirectory(DATA_FOLDER) && sfge::CreateDirectory(DATA_FOLDER)) || 
 		(!sfge::IsDirectory(SAVE_FOLDER) && sfge::CreateDirectory(SAVE_FOLDER)))
 	{
-		std::cout << sfge::IsDirectory(DATA_FOLDER) << " " << sfge::CreateDirectory(DATA_FOLDER) << " " << sfge::IsDirectory(SAVE_FOLDER) << " " << sfge::CreateDirectory(SAVE_FOLDER) << "\n";
-		std::cout << "cannot create base Directory \n";
 		return SAVE_FAILURE;
 	}
 
 	//Check if file already exists. If so, we ask if the user wants to replace it
 	if (!confirmedReplacement)
 	{
-		std::cout << "confirmedReplacement\n";
-		std::ifstream doAnimExists(SAVE_FOLDER + m_animName + ".json");
+		std::ifstream doAnimExists(SAVE_FOLDER + m_AnimName + ".json");
 		confirmedReplacement = !confirmedReplacement && doAnimExists;
 	}
 
 	if (confirmedReplacement)
 		return SAVE_DO_REPLACE;
 
-	sfge::RemoveDirectory(SAVE_FOLDER + m_animName + "/");
-	if (!sfge::CreateDirectory(SAVE_FOLDER + m_animName + "/"))
+	sfge::RemoveDirectory(SAVE_FOLDER + m_AnimName + "/");
+	if (!sfge::CreateDirectory(SAVE_FOLDER + m_AnimName + "/"))
 	{
-		std::cout << "cannot create animation to save Directory \n";
 		return SAVE_FAILURE;
 	}
 
 	// Json construction
-	value["name"] = m_animName;
-	value["isLooped"] = m_looped;
-	value["speed"] = m_animSpeed;
-	auto frames = m_animation;
+	value["name"] = m_AnimName;
+	value["isLooped"] = m_Looped;
+	value["speed"] = m_AnimSpeed;
+	auto frames = m_Animation;
 	short index = 0;
 
 	for (auto frame : frames)
@@ -235,12 +231,12 @@ LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures
 			continue;
 
 		//Copy file into save folder
-		std::ifstream myImage(SAVE_FOLDER + m_animName + "/" + textToApply->fileName);
+		std::ifstream myImage(SAVE_FOLDER + m_AnimName + "/" + textToApply->fileName);
 		if (!myImage.good())
 		{
 			//std::cout << "saving image \n";
 			std::ifstream  src(textToApply->path, std::ios::binary);
-			std::ofstream  dst(SAVE_FOLDER + m_animName + "/" + textToApply->fileName, std::ios::binary);
+			std::ofstream  dst(SAVE_FOLDER + m_AnimName + "/" + textToApply->fileName, std::ios::binary);
 
 			dst << src.rdbuf();
 			dst.close();
@@ -260,12 +256,10 @@ LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures
 
 	// File write
 	std::ofstream myfile;
-	myfile.open(SAVE_FOLDER + m_animName + ".json");
+	myfile.open(SAVE_FOLDER + m_AnimName + ".json");
 	myfile.flush();
 	myfile << std::setw(4) << value << std::endl;
 	myfile.close();
-
-	std::cout << "Animation saved in " << SAVE_FOLDER << m_animName << "/ \n";
 
 	return SAVE_SUCCESS;
 }

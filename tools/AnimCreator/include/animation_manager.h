@@ -89,13 +89,13 @@ public:
 	void AddNewKey(short key, short textureId = -1);
 
 	/**
-	 * \brief Remove the last keyframe of the current m_animation.
+	 * \brief Remove the last keyframe of the current m_Animation.
 	 * \return true if removed, false otherwise.
 	 */
 	bool RemoveKey();
 
 	/**
-	 * \brief Remove the keyframe specified by key of the current m_animation.
+	 * \brief Remove the keyframe specified by key of the current m_Animation.
 	 * \param key Id of the keyframe to remove.
 	 * \return true if removed, false otherwise.
 	 */
@@ -183,22 +183,22 @@ private:
 	/**
 	 * \brief Loop state of the animation; Default value : false
 	 */
-	bool m_looped = true;
+	bool m_Looped = true;
 
 	/**
 	 * \brief Speed of the animation in milliseconds(ms) per frame; Default value : 100ms per frame
 	 */
-	float m_animSpeed = DEFAULT_SPEED_VALUE;
+	float m_AnimSpeed = DEFAULT_SPEED_VALUE;
 
 	/**
 	 * \brief Name of the animation; Default value : "NewAnimation"
 	 */
-	std::string m_animName = "NewAnimation";
+	std::string m_AnimName = "NewAnimation";
 
 	/**
 	 * \brief Where every informations about the keyframes and textures Id are stored.
 	 */
-	std::map<const short, short> m_animation;
+	std::map<const short, short> m_Animation;
 };
 }
 

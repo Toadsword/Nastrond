@@ -59,7 +59,7 @@ protected:
 	 */
 	AnimationManager m_AnimationManager;
 
-	bool m_isInit = false;
+	bool m_IsInit = false;
 };
 }
 
