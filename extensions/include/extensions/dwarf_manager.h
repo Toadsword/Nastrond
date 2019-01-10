@@ -48,14 +48,15 @@ public:
 
 	void Draw() override;
 
+	void CreateDwarf(Vec2f pos);
+
 private:
 	Transform2dManager * m_Transform2DManager;
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
-
 	NavigationGraphManager* m_NavigationGraphManager;
 
-	const size_t m_entitiesNmb = 10;
+	const size_t m_entitiesNmb = 100;
 
 	//State management
 	enum State
@@ -68,6 +69,9 @@ private:
 	//Path management
 	std::vector<std::vector<Vec2f>> m_paths{ m_entitiesNmb };
 
+	//Forces
+	float m_FixedDeltaTime = 0.0f;
+
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_colors{ 
 		sf::Color::Black, 
@@ -78,6 +82,11 @@ private:
 		sf::Color::Red, 
 		sf::Color::Yellow};
 #endif
+
+	//Dwarfs texture
+	std::string m_TexturePath;
+	TextureId m_TextureId;
+	sf::Texture* m_Texture;
 };
 }
 
