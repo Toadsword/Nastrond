@@ -27,6 +27,7 @@ Date : November 2018
 Project : AnimationTool for SFGE
 */
 
+#include <iostream>
 #include <map>
 
 #include <animation_manager.h>
