@@ -27,6 +27,7 @@
 # Folders
 build
 .idea
+/scripts/tools/_pycache__
 
 # Automatic generated files
 tools_pch.h
