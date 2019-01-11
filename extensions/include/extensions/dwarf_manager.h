@@ -56,7 +56,12 @@ private:
 	SpriteManager* m_SpriteManager;
 	NavigationGraphManager* m_NavigationGraphManager;
 
-	const size_t m_entitiesNmb = 100;
+	//Dwarfs Holder
+	int m_IndexNewDwarf = 0;
+	const size_t m_ContainersExtender = 100;
+	std::vector<unsigned int> m_DwarfsEntitiesIndex;
+
+	void ResizeContainers(int newSize);
 
 	//State management
 	enum State
@@ -64,16 +69,16 @@ private:
 		IDLE,
 		WALKING
 	};
-	std::vector<State> m_states{ m_entitiesNmb };
+	std::vector<State> m_States;
 
 	//Path management
-	std::vector<std::vector<Vec2f>> m_paths{ m_entitiesNmb };
+	std::vector<std::vector<Vec2f>> m_Paths;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
 
 #ifdef DEBUG_DRAW_PATH
-	std::vector<sf::Color> m_colors{ 
+	std::vector<sf::Color> m_Colors{ 
 		sf::Color::Black, 
 		sf::Color::Blue, 
 		sf::Color::Cyan, 
