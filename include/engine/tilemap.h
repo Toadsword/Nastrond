@@ -32,6 +32,49 @@
 namespace sfge
 {
 
+class Tile : public TransformRequiredComponent
+{
+	Tile();
+	Tile(Transform2d* transform);
+
+	void Init();
+	void Update();
+
+protected:
+	short layer = -1;
+	int type = -1;
+};
+
+
+namespace editor
+{
+	struct TileInfo : ComponentInfo
+	{
+		void DrawOnInspector() override;
+		Tile* tile = nullptr;
+		short layer = -1;
+		int type = -1;
+	};
+}
+
+class TileManager :
+	public SingleComponentManager<Tile, editor::TileInfo, ComponentType::TILE>
+{
+public:
+	using SingleComponentManager::SingleComponentManager;
+	void Init() override;
+	void Update(float dt) override;
+
+	void Collect() override;
+	Tile* AddComponent(Entity entity) override;
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
+	void OnResize(size_t new_size) override;
+};
+
+
+
+
 class Tilemap: public TransformRequiredComponent
 {
 	Tilemap();
@@ -41,7 +84,8 @@ class Tilemap: public TransformRequiredComponent
 	void Update();
 
 protected:
-	//Liste contenant les entitées de la tilemap
+	std::vector<Entity> tiles;
+	short layer = 0;
 };
 
 
@@ -51,6 +95,7 @@ struct TilemapInfo : ComponentInfo
 {
 	void DrawOnInspector() override;
 	Tilemap* tilemap = nullptr;
+	short layer = 0;
 };
 }
 
@@ -59,10 +104,14 @@ class TilemapManager :
 {
 public:
 	using SingleComponentManager::SingleComponentManager;
+	void Init() override;
+	void Update(float dt) override;
+
+	void Collect() override;
 	Tilemap* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
-	void Update(float dt) override;
+	void OnResize(size_t new_size) override;
 };
 }
 

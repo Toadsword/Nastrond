@@ -54,9 +54,6 @@ public:
 	void Draw(sf::RenderWindow& window);
 	void SetTexture(sf::Texture* newTexture);
 
-
-
-	
 protected:
 	sf::Sprite sprite;
 };
