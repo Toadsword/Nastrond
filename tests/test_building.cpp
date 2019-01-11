@@ -23,9 +23,10 @@ SOFTWARE.
 */
 
 #include <gtest/gtest.h>
-#include "utility/singleton.h"
-#include "engine/engine.h"
-#include "engine/scene.h"
+
+#include <engine/engine.h>
+#include <engine/scene.h>
+#include <engine/component.h>
 #include <iostream>
 
 
@@ -39,13 +40,15 @@ TEST(Building, BuildingSpawn)
 
 	const auto config = engine.GetConfig();
 
-	json sceneJson = { { "Name", "Spawn Building" } };
+	json sceneJson = {
+		{ "name", "Spawn Building" } };
 
-	json systemJsonDwarvesSlots = { { "SystemClassName", "DwarvesSlotsManager" } };
+	json systemJsonDwarvesSlots = { 
+		{ "systemClassName", "DwarvesSlotsManager" } };
 
-	sceneJson["Systems"] = json::array({ systemJsonDwarvesSlots });
+	sceneJson["systems"] = json::array({ systemJsonDwarvesSlots });
 
-	auto* sceneManager = engine.GetSceneManager();
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
 	sceneManager->LoadSceneFromJson(sceneJson);
 

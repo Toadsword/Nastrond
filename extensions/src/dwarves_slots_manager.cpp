@@ -48,11 +48,13 @@ void sfge::ext::DwarvesSlotsManager::Init()
 	for (unsigned i = 0u; i < m_entitiesnmb; i++)
 	{
 		const auto newEntitiy = entityManager->CreateEntity(i + 1);
-		std::cout << "NEW ENTITY : " + (i + 1);
 
+		std::cout << "NEW ENTITY : " + (i + 1);
+		std::cout << "/n";
+		
 		//add transform
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntitiy);
-		transformPtr->Position = Vec2f(/*std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y)*/ screenSize. x / 2, screenSize.y / 2);
+		transformPtr->Position = Vec2f(screenSize.x / 2, screenSize.y / 2);
 
 		//add texture
 		auto sprite = m_SpriteManager->AddComponent(newEntitiy);
@@ -76,5 +78,12 @@ void sfge::ext::DwarvesSlotsManager::FixedUpdate()
 
 void sfge::ext::DwarvesSlotsManager::Draw()
 {
+	auto graphics2DManager = m_Engine.GetGraphics2dManager();
+	auto window = graphics2DManager->GetWindow();
+	
+	sf::VertexArray line{ sf::LineStrip, 2 };
+	line[0].position = sf::Vector2f(0, 0);
+	line[1].position = sf::Vector2f(640, 360);
+	window->draw(line);
 }
 

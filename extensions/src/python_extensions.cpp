@@ -34,6 +34,7 @@ SOFTWARE.
 #include <extensions/dwarf_manager.h>
 
 #include <tools/tools_pch.h>
+#include "extensions/dwarves_slots_manager.h"
 
 namespace sfge::ext
 {
@@ -52,6 +53,10 @@ void ExtendPython(py::module& m)
 
 	py::class_<NavigationGraphManager, System> navigationGraphManager(m, "NavigationGraphManager");
 	navigationGraphManager
+		.def(py::init<Engine&>());
+
+	py::class_<DwarvesSlotsManager, System> dwarvesSlotsManager(m, "DwarvesSlotsManager");
+	dwarvesSlotsManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);

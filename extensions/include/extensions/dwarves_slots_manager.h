@@ -53,7 +53,7 @@ namespace sfge::ext
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		const size_t m_entitiesnmb = 1;
+		const size_t m_entitiesnmb = 4;
 	};
 }
 #endif
