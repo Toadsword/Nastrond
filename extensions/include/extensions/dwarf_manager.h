@@ -32,6 +32,7 @@ namespace sfge::ext
 {
 
 #define DEBUG_DRAW_PATH
+#define DEBUG_SPAWN_DWARF
 
 /**
  * \author Nicolas Schneider
@@ -48,7 +49,7 @@ public:
 
 	void Draw() override;
 
-	void CreateDwarf(Vec2f pos);
+	void CreateDwarf(const Vec2f pos);
 
 private:
 	Transform2dManager * m_Transform2DManager;
@@ -57,7 +58,7 @@ private:
 	NavigationGraphManager* m_NavigationGraphManager;
 
 	//Dwarfs Holder
-	int m_IndexNewDwarf = 0;
+	unsigned int m_IndexNewDwarf = 0;
 	const size_t m_ContainersExtender = 100;
 	std::vector<unsigned int> m_DwarfsEntitiesIndex;
 
@@ -73,19 +74,24 @@ private:
 
 	//Path management
 	std::vector<std::vector<Vec2f>> m_Paths;
+	const float m_StoppingDistance = 5;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
 
 #ifdef DEBUG_DRAW_PATH
-	std::vector<sf::Color> m_Colors{ 
-		sf::Color::Black, 
-		sf::Color::Blue, 
-		sf::Color::Cyan, 
-		sf::Color::Green, 
-		sf::Color::Magenta, 
-		sf::Color::Red, 
-		sf::Color::Yellow};
+	std::vector<sf::Color> m_Colors{
+		sf::Color::Black,
+		sf::Color::Blue,
+		sf::Color::Cyan,
+		sf::Color::Green,
+		sf::Color::Magenta,
+		sf::Color::Red,
+		sf::Color::Yellow };
+#endif
+
+#ifdef DEBUG_SPAWN_DWARF
+	unsigned int m_DwarfToSpawn = 500;
 #endif
 
 	//Dwarfs texture
@@ -96,4 +102,3 @@ private:
 }
 
 #endif
-
