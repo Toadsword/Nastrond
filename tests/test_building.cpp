@@ -43,10 +43,35 @@ TEST(Building, BuildingSpawn)
 	json sceneJson = {
 		{ "name", "Spawn Building" } };
 
-	json systemJsonDwarvesSlots = { 
-		{ "systemClassName", "DwarvesSlotsManager" } };
+	json systemJsonBuildingManager = { 
+		{ "systemClassName", "BuildingsManager" } };
 
-	sceneJson["systems"] = json::array({ systemJsonDwarvesSlots });
+	sceneJson["systems"] = json::array({ systemJsonBuildingManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+TEST(Building, MineProdutction)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	engine.Init(std::move(initConfig));
+
+	const auto config = engine.GetConfig();
+
+	json sceneJson = {
+		{ "name", "Spawn Building" } };
+
+	json systemJsonMineManager = {
+		{ "systemClassName", "MineManager" } };
+
+	sceneJson["systems"] = json::array({ systemJsonMineManager });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 

@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/dwarves_slots_manager.h>
+#include <extensions/building_manager.h>
 
-sfge::ext::DwarvesSlotsManager::DwarvesSlotsManager(Engine & engine) : System(engine) {}
+sfge::ext::BuildingsManager::BuildingsManager(Engine& engine) : System(engine) {}
 
-void sfge::ext::DwarvesSlotsManager::Init()
+void sfge::ext::BuildingsManager::Init()
 {
 	m_Transform2DManager = m_Engine.GetTransform2dManager();
 	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
@@ -38,6 +38,7 @@ void sfge::ext::DwarvesSlotsManager::Init()
 	EntityManager* entityManager = m_Engine.GetEntityManager();
 	entityManager->ResizeEntityNmb(m_entitiesNmb);
 
+	
 	//Load Texture
 	std::string texturePath = "data/sprites/building.png";
 
@@ -48,13 +49,11 @@ void sfge::ext::DwarvesSlotsManager::Init()
 	for (unsigned i = 0u; i < m_entitiesNmb; i++)
 	{
 		const auto newEntitiy = entityManager->CreateEntity(i + 1);
-
-		std::cout << "NEW ENTITY : " + (i + 1);
-		std::cout << "/n";
 		
+
 		//add transform
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntitiy);
-		transformPtr->Position = Vec2f(screenSize.x / 2.0f, screenSize.y / 2.0f);
+		transformPtr->Position = Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
 
 		//add texture
 		auto sprite = m_SpriteManager->AddComponent(newEntitiy);
@@ -68,22 +67,17 @@ void sfge::ext::DwarvesSlotsManager::Init()
 	}
 }
 
-void sfge::ext::DwarvesSlotsManager::Update(float dt)
+void sfge::ext::BuildingsManager::Update(float dt)
 {
 }
 
-void sfge::ext::DwarvesSlotsManager::FixedUpdate()
+void sfge::ext::BuildingsManager::FixedUpdate()
 {
 }
 
-void sfge::ext::DwarvesSlotsManager::Draw()
+void sfge::ext::BuildingsManager::Draw()
 {
-	auto graphics2DManager = m_Engine.GetGraphics2dManager();
-	auto window = graphics2DManager->GetWindow();
-	
-	sf::VertexArray line{ sf::LineStrip, 2 };
-	line[0].position = sf::Vector2f(0, 0);
-	line[1].position = sf::Vector2f(640, 360);
-	window->draw(line);
 }
+
+
 

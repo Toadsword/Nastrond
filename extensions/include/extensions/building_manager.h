@@ -22,21 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef DWARVES_SLOTS_MANAGER_H
-#define DWARVES_SLOTS_MANAGER_H
-
+#ifndef BUILDINGS_MANAGER_H
+#define BUILDINGS_MANAGER_H
 
 #include "engine/system.h"
 #include "engine/transform2d.h"
 #include "graphics/graphics2d.h"
 
-
 namespace sfge::ext
 {
-	class DwarvesSlotsManager : public System
+	class BuildingsManager : public System
 	{
 	public:
-		DwarvesSlotsManager(Engine& engine);
+		BuildingsManager(Engine& engine);
 
 		void Init() override;
 
@@ -51,7 +49,8 @@ namespace sfge::ext
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		const size_t m_entitiesNmb = 4;
+		const size_t m_entitiesNmb = 20;
 	};
+	
 }
 #endif

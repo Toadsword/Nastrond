@@ -35,6 +35,8 @@ SOFTWARE.
 
 #include <tools/tools_pch.h>
 #include "extensions/dwarves_slots_manager.h"
+#include "extensions/building_manager.h"
+#include "extensions/mine_manager.h"
 
 namespace sfge::ext
 {
@@ -57,6 +59,14 @@ void ExtendPython(py::module& m)
 
 	py::class_<DwarvesSlotsManager, System> dwarvesSlotsManager(m, "DwarvesSlotsManager");
 	dwarvesSlotsManager
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingsManager, System> buildingsManager(m, "BuildingsManager");
+	buildingsManager
+		.def(py::init<Engine&>());
+
+	py::class_<MineManager, System> mineManager(m, "MineManager");
+	mineManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);

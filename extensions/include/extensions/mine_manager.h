@@ -22,21 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef DWARVES_SLOTS_MANAGER_H
-#define DWARVES_SLOTS_MANAGER_H
-
-
+#ifndef MINE_MANAGER_H
+#define MINE_MANAGER_H
 #include "engine/system.h"
-#include "engine/transform2d.h"
 #include "graphics/graphics2d.h"
-
 
 namespace sfge::ext
 {
-	class DwarvesSlotsManager : public System
+	struct GiverInventory
 	{
-	public:
-		DwarvesSlotsManager(Engine& engine);
+		unsigned const int MAX_CAPACITY = 100u;
+		float inventory = 0u;
+
+		unsigned int packSize = 20u;
+		unsigned short packNumber = 0u;
+	};
+
+	class MineManager : public System
+	{
+		MineManager(Engine& engine);
 
 		void Init() override;
 
@@ -52,6 +56,8 @@ namespace sfge::ext
 		SpriteManager* m_SpriteManager;
 
 		const size_t m_entitiesNmb = 4;
+
+		float m_ProductionRate = 0.1f;
 	};
 }
 #endif
