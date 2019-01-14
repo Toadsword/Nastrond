@@ -55,7 +55,7 @@ TEST(Building, BuildingSpawn)
 	engine.Start();
 }
 
-TEST(Building, MineProdutction)
+TEST(Building, MineProduction)
 {
 	sfge::Engine engine;
 
@@ -66,7 +66,7 @@ TEST(Building, MineProdutction)
 	const auto config = engine.GetConfig();
 
 	json sceneJson = {
-		{ "name", "Spawn Building" } };
+		{ "name", "Spawn mine and produce" } };
 
 	json systemJsonMineManager = {
 		{ "systemClassName", "MineManager" } };

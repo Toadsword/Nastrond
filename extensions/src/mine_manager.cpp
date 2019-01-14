@@ -52,7 +52,7 @@ void sfge::ext::MineManager::Init()
 
 		//add transform
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntitiy);
-		transformPtr->Position = Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
+		transformPtr->Position = Vec2f(0, 0);
 
 		//add texture
 		auto sprite = m_SpriteManager->AddComponent(newEntitiy);
@@ -68,10 +68,35 @@ void sfge::ext::MineManager::Init()
 
 void sfge::ext::MineManager::Update(float dt)
 {
+	
 }
 
 void sfge::ext::MineManager::FixedUpdate()
 {
+	for (unsigned int i = 0; i < m_entitiesNmb; i++)
+	{
+		GiverInventory tmpIronInventory = m_IronProduction[i];
+		if (tmpIronInventory.packNumber * tmpIronInventory.packSize >= tmpIronInventory.MAX_CAPACITY)
+		{
+			continue;
+		}
+
+		tmpIronInventory.inventory += m_ProductionRate * 5;
+
+		if (tmpIronInventory.inventory >= tmpIronInventory.packSize)
+		{
+			tmpIronInventory.inventory -= tmpIronInventory.packSize;
+			tmpIronInventory.packNumber++;
+		}
+
+		std::cout << "Iron Inventory of mine " + std::to_string(i) + " : " + std::to_string(tmpIronInventory.inventory) + " / and pack Number : " + std::to_string(tmpIronInventory.packNumber) + "\n";
+		m_IronProduction[i].packNumber = tmpIronInventory.packNumber;
+		m_IronProduction[i].inventory = tmpIronInventory.inventory;
+		if(i + 1 == m_entitiesNmb)
+		{
+			std::cout << "\n";
+		}
+	}
 }
 
 void sfge::ext::MineManager::Draw()

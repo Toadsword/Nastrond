@@ -24,6 +24,9 @@ SOFTWARE.
 
 #ifndef MINE_MANAGER_H
 #define MINE_MANAGER_H
+
+#include <iostream>
+
 #include "engine/system.h"
 #include "graphics/graphics2d.h"
 
@@ -40,6 +43,7 @@ namespace sfge::ext
 
 	class MineManager : public System
 	{
+	public:
 		MineManager(Engine& engine);
 
 		void Init() override;
@@ -56,6 +60,8 @@ namespace sfge::ext
 		SpriteManager* m_SpriteManager;
 
 		const size_t m_entitiesNmb = 4;
+
+		std::vector<GiverInventory> m_IronProduction{ m_entitiesNmb };
 
 		float m_ProductionRate = 0.1f;
 	};
