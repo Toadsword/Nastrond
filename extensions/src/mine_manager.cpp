@@ -41,7 +41,6 @@ void sfge::ext::MineManager::Init()
 
 	//Load Texture
 	std::string texturePath = "data/sprites/building.png";
-
 	const auto textureId = m_TextureManager->LoadTexture(texturePath);
 	const auto texture = m_TextureManager->GetTexture(textureId);
 
@@ -73,28 +72,49 @@ void sfge::ext::MineManager::Update(float dt)
 
 void sfge::ext::MineManager::FixedUpdate()
 {
+	RessourcesProduction();
+}
+
+void sfge::ext::MineManager::Draw()
+{
+}
+
+
+void sfge::ext::MineManager::IronStackAvalaible(Entity entity)
+{
+	
+}
+
+void sfge::ext::MineManager::RessourcesProduction()
+{
 	for (unsigned int i = 0; i < m_entitiesNmb; i++)
 	{
 		GiverInventory tmpIronInventory = m_IronProduction[i];
-		if (tmpIronInventory.packNumber * tmpIronInventory.packSize >= tmpIronInventory.MAX_CAPACITY)
-		{
-			continue;
-		}
 
-		tmpIronInventory.inventory += m_ProductionRate * 5;
-
-		if (tmpIronInventory.inventory >= tmpIronInventory.packSize)
+		//Check if the inventory is full
+		if (!(tmpIronInventory.packNumber * m_packSize >= tmpIronInventory.MAX_CAPACITY))
 		{
-			tmpIronInventory.inventory -= tmpIronInventory.packSize;
-			tmpIronInventory.packNumber++;
+			//Produce Iron by checking the number of dwarf in the building
+			tmpIronInventory.inventory += m_ProductionRate * m_entitiesNmb;
+
+			if (tmpIronInventory.inventory >= m_packSize)
+			{
+				tmpIronInventory.inventory -= m_packSize;
+				tmpIronInventory.packNumber++;
+			}
+
+			m_IronProduction[i].packNumber = tmpIronInventory.packNumber;
+			m_IronProduction[i].inventory = tmpIronInventory.inventory;
+
+			IronStackAvalaible(i + 1);
 		}
-		
-		m_IronProduction[i].packNumber = tmpIronInventory.packNumber;
-		m_IronProduction[i].inventory = tmpIronInventory.inventory;
 
 #ifdef DEBUG_CHECK_PRODUCTION
-		std::cout << "Iron Inventory of mine " + std::to_string(i) + " : " + std::to_string(tmpIronInventory.inventory) + " / and pack Number : " + std::to_string(tmpIronInventory.packNumber) + "\n";
-		if(i + 1 == m_entitiesNmb)
+		RessourcesShifftingSimulation(i);
+
+		std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(tmpIronInventory.inventory) +
+			" / and pack Number : " + std::to_string(tmpIronInventory.packNumber) + "\n";
+		if (i + 1 == m_entitiesNmb)
 		{
 			std::cout << "\n";
 		}
@@ -102,8 +122,12 @@ void sfge::ext::MineManager::FixedUpdate()
 	}
 }
 
-void sfge::ext::MineManager::Draw()
+void sfge::ext::MineManager::RessourcesShifftingSimulation(int EntityIndex)
 {
+	if (std::rand() % 1000 > 995 && m_IronProduction[EntityIndex].packNumber > 0)
+	{
+		m_IronProduction[EntityIndex].packNumber--;
+	}
 }
 
 

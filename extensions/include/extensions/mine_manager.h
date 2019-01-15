@@ -38,8 +38,6 @@ namespace sfge::ext
 	{
 		unsigned const int MAX_CAPACITY = 100u;
 		float inventory = 0u;
-
-		unsigned int packSize = 20u;
 		unsigned short packNumber = 0u;
 	};
 
@@ -59,16 +57,36 @@ namespace sfge::ext
 
 		void Draw() override;
 
+		/**
+		 * \brief Methode that ping the Task Manager when a stack of iron is avalaible.
+		 */
+		void IronStackAvalaible(Entity entity);
+
 	private:
+		/**
+		 * \brief Methode to produceRessources
+		 */
+		void RessourcesProduction();
+
+
+		/**
+		 * \brief Methode that simulate the shiffting of the iron.
+		 */
+		void RessourcesShifftingSimulation(int EntityIndex);
+
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		const size_t m_entitiesNmb = 4;
+		const size_t m_entitiesNmb = 10;
 
 		std::vector<GiverInventory> m_IronProduction{ m_entitiesNmb };
 
-		float m_ProductionRate = 0.1f;
+		float m_ProductionRate = 0.01f;
+
+		unsigned int m_packSize = 20u;
+
+		int m_TmpDwarfNumber = 5;
 	};
 }
 #endif
