@@ -130,7 +130,6 @@ void SpriteManager::Update(float dt)
 	}
 }
 
-
 void SpriteManager::DrawSprites(sf::RenderWindow &window)
 {
 
@@ -140,7 +139,6 @@ void SpriteManager::DrawSprites(sf::RenderWindow &window)
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
 			m_Components[i].Draw(window);
 	}
-	
 }
 
 void SpriteManager::Reset()
@@ -148,8 +146,7 @@ void SpriteManager::Reset()
 }
 
 void SpriteManager::Collect()
-{
-	
+{	
 }
 
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)

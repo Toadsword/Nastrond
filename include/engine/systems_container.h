@@ -53,7 +53,7 @@ struct SystemsContainer
   Editor editor;
   EntityManager entityManager;
   Transform2dManager transformManager;
-  TilemapManager tilemapManager;
+  TilemapSystem tilemapSystem;
 
 };
 }

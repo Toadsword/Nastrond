@@ -3,16 +3,18 @@
 #include <engine/tile_asset.h>
 
 #include <imgui.h>
+namespace sfge
+{
 
-void sfge::Tilemap::Init()
+void Tilemap::Init()
 {
 }
 
-void sfge::Tilemap::Update()
+void Tilemap::Update()
 {
 }
 
-void sfge::editor::TilemapInfo::DrawOnInspector()
+void editor::TilemapInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Tile");
@@ -22,20 +24,20 @@ void sfge::editor::TilemapInfo::DrawOnInspector()
 	ImGui::InputFloat("Size%y", &size.y);
 }
 
-void sfge::TilemapManager::Init()
+void TilemapManager::Init()
 {
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
 }
 
-void sfge::TilemapManager::Update(float dt)
+void TilemapManager::Update(float dt)
 {
 }
 
-void sfge::TilemapManager::Collect()
+void TilemapManager::Collect()
 {
 }
 
-sfge::Tilemap * sfge::TilemapManager::AddComponent(Entity entity)
+Tilemap * TilemapManager::AddComponent(Entity entity)
 {
 	auto& tilemap = GetComponentRef(entity);
 	auto& tilemapInfo = GetComponentInfo(entity);
@@ -47,61 +49,62 @@ sfge::Tilemap * sfge::TilemapManager::AddComponent(Entity entity)
 	return &tilemap;
 }
 
-void sfge::TilemapManager::CreateComponent(json & componentJson, Entity entity)
+void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 {
 }
 
-void sfge::TilemapManager::DestroyComponent(Entity entity)
+void TilemapManager::DestroyComponent(Entity entity)
 {
-	(void) entity;
+	(void)entity;
 }
 
-void sfge::TilemapManager::OnResize(size_t new_size)
+void TilemapManager::OnResize(size_t new_size)
 {
 	m_Components.resize(new_size);
 	m_ComponentsInfo.resize(new_size);
 }
 
-void sfge::TilemapSystem::Init()
+void TilemapSystem::Init()
 {
 }
 
-void sfge::TilemapSystem::Update(float dt)
+void TilemapSystem::Update(float dt)
 {
 	m_TilemapManager.Update(dt);
 }
 
-void sfge::TilemapSystem::Destroy()
+void TilemapSystem::Destroy()
 {
 	Clear();
 	Collect();
 }
 
-void sfge::TilemapSystem::Clear()
+void TilemapSystem::Clear()
 {
 	m_TilemapManager.Clear();
 	m_TileManager.Clear();
 	m_TileTypeManager.Clear();
 }
 
-void sfge::TilemapSystem::Collect()
+void TilemapSystem::Collect()
 {
 	m_TilemapManager.Collect();
 	m_TileManager.Collect();
 	m_TileTypeManager.Collect();
 }
 
-sfge::TilemapManager * sfge::TilemapSystem::GetTilemapManager()
+TilemapManager * TilemapSystem::GetTilemapManager()
 {
 	return &m_TilemapManager;
 }
 
-sfge::TileManager * sfge::TilemapSystem::GetTileManager()
+TileManager * TilemapSystem::GetTileManager()
 {
 	return &m_TileManager;
 }
 
-sfge::TileTypeManager * sfge::TilemapSystem::GetTileTypeManager()
+TileTypeManager * TilemapSystem::GetTileTypeManager()
 {
 	return &m_TileTypeManager;
+}
 }

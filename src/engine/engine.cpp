@@ -274,9 +274,9 @@ Editor* Engine::GetEditor()
 	return m_SystemsContainer ? &m_SystemsContainer->editor : nullptr;
 }
 
-TilemapManager* Engine::GetTilemapManager()
+TilemapSystem* Engine::GetTilemapSystem()
 {
-	return m_SystemsContainer ? &m_SystemsContainer->tilemapManager : nullptr;
+	return m_SystemsContainer ? &m_SystemsContainer->tilemapSystem : nullptr;
 }
 
 ctpl::thread_pool & Engine::GetThreadPool()

@@ -23,17 +23,19 @@
  */
 
 #include <engine/tile.h>
-#include <imgui.h>
+#include <engine/tile_asset.h>
 #include <graphics/texture.h>
+
+#include <imgui.h>
 
 namespace sfge {
 
-Entity sfge::Tile::GetParentTilemap()
+Entity Tile::GetParentTilemap()
 {
 	return m_ParentTilemapEntity;
 }
 
-void sfge::editor::TileInfo::DrawOnInspector()
+void editor::TileInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Tile");
@@ -41,16 +43,16 @@ void sfge::editor::TileInfo::DrawOnInspector()
 	ImGui::InputInt("Type", (int*)&type);
 }
 
-void sfge::TileManager::Init()
+void TileManager::Init()
 {
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
 }
 
-void sfge::TileManager::Collect()
+void TileManager::Collect()
 {
 }
 
-sfge::Tile * sfge::TileManager::AddComponent(Entity entity)
+Tile * TileManager::AddComponent(Entity entity)
 {
 	auto& tile = GetComponentRef(entity);
 	auto& tileInfo = GetComponentInfo(entity);
@@ -62,23 +64,24 @@ sfge::Tile * sfge::TileManager::AddComponent(Entity entity)
 	return &tile;
 }
 
-void sfge::TileManager::CreateComponent(TileTypeId tileType, Entity entity)
+void TileManager::CreateComponent(TileTypeId tileType, Entity entity)
 {
 	auto & newTile = m_Components[entity - 1];
 	auto & newTileInfo = m_ComponentsInfo[entity - 1];
-	
+
+	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(tileType, entity);
 }
 
 void TileManager::CreateComponent(json & componentJson, Entity entity)
 {
 }
 
-void sfge::TileManager::DestroyComponent(Entity entity)
+void TileManager::DestroyComponent(Entity entity)
 {
 	(void)entity;
 }
 
-void sfge::TileManager::OnResize(size_t new_size)
+void TileManager::OnResize(size_t new_size)
 {
 	m_Components.resize(new_size);
 	m_ComponentsInfo.resize(new_size);

@@ -58,7 +58,7 @@ class Physics2dManager;
 class EntityManager;
 class Transform2dManager;
 class Editor;
-class TilemapManager;
+class TilemapSystem;
 struct SystemsContainer;
 
 /**
@@ -105,7 +105,7 @@ public:
 	EntityManager* GetEntityManager();
 	Transform2dManager* GetTransform2dManager();
 	Editor* GetEditor();
-	TilemapManager* GetTilemapManager();
+	TilemapSystem* GetTilemapSystem();
 
 	ctpl::thread_pool& GetThreadPool();
 	ProfilerFrameData& GetProfilerFrameData();

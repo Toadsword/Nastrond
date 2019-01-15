@@ -89,7 +89,7 @@ public:
 	void Init() override;
 
 	/**
-		* \brief Update the Tilemap Manager and prepare for the rendering
+		* \brief Update the Tilemap Manager
 		* \param dt Delta time since last frame
 		*/
 	void Update(float dt) override;
@@ -108,9 +108,9 @@ public:
 	TileTypeManager* GetTileTypeManager();
 
 protected:
-	TilemapManager m_TilemapManager{m_Engine};
-	TileManager m_TileManager{ m_Engine };
-	TileTypeManager m_TileTypeManager{ m_Engine };
+	TilemapManager m_TilemapManager { m_Engine };
+	TileManager m_TileManager { m_Engine };
+	TileTypeManager m_TileTypeManager { m_Engine };
 };
 }
 
