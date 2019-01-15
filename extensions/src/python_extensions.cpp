@@ -61,7 +61,7 @@ void ExtendPython(py::module& m)
 	dwarvesSlotsManager
 		.def(py::init<Engine&>());
 
-	py::class_<BuildingsManager, System> buildingsManager(m, "BuildingsManager");
+	py::class_<BuildingManager, System> buildingsManager(m, "BuildingsManager");
 	buildingsManager
 		.def(py::init<Engine&>());
 

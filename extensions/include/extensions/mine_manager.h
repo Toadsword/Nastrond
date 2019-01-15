@@ -32,6 +32,8 @@ SOFTWARE.
 
 namespace sfge::ext
 {
+#define DEBUG_CHECK_PRODUCTION
+
 	struct GiverInventory
 	{
 		unsigned const int MAX_CAPACITY = 100u;
@@ -41,6 +43,9 @@ namespace sfge::ext
 		unsigned short packNumber = 0u;
 	};
 
+	/**
+	 * \author Robin Alves
+	 */
 	class MineManager : public System
 	{
 	public:

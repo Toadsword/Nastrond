@@ -28,44 +28,7 @@ sfge::ext::DwarvesSlotsManager::DwarvesSlotsManager(Engine & engine) : System(en
 
 void sfge::ext::DwarvesSlotsManager::Init()
 {
-	m_Transform2DManager = m_Engine.GetTransform2dManager();
-	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
-
-	Configuration* configuration = m_Engine.GetConfig();
-	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
-
-	EntityManager* entityManager = m_Engine.GetEntityManager();
-	entityManager->ResizeEntityNmb(m_entitiesNmb);
-
-	//Load Texture
-	std::string texturePath = "data/sprites/building.png";
-
-	const auto textureId = m_TextureManager->LoadTexture(texturePath);
-	const auto texture = m_TextureManager->GetTexture(textureId);
-
-
-	for (unsigned i = 0u; i < m_entitiesNmb; i++)
-	{
-		const auto newEntitiy = entityManager->CreateEntity(i + 1);
-
-		std::cout << "NEW ENTITY : " + (i + 1);
-		std::cout << "/n";
-		
-		//add transform
-		auto transformPtr = m_Transform2DManager->AddComponent(newEntitiy);
-		transformPtr->Position = Vec2f(screenSize.x / 2.0f, screenSize.y / 2.0f);
-
-		//add texture
-		auto sprite = m_SpriteManager->AddComponent(newEntitiy);
-		sprite->SetTexture(texture);
-
-		editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntitiy);
-		spriteInfo.name = "sprite";
-		spriteInfo.sprite = sprite;
-		spriteInfo.textureId = textureId;
-		spriteInfo.texturePath = texturePath;
-	}
+	
 }
 
 void sfge::ext::DwarvesSlotsManager::Update(float dt)
@@ -78,12 +41,5 @@ void sfge::ext::DwarvesSlotsManager::FixedUpdate()
 
 void sfge::ext::DwarvesSlotsManager::Draw()
 {
-	auto graphics2DManager = m_Engine.GetGraphics2dManager();
-	auto window = graphics2DManager->GetWindow();
-	
-	sf::VertexArray line{ sf::LineStrip, 2 };
-	line[0].position = sf::Vector2f(0, 0);
-	line[1].position = sf::Vector2f(640, 360);
-	window->draw(line);
 }
 

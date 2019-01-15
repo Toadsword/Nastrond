@@ -88,14 +88,17 @@ void sfge::ext::MineManager::FixedUpdate()
 			tmpIronInventory.inventory -= tmpIronInventory.packSize;
 			tmpIronInventory.packNumber++;
 		}
-
-		std::cout << "Iron Inventory of mine " + std::to_string(i) + " : " + std::to_string(tmpIronInventory.inventory) + " / and pack Number : " + std::to_string(tmpIronInventory.packNumber) + "\n";
+		
 		m_IronProduction[i].packNumber = tmpIronInventory.packNumber;
 		m_IronProduction[i].inventory = tmpIronInventory.inventory;
+
+#ifdef DEBUG_CHECK_PRODUCTION
+		std::cout << "Iron Inventory of mine " + std::to_string(i) + " : " + std::to_string(tmpIronInventory.inventory) + " / and pack Number : " + std::to_string(tmpIronInventory.packNumber) + "\n";
 		if(i + 1 == m_entitiesNmb)
 		{
 			std::cout << "\n";
 		}
+#endif
 	}
 }
 

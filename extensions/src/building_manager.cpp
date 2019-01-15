@@ -24,9 +24,9 @@ SOFTWARE.
 
 #include <extensions/building_manager.h>
 
-sfge::ext::BuildingsManager::BuildingsManager(Engine& engine) : System(engine) {}
+sfge::ext::BuildingManager::BuildingManager(Engine& engine) : System(engine) {}
 
-void sfge::ext::BuildingsManager::Init()
+void sfge::ext::BuildingManager::Init()
 {
 	m_Transform2DManager = m_Engine.GetTransform2dManager();
 	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
@@ -67,15 +67,15 @@ void sfge::ext::BuildingsManager::Init()
 	}
 }
 
-void sfge::ext::BuildingsManager::Update(float dt)
+void sfge::ext::BuildingManager::Update(float dt)
 {
 }
 
-void sfge::ext::BuildingsManager::FixedUpdate()
+void sfge::ext::BuildingManager::FixedUpdate()
 {
 }
 
-void sfge::ext::BuildingsManager::Draw()
+void sfge::ext::BuildingManager::Draw()
 {
 }
 

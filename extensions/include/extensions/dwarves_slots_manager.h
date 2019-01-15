@@ -33,6 +33,9 @@ SOFTWARE.
 
 namespace sfge::ext
 {
+	/**
+	 * \author Robin Alves
+	 */
 	class DwarvesSlotsManager : public System
 	{
 	public:

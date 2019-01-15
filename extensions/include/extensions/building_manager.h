@@ -31,10 +31,13 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-	class BuildingsManager : public System
+	/**
+	 * \author Robin Alves
+	 */
+	class BuildingManager : public System
 	{
 	public:
-		BuildingsManager(Engine& engine);
+		BuildingManager(Engine& engine);
 
 		void Init() override;
 
