@@ -28,54 +28,12 @@
  //tool_engine
 #include <engine/component.h>
 #include <engine/transform2d.h>
+#include <engine/tile.h>
+#include <engine/tile_asset.h>
 
 namespace sfge
 {
-
-class Tile : public TransformRequiredComponent
-{
-	Tile();
-	Tile(Transform2d* transform);
-
-	void Init();
-	void Update();
-
-protected:
-	short layer = -1;
-	int type = -1;
-};
-
-
-namespace editor
-{
-	struct TileInfo : ComponentInfo
-	{
-		void DrawOnInspector() override;
-		Tile* tile = nullptr;
-		short layer = -1;
-		int type = -1;
-	};
-}
-
-class TileManager :
-	public SingleComponentManager<Tile, editor::TileInfo, ComponentType::TILE>
-{
-public:
-	using SingleComponentManager::SingleComponentManager;
-	void Init() override;
-	void Update(float dt) override;
-
-	void Collect() override;
-	Tile* AddComponent(Entity entity) override;
-	void CreateComponent(json& componentJson, Entity entity) override;
-	void DestroyComponent(Entity entity) override;
-	void OnResize(size_t new_size) override;
-};
-
-
-
-
-class Tilemap: public TransformRequiredComponent
+class Tilemap
 {
 	Tilemap();
 	Tilemap(Transform2d* transform, sf::Vector2f offset);
@@ -86,6 +44,7 @@ class Tilemap: public TransformRequiredComponent
 protected:
 	std::vector<Entity> tiles;
 	short layer = 0;
+	Vec2f size = {100, 100};
 };
 
 
@@ -96,6 +55,7 @@ struct TilemapInfo : ComponentInfo
 	void DrawOnInspector() override;
 	Tilemap* tilemap = nullptr;
 	short layer = 0;
+	Vec2f size = { 100, 100 };
 };
 }
 
@@ -112,7 +72,46 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 	void OnResize(size_t new_size) override;
+
+protected:
+	Transform2dManager* m_Transform2dManager = nullptr;
+};
+
+
+class TilemapSystem: System
+{
+public:
+	using System::System;
+
+	/**
+		* \brief Initialize the Tilemap Manager
+		*/
+	void Init() override;
+
+	/**
+		* \brief Update the Tilemap Manager and prepare for the rendering
+		* \param dt Delta time since last frame
+		*/
+	void Update(float dt) override;
+
+	/**
+	* \brief Destroy the window and other
+	*/
+	void Destroy() override;
+
+	void Clear() override;
+
+	void Collect() override;
+
+	TilemapManager* GetTilemapManager();
+	TileManager* GetTileManager();
+	TileTypeManager* GetTileTypeManager();
+
+protected:
+	TilemapManager m_TilemapManager{m_Engine};
+	TileManager m_TileManager{ m_Engine };
+	TileTypeManager m_TileTypeManager{ m_Engine };
 };
 }
 
-#endif /* INCLUDE_ENGINE_TILEMAP_H_ */
+#endif /* INCLUDE_TILEMAP_H_ */

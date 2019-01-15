@@ -95,8 +95,5 @@ protected:
 	Transform2dManager* m_Transform2dManager = nullptr;
 };
 
-
-
-
 }
 #endif // !SFGE_SPRITE

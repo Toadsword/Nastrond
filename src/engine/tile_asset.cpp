@@ -22,33 +22,89 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <engine/engine.h>
 #include <engine/tile_asset.h>
 #include <graphics/texture.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge
 {
-	void TileTypeManager::Init()
+void TileTypeManager::Init()
+{
+	System::Init();
+	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+}
+
+TileTypeId TileTypeManager::LoadTileType(std::string filename)
+{
 	{
+		std::ostringstream oss;
+		oss << "Creating Configuration from " << filename;
+		Log::GetInstance()->Msg(oss.str());
 	}
 
-	TileTypeId TileTypeManager::LoadTileTypes(std::string filename)
+	auto jsonConfigPtr = LoadJson(filename);
+	if (jsonConfigPtr == nullptr)
 	{
+		std::ostringstream oss;
+		oss << "[Error] TileType JSON file: " << filename << " failed to open or did not parse as JSON";
+		Log::GetInstance()->Error(oss.str());
+		return INVALID_TILE_TYPE;
 	}
+	return LoadTileType(*jsonConfigPtr);
+}
 
-	bool TileTypeManager::SetTileTexture(TileTypeId tileTypeId, Tile tileId)
+TileTypeId TileTypeManager::LoadTileType(json & jsonData)
+{
+	auto tiletypeId = INVALID_TILE_TYPE;
+
+	if (CheckJsonExists(jsonData, "id") && CheckJsonParameter(jsonData, "id", nlohmann::detail::value_t::number_integer))
 	{
+		if(jsonData["id"] > INVALID_TILE_TYPE)
+			tiletypeId = jsonData["id"];
 	}
+	else
+		return INVALID_TILE_TYPE;
 
-	void TileTypeManager::Clear()
+	if (CheckJsonExists(jsonData, "texturePath") && CheckJsonParameter(jsonData, "id", nlohmann::detail::value_t::string))
 	{
-		for (auto& tiletypeId : m_TileTypeId)
+		TextureId textId = m_TextureManager->LoadTexture(jsonData["texturePath"]);
+		if(textId == INVALID_TEXTURE)
 		{
-			tiletypeId = 0U;
+			std::ostringstream oss;
+			oss << "[Error] Couldn't load texture for tileType " << tiletypeId << ".\n";
+			Log::GetInstance()->Error(oss.str());
+			return INVALID_TILE_TYPE;
 		}
+		m_TexturesId[tiletypeId - 1] = textId;
 	}
 
-	void TileTypeManager::Collect()
+	return tiletypeId;
+}
+
+bool TileTypeManager::SetTileTexture(TileTypeId tileTypeId, Entity tileId)
+{
+	if (tileTypeId == INVALID_TILE_TYPE)
+		return false;
+
+	if (!m_Engine.GetEntityManager()->HasComponent(tileId, ComponentType::SPRITE2D))
+		m_SpriteManager->AddComponent(tileId);
+	
+	m_SpriteManager->GetComponentPtr(tileId)->SetTexture(m_TextureManager->GetTexture(m_TexturesId[tileTypeId]));
+	return true;
+}
+
+void TileTypeManager::Clear()
+{
+	for (auto& tiletypeId : m_TileTypeId)
 	{
-
+		tiletypeId = 0U;
 	}
+}
+
+void TileTypeManager::Collect()
+{
+
+}
 }

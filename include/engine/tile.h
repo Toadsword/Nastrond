@@ -22,39 +22,60 @@
  SOFTWARE.
  */
 
-#ifndef SFGE_SYSTEMS_CONTAINER_H
-#define SFGE_SYSTEMS_CONTAINER_H
 
-#include <graphics/graphics2d.h>
-#include <audio/audio.h>
-#include <engine/scene.h>
-#include <input/input.h>
-#include <python/python_engine.h>
-#include <physics/physics2d.h>
-#include <engine/entity.h>
+#ifndef SFGE_TILE_H_
+#define SFGE_TILE_H_
+
+#include <engine/component.h>
 #include <engine/transform2d.h>
-#include <editor/editor.h>
-#include <engine/tilemap.h>
+#include <engine/tile_asset.h>
 
 namespace sfge
 {
-struct SystemsContainer
+class Tilemap;
+class TilemapManager;
+
+class Tile : public LayerComponent, public TransformRequiredComponent
 {
- public:
-  SystemsContainer(Engine& engine);
-  SystemsContainer(const SystemsContainer&) = delete;
+	Tile();
+	Tile(Transform2d* transform);
 
-  Graphics2dManager graphics2dManager;
-  AudioManager audioManager;
-  SceneManager sceneManager;
-  InputManager inputManager;
-  PythonEngine pythonEngine;
-  Physics2dManager physicsManager;
-  Editor editor;
-  EntityManager entityManager;
-  Transform2dManager transformManager;
-  TilemapManager tilemapManager;
+	Entity GetParentTilemap();
 
+protected:
+	short m_Layer = -1;
+	int m_Type = -1;
+	Entity m_ParentTilemapEntity;
 };
+
+namespace editor
+{
+	struct TileInfo : ComponentInfo
+	{
+		void DrawOnInspector() override;
+		Tile* tile = nullptr;
+		short layer = -1;
+		int type = -1;
+	};
 }
-#endif //SFGE_SYSTEMS_CONTAINER_H
+
+class TileManager :
+	public SingleComponentManager<Tile, editor::TileInfo, ComponentType::TILE>
+{
+public:
+	using SingleComponentManager::SingleComponentManager;
+	void Init() override;
+
+	void Collect() override;
+	Tile* AddComponent(Entity entity) override;
+	void CreateComponent(TileTypeId tileType, Entity entity);
+	void CreateComponent(json& componentJson, Entity entity) override;
+	void DestroyComponent(Entity entity) override;
+	void OnResize(size_t new_size) override;
+
+protected:
+	Transform2dManager* m_Transform2dManager = nullptr;
+	TilemapManager* m_TilemapManager = nullptr;
+};	
+}
+#endif

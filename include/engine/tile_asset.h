@@ -34,6 +34,7 @@ namespace sfge
 
 using TextureId = unsigned;
 class TextureManager;
+class SpriteManager;
 
 using TileTypeId = unsigned;
 const TileTypeId INVALID_TILE_TYPE = 0U;
@@ -58,25 +59,33 @@ public:
 	* \param filename The filename string containing the tile types used in the game
 	* \return The strictly positive tile type id > 0, if equals 0 then the tile types was not loaded
 	*/
-	TileTypeId LoadTileTypes(std::string filename);
+	TileTypeId LoadTileType(std::string filename);
+
+	/**
+	* \brief load the tile types from the disk
+	* \param filename The filename string containing the tile types used in the game
+	* \return The strictly positive tile type id > 0, if equals 0 then the tile types was not loaded
+	*/
+	TileTypeId LoadTileType(json& jsonData);
+
 	/**
 	* \brief Set a texture to the current passed tile.
 	* \param tileTypeId The tiletype id to apply to the tile
 	* \param tileId The tile entity to apply texture or animation
 	* \return true if successful, false otherwise
 	*/
-	bool SetTileTexture(TileTypeId tileTypeId, Tile tileId);
+	bool SetTileTexture(TileTypeId tileTypeId, Entity tileId);
 
 	void Clear() override;
 
 	void Collect() override;
 
 protected:
-	TextureManager* m_TextureManager = nullptr;
-
+	TextureManager* m_TextureManager;
+	SpriteManager* m_SpriteManager;
 private:
-	std::vector<TextureId> m_TexturesId{ INIT_ENTITY_NMB * 4 };
-	std::vector<size_t> m_TileTypeId = std::vector<size_t>(INIT_ENTITY_NMB * 4, 0);
+	std::vector<TextureId> m_TexturesId{ INIT_ENTITY_NMB};
+	std::vector<size_t> m_TileTypeId = std::vector<size_t>(INIT_ENTITY_NMB, 0);
 };
 }
 
