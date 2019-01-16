@@ -63,8 +63,8 @@ void Graphics2dManager::Init()
 	m_TextureManager.Init();
 	m_ShapeManager.Init();
 	m_SpriteManager.Init();
-	m_AnimationManager.Init();
-
+ 	m_AnimationManager.Init();
+	m_CameraManager.Init();
 }
 
 void Graphics2dManager::Update(float dt)
@@ -77,6 +77,9 @@ void Graphics2dManager::Update(float dt)
 		m_SpriteManager.Update(dt);
 		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
+
+		//Refresh View Window
+		m_CameraManager.Update(dt);
 	}
 }
 
@@ -136,6 +139,12 @@ ShapeManager* Graphics2dManager::GetShapeManager()
 	return &m_ShapeManager;
 }
 
+CameraManager* Graphics2dManager::GetCameraManager()
+{
+	return &m_CameraManager;
+}
+
+
 void Graphics2dManager::CheckVersion() const
 {
 	sf::ContextSettings settings = m_Window->getSettings();
@@ -168,7 +177,6 @@ void Graphics2dManager::Clear()
 
 void Graphics2dManager::Collect()
 {
-
 	m_TextureManager.Collect();
 	m_SpriteManager.Collect();
 }

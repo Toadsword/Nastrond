@@ -1,174 +1,227 @@
-//#include <sstream>
-//#include <string>
-//#include <list>
-//#include <set>
-//
-//
-//#include <graphics/graphics2d.h>
-//#include <graphics/shape2d.h>
-//#include <utility/json_utility.h>
-//#include <utility/log.h>
-//#include <engine/transform2d.h>
-//#include <engine/engine.h>
-//#include <imgui.h>
-//#include <imgui-SFML.h>
-//#include "graphics/camera.h"
-//
-//
-//namespace sfge
-//{
-//
-//	Entity Camera::GetEntity()
-//	{
-//		return m_Entity;
-//	}
-//	void Camera::SetEntity(Entity entity)
-//	{
-//		m_Entity = entity;
-//	}
-//
-//	//void CameraManager::CreateComponent(json & componentJson, Entity entity)
-//	//{
-//
-//	//	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
-//	//	{
-//	//		const auto path = componentJson["path"].get<std::string>();
-//	//		sf::View* view = nullptr;
-//	//		if (FileExists(path))
-//	//		{
-//	//			auto* camera = AddComponent(entity);
-//	//			if (camera == nullptr)
-//	//			{
-//	//				std::ostringstream oss;
-//	//				oss << "All sound channels used";
-//	//				Log::GetInstance()->Error(oss.str());
-//	//				return;
-//	//			}
-//	//			camera->SetEntity(entity);
-//	//			const int index = camera - &m_Components[0];
-//	//			auto* cameraInfo = &m_ComponentsInfo[index];
-//
-//	//			if (CameraId != INVALID_CAMERA_ID)
-//	//			{
-//	//				cameraInfo->SetEntity(entity);
-//	//				cameraInfo->path = path;
-//	//				view = m_SoundBufferManager->GetSoundBuffer(CameraId);
-//	//				//camera->SetBuffer(soundBuffer);
-//	//				cameraInfo->CameraId = cameraId;
-//	//			}
-//	//			else
-//	//			{
-//	//				std::ostringstream oss;
-//	//				oss << "Sound file " << path << " cannot be loaded";
-//	//				Log::GetInstance()->Error(oss.str());
-//	//			}
-//	//		}
-//	//		else
-//	//		{
-//	//			std::ostringstream oss;
-//	//			oss << "Sound file " << path << " does not exist";
-//	//			Log::GetInstance()->Error(oss.str());
-//	//		}
-//	//	}
-//	//	else
-//	//	{
-//	//		Log::GetInstance()->Error("[Error] No Path for Sound");
-//	//	}
-//	//}
-//
-//	Camera* CameraManager::AddComponent(Entity entity)
-//	{
-//		Camera* camera = nullptr;
-//		editor::CameraInfo* cameraInfo = nullptr;
-//		const int id = GetFreeComponentIndex();
-//		if (id != -1)
-//		{
-//			camera = &m_Components[id];
-//			cameraInfo = &m_ComponentsInfo[id];
-//
-//			cameraInfo->Camera = camera;
-//			m_EntityManager->AddComponentType(entity, ComponentType::CAMERA);
-//			return camera;
-//		}
-//		return nullptr;
-//	}
-//
-//	void CameraManager::DestroyComponent(Entity entity)
-//	{
-//		(void)entity;
-//	}
-//
-//	void Camera::Init(sf::RenderWindow& window)
-//	{
-//		// Apply it
-//		window.setView(m_View);
-//	}
-//
-//	sfge::Camera::Camera() : Camera(nullptr, sf::Vector2f())
-//	{
-//	}
-//
-//	sfge::Camera::Camera(Transform2d * transform, const sf::Vector2f offset) :
-//		Offsetable(offset), TransformRequiredComponent(transform){
-//
-//	}
-//
-//	sfge::Camera::~Camera()
-//	{
-//	}
-//
-//
-//
-//
-//
-//	void CameraManager::Init()
-//	{
-//		BasicComponentManager::Init();
-//		m_Components.resize(MAX_CAMERA);
-//		m_ComponentsInfo.resize(MAX_CAMERA);
-//	}
-//	void CameraManager::Reset()
-//	{
-//
-//	}
-//
-//	void CameraManager::Collect()
-//	{
-//
-//	}
-//
-//	Camera *CameraManager::GetComponentPtr(Entity entity)
-//	{
-//		for (auto& camera : m_Components)
-//		{
-//			if (camera.GetEntity() == entity)
-//				return &camera;
-//		}
-//		return nullptr;
-//	}
-//
-//	int CameraManager::GetFreeComponentIndex()
-//	{
-//		for (auto i = 0u; i < MAX_CAMERA; i++)
-//		{
-//			if (m_Components[i].GetEntity() == INVALID_ENTITY)
-//			{
-//				return i;
-//			}
-//		}
-//		return -1;
-//	}
-//
-//
-//}
-//
-//	void sfge::editor::CameraInfo::DrawOnInspector()
-//	{
-//		ImGui::Separator();
-//		ImGui::Text("Camera");
-//
-//		ImGui::LabelText("Camera Path", "%s", path.c_str());
-//		ImGui::InputInt("Camera Id", reinterpret_cast<int*>(&Camera));
-//
-//	}
-//
+/*
+MIT License
+
+Copyright (c) 2017 SAE Institute Switzerland AG
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+#include <graphics/graphics2d.h>
+#include <Graphics/camera.h>
+#include <utility/file_utility.h>
+
+#include <utility/log.h>
+#include <engine/engine.h>
+#include <engine/config.h>
+#include <engine/transform2d.h>
+
+#include <imgui.h>
+#include <imgui-SFML.h>
+
+namespace sfge
+{
+	Camera::Camera() : TransformRequiredComponent(nullptr) , Offsetable(sf::Vector2f())
+	{
+		
+	}
+
+	Camera::Camera(Transform2d* transform, sf::Vector2f offset, sf::Vector2f size)
+	: TransformRequiredComponent(transform), Offsetable(offset)	{
+		m_View.setSize(size);
+	}
+
+	float Camera::GetRotation()
+	{
+		return m_View.getRotation();
+	}
+
+	void Camera::SetRotation(float angle)
+	{
+		m_View.setRotation(angle);
+	}
+
+	Vec2f Camera::GetPosition()
+	{
+		return  m_View.getCenter();
+	}
+
+	void Camera::SetPosition(Vec2f position)
+	{
+		m_View.setCenter(position);
+	}
+
+	void Camera::Update(float dt, sf::RenderWindow& window)
+	{
+		sf::Vector2u sizeWindow = window.getSize();
+		sf::Vector2i positionWindow = window.getPosition();
+
+		sf::Vector2f PositionCamera = GetPosition();
+		float velocityCamera = 150.0f;
+
+
+		//system cursor
+		sf::Vector2i positionCursor = sf::Mouse::getPosition();
+		positionWindow = window.getPosition();
+
+		if (positionCursor.x >= positionWindow.x && positionCursor.x <= positionWindow.x + sizeWindow.x
+			&& positionCursor.y >= positionWindow.y && positionCursor.y <= positionWindow.y + sizeWindow.y)
+		{
+
+			if (positionCursor.y < positionWindow.y + sizeWindow.y / 100 * 10)
+			{
+				std::cout << PositionCamera.x << std::endl;
+				PositionCamera -= sf::Vector2f(0, velocityCamera*dt);
+			}
+
+			if (positionCursor.y > positionWindow.y + sizeWindow.y / 100 * 90)
+			{
+				std::cout << PositionCamera.x << std::endl;
+				PositionCamera += sf::Vector2f(0, velocityCamera*dt);
+			}
+
+			if (positionCursor.x < positionWindow.x + sizeWindow.x / 100 * 10)
+			{
+				std::cout << PositionCamera.x << std::endl;
+				PositionCamera -= sf::Vector2f(velocityCamera*dt, 0);
+			}
+
+			if (positionCursor.x > positionWindow.x + sizeWindow.x / 100 * 90)
+			{
+				std::cout << PositionCamera.x << std::endl;
+				PositionCamera += sf::Vector2f(velocityCamera*dt, 0);
+			}
+		}
+
+		SetPosition(PositionCamera);
+
+
+		window.setView(m_View);
+	}
+
+	Camera* CameraManager::GetMainCamera()
+	{
+		return &(*m_cameras.begin());
+	}
+
+	Camera* CameraManager::AddComponent(Entity entity)
+	{
+		auto& camera = GetComponentRef(entity);
+		auto& cameraInfo = GetComponentInfo(entity);
+
+		camera.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
+		cameraInfo.camera = &camera;
+		m_ComponentsInfo[entity - 1].SetEntity(entity);
+
+		m_EntityManager->AddComponentType(entity, ComponentType::CAMERA);
+		return &camera;
+	}
+
+	void CameraManager::Init()
+	{
+		SingleComponentManager::Init();
+		m_GraphicsManager = m_Engine.GetGraphics2dManager();
+		m_Transform2dManager = m_Engine.GetTransform2dManager();
+	}
+
+
+	void CameraManager::Update(float dt)
+	{
+		rmt_ScopedCPUSample(CameraUpdate, 0)
+			for (auto i = 0u; i < m_Components.size(); i++)
+			{
+				if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
+				{
+					if (i == cameraCurrent) 
+					{
+						m_Components[i].Update(dt, (*m_GraphicsManager->GetWindow()));
+					}
+				}
+			}
+		//m_camera.Update(dt, (*m_GraphicsManager->GetWindow()));
+	}
+
+	void CameraManager::SetCameraCurrent(short current)
+	{
+		cameraCurrent = current;
+	}
+
+	void CameraManager::Reset()
+	{
+	}
+
+	void CameraManager::Collect()
+	{
+
+	}
+
+	void CameraManager::CreateComponent(json& componentJson, Entity entity)
+	{
+		auto & newCamera = m_Components[entity - 1];
+		auto & newCameraInfo = m_ComponentsInfo[entity - 1];
+
+		newCamera.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
+		if (CheckJsonParameter(componentJson, "path", json::value_t::string))
+		{
+			std::string path = componentJson["path"];
+			if (!FileExists(path))
+			{
+				std::ostringstream oss;
+				oss << "Texture file " << path << " does not exist";
+				Log::GetInstance()->Error(oss.str());
+				return;
+			}
+
+
+			
+		}
+		else
+		{
+			Log::GetInstance()->Error("[Error] No Path for Camera");
+		}
+
+	}
+
+	void CameraManager::DestroyComponent(Entity entity)
+	{
+		(void)entity;
+	}
+
+	void editor::CameraInfo::DrawOnInspector()
+	{
+		ImGui::Separator();
+		ImGui::Text("Camera");
+		ImGui::LabelText("Camera name", "%s", name.c_str());
+		//ImGui::InputInt("Texture Id", (int*)&textureId);
+		if (camera)
+		{
+			float offset[2] =
+			{
+				camera->GetOffset().x,
+				camera->GetOffset().y
+			};
+			ImGui::InputFloat2("Offset", offset);
+		}
+	}
+
+	sf::View Camera::GetView()
+	{
+		return m_View;
+	}
+
+
+}
