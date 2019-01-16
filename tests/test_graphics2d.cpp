@@ -157,17 +157,21 @@ TEST(Graphics2d, TestCamera)
 {
 	sfge::Engine engine;
 	engine.Init();
+
 	json sceneJson;
 	json entityJson;
 	json spriteJson;
-	json CameraJson;
 	spriteJson["path"] = "data/sprites/other_play.png";
 	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	entityJson["components"] = json::array({ spriteJson });
+
+	json entityJson2;
+	json CameraJson;
 	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
-	entityJson["components"] = json::array({ spriteJson, CameraJson });
+	entityJson2["components"] = json::array({ CameraJson });
 
 
-	sceneJson["entities"] = json::array({ entityJson });
+	sceneJson["entities"] = json::array({ entityJson2, entityJson });
 	sceneJson["name"] = "Test Camera";
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 

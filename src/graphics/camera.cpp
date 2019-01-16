@@ -106,10 +106,7 @@ namespace sfge
 				PositionCamera += sf::Vector2f(velocityCamera*dt, 0);
 			}
 		}
-
 		SetPosition(PositionCamera);
-
-
 		window.setView(m_View);
 	}
 
@@ -152,7 +149,6 @@ namespace sfge
 					}
 				}
 			}
-		//m_camera.Update(dt, (*m_GraphicsManager->GetWindow()));
 	}
 
 	void CameraManager::SetCameraCurrent(short current)
@@ -174,6 +170,8 @@ namespace sfge
 		auto & newCamera = m_Components[entity - 1];
 		auto & newCameraInfo = m_ComponentsInfo[entity - 1];
 
+		newCameraInfo.camera = &newCamera;
+
 		newCamera.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 		if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 		{
@@ -185,15 +183,11 @@ namespace sfge
 				Log::GetInstance()->Error(oss.str());
 				return;
 			}
-
-
-			
 		}
 		else
 		{
 			Log::GetInstance()->Error("[Error] No Path for Camera");
 		}
-
 	}
 
 	void CameraManager::DestroyComponent(Entity entity)
@@ -205,16 +199,22 @@ namespace sfge
 	{
 		ImGui::Separator();
 		ImGui::Text("Camera");
-		ImGui::LabelText("Camera name", "%s", name.c_str());
+		//ImGui::LabelText("Camera name", "%s", name.c_str());
 		//ImGui::InputInt("Texture Id", (int*)&textureId);
 		if (camera)
 		{
-			float offset[2] =
-			{
+			float offset[2] = {
 				camera->GetOffset().x,
 				camera->GetOffset().y
 			};
 			ImGui::InputFloat2("Offset", offset);
+
+			float position[2] =
+			{
+				camera->GetPosition().x,
+				camera->GetPosition().y
+			};
+			ImGui::InputFloat2("Position", position);
 		}
 	}
 
@@ -222,6 +222,4 @@ namespace sfge
 	{
 		return m_View;
 	}
-
-
 }
