@@ -22,18 +22,43 @@
  SOFTWARE.
  */
 
-#include <engine/tile.h>
-#include <engine/tile_asset.h>
-#include <graphics/texture.h>
+ /*******************************
+  * Author : Duncan Bourquard
+  * Date : 16.01.2019
+  */
 
 #include <imgui.h>
 
-namespace sfge {
+#include <engine/tile.h>
+#include <engine/tilemap.h>
+#include <engine/tile_asset.h>
+#include <graphics/texture.h>
 
-Entity Tile::GetParentTilemap()
+namespace sfge 
 {
-	return m_ParentTilemapEntity;
+
+Tile::Tile() :
+	TransformRequiredComponent(nullptr)
+{
+
 }
+
+Tile::Tile(Transform2d * transform) :
+	TransformRequiredComponent(transform)
+{
+}
+
+void Tile::SetParentTilemap(Entity parent)
+{
+	m_ParentTilemapEntity = parent;
+}
+
+void Tile::SetLayer(short newLayer)
+{
+	if (newLayer > 0)
+		m_Layer = newLayer;
+}
+
 
 void editor::TileInfo::DrawOnInspector()
 {
@@ -64,6 +89,12 @@ Tile * TileManager::AddComponent(Entity entity)
 	return &tile;
 }
 
+Tile * TileManager::AddComponent(Entity entity, TileTypeId tileType)
+{
+
+
+}
+
 void TileManager::CreateComponent(TileTypeId tileType, Entity entity)
 {
 	auto & newTile = m_Components[entity - 1];
@@ -72,7 +103,7 @@ void TileManager::CreateComponent(TileTypeId tileType, Entity entity)
 	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(tileType, entity);
 }
 
-void TileManager::CreateComponent(json & componentJson, Entity entity)
+void TileManager::CreateComponent(json& componentJson, Entity entity)
 {
 }
 

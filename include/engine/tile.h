@@ -22,6 +22,10 @@
  SOFTWARE.
  */
 
+ /*******************************
+  * Author : Duncan Bourquard
+  * Date : 16.01.2019
+  */
 
 #ifndef SFGE_TILE_H_
 #define SFGE_TILE_H_
@@ -37,10 +41,13 @@ class TilemapManager;
 
 class Tile : public LayerComponent, public TransformRequiredComponent
 {
+public:
 	Tile();
 	Tile(Transform2d* transform);
 
-	Entity GetParentTilemap();
+	void SetParentTilemap(Entity parent);
+
+	void SetLayer(short newLayer);
 
 protected:
 	short m_Layer = -1;
@@ -68,6 +75,7 @@ public:
 
 	void Collect() override;
 	Tile* AddComponent(Entity entity) override;
+	Tile* AddComponent(Entity entity, TileTypeId tileType);
 	void CreateComponent(TileTypeId tileType, Entity entity);
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;

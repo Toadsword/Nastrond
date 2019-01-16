@@ -62,7 +62,7 @@ public:
     
     virtual void OnCollisionEnter(ColliderData* collider) {(void) collider;};
     virtual void OnTriggerEnter(ColliderData * collider) { (void) collider;};
-    virtual  void OnCollisionExit(ColliderData* collider) {(void) collider;};
+    virtual void OnCollisionExit(ColliderData* collider) {(void) collider;};
     virtual void OnTriggerExit(ColliderData * collider) {(void) collider;};
     
     

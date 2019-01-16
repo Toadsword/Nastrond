@@ -22,12 +22,16 @@
  SOFTWARE.
  */
 
+ /*******************************
+  * Author : Duncan Bourquard
+  * Date : 16.01.2019
+  */
+
 #ifndef SFGE_TILE_ASSET_H_
 #define SFGE_TILE_ASSET_H_
 
  //tool_engine
 #include <engine/component.h>
-#include <engine/tilemap.h>
 
 namespace sfge
 {

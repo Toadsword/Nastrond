@@ -22,6 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*******************************
+ * Author : Duncan Bourquard
+ * Date : 16.01.2019
+ */
+
 #include <engine/engine.h>
 #include <engine/tile_asset.h>
 #include <graphics/texture.h>
@@ -67,7 +72,7 @@ TileTypeId TileTypeManager::LoadTileType(json & jsonData)
 	else
 		return INVALID_TILE_TYPE;
 
-	if (CheckJsonExists(jsonData, "texturePath") && CheckJsonParameter(jsonData, "id", nlohmann::detail::value_t::string))
+	if (CheckJsonExists(jsonData, "texturePath") && CheckJsonParameter(jsonData, "texturePath", nlohmann::detail::value_t::string))
 	{
 		TextureId textId = m_TextureManager->LoadTexture(jsonData["texturePath"]);
 		if(textId == INVALID_TEXTURE)

@@ -35,7 +35,8 @@ SystemsContainer::SystemsContainer(Engine &engine) : graphics2dManager(engine),
 	physicsManager(engine),
 	editor(engine),
 	entityManager(engine),
-	transformManager(engine)
+	transformManager(engine),
+	tilemapSystem(engine)
 {
 
 }

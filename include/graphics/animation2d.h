@@ -82,7 +82,7 @@ struct AnimationInfo : ComponentInfo
 	void DrawOnInspector() override;
 	Animation* animation = nullptr;
 	std::string name = "";
-	int speed = 0.1f;
+	float speed = 0.1f;
 	bool isLooped = false;
 };
 }

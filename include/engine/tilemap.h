@@ -22,6 +22,11 @@
  SOFTWARE.
  */
 
+ /*******************************
+  * Author : Duncan Bourquard
+  * Date : 16.01.2019
+  */
+
 #ifndef SFGE_TILEMAP_H_
 #define SFGE_TILEMAP_H_
 
@@ -35,16 +40,22 @@ namespace sfge
 {
 class Tilemap
 {
+public:
 	Tilemap();
-	Tilemap(Transform2d* transform, sf::Vector2f offset);
 
-	void Init();
+	void Init(TileManager* tileManager);
 	void Update();
 
+	void SetSize(Vec2f newSize);
+	void SetLayer(short newLayer);
+	void InitializeMap(json& map);
+
 protected:
-	std::vector<Entity> tiles;
-	short layer = 0;
-	Vec2f size = {100, 100};
+	std::vector<std::vector<Entity>> m_Tiles;
+	short m_Layer = 0;
+	Vec2f m_Size = {100, 100};
+
+	TileManager* m_TileManager;
 };
 
 
