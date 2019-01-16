@@ -187,6 +187,7 @@ Body2d* Body2dManager::AddComponent(Entity entity)
 		auto& componentInfo = m_ComponentsInfo[entity-1];
 		componentInfo.body = &m_Components[entity - 1];
 		componentInfo.name = "Body";
+		componentInfo.SetEntity(entity);
 
 		m_EntityManager->AddComponentType(entity, ComponentType::BODY2D);
 		return &m_Components[entity - 1];
