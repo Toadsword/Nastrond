@@ -26,13 +26,14 @@ SOFTWARE.
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
-#include "navigation_graph_manager.h"
+#include <extensions/navigation_graph_manager.h>
 
 namespace sfge::ext
 {
 
 #define DEBUG_DRAW_PATH
 #define DEBUG_SPAWN_DWARF
+#define DEBUG_RANDOM_PATH
 
 /**
  * \author Nicolas Schneider
@@ -49,7 +50,11 @@ public:
 
 	void Draw() override;
 
-	void CreateDwarf(const Vec2f pos);
+	/**
+	 * \brief Spawn a new Dwarf at the given position
+	 * \param pos where the dwarf will spawn
+	 */
+	void SpawnDwarf(const Vec2f pos);
 
 private:
 	Transform2dManager * m_Transform2DManager;
@@ -58,11 +63,11 @@ private:
 	NavigationGraphManager* m_NavigationGraphManager;
 
 	//Dwarfs Holder
-	unsigned int m_IndexNewDwarf = 0;
+	size_t m_IndexNewDwarf = 0;
 	const size_t m_ContainersExtender = 100;
 	std::vector<unsigned int> m_DwarfsEntitiesIndex;
 
-	void ResizeContainers(int newSize);
+	void ResizeContainers(const size_t newSize);
 
 	//State management
 	enum State
@@ -79,6 +84,7 @@ private:
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
+	const float m_SpeedDwarf = 2;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
@@ -92,7 +98,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	unsigned int m_DwarfToSpawn = 100;
+	const size_t m_DwarfToSpawn = 100;
 #endif
 
 	//Dwarfs texture
