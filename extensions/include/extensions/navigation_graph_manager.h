@@ -85,6 +85,14 @@ private:
 
 	Graphics2dManager* m_Graphics2DManager;
 
+	//Queue for waiting path
+	struct WaitingPath {
+		std::vector<Vec2f>* path;
+		Vec2f destination;
+		Vec2f origin;
+	};
+	std::queue<WaitingPath> m_WaitingPaths;
+
 	//Heuristic for pathfinding
 	const float HEURISTIC_1 = 1;
 	const float HEURISTIC_2 = sqrt(2.f);

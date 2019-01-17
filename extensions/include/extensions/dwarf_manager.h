@@ -92,7 +92,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	unsigned int m_DwarfToSpawn = 1;
+	unsigned int m_DwarfToSpawn = 100;
 #endif
 
 	//Dwarfs texture
