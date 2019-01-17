@@ -162,6 +162,12 @@ namespace sfge::ext
 		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_tileExtends.x, m_tileExtends.y) * 0.5f, pos + Vec2f(-m_tileExtends.x, -m_tileExtends.y) * 0.5f, sf::Color::Black);
 	}
 
+	void NavigationGraphManager::AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination) {
+		std::vector<Vec2f> tmp = GetPathFromTo(origin, destination);
+		path->assign(tmp.begin(), tmp.end());
+	}
+
+
 	/**
 	 * \brief Create graph nodes from an array 2x2 of cost
 	 * \param map array 2x2 of cost

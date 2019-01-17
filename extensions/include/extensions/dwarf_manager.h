@@ -68,7 +68,8 @@ private:
 	enum State
 	{
 		IDLE,
-		WALKING
+		WALKING,
+		WAITING_NEW_PATH
 	};
 	std::vector<State> m_States;
 
@@ -91,7 +92,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	unsigned int m_DwarfToSpawn = 500;
+	unsigned int m_DwarfToSpawn = 1;
 #endif
 
 	//Dwarfs texture

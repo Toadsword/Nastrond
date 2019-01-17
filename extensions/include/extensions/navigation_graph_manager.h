@@ -70,6 +70,8 @@ public:
 
 	void Draw() override;
 
+	void AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination);
+
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 

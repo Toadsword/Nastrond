@@ -110,11 +110,15 @@ void DwarfManager::Update(float dt) {
 		if (m_States[i] == State::IDLE) {
 
 			auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntitiesIndex[i]);
-			m_Paths[i] = m_NavigationGraphManager->GetPathFromTo(transformPtr->Position,
+			m_NavigationGraphManager->AskForPath(&m_Paths[i], transformPtr->Position,
 			                                                     Vec2f(std::rand() % static_cast<int>(screenSize.x),
 			                                                           std::rand() % static_cast<int>(screenSize.y
 			                                                           )));
-			m_States[i] = State::WALKING;
+			m_States[i] = State::WAITING_NEW_PATH;
+		} else if(m_States[i] == State::WAITING_NEW_PATH) {
+			if(!m_Paths[i].empty()) {
+				m_States[i] = State::WALKING;
+			}
 		}
 	}
 }
