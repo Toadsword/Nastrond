@@ -78,7 +78,7 @@ public:
 	* \param tileId The tile entity to apply texture or animation
 	* \return true if successful, false otherwise
 	*/
-	bool SetTileTexture(TileTypeId tileTypeId, Entity tileId);
+	bool SetTileTexture(Entity tileId, TileTypeId tileTypeId);
 
 	void Clear() override;
 
@@ -88,7 +88,7 @@ protected:
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
 private:
-	std::vector<TextureId> m_TexturesId{ INIT_ENTITY_NMB};
+	std::vector<TextureId> m_TexturesId{INIT_ENTITY_NMB};
 	std::vector<size_t> m_TileTypeId = std::vector<size_t>(INIT_ENTITY_NMB, 0);
 };
 }

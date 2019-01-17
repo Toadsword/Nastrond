@@ -50,13 +50,18 @@ void Tilemap::Update()
 {
 }
 
-void Tilemap::SetSize(Vec2f newSize)
+void Tilemap::SetSize(sf::Vector2<unsigned> newSize)
 {
 	if (newSize.x <= 0 || newSize.y <= 0)
 		return;
 
 	m_Size = newSize;
-	m_Tiles = std::vector<std::vector<Entity>>{newSize.x, std::vector<Entity>(newSize.y)};
+	m_Tiles = std::vector<std::vector<Entity>>{ newSize.x, std::vector<Entity>(newSize.y)};
+}
+
+sf::Vector2<unsigned> Tilemap::GetSize()
+{
+	return m_Size;
 }
 
 void Tilemap::SetLayer(short newLayer)
@@ -65,27 +70,29 @@ void Tilemap::SetLayer(short newLayer)
 		m_Layer = newLayer;
 }
 
-void Tilemap::InitializeMap(json & map)
+short Tilemap::GetLayer()
 {
-	for (int i = 0; i < m_Size.x; i++)
-	{
-		for (int j = 0; j < m_Size.y; j++)
-		{
-			m_TileManager->AddComponent();
-			map[i][j].get<int>();
-		}
-	}
+	return m_Layer;
 }
 
+std::vector<std::vector<Entity>>& Tilemap::GetTiles()
+{
+	return m_Tiles;
+}
+
+void Tilemap::AddTile(Vec2f pos, Entity entity)
+{
+	m_Tiles[pos.x][pos.y] = entity;
+}
 
 void editor::TilemapInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Tile");
 	ImGui::InputInt("Layer", (int*)layer);
-	ImGui::InputFloat("Size%x", &size.x);
+	ImGui::InputInt("Size%x", (int*)size.x);
 	ImGui::SameLine();
-	ImGui::InputFloat("Size%y", &size.y);
+	ImGui::InputInt("Size%y", (int*)size.y);
 }
 
 void TilemapManager::Init()
@@ -94,6 +101,10 @@ void TilemapManager::Init()
 }
 
 void TilemapManager::Update(float dt)
+{
+}
+
+void TilemapManager::Clear()
 {
 }
 
@@ -124,30 +135,66 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 		newTilemapInfo.layer = componentJson["layer"].get<short>();
 	}
 
-	Vec2f mapSize = Vec2f();
+	sf::Vector2<unsigned> mapSize = sf::Vector2<unsigned>();
 	if (CheckJsonExists(componentJson, "size") && CheckJsonParameter(componentJson, "size", nlohmann::detail::value_t::array))
 	{
-		mapSize.x = componentJson["size"][0].get<int>();
-		mapSize.y = componentJson["size"][1].get<int>();
+		mapSize.x = componentJson["size"][0].get<unsigned>();
+		mapSize.y = componentJson["size"][1].get<unsigned>();
 		newTilemap.SetSize(mapSize);
 		newTilemapInfo.size = mapSize;
 	}
 
 	if(CheckJsonExists(componentJson, "map") && CheckJsonParameter(componentJson, "map", nlohmann::detail::value_t::array))
 	{
-		newTilemap.InitializeMap(componentJson);
+		InitializeMap(entity, componentJson);
 	}
 }
 
 void TilemapManager::DestroyComponent(Entity entity)
 {
-	(void)entity;
+	(void) entity;
 }
 
 void TilemapManager::OnResize(size_t new_size)
 {
 	m_Components.resize(new_size);
 	m_ComponentsInfo.resize(new_size);
+}
+
+void TilemapManager::InitializeMap(Entity entity, json & map)
+{
+	auto & tilemap = m_Components[entity - 1];
+	EmptyMap(entity);
+
+	sf::Vector2<unsigned> mapSize = tilemap.GetSize();
+	EntityManager* entityManager = m_Engine.GetEntityManager();
+
+	for (int i = 0; i < mapSize.x; i++)
+	{
+		for (int j = 0; j < mapSize.y; j++)
+		{
+			Entity newEntity = entityManager->CreateEntity(0);
+			m_TileManager->AddComponent(newEntity, map[i][j].get<int>());
+		}
+	}
+}
+
+void TilemapManager::EmptyMap(Entity entity)
+{
+	auto & tilemap = m_Components[entity - 1];
+	sf::Vector2<unsigned> mapSize = tilemap.GetSize();
+	std::vector<std::vector<Entity>>& map = tilemap.GetTiles();
+
+	EntityManager* entityManager = m_Engine.GetEntityManager();
+
+	for (int i = 0; i <= mapSize.x; i++)
+	{
+		for (int j = 0; j <= mapSize.y; j++)
+		{
+			entityManager->DestroyEntity(map[i][j]);
+			map[i][j] = INVALID_ENTITY;
+		}
+	}
 }
 
 void TilemapSystem::Init()

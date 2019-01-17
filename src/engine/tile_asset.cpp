@@ -88,7 +88,7 @@ TileTypeId TileTypeManager::LoadTileType(json & jsonData)
 	return tiletypeId;
 }
 
-bool TileTypeManager::SetTileTexture(TileTypeId tileTypeId, Entity tileId)
+bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
 {
 	if (tileTypeId == INVALID_TILE_TYPE)
 		return false;

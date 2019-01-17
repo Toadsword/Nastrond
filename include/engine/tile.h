@@ -46,8 +46,8 @@ public:
 	Tile(Transform2d* transform);
 
 	void SetParentTilemap(Entity parent);
-
 	void SetLayer(short newLayer);
+	void SetType(int newType);
 
 protected:
 	short m_Layer = -1;

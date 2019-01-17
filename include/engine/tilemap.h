@@ -46,14 +46,18 @@ public:
 	void Init(TileManager* tileManager);
 	void Update();
 
-	void SetSize(Vec2f newSize);
+	void SetSize(sf::Vector2<unsigned> newSize);
+	sf::Vector2<unsigned> GetSize();
 	void SetLayer(short newLayer);
-	void InitializeMap(json& map);
+	short GetLayer();
+	std::vector<std::vector<Entity>>& GetTiles();
+
+	void AddTile(Vec2f pos, Entity entity);
 
 protected:
 	std::vector<std::vector<Entity>> m_Tiles;
 	short m_Layer = 0;
-	Vec2f m_Size = {100, 100};
+	sf::Vector2<unsigned> m_Size = {100, 100};
 
 	TileManager* m_TileManager;
 };
@@ -66,7 +70,7 @@ struct TilemapInfo : ComponentInfo
 	void DrawOnInspector() override;
 	Tilemap* tilemap = nullptr;
 	short layer = 0;
-	Vec2f size = { 100, 100 };
+	sf::Vector2<unsigned> size = { 100, 100 };
 };
 }
 
@@ -78,14 +82,18 @@ public:
 	void Init() override;
 	void Update(float dt) override;
 
+	void Clear();
 	void Collect() override;
 	Tilemap* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 	void OnResize(size_t new_size) override;
 
+	void InitializeMap(Entity entity, json& map);
+	void EmptyMap(Entity entity);
 protected:
 	Transform2dManager* m_Transform2dManager = nullptr;
+	TileManager* m_TileManager = nullptr;
 };
 
 

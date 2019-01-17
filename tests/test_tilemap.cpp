@@ -23,39 +23,51 @@ SOFTWARE.
 */
 
 #include <engine/engine.h>
-#include <engine/scene.h>
+#include <engine/tilemap.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
 
-TEST(Scene, TestSwitchScene)
+
+TEST(Tilemap, TestLoadTilemap)
 {
 
 	sfge::Engine engine;
 	engine.Init();
 
-	engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_switch.scene");
+	engine.GetTilemapSystem()->GetTileTypeManager()->LoadTileType("data/tilemap/nastrond_tiles.asset");
 
+	json sceneJson;
+	json entityJson;
+	json tilemapJson;
+	tilemapJson["path"] = "data/tilemap/nastrond_tilemap.asset";
+	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
+	tilemapJson["isometric"] = false;
+	tilemapJson["size"] = std::array<int, 2>{10, 10};
+	tilemapJson["map"] = std::array<std::array<int, 10>, 10>{
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+	};
+	entityJson["components"] = json::array({ tilemapJson });
+	entityJson["name"] = "TilemapTest";
 
-	engine.Start();
+	sceneJson["entities"] = json::array({ entityJson });
+	sceneJson["name"] = "Test Tilemap";
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
-
-
-}
-
-TEST(Scene, TestSwitchSceneLeak)
-{
-
-	sfge::Engine engine;
-	engine.Init();
-
-
-    engine.GetSceneManager()->LoadSceneFromPath("data/scenes/scene_many_entities.scene");
-
+	//Ce que je faisais :
+	// Tenter de créer une scène et y ajouter une tilemap : la créer, faire en sorte qu'elle se génère comme il faut et qu'il affiche son contenu
+	// Je dois encore gérer le transform d'une tile en fonction de sa position dans la tilemape, et ne pas oublier le fait que la tilemap a une position de base.
+	// Manque encore la gestion du scale des tilemaps, et gérer la position de manière isométrique ou non.
 
 
 
     engine.Start();
-
-
-
 }

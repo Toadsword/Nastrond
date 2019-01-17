@@ -65,10 +65,8 @@ public:
     virtual void OnCollisionExit(ColliderData* collider) {(void) collider;};
     virtual void OnTriggerExit(ColliderData * collider) {(void) collider;};
     
-    
     py::object GetComponent(ComponentType componentType) const;
 	py::object GetPyComponent(py::object type);
-
 
     Entity GetEntity();
     

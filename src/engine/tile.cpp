@@ -59,6 +59,11 @@ void Tile::SetLayer(short newLayer)
 		m_Layer = newLayer;
 }
 
+void Tile::SetType(int newType)
+{
+	m_Type = newType;
+}
+
 
 void editor::TileInfo::DrawOnInspector()
 {
@@ -91,8 +96,13 @@ Tile * TileManager::AddComponent(Entity entity)
 
 Tile * TileManager::AddComponent(Entity entity, TileTypeId tileType)
 {
+	auto* tile = AddComponent(entity);
+	auto& tileInfo = GetComponentInfo(entity);
 
+	tile->SetType(tileType);
+	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(entity, tileType);
 
+	return tile;
 }
 
 void TileManager::CreateComponent(TileTypeId tileType, Entity entity)
