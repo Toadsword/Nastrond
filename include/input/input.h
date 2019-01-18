@@ -50,10 +50,18 @@ private:
 	std::array<KeyPressedStatus, sf::Keyboard::Key::KeyCount> keyPressedStatusArray= {};
 };
 
-class MouseManager
+class MouseManager : public System
 {
 public:
+	using System::System;
+	void Update(float dt) override;
 	sf::Vector2i GetLocalPosition(sf::Window& window) const;
+	bool IsButtonHeld(sf::Mouse::Button button) const;
+	bool IsButtonDown(sf::Mouse::Button button) const;
+	bool IsButtonUp(sf::Mouse::Button button) const;
+
+private:
+	std::array<KeyPressedStatus, sf::Mouse::Button::ButtonCount> buttonPressedStatusArray = {};
 };
 /**
 * \brief Handles Input like the Keyboard, the Joystick or the Mouse
@@ -81,7 +89,7 @@ public:
 
 protected:
 	KeyboardManager m_KeyboardManager{m_Engine};
-	MouseManager m_MouseManager;
+	MouseManager m_MouseManager{m_Engine};
 };
 
 

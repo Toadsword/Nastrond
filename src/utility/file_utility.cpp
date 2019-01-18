@@ -45,7 +45,7 @@ bool IsRegularFile(std::string& filename)
     return fs::is_regular_file(p);
 
 }
-bool IsDirectory(std::string & filename)
+bool IsDirectory(const std::string & filename)
 {
 	fs::path p = filename;
 	return fs::is_directory(p);

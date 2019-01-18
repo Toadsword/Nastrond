@@ -40,7 +40,7 @@ bool FileExists(const std::string& filename);
 
 bool IsRegularFile(std::string& filename);
 
-bool IsDirectory(std::string& filename);
+bool IsDirectory(const std::string& filename);
 
 void IterateDirectory(std::string& dirname, std::function<void(std::string)>);
 

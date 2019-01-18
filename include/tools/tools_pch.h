@@ -1,7 +1,8 @@
 /*
+
 MIT License
 
-Copyright (c) 2017 SAE Institute Switzerland AG
+Copyright (c) 2018 SAE Institute Switzerland AG
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +21,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 */
+#ifndef SFGE_TOOL_PCH_H
+#define SFGE_TOOL_PCH_H
 
-#include <editor/profiler.h>
-#include <engine/engine.h>
-#include <imgui.h>
+#include <utility/python_utility.h>
 
-namespace sfge::editor
+namespace sfge::tools
 {
-ProfilerEditorWindow::ProfilerEditorWindow(Engine& engine): m_ProfilerFrameData(engine.GetProfilerFrameData ())
-{
-
+void ExtendPythonTools(py::module& m);
 }
-void ProfilerEditorWindow::Update ()
-{
-  ImGui::Begin("Stats");
-  {
-    std::ostringstream oss;
-    oss << "FPS: " << 1.0f / m_ProfilerFrameData.frameTotalTime.asSeconds() << "\n"
-    << "Fixed Update: " << m_ProfilerFrameData.frameFixedUpdate.asMicroseconds() << ", " <<m_ProfilerFrameData.frameFixedUpdate.asSeconds() / m_ProfilerFrameData.frameTotalTime.asSeconds() * 100.0f << "%\n"
-    << "Graphics Update: " << m_ProfilerFrameData.graphicsTime.asMicroseconds() << ", " <<m_ProfilerFrameData.graphicsTime.asSeconds() / m_ProfilerFrameData.frameTotalTime.asSeconds() * 100.0f;
 
-    ImGui::Text("%s", oss.str().c_str());
-  }
-
-  ImGui::End();
-}
-}
+#endif

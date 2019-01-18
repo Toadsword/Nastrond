@@ -30,15 +30,20 @@ Project : AnimationTool for SFGE
 #include <map>
 
 #include <animation_manager.h>
-#include <iostream>
+#include <texture_manager.h>
 
+#include <utility/file_utility.h>
+#include <utility/json_utility.h>
+
+namespace sfge::tools
+{
 void AnimationManager::Init()
 {
-	m_animSpeed = 100;
-	m_looped = true;
-	m_animName = "NewAnimation";
+	m_AnimSpeed = DEFAULT_SPEED_VALUE;
+	m_Looped = true;
+	m_AnimName = "NewAnimation";
 
-	m_animation.clear();
+	m_Animation.clear();
 	AddOrInsertKey(0);
 }
 
@@ -48,26 +53,27 @@ void AnimationManager::AddNewKey(short key, short textureId)
 	AddOrInsertKey();
 
 	//Move to the right every frames until key is reached
-	for(int i = GetHighestKeyNum(); i != key; i--)
+	for (int i = GetHighestKeyNum(); i != key; i--)
 	{
 		SwapKeyTextures(i, i - 1);
 	}
 	//Assign it
-	m_animation[key] = textureId;
+	m_Animation[key] = textureId;
 }
 
 bool AnimationManager::AddOrInsertKey()
 {
 	return AddOrInsertKey(GetHighestKeyNum() + 1, -1);
 }
+
 bool AnimationManager::AddOrInsertKey(short key, short textureId)
 {
-	if (m_animation.find(key) == m_animation.end())
+	if (m_Animation.find(key) == m_Animation.end())
 	{
-		m_animation.insert(std::make_pair(key, textureId));
+		m_Animation.insert(std::make_pair(key, textureId));
 		return true;
 	}
-	m_animation[key] = textureId;
+	m_Animation[key] = textureId;
 	return true;
 }
 
@@ -78,19 +84,19 @@ bool AnimationManager::RemoveKey()
 
 bool AnimationManager::RemoveKey(short key)
 {
-	if (m_animation.find(key) != m_animation.end())
+	if (m_Animation.find(key) != m_Animation.end())
 	{
-		for(auto frame : m_animation)
+		for (auto frame : m_Animation)
 		{
-			if(frame.first >= key && frame.first < GetHighestKeyNum())
+			if (frame.first >= key && frame.first < GetHighestKeyNum())
 			{
 				SwapKeyTextures(frame.first, frame.first + 1);
 			}
 		}
 
-		m_animation.erase(GetHighestKeyNum());
+		m_Animation.erase(GetHighestKeyNum());
 
-		if (m_animation.empty())
+		if (m_Animation.empty())
 			AddOrInsertKey(0);
 		return true;
 	}
@@ -99,9 +105,9 @@ bool AnimationManager::RemoveKey(short key)
 
 bool AnimationManager::SetTextureOnKey(short key, short textureId)
 {
-	if (m_animation.find(key) != m_animation.end())
+	if (m_Animation.find(key) != m_Animation.end())
 	{
-		m_animation[key] = textureId;
+		m_Animation[key] = textureId;
 		return true;
 	}
 	return false;
@@ -109,51 +115,51 @@ bool AnimationManager::SetTextureOnKey(short key, short textureId)
 
 bool AnimationManager::SwapKeyTextures(short first, short second)
 {
-	if (m_animation.find(first) != m_animation.end() && m_animation.find(second) != m_animation.end())
+	if (m_Animation.find(first) != m_Animation.end() && m_Animation.find(second) != m_Animation.end())
 	{
-		short tmp = m_animation[first];
-		m_animation[first] = m_animation[second];
-		m_animation[second] = tmp;
+		short tmp = m_Animation[first];
+		m_Animation[first] = m_Animation[second];
+		m_Animation[second] = tmp;
 		return true;
 	}
 	return false;
 }
 
-void AnimationManager::SetSpeed(int newSpeed)
+void AnimationManager::SetSpeed(float newSpeed)
 {
 	if (newSpeed > 0.0f)
-		m_animSpeed = newSpeed;
+		m_AnimSpeed = newSpeed;
 }
 
-int AnimationManager::GetSpeed()
+float AnimationManager::GetSpeed()
 {
-	return m_animSpeed;
+	return m_AnimSpeed;
 }
 
 void AnimationManager::SetName(std::string newName)
 {
-	m_animName = newName;
+	m_AnimName = newName;
 }
 
 std::string AnimationManager::GetName()
 {
-	return m_animName;
+	return m_AnimName;
 }
 
 void AnimationManager::SetIsLooped(bool newLoop)
 {
-	m_looped = newLoop;
+	m_Looped = newLoop;
 }
 
 bool AnimationManager::GetIsLooped()
 {
-	return m_looped;
+	return m_Looped;
 }
 
 int AnimationManager::GetHighestKeyNum()
 {
 	int maxKey = 0;
-	for (auto element : m_animation)
+	for (auto element : m_Animation)
 	{
 		if (maxKey < element.first)
 			maxKey = element.first;
@@ -163,14 +169,99 @@ int AnimationManager::GetHighestKeyNum()
 
 std::map<const short, short>& AnimationManager::GetAnim()
 {
-	return m_animation;
+	return m_Animation;
 }
 
 short AnimationManager::GetTextureIdFromKeyframe(short key)
 {
-	if (m_animation.find(key) != m_animation.end())
+	if (m_Animation.find(key) != m_Animation.end())
 	{
-		return m_animation[key];
+		return m_Animation[key];
 	}
 	return -1;
+}
+
+LogSaveError AnimationManager::ExportToJson(std::vector<TextureInfos*>* textures, bool confirmedReplacement)
+{
+	json value;	
+
+	//Creating base folder
+	if ((!sfge::IsDirectory(DATA_FOLDER) && sfge::CreateDirectory(DATA_FOLDER)) || 
+		(!sfge::IsDirectory(SAVE_FOLDER) && sfge::CreateDirectory(SAVE_FOLDER)))
+	{
+		return SAVE_FAILURE;
+	}
+
+	//Check if file already exists. If so, we ask if the user wants to replace it
+	if (!confirmedReplacement)
+	{
+		std::ifstream doAnimExists(SAVE_FOLDER + m_AnimName + ".json");
+		confirmedReplacement = !confirmedReplacement && doAnimExists;
+	}
+
+	if (confirmedReplacement)
+		return SAVE_DO_REPLACE;
+
+	sfge::RemoveDirectory(SAVE_FOLDER + m_AnimName + "/");
+	if (!sfge::CreateDirectory(SAVE_FOLDER + m_AnimName + "/"))
+	{
+		return SAVE_FAILURE;
+	}
+
+	// Json construction
+	value["name"] = m_AnimName;
+	value["isLooped"] = m_Looped;
+	value["speed"] = m_AnimSpeed;
+	auto frames = m_Animation;
+	short index = 0;
+
+	for (auto frame : frames)
+	{
+		TextureInfos* textToApply = nullptr;
+		for (auto texture : *textures)
+		{
+			if (texture->id == frame.second)
+			{
+				textToApply = texture;
+				break;
+			}
+		}
+
+		if (textToApply == nullptr)
+			continue;
+
+		//Copy file into save folder
+		std::ifstream myImage(SAVE_FOLDER + m_AnimName + "/" + textToApply->fileName);
+		if (!myImage.good())
+		{
+			//std::cout << "saving image \n";
+			std::ifstream  src(textToApply->path, std::ios::binary);
+			std::ofstream  dst(SAVE_FOLDER + m_AnimName + "/" + textToApply->fileName, std::ios::binary);
+
+			dst << src.rdbuf();
+			dst.close();
+		}
+		myImage.close();
+
+		//Registering information of the frame
+		value["frames"][index]["key"] = frame.first;
+		value["frames"][index]["filename"] = textToApply->fileName;
+		value["frames"][index]["position"]["x"] = textToApply->position.x;
+		value["frames"][index]["position"]["y"] = textToApply->position.y;
+		value["frames"][index]["size"]["x"] = textToApply->size.x;
+		value["frames"][index]["size"]["y"] = textToApply->size.y;
+
+		index++;
+	}
+
+	// File write
+	std::ofstream myfile;
+	myfile.open(SAVE_FOLDER + m_AnimName + ".json");
+	myfile.flush();
+	myfile << std::setw(4) << value << std::endl;
+	myfile.close();
+
+	return SAVE_SUCCESS;
+}
+
 }

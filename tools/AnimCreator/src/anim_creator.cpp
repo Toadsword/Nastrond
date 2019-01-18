@@ -24,24 +24,43 @@ SOFTWARE.
 
 #include <anim_creator.h>
 
-#include <engine/engine.h>
 #include <utility/log.h>
-
-#include <extensions/python_extensions.h>
 
 namespace sfge::tools
 {
-void AnimCreator::Init()
-{
-    Log::GetInstance()->Msg("Init Anim Creator");
-}
-void AnimCreator::Update(float dt)
-{
-    (void) dt;
-    Log::GetInstance()->Msg("Update Anim Creator");
-}
-void AnimCreator::Draw()
-{
-    Log::GetInstance()->Msg("Draw Anim Creator");
-}
+	void AnimCreator::Init()
+	{
+	    Log::GetInstance()->Msg("Init Anim Creator");
+		m_AnimationManager.Init();
+		m_TextureManager.Init();
+		m_GraphicsManager.Init(this);
+
+		m_IsInit = true;
+	}
+	void AnimCreator::Update(float dt)
+	{
+		if (!m_IsInit)
+			Init();
+
+		m_GraphicsManager.Update(dt);
+	}
+	void AnimCreator::Draw()
+	{
+		if (!m_IsInit)
+			return;
+
+		m_GraphicsManager.Draw();
+	}
+	GraphicsManager* AnimCreator::GetGraphicsManager()
+	{
+		return &m_GraphicsManager;
+	}
+	TextureManager* AnimCreator::GetTextureManager()
+	{
+		return &m_TextureManager;
+	}
+	AnimationManager* AnimCreator::GetAnimationManager()
+	{
+		return &m_AnimationManager;
+	}
 }

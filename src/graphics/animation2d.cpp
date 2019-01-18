@@ -141,6 +141,7 @@ Animation* AnimationManager::AddComponent(Entity entity)
 
 	animation.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	animationInfo.animation = &animation;
+	m_ComponentsInfo[entity - 1].SetEntity(entity);
 
 	m_EntityManager->AddComponentType(entity, ComponentType::ANIMATION2D);
 	return &animation;
@@ -225,7 +226,7 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 		float speed = 0.1f;
 		if (CheckJsonParameter(*framesInfosPtr, "speed", json::value_t::number_unsigned))
 		{
-			speed = (*framesInfosPtr)["speed"].get<float>() / 1000.0f;
+			speed = (*framesInfosPtr)["speed"].get<float>();
 			newAnimationInfo.speed = speed;
 		}
 
