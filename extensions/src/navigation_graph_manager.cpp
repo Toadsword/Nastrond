@@ -48,7 +48,7 @@ namespace sfge::ext
 			line.resize(size);
 
 			for (int j = 0; j < size; j++) {
-				line[j] = 1;
+				line[j] = NORMAL_COST;
 			}
 			map.push_back(line);
 		}
@@ -243,8 +243,6 @@ namespace sfge::ext
 		}
 #endif
 
-		GraphNode destinationNode = m_Graph[destinationIndex];
-
 		PriorityQueue<unsigned int, float> openNodes;
 		openNodes.Put(originIndex, 0);
 
@@ -268,19 +266,28 @@ namespace sfge::ext
 			vertexArray[4 * indexCurrent + 3].color = sf::Color::Yellow;
 #endif
 			for (auto indexNext : m_Graph[indexCurrent].neighborsIndex) {
-				float distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
-
-				//std::cout << std::to_string(distance) << "\n";
-
-				const float newCost = costSoFar[indexCurrent] + distance * m_Graph[indexNext].cost;
+				auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
+				
+				const auto newCost = costSoFar[indexCurrent] + distance;
 
 				if (costSoFar.find(indexNext) == costSoFar.end() ||
 					newCost < costSoFar[indexNext]) {
 
 					costSoFar[indexNext] = newCost;
+					//Breaking tie value
+					const auto dx1 = std::abs(m_Graph[indexNext].pos.x - m_Graph[destinationIndex].pos.x);
+					const auto dy1 = std::abs(m_Graph[indexNext].pos.y - m_Graph[destinationIndex].pos.y);
+					const auto dx2 = std::abs(m_Graph[originIndex].pos.x - m_Graph[destinationIndex].pos.x);
+					const auto dy2 = std::abs(m_Graph[originIndex].pos.y - m_Graph[destinationIndex].pos.y);
+					float cross = abs(dx1*dy2 - dx2 * dy1);
 
-					openNodes.Put(indexNext, newCost + ComputeHeuristic(indexNext, destinationIndex));
+					//Heuristic
+					auto heuristic = HEURISTIC_1 * (dx1 + dy1) + (HEURISTIC_2 - 2 * HEURISTIC_1) * std::min(dx1, dy1);
+					heuristic += cross * 0.001f;
 
+					float priority = newCost + heuristic;
+					openNodes.Put(indexNext, priority);
+					
 					cameFrom[indexNext] = indexCurrent;
 				}
 			}
@@ -311,13 +318,6 @@ namespace sfge::ext
 	}
 
 	float NavigationGraphManager::GetSquaredDistance(Vec2f& v1, Vec2f& v2) {
-		return ((v1.x - v2.x) * (v1.x - v2.x)) + ((v1.y - v2.y) * (v1.y - v2.y));
-	}
-
-	float NavigationGraphManager::ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const {
-		const auto dx = std::abs(m_Graph[currentNode].pos.x - m_Graph[destinationNode].pos.x);
-		const auto dy = std::abs(m_Graph[currentNode].pos.y - m_Graph[destinationNode].pos.y);
-
-		return HEURISTIC_1 * (dx + dy) + (HEURISTIC_2 - 2 * HEURISTIC_1) * std::min(dx, dy);
+		return (v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y);
 	}
 }

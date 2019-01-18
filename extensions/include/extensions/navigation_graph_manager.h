@@ -40,9 +40,8 @@ namespace sfge::ext
 		Vec2f pos;
 	};
 
-	#define DEBUG_MOD
+//#define DEBUG_MOD
 #define DEBUG_MAP
-
 /**
  * \author Nicolas Schneider
  */
@@ -65,28 +64,26 @@ namespace sfge::ext
 		void BuildGraphFromArray(std::vector<std::vector<int>>& map);
 
 		static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
-		float ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const;
 
 		void DrawQuad(sf::RenderWindow* window, Vec2f pos, sf::Color col);
 
 		Graphics2dManager* m_Graphics2DManager;
 
 		//Heuristic for pathfinding
-		const short HEURISTIC_1 = 1;
-		const short HEURISTIC_2 = sqrt(2);
+		const float HEURISTIC_1 = 1;
+		const float HEURISTIC_2 = sqrt(2);
 
 		//Constant for cost
 		const static short SOLID_COST = 0;
 		const static short ROAD_COST = 1;
-		const static short NORMAL_COST = 2;
+		const static short NORMAL_COST = 1;
 
-		//Type of node
-
+		
 		std::vector<GraphNode> m_Graph;
 		sf::VertexArray vertexArray;
 
-		//Map info
 #ifdef DEBUG_MAP
+		//Map info
 		const Vec2f m_tileExtends = Vec2f(6, 6);
 		Vec2f m_mapSize;
 #endif
