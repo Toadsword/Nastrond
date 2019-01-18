@@ -70,6 +70,8 @@ public:
 
 	void Draw() override;
 
+	void AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination);
+
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
@@ -82,6 +84,14 @@ private:
 	void DrawQuad(sf::RenderWindow* window, Vec2f pos, sf::Color col);
 
 	Graphics2dManager* m_Graphics2DManager;
+
+	//Queue for waiting path
+	struct WaitingPath {
+		std::vector<Vec2f>* path;
+		Vec2f destination;
+		Vec2f origin;
+	};
+	std::queue<WaitingPath> m_WaitingPaths;
 
 	//Heuristic for pathfinding
 	const float HEURISTIC_1 = 1;

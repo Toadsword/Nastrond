@@ -75,7 +75,13 @@ namespace sfge::ext
 	}
 	void NavigationGraphManager::Update(float dt)
 	{
-		(void)dt;
+		if (!m_WaitingPaths.empty()) {
+			WaitingPath waitingPath = m_WaitingPaths.front();
+			m_WaitingPaths.pop();
+
+			std::vector<Vec2f> tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
+			waitingPath.path->assign(tmp.begin(), tmp.end());
+		}
 	}
 
 	void NavigationGraphManager::FixedUpdate() {
@@ -160,6 +166,11 @@ namespace sfge::ext
 		m_Graphics2DManager->DrawLine(pos + Vec2f(m_TileExtends.x, -m_TileExtends.y) * 0.5f, pos + Vec2f(m_TileExtends.x, m_TileExtends.y) * 0.5f, sf::Color::Black);
 		m_Graphics2DManager->DrawLine(pos + Vec2f(m_TileExtends.x, m_TileExtends.y) * 0.5f, pos + Vec2f(-m_TileExtends.x, m_TileExtends.y) * 0.5f, sf::Color::Black);
 		m_Graphics2DManager->DrawLine(pos + Vec2f(-m_TileExtends.x, m_TileExtends.y) * 0.5f, pos + Vec2f(-m_TileExtends.x, -m_TileExtends.y) * 0.5f, sf::Color::Black);
+	}
+
+	void NavigationGraphManager::AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination) {
+		WaitingPath waitingPath{ path, destination, origin };
+		m_WaitingPaths.push(waitingPath);
 	}
 
 	/**

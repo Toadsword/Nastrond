@@ -62,7 +62,7 @@ TEST(AI, NavigationGraphManager)
 	engine.Start();
 }
 
-TEST(AI, DwarfMovement)
+TEST(AI,DwarfMovement)
 {
 	sfge::Engine engine;
 
