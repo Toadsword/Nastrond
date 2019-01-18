@@ -41,8 +41,9 @@ TEST(Tilemap, TestLoadTilemap)
 	json tilemapJson;
 	tilemapJson["path"] = "data/tilemap/nastrond_tilemap.asset";
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
-	tilemapJson["isometric"] = false;
-	tilemapJson["size"] = std::array<int, 2>{10, 10};
+	tilemapJson["is_isometric"] = false;
+	tilemapJson["tile_scale"] = std::array<int, 2>{2, 1};
+	tilemapJson["map_size"] = std::array<int, 2>{10, 10};
 	tilemapJson["map"] = std::array<std::array<int, 10>, 10>{
 		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},

@@ -102,6 +102,7 @@ void TilemapManager::Init()
 
 void TilemapManager::Update(float dt)
 {
+	auto newPosition =
 }
 
 void TilemapManager::Clear()
