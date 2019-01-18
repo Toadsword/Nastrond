@@ -31,59 +31,45 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-/**
- * \author Nicolas Schneider
- */
-struct GraphNode {
-	unsigned short cost;
-	std::vector<unsigned int> neighborsIndex;
-	Vec2f pos;
-};
-
-struct GraphNodeDebug : GraphNode {
-	enum State {
-		VISITED,
-		START_POSITION,
-		END_POSITION,
-		PASSAGE_POSITION,
-		OTHER,
+	/**
+	 * \author Nicolas Schneider
+	 */
+	struct GraphNode {
+		float cost;
+		std::vector<unsigned int> neighborsIndex;
+		Vec2f pos;
 	};
-
-	State state;
-};
 
 //#define DEBUG_MOD
 #define DEBUG_MAP
-
 /**
  * \author Nicolas Schneider
  */
-class NavigationGraphManager : public System {
-public:
-	NavigationGraphManager(Engine& engine);
+	class NavigationGraphManager : public System {
+	public:
+		NavigationGraphManager(Engine& engine);
 
-	void Init() override;
+		void Init() override;
 
-	void Update(float dt) override;
+		void Update(float dt) override;
 
-	void FixedUpdate() override;
+		void FixedUpdate() override;
 
-	void Draw() override;
+		void Draw() override;
 
 	void AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination);
 
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
-private:
-	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
+	private:
+		void BuildGraphFromArray(std::vector<std::vector<int>>& map);
 
-	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
-	float ComputeHeuristic(unsigned int currentNode, unsigned int destinationNode) const;
+		static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 
-	void DrawQuad(sf::RenderWindow* window, Vec2f pos, sf::Color col);
+		void DrawQuad(sf::RenderWindow* window, Vec2f pos, sf::Color col);
 
-	Graphics2dManager* m_Graphics2DManager;
+		Graphics2dManager* m_Graphics2DManager;
 
 	//Queue for waiting path
 	struct WaitingPath {
@@ -97,26 +83,21 @@ private:
 	const float HEURISTIC_1 = 1;
 	const float HEURISTIC_2 = sqrt(2.f);
 
-	//Constant for cost
-	const static short SOLID_COST = 0;
-	const static short ROAD_COST = 1;
-	const static short NORMAL_COST = 2;
+		//Constant for cost
+		const static short SOLID_COST = 0;
+		const static short ROAD_COST = 1;
+		const static short NORMAL_COST = 1;
 
-	//Type of node
-#ifdef DEBUG_MOD
-	std::vector<GraphNodeDebug> m_Graph;
-#else
-	std::vector<GraphNode> m_Graph;
-	sf::VertexArray m_VertexArray;
-#endif
+		
+		std::vector<GraphNode> m_Graph;
+		sf::VertexArray vertexArray;
 
-	//Map info
 #ifdef DEBUG_MAP
-	const Vec2f m_TileExtends = Vec2f(6, 6);
-	Vec2f m_MapSize;
+		//Map info
+		const Vec2f m_tileExtends = Vec2f(6, 6);
+		Vec2f m_mapSize;
 #endif
-};
+	};
 }
 
 #endif
-
