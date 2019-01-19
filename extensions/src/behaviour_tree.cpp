@@ -26,33 +26,90 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-	void BehaviourTree::SetInts(std::string key, std::vector<int>* value) {
+	BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) {
+	}
+
+	void BehaviourTree::SetBools(const std::string& key, std::vector<bool>* value)
+	{
+		m_Bools[key] = value;
+	}
+
+	bool BehaviourTree::GetBool(const std::string& key, const Entity entity)
+	{
+		if (m_Bools.find(key) == m_Bools.end()) {
+			m_Bools[key] = nullptr;
+		}
+		return  m_Bools[key]->at(GetInt("entityIndex", entity));
+	}
+
+	bool BehaviourTree::HasBool(const std::string& key) const
+	{
+		return m_Bools.find(key) != m_Bools.end();
+	}
+
+	void BehaviourTree::SetInts(const std::string& key, std::vector<int>* value) {
 		m_Ints[key] = value;
 	}
 
-	int BehaviourTree::GetInt(std::string key, Entity entity) {
-		
+	int BehaviourTree::GetInt(const std::string& key, const Entity entity) {
+		if (m_Ints.find(key) == m_Ints.end()) {
+			m_Ints[key] = nullptr;
+		}
+		return  m_Ints[key]->at(GetInt("entityIndex", entity));
 	}
 
-	bool BehaviourTree::HasInt(std::string key) {
+	bool BehaviourTree::HasInt(const std::string& key) {
 		return m_Ints.find(key) != m_Ints.end();
 	}
 
+	void BehaviourTree::SetFloats(const std::string& key, std::vector<float>* value)
+	{
+		m_Floats[key] = value;
+	}
 
+	float BehaviourTree::GetFloat(const std::string& key, const Entity entity)
+	{
+		if (m_Floats.find(key) == m_Floats.end()) {
+			m_Floats[key] = nullptr;
+		}
+		return m_Floats[key]->at(GetInt("entityIndex", entity));
+	}
 
-	void BehaviourTree::SetString(std::string key, std::vector<std::string>* value) {
+	bool BehaviourTree::HasFloat(const std::string& key) const
+	{
+		return m_Floats.find(key) != m_Floats.end();
+	}
+
+	void BehaviourTree::SetString(const std::string& key, std::vector<std::string>* value) {
 		m_Strings[key] = value;
 	}
 
-	std::string BehaviourTree::GetString(std::string key, Entity entity) {
+	std::string BehaviourTree::GetString(const std::string& key, const Entity entity) {
 		if (m_Strings.find(key) == m_Strings.end()) {
 			m_Strings[key] = nullptr;
 		}
 		return m_Strings[key]->at(GetInt("entityIndex", entity));
 	}
 
-	bool BehaviourTree::HasString(std::string key) const {
+	bool BehaviourTree::HasString(const std::string& key) const {
 		return m_Strings.find(key) != m_Strings.end();
 	}
 
+	void BehaviourTree::SetVec2f(const std::string& key, std::vector<Vec2f>* value)
+	{
+		m_Vec2fs[key] = value;
+	}
+
+	Vec2f BehaviourTree::GetVec2f(const std::string& key, const Entity entity)
+	{
+		if (m_Vec2fs.find(key) == m_Vec2fs.end()) {
+			m_Vec2fs[key] = nullptr;
+		}
+		return m_Vec2fs[key]->at(GetInt("entityIndex", entity));
+	}
+
+	bool BehaviourTree::HasVec2f(const std::string& key) const
+	{
+		return m_Vec2fs.find(key) != m_Vec2fs.end();
+	}
 }

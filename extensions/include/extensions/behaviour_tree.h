@@ -36,32 +36,32 @@ namespace sfge::ext::behaviour_tree
 {
 class BehaviourTree : public System {
 public:
-	BehaviourTree();
+	BehaviourTree(sfge::Engine& engine);
 
 	//Bools
-	void SetBools(std::string key, bool value);
-	bool GetBool(std::string key);
-	bool HasBool(std::string key);
+	void SetBools(const std::string& key, std::vector<bool>* value);
+	bool GetBool(const std::string& key, const Entity entity);
+	bool HasBool(const std::string& key) const;
 
 	//Ints
-	void SetInts(std::string key, std::vector<int>* value);
-	int GetInt(std::string key, Entity entity);
-	bool HasInt(std::string key);
+	void SetInts(const std::string& key, std::vector<int>* value);
+	int GetInt(const std::string& key, const Entity entity);
+	bool HasInt(const std::string& key);
 
 	//Floats
-	void SetFloats(std::string key, std::string value);
-	float GetFloat(std::string key);
-	bool HasFloat(std::string key) const;
+	void SetFloats(const std::string& key, std::vector<float>* value);
+	float GetFloat(const std::string& key, const Entity entity);
+	bool HasFloat(const std::string& key) const;
 
 	//Strings
-	void SetString(std::string key, std::vector<std::string>* value);
-	std::string GetString(std::string key, Entity entity);
-	bool HasString(std::string key) const;
+	void SetString(const std::string& key, std::vector<std::string>* value);
+	std::string GetString(const std::string& key, const Entity entity);
+	bool HasString(const std::string& key) const;
 
 	//Vec2f
-	void SetVec2f(std::string key, Vec2f value);
-	Vec2f GetVec2f(std::string key);
-	bool HasVec2f(std::string key) const;
+	void SetVec2f(const std::string& key,std::vector<Vec2f>* value);
+	Vec2f GetVec2f(const std::string& key, const Entity entity);
+	bool HasVec2f(const std::string& key) const;
 
 private:
 	std::unordered_map<std::string, std::vector<bool>*> m_Bools;
