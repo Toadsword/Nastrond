@@ -29,6 +29,10 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <engine/component.h>
 
+#include <python/python_engine.h>
+
+#include <extensions/behaviour_tree.h>
+
 TEST(AI, PriorityQueue)
 {
 	sfge::PriorityQueue<std::string, int> testList;
@@ -87,6 +91,34 @@ TEST(AI,DwarfMovement)
 
 	auto* sceneManager = engine.GetSceneManager();
 	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+TEST(AI, BehaviourTree)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	auto* sceneManager = engine.GetSceneManager();
+
+	json sceneJson = {
+		{ "name", "Behaviour tree" } };
+	json systemJsonBehaviourTree = {
+		{ "systemClassName", "BehaviourTree" }
+	};
+
+	sceneJson["systems"] = json::array({systemJsonBehaviourTree});
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	sfge::ext::behaviour_tree::BehaviourTree* behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
+	
 
 	engine.Start();
 }

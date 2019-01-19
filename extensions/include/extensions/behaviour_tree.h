@@ -34,42 +34,6 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-class BehaviourTree : public System {
-public:
-	BehaviourTree(sfge::Engine& engine);
-
-	//Bools
-	void SetBools(const std::string& key, std::vector<bool>* value);
-	bool GetBool(const std::string& key, const Entity entity);
-	bool HasBool(const std::string& key) const;
-
-	//Ints
-	void SetInts(const std::string& key, std::vector<int>* value);
-	int GetInt(const std::string& key, const Entity entity);
-	bool HasInt(const std::string& key);
-
-	//Floats
-	void SetFloats(const std::string& key, std::vector<float>* value);
-	float GetFloat(const std::string& key, const Entity entity);
-	bool HasFloat(const std::string& key) const;
-
-	//Strings
-	void SetString(const std::string& key, std::vector<std::string>* value);
-	std::string GetString(const std::string& key, const Entity entity);
-	bool HasString(const std::string& key) const;
-
-	//Vec2f
-	void SetVec2f(const std::string& key,std::vector<Vec2f>* value);
-	Vec2f GetVec2f(const std::string& key, const Entity entity);
-	bool HasVec2f(const std::string& key) const;
-
-private:
-	std::unordered_map<std::string, std::vector<bool>*> m_Bools;
-	std::unordered_map<std::string, std::vector<int>*> m_Ints;
-	std::unordered_map<std::string, std::vector<float>*> m_Floats;
-	std::unordered_map<std::string, std::vector<std::string>*> m_Strings;
-	std::unordered_map<std::string, std::vector<Vec2f>*> m_Vec2fs;
-};
 
 class Node {
 public:
@@ -82,6 +46,59 @@ public:
 	};
 
 	using ptr = std::shared_ptr<Node>;
+
+	Node::ptr parentNode;
+};
+
+class BehaviourTree : public System {
+public:
+	BehaviourTree(sfge::Engine& engine);
+
+	void Init() override;
+
+	void Update(float dt) override;
+
+	void FixedUpdate() override;
+
+	void Draw() override;
+
+	void SetRootNode(const Node::ptr rootNode);
+
+	//Bools
+	void SetBools(const std::string& key, std::vector<bool>* value);
+	bool GetBool(const std::string& key, const unsigned int index);
+	bool HasBool(const std::string& key) const;
+
+	//Ints
+	void SetInts(const std::string& key, std::vector<int>* value);
+	int GetInt(const std::string& key, const unsigned int index);
+	bool HasInt(const std::string& key);
+
+	//Floats
+	void SetFloats(const std::string& key, std::vector<float>* value);
+	float GetFloat(const std::string& key, const unsigned int index);
+	bool HasFloat(const std::string& key) const;
+
+	//Strings
+	void SetString(const std::string& key, std::vector<std::string>* value);
+	std::string GetString(const std::string& key, const unsigned int index);
+	bool HasString(const std::string& key) const;
+
+	//Vec2f
+	void SetVec2f(const std::string& key,std::vector<Vec2f>* value);
+	Vec2f GetVec2f(const std::string& key, const unsigned int index);
+	bool HasVec2f(const std::string& key) const;
+
+private:
+	std::unordered_map<std::string, std::vector<bool>*> m_Bools;
+	std::unordered_map<std::string, std::vector<int>*> m_Ints;
+	std::unordered_map<std::string, std::vector<float>*> m_Floats;
+	std::unordered_map<std::string, std::vector<std::string>*> m_Strings;
+	std::unordered_map<std::string, std::vector<Vec2f>*> m_Vec2fs;
+
+	std::vector<unsigned int> m_EntitiesIndex;
+
+	Node::ptr m_RootNode = nullptr;
 };
 
 class CompositeNode : public Node {

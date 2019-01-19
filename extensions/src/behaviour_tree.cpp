@@ -21,12 +21,39 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#include <iostream>
 
 #include <extensions/behaviour_tree.h>
 
 namespace sfge::ext::behaviour_tree
 {
 	BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) {
+		std::cout << "contructor\n";
+	}
+
+	void BehaviourTree::Init()
+	{
+		std::cout << "init\n";
+	}
+
+	void BehaviourTree::Update(float dt)
+	{
+		std::cout << "update\n";
+	}
+
+	void BehaviourTree::FixedUpdate()
+	{
+		std::cout << "fixed update\n";
+	}
+
+	void BehaviourTree::Draw()
+	{
+	}
+
+	void BehaviourTree::SetRootNode(const Node::ptr rootNode)
+	{
+		m_RootNode = rootNode;
+		m_RootNode->parentNode = nullptr;
 	}
 
 	void BehaviourTree::SetBools(const std::string& key, std::vector<bool>* value)
@@ -51,11 +78,11 @@ namespace sfge::ext::behaviour_tree
 		m_Ints[key] = value;
 	}
 
-	int BehaviourTree::GetInt(const std::string& key, const Entity entity) {
+	int BehaviourTree::GetInt(const std::string& key, const unsigned int index) {
 		if (m_Ints.find(key) == m_Ints.end()) {
 			m_Ints[key] = nullptr;
 		}
-		return  m_Ints[key]->at(GetInt("entityIndex", entity));
+		return  m_Ints[key]->at(index);
 	}
 
 	bool BehaviourTree::HasInt(const std::string& key) {
@@ -67,12 +94,12 @@ namespace sfge::ext::behaviour_tree
 		m_Floats[key] = value;
 	}
 
-	float BehaviourTree::GetFloat(const std::string& key, const Entity entity)
+	float BehaviourTree::GetFloat(const std::string& key, const unsigned int index)
 	{
 		if (m_Floats.find(key) == m_Floats.end()) {
 			m_Floats[key] = nullptr;
 		}
-		return m_Floats[key]->at(GetInt("entityIndex", entity));
+		return m_Floats[key]->at(index);
 	}
 
 	bool BehaviourTree::HasFloat(const std::string& key) const
@@ -84,11 +111,11 @@ namespace sfge::ext::behaviour_tree
 		m_Strings[key] = value;
 	}
 
-	std::string BehaviourTree::GetString(const std::string& key, const Entity entity) {
+	std::string BehaviourTree::GetString(const std::string& key, const unsigned int index) {
 		if (m_Strings.find(key) == m_Strings.end()) {
 			m_Strings[key] = nullptr;
 		}
-		return m_Strings[key]->at(GetInt("entityIndex", entity));
+		return m_Strings[key]->at(index);
 	}
 
 	bool BehaviourTree::HasString(const std::string& key) const {
@@ -100,12 +127,12 @@ namespace sfge::ext::behaviour_tree
 		m_Vec2fs[key] = value;
 	}
 
-	Vec2f BehaviourTree::GetVec2f(const std::string& key, const Entity entity)
+	Vec2f BehaviourTree::GetVec2f(const std::string& key, const unsigned int index)
 	{
 		if (m_Vec2fs.find(key) == m_Vec2fs.end()) {
 			m_Vec2fs[key] = nullptr;
 		}
-		return m_Vec2fs[key]->at(GetInt("entityIndex", entity));
+		return m_Vec2fs[key]->at(index);
 	}
 
 	bool BehaviourTree::HasVec2f(const std::string& key) const
