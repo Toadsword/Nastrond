@@ -79,3 +79,28 @@ TEST(Building, MineProduction)
 
 	engine.Start();
 }
+
+TEST(Building, ForgeProduction)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	engine.Init(std::move(initConfig));
+
+	const auto config = engine.GetConfig();
+
+	json sceneJson = {
+		{ "name", "Spawn Forge and produce" } };
+
+	json systemJsonMineManager = {
+		{ "systemClassName", "ForgeManager" } };
+
+	sceneJson["systems"] = json::array({ systemJsonMineManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}

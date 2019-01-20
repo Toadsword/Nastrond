@@ -101,12 +101,11 @@ void sfge::ext::MineManager::RessourcesProduction()
 			{
 				tmpIronInventory.inventory -= m_packSize;
 				tmpIronInventory.packNumber++;
+				IronStackAvalaible(i + 1);
 			}
 
 			m_IronProduction[i].packNumber = tmpIronInventory.packNumber;
 			m_IronProduction[i].inventory = tmpIronInventory.inventory;
-
-			IronStackAvalaible(i + 1);
 		}
 
 #ifdef DEBUG_CHECK_PRODUCTION

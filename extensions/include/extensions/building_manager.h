@@ -25,9 +25,9 @@ SOFTWARE.
 #ifndef BUILDINGS_MANAGER_H
 #define BUILDINGS_MANAGER_H
 
-#include "engine/system.h"
-#include "engine/transform2d.h"
-#include "graphics/graphics2d.h"
+#include <engine/system.h>
+#include <engine/transform2d.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge::ext
 {

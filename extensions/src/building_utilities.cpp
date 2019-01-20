@@ -22,39 +22,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef DWARVES_SLOTS_MANAGER_H
-#define DWARVES_SLOTS_MANAGER_H
-
-
-#include <engine/system.h>
-#include <engine/transform2d.h>
-#include <graphics/graphics2d.h>
-
-
-namespace sfge::ext
-{
-	/**
-	 * \author Robin Alves
-	 */
-	class DwarvesSlotsManager : public System
-	{
-	public:
-		DwarvesSlotsManager(Engine& engine);
-
-		void Init() override;
-
-		void Update(float dt) override;
-
-		void FixedUpdate() override;
-
-		void Draw() override;
-
-	private:
-		Transform2dManager* m_Transform2DManager;
-		TextureManager* m_TextureManager;
-		SpriteManager* m_SpriteManager;
-
-		const size_t m_entitiesNmb = 4;
-	};
-}
-#endif

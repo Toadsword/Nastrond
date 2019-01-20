@@ -32,11 +32,13 @@ SOFTWARE.
 #include <extensions/planet_system.h>
 #include <extensions/navigation_graph_manager.h>
 #include <extensions/dwarf_manager.h>
+#include <extensions/dwarves_slots_manager.h>
+#include <extensions/building_manager.h>
+#include <extensions/mine_manager.h>
+#include <extensions/forge_manager.h>
 
 #include <tools/tools_pch.h>
-#include "extensions/dwarves_slots_manager.h"
-#include "extensions/building_manager.h"
-#include "extensions/mine_manager.h"
+
 
 namespace sfge::ext
 {
@@ -67,6 +69,10 @@ void ExtendPython(py::module& m)
 
 	py::class_<MineManager, System> mineManager(m, "MineManager");
 	mineManager
+		.def(py::init<Engine&>());
+
+	py::class_<ForgeManager, System> forgeManager(m, "ForgeManager");
+	forgeManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);

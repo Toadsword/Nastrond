@@ -22,66 +22,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef MINE_MANAGER_H
-#define MINE_MANAGER_H
-
-#include <iostream>
-
-#include <engine/system.h>
-#include <graphics/graphics2d.h>
-
-#include "extensions/building_utilities.h"
+#ifndef BUILDING_UTILITIES_H
+#define BUILDING_UTILITIES_H
 
 namespace sfge::ext
 {
-#define DEBUG_CHECK_PRODUCTION
-
-	/**
-	 * \author Robin Alves
-	 */
-	class MineManager : public System
+	enum RessourceType
 	{
-	public:
-		MineManager(Engine& engine);
+		NONE,
+		IRON,
+		STONE,
+		TOOL
+	};
+	struct GiverInventory
+	{
+		unsigned int MAX_CAPACITY = 100u;
+		float inventory = 0u;
+		unsigned short packNumber = 0u;
+		RessourceType m_ressourceType = RessourceType::NONE;
+	};
 
-		void Init() override;
+	struct RecieverInventory
+	{
+		unsigned const int MAX_CAPACITY = 100u;
+		float inventory = 0u;
+		RessourceType m_ressourceType = RessourceType::NONE;
+	};
 
-		void Update(float dt) override;
-
-		void FixedUpdate() override;
-
-		void Draw() override;
-
-		/**
-		 * \brief Methode that ping the Task Manager when a stack of iron is avalaible.
-		 */
-		void IronStackAvalaible(Entity entity);
-
-	private:
-		/**
-		 * \brief Methode to produce ressources.
-		 */
-		void RessourcesProduction();
-
-
-		/**
-		 * \brief Methode that simulate the shiffting of the iron.
-		 */
-		void RessourcesShifftingSimulation(int EntityIndex);
-
-		Transform2dManager* m_Transform2DManager;
-		TextureManager* m_TextureManager;
-		SpriteManager* m_SpriteManager;
-
-		const size_t m_entitiesNmb = 10;
-
-		std::vector<GiverInventory> m_IronProduction{ m_entitiesNmb };
-
-		float m_ProductionRate = 0.01f;
-
-		unsigned int m_packSize = 20u;
-
-		int m_TmpDwarfNumber = 5;
+	struct ProgressionProduction
+	{
+		float progression = 0.0f;
+		const int goal = 20;
+		int FrameCoolDown = 0;
+		RessourceType m_ressourceType = RessourceType::NONE;
 	};
 }
+
 #endif

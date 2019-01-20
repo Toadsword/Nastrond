@@ -22,27 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef MINE_MANAGER_H
-#define MINE_MANAGER_H
-
-#include <iostream>
+#ifndef FORGE_MANAGER_H
+#define FORGE_MANAGER_H
 
 #include <engine/system.h>
+#include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
 
-#include "extensions/building_utilities.h"
+#include <extensions/building_utilities.h>
 
 namespace sfge::ext
 {
-#define DEBUG_CHECK_PRODUCTION
+//#define DEBUG_CHECK_PRODUCTION
 
 	/**
 	 * \author Robin Alves
 	 */
-	class MineManager : public System
+	class ForgeManager : public System
 	{
 	public:
-		MineManager(Engine& engine);
+		ForgeManager(Engine& engine);
 
 		void Init() override;
 
@@ -53,35 +52,31 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Methode that ping the Task Manager when a stack of iron is avalaible.
+		 * \brief Methode that spawn a new mine in the map a the given position.
 		 */
-		void IronStackAvalaible(Entity entity);
+		void SpawnForge();
 
 	private:
-		/**
-		 * \brief Methode to produce ressources.
-		 */
-		void RessourcesProduction();
 
-
-		/**
-		 * \brief Methode that simulate the shiffting of the iron.
-		 */
-		void RessourcesShifftingSimulation(int EntityIndex);
+		void ProduceTools();
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
+		EntityManager* entityManager;
 
-		const size_t m_entitiesNmb = 10;
+		const size_t m_entitiesNmb = 5000;
 
-		std::vector<GiverInventory> m_IronProduction{ m_entitiesNmb };
+		std::vector<GiverInventory> m_toolsInventories{ m_entitiesNmb };
+		std::vector<RecieverInventory> m_ironsInventories{ m_entitiesNmb };
+		std::vector<ProgressionProduction> m_progressionProdTool{ m_entitiesNmb };
 
-		float m_ProductionRate = 0.01f;
+		std::vector<Entity> m_mineIndex;
 
-		unsigned int m_packSize = 20u;
+		const int m_stackSize = 5;
 
-		int m_TmpDwarfNumber = 5;
+		const int m_FrameBeforAdd = 5;
 	};
 }
 #endif
+
