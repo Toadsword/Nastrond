@@ -113,6 +113,8 @@ public:
 		*/
 	void Update(float dt) override;
 
+	void FixedUpdate() override;
+
 	/**
 	* \brief Destroy the window and other
 	*/

@@ -102,7 +102,15 @@ void TilemapManager::Init()
 
 void TilemapManager::Update(float dt)
 {
-	auto newPosition =
+	(void)dt;
+	rmt_ScopedCPUSample(TilemapUpdate, 0)
+	for (auto i = 0u; i < m_Components.size(); i++)
+	{
+		if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
+		{
+			m_Components[i].Update();
+		}
+	}
 }
 
 void TilemapManager::Clear()
@@ -209,6 +217,11 @@ void TilemapSystem::Update(float dt)
 {
 	m_TilemapManager.Update(dt);
 	//m_TileManager.Update(dt);
+}
+
+void TilemapSystem::FixedUpdate()
+{
+
 }
 
 void TilemapSystem::Destroy()

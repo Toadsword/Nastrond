@@ -93,9 +93,6 @@ bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
 	if (tileTypeId == INVALID_TILE_TYPE)
 		return false;
 
-
-	m_TileTypeId.
-
 	if (!m_Engine.GetEntityManager()->HasComponent(tileId, ComponentType::SPRITE2D))
 		m_SpriteManager->AddComponent(tileId);
 	
