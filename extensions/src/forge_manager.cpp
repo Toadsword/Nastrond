@@ -35,49 +35,46 @@ void sfge::ext::ForgeManager::Init()
 	Configuration* configuration = m_Engine.GetConfig();
 	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
 
-	entityManager = m_Engine.GetEntityManager();
+	auto* entityManager = m_Engine.GetEntityManager();
 	entityManager->ResizeEntityNmb(m_entitiesNmb);
 
-	//Load Texture
-	std::string texturePath = "data/sprites/building.png";
+	////Load Texture
+	//std::string texturePath = "data/sprites/building.png";
 
-	for (unsigned i = 0u; i < m_entitiesNmb; i++)
+	//for (unsigned i = 0u; i < m_entitiesNmb; i++)
+	//{
+	//	//Load Texture
+	//	const auto textureId = m_TextureManager->LoadTexture(texturePath);
+	//	const auto texture = m_TextureManager->GetTexture(textureId);
+
+	//	const auto newEntity = entityManager->CreateEntity(i + 1);
+
+	//	m_mineIndex.resize(m_mineIndex.size() + 1);
+	//	m_mineIndex.push_back(i + 1);
+
+	//	//add transform
+	//	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+	//	transformPtr->Position = Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
+	//	transformPtr->Scale = Vec2f(0.1f, 0.1f);
+
+	//	//add texture
+	//	auto sprite = m_SpriteManager->AddComponent(newEntity);
+	//	sprite->SetTexture(texture);
+
+	//	editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
+	//	spriteInfo.name = "sprite";
+	//	spriteInfo.sprite = sprite;
+	//	spriteInfo.textureId = textureId;
+	//	spriteInfo.texturePath = texturePath;
+
+	//	//setup
+	//	m_ironsInventories[i].m_ressourceType = RessourceType::IRON;
+	//	m_toolsInventories[i].m_ressourceType = RessourceType::TOOL;
+	//}
+	for (unsigned i = 0; i < m_entitiesNmb; i++)
 	{
-		//Load Texture
-		const auto textureId = m_TextureManager->LoadTexture(texturePath);
-		const auto texture = m_TextureManager->GetTexture(textureId);
-
-		const auto newEntitiy = entityManager->CreateEntity(i + 1);
-
-		m_mineIndex.resize(m_mineIndex.size() + 1);
-		m_mineIndex.push_back(i + 1);
-
-		//add transform
-		auto transformPtr = m_Transform2DManager->AddComponent(newEntitiy);
-		transformPtr->Position = Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
-		transformPtr->Scale = Vec2f(0.1f, 0.1f);
-
-		//add texture
-		auto sprite = m_SpriteManager->AddComponent(newEntitiy);
-		sprite->SetTexture(texture);
-
-		editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntitiy);
-		spriteInfo.name = "sprite";
-		spriteInfo.sprite = sprite;
-		spriteInfo.textureId = textureId;
-		spriteInfo.texturePath = texturePath;
-
-		//setup
-		m_ironsInventories[i].m_ressourceType = RessourceType::IRON;
-		m_toolsInventories[i].m_ressourceType = RessourceType::TOOL;
-
-
+		SpawnForge(Vec2f(0, 0));
 	}
-		//Just for test
-		for (int i = 0; i < m_entitiesNmb; i++)
-		{
-			m_ironsInventories[i].inventory = m_ironsInventories[i].MAX_CAPACITY;
-		}
 }
 
 void sfge::ext::ForgeManager::Update(float dt)
@@ -93,11 +90,48 @@ void sfge::ext::ForgeManager::Draw()
 {
 }
 
-void sfge::ext::ForgeManager::SpawnForge()
+void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
 {
-	unsigned newMineIndex = m_mineIndex.size() + 1;
-	m_mineIndex.resize(newMineIndex);
-	m_mineIndex.push_back(newMineIndex);
+	auto* entityManager = m_Engine.GetEntityManager();
+	const auto newEntity = entityManager->CreateEntity(0);
+	std::cout << "new mine : " + std::to_string(newEntity) + "\n";
+
+	unsigned newMine = m_mineIndex.size() + 1;
+
+	ResizeContainer(newMine);
+
+	m_mineIndex.push_back(newEntity);
+
+	//Load Texture
+	std::string texturePath = "data/sprites/building.png";
+	const auto textureId = m_TextureManager->LoadTexture(texturePath);
+	const auto texture = m_TextureManager->GetTexture(textureId);
+
+	//add transform
+	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+	transformPtr->Position = Vec2f(pos.x, pos.y);
+	transformPtr->Scale = Vec2f(0.1f, 0.1f);
+
+	//add texture
+	auto sprite = m_SpriteManager->AddComponent(newEntity);
+	sprite->SetTexture(texture);
+
+	editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
+	spriteInfo.name = "sprite";
+	spriteInfo.sprite = sprite;
+	spriteInfo.textureId = textureId;
+	spriteInfo.texturePath = texturePath;
+
+	m_ironsInventories[newMine - 1].m_ressourceType = RessourceType::IRON;
+	m_toolsInventories[newMine - 1].m_ressourceType = RessourceType::TOOL;
+}
+
+void sfge::ext::ForgeManager::ResizeContainer(const size_t newSize)
+{
+	m_toolsInventories.resize(newSize);
+	m_ironsInventories.resize(newSize);
+	m_progressionProdTool.resize(newSize);
+	m_mineIndex.resize(newSize);
 }
 
 void sfge::ext::ForgeManager::ProduceTools()
@@ -145,6 +179,12 @@ void sfge::ext::ForgeManager::ProduceTools()
 
 
 #ifdef DEBUG_CHECK_PRODUCTION
+		//Just for test
+		for (int i = 0; i < m_entitiesNmb; i++)
+		{
+			m_ironsInventories[i].inventory = m_ironsInventories[i].MAX_CAPACITY;
+		}
+
 		std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(tmpToolsInventory.inventory) +
 			" / and pack Number : " + std::to_string(tmpToolsInventory.packNumber) + " / progression : " + std::to_string(tmpProgressionProdTool.progression) + "\n";
 		if (i + 1 == m_entitiesNmb)

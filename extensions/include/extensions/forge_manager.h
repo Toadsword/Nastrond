@@ -54,18 +54,21 @@ namespace sfge::ext
 		/**
 		 * \brief Methode that spawn a new mine in the map a the given position.
 		 */
-		void SpawnForge();
+		void SpawnForge(Vec2f pos);
 
 	private:
 
+		void ResizeContainer(const size_t newSize);
+
 		void ProduceTools();
+
+
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
-		EntityManager* entityManager;
 
-		const size_t m_entitiesNmb = 5000;
+		const size_t m_entitiesNmb = 5;
 
 		std::vector<GiverInventory> m_toolsInventories{ m_entitiesNmb };
 		std::vector<RecieverInventory> m_ironsInventories{ m_entitiesNmb };
