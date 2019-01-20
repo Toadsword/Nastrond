@@ -27,33 +27,50 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-	BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) {
-		std::cout << "contructor\n";
+	BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) 
+	{
 	}
 
 	void BehaviourTree::Init()
 	{
-		std::cout << "init\n";
+
 	}
 
 	void BehaviourTree::Update(float dt)
 	{
-		std::cout << "update\n";
+		if(m_CurrentNode.size() < m_Entities->size())
+		{
+			m_CurrentNode.resize(m_Entities->size(), m_RootNode);
+		}
+
+		for(int i = 0; i < m_Entities->size(); i++)
+		{
+			Node::Status status = m_CurrentNode[i]->Execute(i);
+
+			if(status == Node::Status::SUCCESS)
+			{
+				m_CurrentNode[i] = m_CurrentNode[i]->parentNode;
+			}
+		}
 	}
 
 	void BehaviourTree::FixedUpdate()
 	{
-		std::cout << "fixed update\n";
 	}
 
 	void BehaviourTree::Draw()
 	{
 	}
 
-	void BehaviourTree::SetRootNode(const Node::ptr rootNode)
+	void BehaviourTree::SetRootNode(const Node::ptr& rootNode)
 	{
 		m_RootNode = rootNode;
 		m_RootNode->parentNode = nullptr;
+	}
+
+	void BehaviourTree::SetEntities(std::vector<Entity>* entities)
+	{
+		m_Entities = entities;
 	}
 
 	void BehaviourTree::SetBools(const std::string& key, std::vector<bool>* value)
@@ -138,5 +155,41 @@ namespace sfge::ext::behaviour_tree
 	bool BehaviourTree::HasVec2f(const std::string& key) const
 	{
 		return m_Vec2fs.find(key) != m_Vec2fs.end();
+	}
+
+	Repeater::Repeater(BehaviourTree* BT, int limit)
+	{
+		m_Limit = limit;
+		behaviourTree = BT;
+	}
+
+	void Repeater::Init()
+	{
+		m_Counter = 0;
+	}
+
+	Node::Status Repeater::Execute(unsigned int index)
+	{
+		std::cout << "Execute: Repeater\n";
+		//If limit == 0 => inifinity, if m_Counter == m_Limit it's over
+		if(m_Limit > 0 && ++m_Counter == m_Limit)
+		{
+			return Status::SUCCESS;
+		}
+
+		//Switch current node to child
+		behaviourTree->m_CurrentNode[index] = m_Child;
+
+		return Status::RUNNING;
+	}
+
+	void DebugUpdateLeaf::Init()
+	{
+	}
+
+	Node::Status DebugUpdateLeaf::Execute(unsigned index)
+	{
+		std::cout << "Execute: DebugUpdateLeaf\n";
+		return Status::SUCCESS;
 	}
 }

@@ -117,8 +117,22 @@ TEST(AI, BehaviourTree)
 
 	sceneManager->LoadSceneFromJson(sceneJson);
 
-	sfge::ext::behaviour_tree::BehaviourTree* behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
-	
+	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
+
+	auto repeater = std::make_shared<sfge::ext::behaviour_tree::Repeater>(behaviourTree, 0);
+	behaviourTree->SetRootNode(repeater);
+
+	auto debugLeaf = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf>();
+	debugLeaf->parentNode = repeater;
+	repeater->SetChild(debugLeaf);
+
+	auto* entityManager = engine.GetEntityManager();
+	const auto newEntity = entityManager->CreateEntity(0);
+
+	std::vector<Entity> entities = std::vector<Entity>();
+	entities.push_back(newEntity);
+
+	behaviourTree->SetEntities(&entities);
 
 	engine.Start();
 }

@@ -35,19 +35,25 @@ SOFTWARE.
 namespace sfge::ext::behaviour_tree
 {
 
+class BehaviourTree;
+
 class Node {
 public:
-	virtual bool Execute() = 0;
-
 	enum class Status {
 		SUCCESS,
 		FAIL,
 		RUNNING
 	};
 
+	virtual Status Execute(unsigned int index) = 0;
+	virtual void Init() = 0;
+	
 	using ptr = std::shared_ptr<Node>;
 
 	Node::ptr parentNode;
+
+protected:
+	BehaviourTree* behaviourTree;
 };
 
 class BehaviourTree : public System {
@@ -62,7 +68,11 @@ public:
 
 	void Draw() override;
 
-	void SetRootNode(const Node::ptr rootNode);
+	void SetRootNode(const Node::ptr& rootNode);
+
+	void SetEntities(std::vector<Entity>* entities);
+
+	//Blackboard
 
 	//Bools
 	void SetBools(const std::string& key, std::vector<bool>* value);
@@ -89,38 +99,61 @@ public:
 	Vec2f GetVec2f(const std::string& key, const unsigned int index);
 	bool HasVec2f(const std::string& key) const;
 
+	std::vector<Entity>* m_Entities;
+
+	std::vector<Node::ptr> m_CurrentNode;
+
 private:
+	//Black board
 	std::unordered_map<std::string, std::vector<bool>*> m_Bools;
 	std::unordered_map<std::string, std::vector<int>*> m_Ints;
 	std::unordered_map<std::string, std::vector<float>*> m_Floats;
 	std::unordered_map<std::string, std::vector<std::string>*> m_Strings;
 	std::unordered_map<std::string, std::vector<Vec2f>*> m_Vec2fs;
 
-	std::vector<unsigned int> m_EntitiesIndex;
-
 	Node::ptr m_RootNode = nullptr;
 };
 
 class CompositeNode : public Node {
 public: 
-	void AddChild(Node::ptr child) { children.push_back(child); }
-	bool HasChildren() const { return !children.empty(); }
+	void AddChild(Node::ptr child) { m_Children.push_back(child); }
+	bool HasChildren() const { return !m_Children.empty(); }
 protected:
-	std::vector<Node::ptr> children;
+	std::vector<Node::ptr> m_Children;
 };
 
 class Decorator : public Node {
 public:
 
-	void SetChild(Node::ptr node) { child = node; }
-	bool HasChild() const { return child != nullptr; }
+	void SetChild(Node::ptr node) { m_Child = node; }
+	bool HasChild() const { return m_Child != nullptr; }
 
 protected:
-	Node::ptr child = nullptr;
+	Node::ptr m_Child = nullptr;
+};
+
+class Repeater : public Decorator
+{
+public:
+	Repeater(BehaviourTree* BT, int limit = 0);
+
+	void Init() override;
+
+	Status Execute(unsigned int index) override;
+
+private:
+	int m_Limit;
+	int m_Counter = 0;
 };
 
 class Leaf : public Node {
-	
+	virtual Status Execute(unsigned index) override = 0;
+};
+
+class DebugUpdateLeaf : public Leaf
+{
+	void Init() override;
+	Status Execute(unsigned index) override;
 };
 }
 
