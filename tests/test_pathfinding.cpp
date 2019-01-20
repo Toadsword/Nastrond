@@ -32,6 +32,7 @@ SOFTWARE.
 #include <python/python_engine.h>
 
 #include <extensions/behaviour_tree.h>
+#include "extensions/python_extensions.h"
 
 TEST(AI, PriorityQueue)
 {
@@ -119,13 +120,25 @@ TEST(AI, BehaviourTree)
 
 	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
 
+	//Repeater
 	auto repeater = std::make_shared<sfge::ext::behaviour_tree::Repeater>(behaviourTree, 0);
 	behaviourTree->SetRootNode(repeater);
 
-	auto debugLeaf = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf>();
-	debugLeaf->parentNode = repeater;
-	repeater->SetChild(debugLeaf);
+	//Sequence
+	auto sequence = std::make_shared<sfge::ext::behaviour_tree::Sequence>(behaviourTree);
+	sequence->parentNode = repeater;
+	repeater->SetChild(sequence);
 
+	//Leaf 1
+	auto debugLeaf = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf>();
+	debugLeaf->parentNode = sequence;
+	sequence->AddChild(debugLeaf);
+
+	//Leaf 1
+	auto debugLeaf2 = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf2>();
+	debugLeaf2->parentNode = sequence;
+	sequence->AddChild(debugLeaf2);
+	
 	auto* entityManager = engine.GetEntityManager();
 	const auto newEntity = entityManager->CreateEntity(0);
 

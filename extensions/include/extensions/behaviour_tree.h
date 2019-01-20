@@ -102,6 +102,8 @@ public:
 	std::vector<Entity>* m_Entities;
 
 	std::vector<Node::ptr> m_CurrentNode;
+	std::vector<Node::ptr> m_PreviousNode;
+	std::vector<Node::Status> m_PreviousStatus;
 
 private:
 	//Black board
@@ -120,6 +122,15 @@ public:
 	bool HasChildren() const { return !m_Children.empty(); }
 protected:
 	std::vector<Node::ptr> m_Children;
+};
+
+class Sequence : public CompositeNode {
+public:
+	Sequence(BehaviourTree* BT);
+
+	void Init() override;
+
+	Status Execute(unsigned int index) override;
 };
 
 class Decorator : public Node {
@@ -151,6 +162,12 @@ class Leaf : public Node {
 };
 
 class DebugUpdateLeaf : public Leaf
+{
+	void Init() override;
+	Status Execute(unsigned index) override;
+};
+
+class DebugUpdateLeaf2 : public Leaf
 {
 	void Init() override;
 	Status Execute(unsigned index) override;

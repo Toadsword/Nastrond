@@ -41,14 +41,17 @@ namespace sfge::ext::behaviour_tree
 		if(m_CurrentNode.size() < m_Entities->size())
 		{
 			m_CurrentNode.resize(m_Entities->size(), m_RootNode);
+			m_PreviousNode.resize(m_Entities->size());
+			m_PreviousStatus.resize(m_Entities->size());
 		}
 
 		for(int i = 0; i < m_Entities->size(); i++)
 		{
-			Node::Status status = m_CurrentNode[i]->Execute(i);
+			m_PreviousStatus[i] = m_CurrentNode[i]->Execute(i);
 
-			if(status == Node::Status::SUCCESS)
+			if(m_PreviousStatus[i] != Node::Status::RUNNING)
 			{
+				m_PreviousNode[i] = m_CurrentNode[i];
 				m_CurrentNode[i] = m_CurrentNode[i]->parentNode;
 			}
 		}
@@ -178,6 +181,7 @@ namespace sfge::ext::behaviour_tree
 		}
 
 		//Switch current node to child
+		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
 		behaviourTree->m_CurrentNode[index] = m_Child;
 
 		return Status::RUNNING;
@@ -189,7 +193,59 @@ namespace sfge::ext::behaviour_tree
 
 	Node::Status DebugUpdateLeaf::Execute(unsigned index)
 	{
-		std::cout << "Execute: DebugUpdateLeaf\n";
+		std::cout << "Execute: DebugUpdateLeaf1\n";
+		return Status::SUCCESS;
+	}
+	Sequence::Sequence(BehaviourTree * BT)
+	{
+		behaviourTree = BT;
+	}
+	void Sequence::Init()
+	{
+	}
+
+	Node::Status Sequence::Execute(unsigned int index)
+	{
+		std::cout << "Execute: Sequence\n";
+
+		//if last one returned fail => then it's a fail
+		if(behaviourTree->m_PreviousStatus[index] == Status::FAIL)
+		{
+			return Status::FAIL;
+		}
+
+		//If last one is parent => first time entering the sequence
+		if(behaviourTree->m_PreviousNode[index] == parentNode)
+		{
+			behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+			behaviourTree->m_CurrentNode[index] = m_Children[0];
+			return Status::RUNNING;
+		}
+
+		//Else it means that the previous node is a children
+		for(int i = 0; i < m_Children.size(); i++)
+		{
+			if(m_Children[i] == behaviourTree->m_PreviousNode[index])
+			{
+				if(i == m_Children.size() - 1)
+				{
+					return Status::SUCCESS;
+				}else
+				{
+					behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+					behaviourTree->m_CurrentNode[index] = m_Children[i + 1];
+					return Status::RUNNING;
+				}
+			}
+		}
+		return Status::RUNNING;
+	}
+	void DebugUpdateLeaf2::Init()
+	{
+	}
+	Node::Status DebugUpdateLeaf2::Execute(unsigned index)
+	{
+		std::cout << "Execute: DebugUpdateLeaf2\n";
 		return Status::SUCCESS;
 	}
 }
