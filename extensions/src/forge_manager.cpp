@@ -36,45 +36,15 @@ void sfge::ext::ForgeManager::Init()
 	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
 
 	auto* entityManager = m_Engine.GetEntityManager();
-	entityManager->ResizeEntityNmb(m_entitiesNmb);
 
-	////Load Texture
-	//std::string texturePath = "data/sprites/building.png";
+#ifdef SYSTEM_TEST_DEBUG
+	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
 
-	//for (unsigned i = 0u; i < m_entitiesNmb; i++)
-	//{
-	//	//Load Texture
-	//	const auto textureId = m_TextureManager->LoadTexture(texturePath);
-	//	const auto texture = m_TextureManager->GetTexture(textureId);
-
-	//	const auto newEntity = entityManager->CreateEntity(i + 1);
-
-	//	m_mineIndex.resize(m_mineIndex.size() + 1);
-	//	m_mineIndex.push_back(i + 1);
-
-	//	//add transform
-	//	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
-	//	transformPtr->Position = Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
-	//	transformPtr->Scale = Vec2f(0.1f, 0.1f);
-
-	//	//add texture
-	//	auto sprite = m_SpriteManager->AddComponent(newEntity);
-	//	sprite->SetTexture(texture);
-
-	//	editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-	//	spriteInfo.name = "sprite";
-	//	spriteInfo.sprite = sprite;
-	//	spriteInfo.textureId = textureId;
-	//	spriteInfo.texturePath = texturePath;
-
-	//	//setup
-	//	m_ironsInventories[i].m_ressourceType = RessourceType::IRON;
-	//	m_toolsInventories[i].m_ressourceType = RessourceType::TOOL;
-	//}
 	for (unsigned i = 0; i < m_entitiesNmb; i++)
 	{
-		SpawnForge(Vec2f(0, 0));
+		SpawnForge(Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y)));
 	}
+#endif
 }
 
 void sfge::ext::ForgeManager::Update(float dt)
@@ -94,13 +64,12 @@ void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
 {
 	auto* entityManager = m_Engine.GetEntityManager();
 	const auto newEntity = entityManager->CreateEntity(0);
-	std::cout << "new mine : " + std::to_string(newEntity) + "\n";
 
-	unsigned newMine = m_mineIndex.size() + 1;
+	size_t newForge = m_forgeEntityIndex.size() + 1;
+	
+	ResizeContainer(newForge);
 
-	ResizeContainer(newMine);
-
-	m_mineIndex.push_back(newEntity);
+	m_forgeEntityIndex.push_back(newEntity);
 
 	//Load Texture
 	std::string texturePath = "data/sprites/building.png";
@@ -122,22 +91,44 @@ void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
 	spriteInfo.textureId = textureId;
 	spriteInfo.texturePath = texturePath;
 
-	m_ironsInventories[newMine - 1].m_ressourceType = RessourceType::IRON;
-	m_toolsInventories[newMine - 1].m_ressourceType = RessourceType::TOOL;
+	m_ironsInventories[newForge - 1].ressourceType = RessourceType::IRON;
+	m_toolsInventories[newForge - 1].ressourceType = RessourceType::TOOL;
+	m_progressionProdTool[newForge - 1].ressourceType = RessourceType::TOOL;
+}
+
+bool sfge::ext::ForgeManager::AddDwarfToForge(Entity mineEntity)
+{
+	for (int i = 0; i < m_forgeEntityIndex.size(); i++)
+	{
+		if (m_forgeEntityIndex[i] == mineEntity)
+		{
+			if (m_dwarfSlots[i].dwarfAttributed < m_dwarfSlots[i].maxDwarfCapacity)
+			{
+				m_dwarfSlots[i].dwarfAttributed++;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		return false;
+	}
 }
 
 void sfge::ext::ForgeManager::ResizeContainer(const size_t newSize)
 {
+	m_forgeEntityIndex.resize(newSize);
 	m_toolsInventories.resize(newSize);
 	m_ironsInventories.resize(newSize);
 	m_progressionProdTool.resize(newSize);
-	m_mineIndex.resize(newSize);
 }
 
 void sfge::ext::ForgeManager::ProduceTools()
 {
 	for (int i = 0; i < m_entitiesNmb; i++)
 	{
+
 		GiverInventory tmpToolsInventory = m_toolsInventories[i];
 		RecieverInventory tmpIronInventory = m_ironsInventories[i];
 		ProgressionProduction tmpProgressionProdTool = m_progressionProdTool[i];
@@ -147,7 +138,7 @@ void sfge::ext::ForgeManager::ProduceTools()
 			continue;
 		}
 
-		tmpProgressionProdTool.FrameCoolDown++;
+		tmpProgressionProdTool.FrameCoolDown += m_dwarfSlots[i].dwarfIn;
 
 		if (tmpProgressionProdTool.FrameCoolDown >= m_FrameBeforAdd)
 		{

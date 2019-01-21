@@ -33,7 +33,8 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-//#define DEBUG_CHECK_PRODUCTION
+#define DEBUG_CHECK_PRODUCTION
+#define SYSTEM_TEST_DEBUG
 
 	/**
 	 * \author Robin Alves
@@ -52,9 +53,11 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Methode that spawn a new mine in the map a the given position.
+		 * \brief Method that spawn a new mine in the map a the given position.
 		 */
 		void SpawnForge(Vec2f pos);
+
+		bool AddDwarfToForge(Entity mineEntity);
 
 	private:
 
@@ -62,19 +65,21 @@ namespace sfge::ext
 
 		void ProduceTools();
 
-
-
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		const size_t m_entitiesNmb = 5;
+#ifdef SYSTEM_TEST_DEBUG
+		const size_t m_entitiesNmb = 500;
+#endif
 
-		std::vector<GiverInventory> m_toolsInventories{ m_entitiesNmb };
-		std::vector<RecieverInventory> m_ironsInventories{ m_entitiesNmb };
-		std::vector<ProgressionProduction> m_progressionProdTool{ m_entitiesNmb };
+		std::vector<Entity> m_forgeEntityIndex;
 
-		std::vector<Entity> m_mineIndex;
+		std::vector<DwarfSlots> m_dwarfSlots;
+		std::vector<GiverInventory> m_toolsInventories;
+		std::vector<RecieverInventory> m_ironsInventories;
+		std::vector<ProgressionProduction> m_progressionProdTool;
+
 
 		const int m_stackSize = 5;
 

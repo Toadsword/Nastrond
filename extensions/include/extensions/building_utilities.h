@@ -32,29 +32,37 @@ namespace sfge::ext
 		NONE,
 		IRON,
 		STONE,
-		TOOL
+		TOOL,
+		FOOD
 	};
 	struct GiverInventory
 	{
 		unsigned int MAX_CAPACITY = 100u;
 		float inventory = 0u;
 		unsigned short packNumber = 0u;
-		RessourceType m_ressourceType = RessourceType::NONE;
+		RessourceType ressourceType = RessourceType::NONE;
 	};
 
 	struct RecieverInventory
 	{
-		unsigned const int MAX_CAPACITY = 100u;
+		unsigned int MAX_CAPACITY = 100u;
 		float inventory = 0u;
-		RessourceType m_ressourceType = RessourceType::NONE;
+		RessourceType ressourceType = RessourceType::NONE;
 	};
 
 	struct ProgressionProduction
 	{
 		float progression = 0.0f;
-		const int goal = 20;
+		int goal = 20;
 		int FrameCoolDown = 0;
-		RessourceType m_ressourceType = RessourceType::NONE;
+		RessourceType ressourceType = RessourceType::NONE;
+	};
+
+	struct DwarfSlots
+	{
+		int maxDwarfCapacity = 5;
+		int dwarfAttributed = 0;
+		int dwarfIn = 0;
 	};
 }
 

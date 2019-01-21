@@ -22,24 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef DWARVES_SLOTS_MANAGER_H
-#define DWARVES_SLOTS_MANAGER_H
-
+#ifndef DWELLING_MANAGER_H
+#define DWELLING_MANAGER_H
 
 #include <engine/system.h>
-#include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
+
+#include <extensions/building_utilities.h>
 
 
 namespace sfge::ext
 {
+#define SYSTEM_TEST_DEBUG
+
 	/**
 	 * \author Robin Alves
 	 */
-	class DwarvesSlotsManager : public System
+	class DwellingManager : public System
 	{
 	public:
-		DwarvesSlotsManager(Engine& engine);
+		DwellingManager(Engine& engine);
 
 		void Init() override;
 
@@ -49,12 +51,29 @@ namespace sfge::ext
 
 		void Draw() override;
 
+
+		void AddNewDwelling(Vec2f pos);
+
+		bool AddDwarfToDwelling(Entity dwellingEntity);
+
 	private:
+
+		void ResizeContainer(const size_t newSize);
+
+
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		const size_t m_entitiesNmb = 4;
+		std::vector<Entity> m_dwellingEntityIndex;
+
+
+		std::vector<DwarfSlots> m_dwarfSlots;
+		std::vector<RecieverInventory> m_foodInventory;
+#ifdef SYSTEM_TEST_DEBUG
+		size_t m_entitiesNmb = 10;
+#endif
 	};
 }
+
 #endif

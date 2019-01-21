@@ -35,7 +35,7 @@ SOFTWARE.
 namespace sfge::ext
 {
 #define DEBUG_CHECK_PRODUCTION
-
+#define SYSTEM_TEST_DEBUG
 	/**
 	 * \author Robin Alves
 	 */
@@ -53,21 +53,27 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Methode that ping the Task Manager when a stack of iron is avalaible.
+		 * \brief Method that create a new mine est setup it at the given position.
 		 */
-		void IronStackAvalaible(Entity entity);
+		void AddNewMine(Vec2f pos);
+
+		bool AddDwarfToMine(Entity mineEntity);
 
 	private:
 		/**
-		 * \brief Methode to produce ressources.
+		 * \brief Method to produce ressources.
 		 */
 		void RessourcesProduction();
 
+		/**
+		 * \brief Method to resize all vector to keep the same index for mine.
+		 */
+		void ResizeContainer(size_t newSize);
 
 		/**
-		 * \brief Methode that simulate the shiffting of the iron.
+		 * \brief Method that ping the Task Manager when a stack of iron is avalaible.
 		 */
-		void RessourcesShifftingSimulation(int EntityIndex);
+		void IronStackAvalaible(Entity entity);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
@@ -75,10 +81,12 @@ namespace sfge::ext
 
 		const size_t m_entitiesNmb = 10;
 
-		std::vector<GiverInventory> m_IronProduction{ m_entitiesNmb };
+		std::vector<Entity> m_mineEntityIndex;
+
+		std::vector<DwarfSlots> m_dwarfSlots;
+		std::vector<GiverInventory> m_IronProduction;
 
 		float m_ProductionRate = 0.01f;
-
 		unsigned int m_packSize = 20u;
 
 		int m_TmpDwarfNumber = 5;
