@@ -43,6 +43,7 @@ namespace sfge::ext::behaviour_tree
 			m_CurrentNode.resize(m_Entities->size(), m_RootNode);
 			m_PreviousNode.resize(m_Entities->size());
 			m_PreviousStatus.resize(m_Entities->size());
+			m_Counter.resize(m_Entities->size(), 0);
 		}
 
 		for(int i = 0; i < m_Entities->size(); i++)
@@ -168,16 +169,23 @@ namespace sfge::ext::behaviour_tree
 
 	void Repeater::Init()
 	{
-		m_Counter = 0;
 	}
 
 	Node::Status Repeater::Execute(unsigned int index)
 	{
 		std::cout << "Execute: Repeater\n";
-		//If limit == 0 => inifinity, if m_Counter == m_Limit it's over
-		if(m_Limit > 0 && ++m_Counter == m_Limit)
-		{
-			return Status::SUCCESS;
+		if (behaviourTree->m_PreviousNode[index] == parentNode) {
+			behaviourTree->m_Counter[index] = 0;
+		}else{
+			//If limit == 0 => inifinity, if m_Counter == m_Limit it's over
+			if (m_Limit > 0 && ++behaviourTree->m_Counter[index] == m_Limit)
+			{
+				std::cout << "count = " << behaviourTree->m_Counter[index] << "\n";
+				behaviourTree->m_Counter[index] = 0;
+				return Status::SUCCESS;
+			}else if(m_Limit > 0){
+				std::cout << "count = " << behaviourTree->m_Counter[index] << "\n";
+			}
 		}
 
 		//Switch current node to child
@@ -185,6 +193,45 @@ namespace sfge::ext::behaviour_tree
 		behaviourTree->m_CurrentNode[index] = m_Child;
 
 		return Status::RUNNING;
+	}
+
+	Inverter::Inverter(BehaviourTree* BT)
+	{
+		behaviourTree = BT;
+	}
+
+	void Inverter::Init()
+	{
+
+	}
+
+	Node::Status Inverter::Execute(unsigned index)
+	{
+		if(behaviourTree->m_PreviousNode[index] == parentNode)
+		{
+			std::cout << "Execute: Inverter\n";
+			behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+			behaviourTree->m_CurrentNode[index] = m_Child;
+
+			return Status::RUNNING;
+		}
+
+		if(behaviourTree->m_PreviousStatus[index] == Status::SUCCESS)
+		{
+			std::cout << "Invert success to fail\n";
+			return Status::FAIL;
+		}
+
+		if (behaviourTree->m_PreviousStatus[index] == Status::FAIL)
+		{
+			std::cout << "Invert fail to success\n";
+			return Status::SUCCESS;
+		}
+
+		if (behaviourTree->m_PreviousStatus[index] == Status::RUNNING)
+		{
+			std::cout << "Inverter: THIS IS NOT POSSIBLE\n";
+		}
 	}
 
 	void DebugUpdateLeaf::Init()
@@ -298,15 +345,38 @@ namespace sfge::ext::behaviour_tree
 	}
 
 	Node::Status DebugUpdateLeaf3::Execute(unsigned index) {
-		std::cout << "Execute: DebugUpdateLeaf 3 (fail)\n";
-		return Status::FAIL;
+		std::cout << "Execute: DebugUpdateLeaf 3 (success)\n";
+		return Status::SUCCESS;
 	}
 
 	void DebugUpdateLeaf4::Init() {
 	}
 
 	Node::Status DebugUpdateLeaf4::Execute(unsigned index) {
-		std::cout << "Execute: DebugUpdateLeaf 4 (success)\n";
+		std::cout << "Execute: DebugUpdateLeaf 4 (fail)\n";
+		return Status::FAIL;
+	}
+
+	Succeeder::Succeeder(BehaviourTree * BT)
+	{
+		behaviourTree = BT;
+	}
+
+	void Succeeder::Init()
+	{
+	}
+
+	Node::Status Succeeder::Execute(unsigned index)
+	{
+		if(behaviourTree->m_PreviousNode[index] == parentNode)
+		{
+			std::cout << "Execute: Succeeder \/\n";
+			behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+			behaviourTree->m_CurrentNode[index] = m_Child;
+			return Status::RUNNING;
+		}
+
+		std::cout << "Execture: Succeeder return SUCCESS\n";
 		return Status::SUCCESS;
 	}
 }

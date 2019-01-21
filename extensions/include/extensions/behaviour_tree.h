@@ -104,6 +104,7 @@ public:
 	std::vector<Node::ptr> m_CurrentNode;
 	std::vector<Node::ptr> m_PreviousNode;
 	std::vector<Node::Status> m_PreviousStatus;
+	std::vector<int> m_Counter;
 
 private:
 	//Black board
@@ -112,6 +113,7 @@ private:
 	std::unordered_map<std::string, std::vector<float>*> m_Floats;
 	std::unordered_map<std::string, std::vector<std::string>*> m_Strings;
 	std::unordered_map<std::string, std::vector<Vec2f>*> m_Vec2fs;
+
 
 	Node::ptr m_RootNode = nullptr;
 };
@@ -161,7 +163,26 @@ public:
 
 private:
 	int m_Limit;
-	int m_Counter = 0;
+};
+
+class Inverter : public Decorator
+{
+public:
+	Inverter(BehaviourTree* BT);
+
+	void Init() override;
+
+	Status Execute(unsigned int index) override;
+};
+
+class Succeeder : public Decorator
+{
+public:
+	Succeeder(BehaviourTree* BT);
+
+	void Init() override;
+
+	Status Execute(unsigned index) override;
 };
 
 class Leaf : public Node {
