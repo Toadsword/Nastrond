@@ -129,7 +129,14 @@ public:
 	Sequence(BehaviourTree* BT);
 
 	void Init() override;
+	Status Execute(unsigned int index) override;
+};
 
+class Selector : public CompositeNode {
+public:
+	Selector(BehaviourTree* BT);
+
+	void Init() override;
 	Status Execute(unsigned int index) override;
 };
 
@@ -163,12 +170,28 @@ class Leaf : public Node {
 
 class DebugUpdateLeaf : public Leaf
 {
+public:
 	void Init() override;
 	Status Execute(unsigned index) override;
 };
 
 class DebugUpdateLeaf2 : public Leaf
 {
+public:
+	void Init() override;
+	Status Execute(unsigned index) override;
+};
+
+class DebugUpdateLeaf3 : public Leaf
+{
+public:
+	void Init() override;
+	Status Execute(unsigned index) override;
+};
+
+class DebugUpdateLeaf4 : public Leaf
+{
+public:
 	void Init() override;
 	Status Execute(unsigned index) override;
 };

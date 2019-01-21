@@ -134,10 +134,25 @@ TEST(AI, BehaviourTree)
 	debugLeaf->parentNode = sequence;
 	sequence->AddChild(debugLeaf);
 
-	//Leaf 1
+	//Leaf 2
 	auto debugLeaf2 = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf2>();
 	debugLeaf2->parentNode = sequence;
 	sequence->AddChild(debugLeaf2);
+
+	//Selector
+	auto selector = std::make_shared<sfge::ext::behaviour_tree::Selector>(behaviourTree);
+	selector->parentNode = sequence;
+	sequence->AddChild(selector);
+
+	//Leaf 3
+	auto debugLeaf3 = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf3>();
+	debugLeaf3->parentNode = selector;
+	selector->AddChild(debugLeaf3);
+
+	//Leaf 4
+	auto debugLeaf4 = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf4>();
+	debugLeaf4->parentNode = selector;
+	selector->AddChild(debugLeaf4);
 	
 	auto* entityManager = engine.GetEntityManager();
 	const auto newEntity = entityManager->CreateEntity(0);

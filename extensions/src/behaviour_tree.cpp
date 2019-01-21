@@ -193,7 +193,7 @@ namespace sfge::ext::behaviour_tree
 
 	Node::Status DebugUpdateLeaf::Execute(unsigned index)
 	{
-		std::cout << "Execute: DebugUpdateLeaf1\n";
+		std::cout << "Execute: DebugUpdateLeaf 1 (success)\n";
 		return Status::SUCCESS;
 	}
 	Sequence::Sequence(BehaviourTree * BT)
@@ -240,12 +240,73 @@ namespace sfge::ext::behaviour_tree
 		}
 		return Status::RUNNING;
 	}
+
+	Selector::Selector(BehaviourTree* BT) {
+		behaviourTree = BT;
+	}
+
+	void Selector::Init() {
+	}
+
+	Node::Status Selector::Execute(unsigned index) {
+		std::cout << "Execute: Selector\n";
+
+		//If last one is parent => first time entering the sequence
+		if (behaviourTree->m_PreviousNode[index] == parentNode)
+		{
+			behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+			behaviourTree->m_CurrentNode[index] = m_Children[0];
+			return Status::RUNNING;
+		}
+
+		//Else it means that the previous node is a children
+		for (int i = 0; i < m_Children.size(); i++)
+		{
+			if (m_Children[i] == behaviourTree->m_PreviousNode[index])
+			{
+				//If last one is a success => going out of node
+				if(behaviourTree->m_PreviousStatus[index] == Status::SUCCESS) {
+					return Status::SUCCESS;
+				}
+
+				//Else if not last child => go next chil
+				if (i < m_Children.size() - 1)
+				{
+					behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+					behaviourTree->m_CurrentNode[index] = m_Children[i + 1];
+					return Status::RUNNING;
+				}
+				else //mean that they all failed => return fail
+				{
+					return Status::FAIL;
+				}
+			}
+		}
+		return Status::RUNNING;
+	}
+
 	void DebugUpdateLeaf2::Init()
 	{
 	}
 	Node::Status DebugUpdateLeaf2::Execute(unsigned index)
 	{
-		std::cout << "Execute: DebugUpdateLeaf2\n";
+		std::cout << "Execute: DebugUpdateLeaf 2 (success)\n";
+		return Status::SUCCESS;
+	}
+
+	void DebugUpdateLeaf3::Init() {
+	}
+
+	Node::Status DebugUpdateLeaf3::Execute(unsigned index) {
+		std::cout << "Execute: DebugUpdateLeaf 3 (fail)\n";
+		return Status::FAIL;
+	}
+
+	void DebugUpdateLeaf4::Init() {
+	}
+
+	Node::Status DebugUpdateLeaf4::Execute(unsigned index) {
+		std::cout << "Execute: DebugUpdateLeaf 4 (success)\n";
 		return Status::SUCCESS;
 	}
 }
