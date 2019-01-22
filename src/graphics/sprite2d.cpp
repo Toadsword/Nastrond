@@ -196,7 +196,6 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 	{
 		newSprite.SetLayer(componentJson["layer"]);
 	}
-
 }
 
 void SpriteManager::DestroyComponent(Entity entity)

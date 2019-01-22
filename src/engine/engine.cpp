@@ -145,14 +145,14 @@ void Engine::Start()
 			fixedUpdateClock.restart ();
 			m_SystemsContainer->physicsManager.FixedUpdate();
 			previousFixedUpdateTime = globalClock.getElapsedTime();
-			//m_SystemsContainer->tilemapSystem.FixedUpdate();
+			m_SystemsContainer->tilemapSystem.FixedUpdate();
 			m_SystemsContainer->pythonEngine.FixedUpdate();
             m_SystemsContainer->sceneManager.FixedUpdate();
 			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime ();
 			m_FrameData.frameFixedUpdate = deltaFixedUpdateTime;
 			isFixedUpdateFrame = true;
 		}
-		//m_SystemsContainer->tilemapSystem.Update(dt.asSeconds());
+		m_SystemsContainer->tilemapSystem.Update(dt.asSeconds());
 
         m_SystemsContainer->pythonEngine.Update(dt.asSeconds());
 

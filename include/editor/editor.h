@@ -48,6 +48,7 @@ class SceneManager;
 class Physics2dManager;
 class SoundManager;
 class KeyboardManager;
+class TilemapSystem;
 struct Configuration;
 
 
@@ -84,6 +85,7 @@ protected:
 	EntityManager* m_EntityManager = nullptr;
 	Configuration* m_Config = nullptr;
 	KeyboardManager* m_KeyboardManager = nullptr;
+	TilemapSystem* m_TilemapSystem = nullptr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
 	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};

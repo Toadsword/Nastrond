@@ -26,7 +26,6 @@ void editor::Transform2dInfo::DrawOnInspector()
 
 Transform2d* Transform2dManager::AddComponent(Entity entity)
 {
-
 	auto& transform = GetComponentRef(entity);
 	m_ComponentsInfo[entity - 1].transform = &transform;
 	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TRANSFORM2D);

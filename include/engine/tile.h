@@ -46,11 +46,11 @@ public:
 	Tile(Transform2d* transform);
 
 	void SetParentTilemap(Entity parent);
-	void SetLayer(short newLayer);
+	void SetLayer(int newLayer);
 	void SetType(int newType);
 
 protected:
-	short m_Layer = -1;
+	int m_Layer = -1;
 	int m_Type = -1;
 	Entity m_ParentTilemapEntity;
 };
@@ -61,7 +61,7 @@ namespace editor
 	{
 		void DrawOnInspector() override;
 		Tile* tile = nullptr;
-		short layer = -1;
+		int layer = -1;
 		int type = -1;
 	};
 }

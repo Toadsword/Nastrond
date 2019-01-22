@@ -64,13 +64,13 @@ sf::Vector2<unsigned> Tilemap::GetSize()
 	return m_Size;
 }
 
-void Tilemap::SetLayer(short newLayer)
+void Tilemap::SetLayer(int newLayer)
 {
 	if(newLayer > 0)
 		m_Layer = newLayer;
 }
 
-short Tilemap::GetLayer()
+int Tilemap::GetLayer()
 {
 	return m_Layer;
 }
@@ -88,16 +88,19 @@ void Tilemap::AddTile(Vec2f pos, Entity entity)
 void editor::TilemapInfo::DrawOnInspector()
 {
 	ImGui::Separator();
-	ImGui::Text("Tile");
-	ImGui::InputInt("Layer", (int*)layer);
-	ImGui::InputInt("Size%x", (int*)size.x);
-	ImGui::SameLine();
-	ImGui::InputInt("Size%y", (int*)size.y);
+	ImGui::Text("Tilemap");
+	ImGui::InputInt("Layer", &layer);
+	int sizeX = size.x;
+	ImGui::InputInt("SizeX", &sizeX);
+	int sizeY = size.y;
+	ImGui::InputInt("SizeY", &sizeX);
 }
 
 void TilemapManager::Init()
 {
+	SingleComponentManager::Init();
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
+	m_TileManager = m_Engine.GetTilemapSystem()->GetTileManager();
 }
 
 void TilemapManager::Update(float dt)
@@ -140,8 +143,8 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 
 	if (CheckJsonExists(componentJson, "layer") && CheckJsonParameter(componentJson, "layer", nlohmann::detail::value_t::number_integer))
 	{
-		newTilemap.SetLayer(componentJson["layer"].get<short>());
-		newTilemapInfo.layer = componentJson["layer"].get<short>();
+		newTilemap.SetLayer(componentJson["layer"].get<int>());
+		newTilemapInfo.layer = componentJson["layer"].get<int>();
 	}
 
 	sf::Vector2<unsigned> mapSize = sf::Vector2<unsigned>();
@@ -155,7 +158,7 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 
 	if(CheckJsonExists(componentJson, "map") && CheckJsonParameter(componentJson, "map", nlohmann::detail::value_t::array))
 	{
-		InitializeMap(entity, componentJson);
+		InitializeMap(entity, componentJson["map"]);
 	}
 }
 
@@ -177,15 +180,16 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 
 	sf::Vector2<unsigned> mapSize = tilemap.GetSize();
 	EntityManager* entityManager = m_Engine.GetEntityManager();
-
-	for (int i = 0; i < mapSize.x; i++)
+	
+	for (unsigned i = 0; i < map.size(); i++)
 	{
-		for (int j = 0; j < mapSize.y; j++)
+		for (unsigned j = 0; j < map[i].size(); j++)
 		{
-			Entity newEntity = entityManager->CreateEntity(0);
+			Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 			m_TileManager->AddComponent(newEntity, map[i][j].get<int>());
 		}
 	}
+	
 }
 
 void TilemapManager::EmptyMap(Entity entity)
@@ -196,9 +200,12 @@ void TilemapManager::EmptyMap(Entity entity)
 
 	EntityManager* entityManager = m_Engine.GetEntityManager();
 
-	for (int i = 0; i <= mapSize.x; i++)
+	int sizeX = map.size();
+
+	for (int i = 0; i < sizeX; i++)
 	{
-		for (int j = 0; j <= mapSize.y; j++)
+		int sizeY = map[i].size();
+		for (int j = 0; j < sizeY; j++)
 		{
 			entityManager->DestroyEntity(map[i][j]);
 			map[i][j] = INVALID_ENTITY;

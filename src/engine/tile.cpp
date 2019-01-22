@@ -53,7 +53,7 @@ void Tile::SetParentTilemap(Entity parent)
 	m_ParentTilemapEntity = parent;
 }
 
-void Tile::SetLayer(short newLayer)
+void Tile::SetLayer(int newLayer)
 {
 	if (newLayer > 0)
 		m_Layer = newLayer;
@@ -69,13 +69,15 @@ void editor::TileInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Tile");
-	ImGui::InputInt("Layer", (int*)layer);
-	ImGui::InputInt("Type", (int*)&type);
+	ImGui::InputInt("Layer", &layer);
+	ImGui::InputInt("Type", &type);
 }
 
 void TileManager::Init()
 {
+	SingleComponentManager::Init();
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
+	m_TilemapManager = m_Engine.GetTilemapSystem()->GetTilemapManager();
 }
 
 void TileManager::Collect()

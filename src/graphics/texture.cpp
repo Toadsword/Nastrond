@@ -162,6 +162,8 @@ TextureId TextureManager::LoadTexture(std::string filename)
 
 sf::Texture* TextureManager::GetTexture(TextureId textureId)
 {
+	if (textureId == INVALID_TEXTURE)
+		return &m_Textures[textureId];
 	return &m_Textures[textureId-1];
 }
 

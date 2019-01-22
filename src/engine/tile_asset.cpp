@@ -45,7 +45,7 @@ TileTypeId TileTypeManager::LoadTileType(std::string filename)
 {
 	{
 		std::ostringstream oss;
-		oss << "Creating Configuration from " << filename;
+		oss << "Creating TileType Configuration from " << filename;
 		Log::GetInstance()->Msg(oss.str());
 	}
 
@@ -64,27 +64,31 @@ TileTypeId TileTypeManager::LoadTileType(json & jsonData)
 {
 	auto tiletypeId = INVALID_TILE_TYPE;
 
-	if (CheckJsonExists(jsonData, "id") && CheckJsonParameter(jsonData, "id", nlohmann::detail::value_t::number_integer))
+	for (auto& tileTypeObj : jsonData)
 	{
-		if(jsonData["id"] > INVALID_TILE_TYPE)
-			tiletypeId = jsonData["id"];
-	}
-	else
-		return INVALID_TILE_TYPE;
-
-	if (CheckJsonExists(jsonData, "texturePath") && CheckJsonParameter(jsonData, "texturePath", nlohmann::detail::value_t::string))
-	{
-		TextureId textId = m_TextureManager->LoadTexture(jsonData["texturePath"]);
-		if(textId == INVALID_TEXTURE)
+		if (CheckJsonExists(tileTypeObj, "id") && CheckJsonParameter(tileTypeObj, "id", nlohmann::detail::value_t::number_unsigned))
 		{
-			std::ostringstream oss;
-			oss << "[Error] Couldn't load texture for tileType " << tiletypeId << ".\n";
-			Log::GetInstance()->Error(oss.str());
-			return INVALID_TILE_TYPE;
+			if (tileTypeObj["id"] > INVALID_TILE_TYPE)
+				tiletypeId = tileTypeObj["id"];
 		}
-		m_TexturesId[tiletypeId - 1] = textId;
-	}
+		else
+			continue;
 
+		m_TileTypeId[tiletypeId - 1] = tiletypeId;
+
+		if (CheckJsonExists(tileTypeObj, "texturePath") && CheckJsonParameter(tileTypeObj, "texturePath", nlohmann::detail::value_t::string))
+		{
+			TextureId textId = m_TextureManager->LoadTexture(tileTypeObj["texturePath"]);
+			if(textId == INVALID_TEXTURE)
+			{
+				std::ostringstream oss;
+				oss << "[Error] Couldn't load texture for tileType " << tiletypeId << ".\n";
+				Log::GetInstance()->Error(oss.str());
+				return INVALID_TILE_TYPE;
+			}
+			m_TexturesId[tiletypeId - 1] = textId;
+		}
+	}
 	return tiletypeId;
 }
 
@@ -96,7 +100,9 @@ bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
 	if (!m_Engine.GetEntityManager()->HasComponent(tileId, ComponentType::SPRITE2D))
 		m_SpriteManager->AddComponent(tileId);
 	
-	m_SpriteManager->GetComponentPtr(tileId)->SetTexture(m_TextureManager->GetTexture(m_TexturesId[tileTypeId]));
+	m_SpriteManager->GetComponentPtr(tileId)->SetTexture(
+		m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1])
+	);
 	return true;
 }
 

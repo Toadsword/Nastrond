@@ -26,6 +26,7 @@ SOFTWARE.
 #include <engine/tilemap.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
+#include <fstream>
 
 
 TEST(Tilemap, TestLoadTilemap)
@@ -34,7 +35,7 @@ TEST(Tilemap, TestLoadTilemap)
 	sfge::Engine engine;
 	engine.Init();
 
-	engine.GetTilemapSystem()->GetTileTypeManager()->LoadTileType("data/tilemap/nastrond_tiles.asset");
+	engine.GetTilemapSystem()->GetTileTypeManager()->LoadTileType("./data/tilemap/nastrond_tiles.asset");
 
 	json sceneJson;
 	json entityJson;
@@ -44,31 +45,30 @@ TEST(Tilemap, TestLoadTilemap)
 	tilemapJson["is_isometric"] = false;
 	tilemapJson["tile_scale"] = std::array<int, 2>{2, 1};
 	tilemapJson["map_size"] = std::array<int, 2>{10, 10};
-	tilemapJson["map"] = std::array<std::array<int, 10>, 10>{
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		std::array <int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-	};
+	tilemapJson["map"] = json::array({
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
+	});
 	entityJson["components"] = json::array({ tilemapJson });
 	entityJson["name"] = "TilemapTest";
 
 	sceneJson["entities"] = json::array({ entityJson });
 	sceneJson["name"] = "Test Tilemap";
+
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
 	//Ce que je faisais :
 	// Tenter de créer une scène et y ajouter une tilemap : la créer, faire en sorte qu'elle se génère comme il faut et qu'il affiche son contenu
 	// Je dois encore gérer le transform d'une tile en fonction de sa position dans la tilemape, et ne pas oublier le fait que la tilemap a une position de base.
 	// Manque encore la gestion du scale des tilemaps, et gérer la position de manière isométrique ou non.
-
-
 
     engine.Start();
 }

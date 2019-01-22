@@ -1,4 +1,6 @@
-{
-	"id" : "1",
-	"texturePath" : "/data/sprites/SP_GroundTile.png"
-}
+[
+	{
+		"id" : 1,
+		"texturePath" : "/data/sprites/SP_GroundTile.png"
+	}
+]

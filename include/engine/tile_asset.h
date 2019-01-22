@@ -88,7 +88,7 @@ protected:
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
 private:
-	std::vector<TextureId> m_TexturesId{INIT_ENTITY_NMB};
+	std::vector<TextureId> m_TexturesId = std::vector<TextureId>(INIT_ENTITY_NMB, 0);
 	std::vector<size_t> m_TileTypeId = std::vector<size_t>(INIT_ENTITY_NMB, 0);
 };
 }

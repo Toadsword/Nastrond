@@ -48,15 +48,15 @@ public:
 
 	void SetSize(sf::Vector2<unsigned> newSize);
 	sf::Vector2<unsigned> GetSize();
-	void SetLayer(short newLayer);
-	short GetLayer();
+	void SetLayer(int newLayer);
+	int GetLayer();
 	std::vector<std::vector<Entity>>& GetTiles();
 
 	void AddTile(Vec2f pos, Entity entity);
 
 protected:
 	std::vector<std::vector<Entity>> m_Tiles;
-	short m_Layer = 0;
+	int m_Layer = 0;
 	sf::Vector2<unsigned> m_Size = {100, 100};
 
 	TileManager* m_TileManager;
@@ -69,7 +69,7 @@ struct TilemapInfo : ComponentInfo
 {
 	void DrawOnInspector() override;
 	Tilemap* tilemap = nullptr;
-	short layer = 0;
+	int layer = 0;
 	sf::Vector2<unsigned> size = { 100, 100 };
 };
 }
