@@ -41,8 +41,8 @@ enum class ModuleType
 {
 	ENTITY,
 	TRANSFORM2D,
-	GRAPHICS2D,
-	CAMERA
+	GRAPHICS2D
+
 };
 
 

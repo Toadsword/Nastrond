@@ -172,7 +172,6 @@ void PyBehavior::Update(float dt)
 				auto* sound = soundManager->GetComponentPtr(m_Entity);
 				return py::cast(sound, py::return_value_policy::reference);
 			}
-	    //Add Camera by Dylan
 		case ComponentType::CAMERA:
 			{
 				auto* cameraManager = m_Engine.GetGraphics2dManager()->GetCameraManager();
