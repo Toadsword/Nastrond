@@ -52,21 +52,25 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Method that spawn a new dwelling at the given position.
+		 * \brief Spawn a new dwelling at the given position.
 		 */
 		void AddNewDwelling(Vec2f pos);
 
 		/**
-		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
+		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
 		 */
 		bool AddDwarfToDwelling(Entity dwellingEntity);
 
 	private:
 		/**
-		 * \brief Method to resize all vector to keep the same index for mine.
+		 * \brief Resize all vector to keep the same index for mine.
 		 */
 		void ResizeContainer(const size_t newSize);
 
+		/**
+		 * \brief return true if a slot in the index is empty then take his place.
+		 */
+		bool CheckEmptySlot(Entity newEntity);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;

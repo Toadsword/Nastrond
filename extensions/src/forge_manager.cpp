@@ -65,11 +65,18 @@ void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
 	auto* entityManager = m_Engine.GetEntityManager();
 	const auto newEntity = entityManager->CreateEntity(0);
 
-	size_t newForge = m_forgeEntityIndex.size() + 1;
-	
-	ResizeContainer(newForge);
+	if (!CheckEmptySlot(newEntity))
+	{
+		size_t newForge = m_forgeEntityIndex.size() + 1;
 
-	m_forgeEntityIndex.push_back(newEntity);
+		ResizeContainer(newForge);
+
+		m_ironsInventories[newForge - 1].ressourceType = RessourceType::IRON;
+		m_toolsInventories[newForge - 1].ressourceType = RessourceType::TOOL;
+		m_progressionProdTool[newForge - 1].ressourceType = RessourceType::TOOL;
+
+		m_forgeEntityIndex.push_back(newEntity);
+	}
 
 	//Load Texture
 	std::string texturePath = "data/sprites/building.png";
@@ -79,7 +86,6 @@ void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
 	//add transform
 	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = Vec2f(pos.x, pos.y);
-	transformPtr->Scale = Vec2f(0.1f, 0.1f);
 
 	//add texture
 	auto sprite = m_SpriteManager->AddComponent(newEntity);
@@ -90,10 +96,6 @@ void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
 	spriteInfo.sprite = sprite;
 	spriteInfo.textureId = textureId;
 	spriteInfo.texturePath = texturePath;
-
-	m_ironsInventories[newForge - 1].ressourceType = RessourceType::IRON;
-	m_toolsInventories[newForge - 1].ressourceType = RessourceType::TOOL;
-	m_progressionProdTool[newForge - 1].ressourceType = RessourceType::TOOL;
 }
 
 bool sfge::ext::ForgeManager::AddDwarfToForge(Entity mineEntity)
@@ -118,6 +120,7 @@ bool sfge::ext::ForgeManager::AddDwarfToForge(Entity mineEntity)
 
 void sfge::ext::ForgeManager::ResizeContainer(const size_t newSize)
 {
+	m_dwarfSlots.resize(newSize);
 	m_forgeEntityIndex.resize(newSize);
 	m_toolsInventories.resize(newSize);
 	m_ironsInventories.resize(newSize);
@@ -128,68 +131,80 @@ void sfge::ext::ForgeManager::ProduceTools()
 {
 	for (int i = 0; i < m_entitiesNmb; i++)
 	{
+
 		if(m_forgeEntityIndex[i] == NULL)
 		{
 			continue;
 		}
 
-		GiverInventory tmpToolsInventory = m_toolsInventories[i];
-		RecieverInventory tmpIronInventory = m_ironsInventories[i];
-		ProgressionProduction tmpProgressionProdTool = m_progressionProdTool[i];
+		//Just for test
+		for (int i = 0; i < m_entitiesNmb; i++)
+		{
+			m_ironsInventories[i].inventory = 1000;
+		}
 
-		if (tmpIronInventory.inventory <= 0 || tmpToolsInventory.inventory + tmpToolsInventory.packNumber * m_stackSize >= tmpToolsInventory.maxCapacity)
+		if (m_ironsInventories[i].inventory <= 0 || m_toolsInventories[i].inventory + m_toolsInventories[i].packNumber * m_stackSize >= m_toolsInventories[i].maxCapacity)
 		{
 			continue;
 		}
 
-		tmpProgressionProdTool.FrameCoolDown += m_dwarfSlots[i].dwarfIn;
+		m_progressionProdTool[i].FrameCoolDown += m_dwarfSlots[i].dwarfIn;
 
-		if (tmpProgressionProdTool.FrameCoolDown >= m_FrameBeforAdd)
+		if (m_progressionProdTool[i].FrameCoolDown >= m_FrameBeforAdd)
 		{
-			tmpIronInventory.inventory--;
-			tmpProgressionProdTool.progression++;
-			tmpProgressionProdTool.FrameCoolDown = 0;
+			m_ironsInventories[i].inventory--;
+			m_progressionProdTool[i].progression++;
+			m_progressionProdTool[i].FrameCoolDown = 0;
 		}
 
-		if (tmpProgressionProdTool.progression >= tmpProgressionProdTool.goal)
+		if (m_progressionProdTool[i].progression >= m_progressionProdTool[i].goal)
 		{
-			tmpToolsInventory.inventory++;
-			tmpProgressionProdTool.progression = 0;
+			m_toolsInventories[i].inventory++;
+			m_progressionProdTool[i].progression = 0;
 
-			if(tmpToolsInventory.inventory >= m_stackSize)
+			if(m_toolsInventories[i].inventory >= m_stackSize)
 			{
-				tmpToolsInventory.packNumber++;
-				tmpToolsInventory.inventory -= m_stackSize;
+				m_toolsInventories[i].packNumber++;
+				m_toolsInventories[i].inventory -= m_stackSize;
 			}
 		}
 
-		m_toolsInventories[i].inventory = tmpToolsInventory.inventory;
-		m_toolsInventories[i].packNumber = tmpToolsInventory.packNumber;
-
-		m_ironsInventories[i].inventory = tmpIronInventory.inventory;
-
-		m_progressionProdTool[i].progression = tmpProgressionProdTool.progression;
-		m_progressionProdTool[i].FrameCoolDown = tmpProgressionProdTool.FrameCoolDown;
-
-
-
 #ifdef DEBUG_CHECK_PRODUCTION
-		//Just for test
-		for (int i = 0; i < m_entitiesNmb; i++)
-		{
-			m_ironsInventories[i].inventory = m_ironsInventories[i].maxCapacity;
-		}
 
-		std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(tmpToolsInventory.inventory) +
-			" / and pack Number : " + std::to_string(tmpToolsInventory.packNumber) + " / progression : " + std::to_string(tmpProgressionProdTool.progression) + "\n";
+		std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(m_toolsInventories[i].inventory) +
+			" / and pack Number : " + std::to_string(m_toolsInventories[i].packNumber) + " / progression : " + std::to_string(m_progressionProdTool[i].progression) + "\n";
 		if (i + 1 == m_entitiesNmb)
 		{
 			std::cout << "\n";
 		}
 #endif
-
-		
 	}
+}
+
+bool sfge::ext::ForgeManager::CheckEmptySlot(Entity newEntity)
+{
+		for (int i = 0; i < m_forgeEntityIndex.size(); i++)
+		{
+			if (m_forgeEntityIndex[i] == NULL)
+			{
+				m_forgeEntityIndex[i] = newEntity;
+				const DwarfSlots newDwarfSlot;
+				m_dwarfSlots[i] = newDwarfSlot;
+				const RecieverInventory newIronInventory;
+				m_ironsInventories[i] = newIronInventory;
+				const GiverInventory newToolInventory;
+				m_toolsInventories[i] = newToolInventory;
+				const ProgressionProduction newProgressionProdTool;
+				m_progressionProdTool[i] = newProgressionProdTool;
+
+				m_ironsInventories[i].ressourceType = RessourceType::IRON;
+				m_toolsInventories[i].ressourceType = RessourceType::TOOL;
+				m_progressionProdTool[i].ressourceType = RessourceType::TOOL;
+
+				return true;
+			}
+		}
+		return false;
 }
 
 

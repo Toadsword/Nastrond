@@ -52,7 +52,7 @@ namespace sfge::ext
 	};
 
 	/**
-	 * \brief Struct that represent an inventory that must be fill.
+	 * \brief Represent an inventory that must be fill.
 	 * \author Robin Alves
 	 */
 	struct RecieverInventory
@@ -63,7 +63,7 @@ namespace sfge::ext
 	};
 
 	/**
-	 * \brief Struct that represent the progression of the production by the consumption of one or more receiver inventory to a giver inventory.
+	 * \brief Represent the progression of the production by the consumption of one or more receiver inventory to a giver inventory.
 	 * \author Robin Alves
 	 */
 	struct ProgressionProduction
@@ -75,7 +75,7 @@ namespace sfge::ext
 	};
 
 	/**
-	 * \brief Struct that represent the number of dwarf attribute to a building, in a building and the maximum of them allow to be attribute.
+	 * \brief Represent the number of dwarf attribute to a building, in a building and the maximum of them allow to be attribute.
 	 * \author Robin Alves
 	 */
 	struct DwarfSlots

@@ -53,25 +53,30 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Method that spawn a new forge at the given position.
+		 * \brief Spawn forge entity at the given position.
 		 */
 		void SpawnForge(Vec2f pos);
 
 		/**
-		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
+		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
 		 */
 		bool AddDwarfToForge(Entity mineEntity);
 
 	private:
 		/**
-		 * \brief Method to resize all vector to keep the same index for mine.
+		 * \brief Resize all vector in one go to keep the synchronize all index.
 		 */
 		void ResizeContainer(const size_t newSize);
 
 		/**
-		 * \brief method that produce tool by consuming iron.
+		 * \brief Consume iron to produce tool.
 		 */
 		void ProduceTools();
+
+		/**
+		 * \brief return true if a slot in the index is empty then take his place.
+		 */
+		bool CheckEmptySlot(Entity newEntity);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;

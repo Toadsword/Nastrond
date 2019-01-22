@@ -68,11 +68,15 @@ void sfge::ext::MineManager::AddNewMine(Vec2f pos)
 	auto* entityManager = m_Engine.GetEntityManager();
 	const auto newEntity = entityManager->CreateEntity(0);
 
-	size_t newForge = m_mineEntityIndex.size() + 1;
+	if (!CheckEmptySlot(newEntity))
+	{
+		size_t newForge = m_mineEntityIndex.size();
 
-	ResizeContainer(newForge);
+		ResizeContainer(newForge + 1);
+		m_IronProduction[newForge].ressourceType = RessourceType::IRON;
 
-	m_mineEntityIndex.push_back(newEntity);
+		m_mineEntityIndex.push_back(newEntity);
+	}
 
 	//Load Texture
 	std::string texturePath = "data/sprites/building.png";
@@ -93,8 +97,6 @@ void sfge::ext::MineManager::AddNewMine(Vec2f pos)
 	spriteInfo.sprite = sprite;
 	spriteInfo.textureId = textureId;
 	spriteInfo.texturePath = texturePath;
-
-	m_IronProduction[newForge - 1].ressourceType = RessourceType::IRON;
 }
 
 bool sfge::ext::MineManager::AddDwarfToMine(Entity mineEntity)
@@ -132,6 +134,18 @@ bool sfge::ext::MineManager::DestroyMine(Entity mineEntity)
 	return false;
 }
 
+Entity sfge::ext::MineManager::GetFreeMine()
+{
+	for(int i = 0; i < m_dwarfSlots.size(); i++)
+	{
+		if (m_dwarfSlots[i].dwarfAttributed < m_dwarfSlots[i].maxDwarfCapacity)
+		{
+			return m_mineEntityIndex[i];
+		}
+	}
+	return NULL;
+}
+
 void sfge::ext::MineManager::RessourcesProduction()
 {
 	for (unsigned i = 0; i < m_entitiesNmb; i++)
@@ -141,23 +155,18 @@ void sfge::ext::MineManager::RessourcesProduction()
 			continue;
 		}
 
-		GiverInventory tmpIronInventory = m_IronProduction[i];
-
 		//Check if the inventory is full
-		if (!(tmpIronInventory.packNumber * m_packSize >= tmpIronInventory.maxCapacity))
+		if (!(m_IronProduction[i].packNumber * m_packSize >= m_IronProduction[i].maxCapacity))
 		{
 			//Produce Iron by checking the number of dwarf in the building
-			tmpIronInventory.inventory += m_ProductionRate * m_dwarfSlots[i].dwarfIn;
+			m_IronProduction[i].inventory += m_ProductionRate * m_dwarfSlots[i].dwarfIn;
 
-			if (tmpIronInventory.inventory >= m_packSize)
+			if (m_IronProduction[i].inventory >= m_packSize)
 			{
-				tmpIronInventory.inventory -= m_packSize;
-				tmpIronInventory.packNumber++;
-				IronStackAvalaible(i + 1);
+				m_IronProduction[i].inventory -= m_packSize;
+				m_IronProduction[i].packNumber++;
+				IronStackAvalaible(m_mineEntityIndex[i]);
 			}
-
-			m_IronProduction[i].packNumber = tmpIronInventory.packNumber;
-			m_IronProduction[i].inventory = tmpIronInventory.inventory;
 		}
 
 #ifdef DEBUG_CHECK_PRODUCTION
@@ -182,5 +191,25 @@ void sfge::ext::MineManager::ResizeContainer(size_t newSize)
 void sfge::ext::MineManager::IronStackAvalaible(Entity entity)
 {
 	
+}
+
+bool sfge::ext::MineManager::CheckEmptySlot(Entity newEntity)
+{
+	for(int i = 0; i < m_mineEntityIndex.size(); i++)
+	{
+		if(m_mineEntityIndex[i] == NULL)
+		{
+			m_mineEntityIndex[i] = newEntity;
+			const DwarfSlots newDwarfSlot;
+			m_dwarfSlots[i] = newDwarfSlot;
+			const GiverInventory newIronInventory;
+			m_IronProduction[i] = newIronInventory;
+
+			m_IronProduction[i].ressourceType = RessourceType::IRON;
+
+			return true;
+		}
+	}
+	return false;
 }
 

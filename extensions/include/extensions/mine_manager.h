@@ -53,39 +53,50 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Method that create a new mine est setup it at the given position.
+		 * \brief Create a new mine est setup it at the given position.
 		 */
 		void AddNewMine(Vec2f pos);
 
 		/**
-		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
+		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
 		 */
 		bool AddDwarfToMine(Entity mineEntity);
 
 		/**
-		 * \brief Method that destroy the mine at the given index.
+		 * \brief Destroy the mine at the given index.
 		 */
 		bool DestroyMine(Entity mineEntity);
 
+		/**
+		 * \brief Return a mine with all attribution slots for dwarf not take.
+		 */
+		Entity GetFreeMine();
+
 	private:
 		/**
-		 * \brief Method to produce resources.
+		 * \brief Produce resources.
 		 */
 		void RessourcesProduction();
 
 		/**
-		 * \brief Method to resize all vector to keep the same index for mine.
+		 * \brief Resize all vector to keep the same index for mine.
 		 */
 		void ResizeContainer(size_t newSize);
 
 		/**
-		 * \brief Method that ping the Task Manager when a stack of iron is available.
+		 * \brief Ping the Task Manager when a stack of iron is available.
 		 */
 		void IronStackAvalaible(Entity entity);
+
+		/**
+		 * \brief return true if a slot in the index is empty then take his place.
+		 */
+		bool CheckEmptySlot(Entity newEntity);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
+
 #ifdef TEST_SYSTEM_DEBUG
 		const size_t m_entitiesNmb = 10;
 #endif
@@ -96,7 +107,7 @@ namespace sfge::ext
 		std::vector<GiverInventory> m_IronProduction;
 
 		float m_ProductionRate = 0.01f;
-		unsigned int m_packSize = 20u;
+		const unsigned int m_packSize = 20u;
 
 		int m_TmpDwarfNumber = 5;
 	};

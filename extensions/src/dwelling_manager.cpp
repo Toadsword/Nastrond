@@ -64,11 +64,18 @@ void sfge::ext::DwellingManager::AddNewDwelling(Vec2f pos)
 	auto* entityManager = m_Engine.GetEntityManager();
 	const auto newEntity = entityManager->CreateEntity(0);
 
-	size_t newDwelling = m_dwellingEntityIndex.size() + 1;
 
-	ResizeContainer(newDwelling);
+	if (!CheckEmptySlot(newEntity))
+	{
+		size_t newDwelling = m_dwellingEntityIndex.size() + 1;
 
-	m_dwellingEntityIndex.push_back(newEntity);
+		ResizeContainer(newDwelling);
+
+		//setup container
+		m_foodInventory[newDwelling].ressourceType = RessourceType::FOOD;
+
+		m_dwellingEntityIndex.push_back(newEntity);
+	}
 
 	//Load Texture
 	std::string texturePath = "data/sprites/building.png";
@@ -89,9 +96,6 @@ void sfge::ext::DwellingManager::AddNewDwelling(Vec2f pos)
 	spriteInfo.sprite = sprite;
 	spriteInfo.textureId = textureId;
 	spriteInfo.texturePath = texturePath;
-
-	//setup container
-	m_foodInventory[newDwelling].ressourceType = RessourceType::FOOD;
 }
 
 bool sfge::ext::DwellingManager::AddDwarfToDwelling(Entity dwellingEntity)
@@ -119,5 +123,25 @@ void sfge::ext::DwellingManager::ResizeContainer(const size_t newSize)
 	m_dwellingEntityIndex.resize(newSize);
 	m_dwarfSlots.resize(newSize);
 	m_foodInventory.resize(newSize);
+}
+
+bool sfge::ext::DwellingManager::CheckEmptySlot(Entity newEntity)
+{
+	for (int i = 0; i < m_dwellingEntityIndex.size(); i++)
+	{
+		if (m_dwellingEntityIndex[i] == NULL)
+		{
+			m_dwellingEntityIndex[i] = newEntity;
+			const DwarfSlots newDwarfSlot;
+			m_dwarfSlots[i] = newDwarfSlot;
+			const RecieverInventory newFoodIventory;
+			m_foodInventory[i] = newFoodIventory;
+
+			m_foodInventory[i].ressourceType = RessourceType::FOOD;
+
+			return true;
+		}
+	}
+	return false;
 }
 
