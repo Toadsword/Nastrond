@@ -42,12 +42,12 @@ namespace sfge::tools
 	void GraphicsManager::Init(AnimCreator* engine)
 	{
 		m_AnimCreator = engine;
-		m_isInit = true;
+		m_IsInit = true;
 	}
 
 	void GraphicsManager::Update(float dt)
 	{
-		if (!m_isInit)
+		if (!m_IsInit)
 			return;
 
 		InputManager* inputManager = m_AnimCreator->GetEngine().GetInputManager();
@@ -58,11 +58,11 @@ namespace sfge::tools
 		bool isControlHeld = keyboardManager.IsKeyHeld(sf::Keyboard::LControl) || keyboardManager.IsKeyHeld(sf::Keyboard::RControl);
 		if(isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::S))
 		{
-			m_saveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
-			m_openModalSave = m_saveResult != SAVE_SUCCESS;
+			m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
+			m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
 		}
 		if(isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::P))
-			m_doPlayAnimation = !m_doPlayAnimation;
+			m_DoPlayAnimation = !m_DoPlayAnimation;
 		if (isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::L))
 			m_AnimCreator->GetAnimationManager()->SetIsLooped(!m_AnimCreator->GetAnimationManager()->GetIsLooped());
 		if (isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::Add))
@@ -72,40 +72,40 @@ namespace sfge::tools
 
 		//Mouse
 		MouseManager& mouseManager = inputManager->GetMouseManager();
-		m_timeSinceLastClick += dt;
+		m_TimeSinceLastClick += dt;
 		if(mouseManager.IsButtonDown(sf::Mouse::Left))
 		{
-			if (m_timeSinceLastClick < TIME_TO_DOUBLE_CLICK)
-				m_doubleClicked = true;
+			if (m_TimeSinceLastClick < TIME_TO_DOUBLE_CLICK)
+				m_DoubleClicked = true;
 			else
-				m_doubleClicked = false;
-			m_timeSinceLastClick = 0;			
+				m_DoubleClicked = false;
+			m_TimeSinceLastClick = 0;			
 		}
 
 		//Animations
 		auto animManager = m_AnimCreator->GetAnimationManager();
-		if (m_doPlayAnimation)
+		if (m_DoPlayAnimation)
 		{
-			m_elapsedTimeSinceNewFrame += dt;
-			if (m_elapsedTimeSinceNewFrame >= animManager->GetSpeed())
+			m_ElapsedTimeSinceNewFrame += dt;
+			if (m_ElapsedTimeSinceNewFrame >= animManager->GetSpeed())
 			{
-				m_elapsedTimeSinceNewFrame = 0;
-				m_currentFrame++;
-				if (m_currentFrame > animManager->GetHighestKeyNum())
+				m_ElapsedTimeSinceNewFrame = 0;
+				m_CurrentFrame++;
+				if (m_CurrentFrame > animManager->GetHighestKeyNum())
 				{
-					m_currentFrame = 0;
+					m_CurrentFrame = 0;
 					if (!animManager->GetIsLooped())
-						m_doPlayAnimation = false;
+						m_DoPlayAnimation = false;
 				}
 			}
 		}
-		if(m_fileImportResult != LOAD_NONE)
+		if(m_FileImportResult != LOAD_NONE)
 		{
-			m_lastTimeTextureLoaded += dt;
-			if (m_lastTimeTextureLoaded >= TIME_BEFORE_REFRESH_LOADED_TEXTURE_STATUS)
+			m_LastTimeTextureLoaded += dt;
+			if (m_LastTimeTextureLoaded >= TIME_BEFORE_REFRESH_LOADED_TEXTURE_STATUS)
 			{
-				m_fileImportResult = LOAD_NONE;
-				m_lastTimeTextureLoaded = 0;
+				m_FileImportResult = LOAD_NONE;
+				m_LastTimeTextureLoaded = 0;
 			}
 		}
 
@@ -114,7 +114,7 @@ namespace sfge::tools
 
 	void GraphicsManager::Draw()
 	{
-		if (!m_isInit)
+		if (!m_IsInit)
 			return;
 
 		ImGui::SetNextWindowPos(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
@@ -141,8 +141,8 @@ namespace sfge::tools
 			DisplayAnimationInformationsWindow();
 		}
 		ImGui::End();
-		if (m_openModalSave) OpenModalSave();
-		if (m_openModalConfirmNew) OpenModalConfirmNew();
+		if (m_OpenModalSave) OpenModalSave();
+		if (m_OpenModalConfirmNew) OpenModalConfirmNew();
 	}
 
 	void GraphicsManager::DisplayMenuWindow()
@@ -153,16 +153,16 @@ namespace sfge::tools
 			{
 				if (ImGui::MenuItem("New"))
 				{
-					m_openModalConfirmNew = true;
+					m_OpenModalConfirmNew = true;
 				}
 				if (ImGui::MenuItem("Open new sprite", "Ctrl+O"))
 				{
-					m_openAddTexture = true;
+					m_OpenAddTexture = true;
 				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
-					m_saveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
-					m_openModalSave = m_saveResult != SAVE_SUCCESS;
+					m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
+					m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
 				}
 				if (ImGui::MenuItem("Quit", "Alt+F4"))
 				{
@@ -180,58 +180,58 @@ namespace sfge::tools
 		ImGui::Text("Add a new sprite...");
 		ImGui::Separator();
 
-		ImGui::InputText("FilePath (from C:)", m_inputNameNewFile, IM_ARRAYSIZE(m_inputNameNewFile));
+		ImGui::InputText("FilePath (from C:)", m_InputNameNewFile, IM_ARRAYSIZE(m_InputNameNewFile));
 
 		ImGui::Columns(4, "idColAddSprite");
 		ImGui::Text("Size X"); ImGui::NextColumn();
-		ImGui::InputInt("##Size X", &m_inputSizeX); ImGui::NextColumn();
+		ImGui::InputInt("##Size X", &m_InputSizeX); ImGui::NextColumn();
 
 		ImGui::Text("Size Y"); ImGui::NextColumn();
-		ImGui::InputInt("##Size Y", &m_inputSizeY); ImGui::NextColumn();
+		ImGui::InputInt("##Size Y", &m_InputSizeY); ImGui::NextColumn();
 
 		ImGui::Text("Num Rows"); ImGui::NextColumn();
-		ImGui::InputInt("##Num Rows", &m_inputNumRows); ImGui::NextColumn();
+		ImGui::InputInt("##Num Rows", &m_InputNumRows); ImGui::NextColumn();
 
 		ImGui::Text("Num Columns"); ImGui::NextColumn();
-		ImGui::InputInt("##Num Columns", &m_inputNumCols); ImGui::NextColumn();
+		ImGui::InputInt("##Num Columns", &m_InputNumCols); ImGui::NextColumn();
 
 		ImGui::Text("Offset x"); ImGui::NextColumn();
-		ImGui::InputInt("##Offset x", &m_inputOffsetX); ImGui::NextColumn();
+		ImGui::InputInt("##Offset x", &m_InputOffsetX); ImGui::NextColumn();
 
 		ImGui::Text("Offset y"); ImGui::NextColumn();
-		ImGui::InputInt("##Offset y", &m_inputOffsetY); ImGui::NextColumn();
+		ImGui::InputInt("##Offset y", &m_InputOffsetY); ImGui::NextColumn();
 
 		ImGui::Columns(1, "idColAddSprite");
 
 		auto textManager = m_AnimCreator->GetTextureManager();
 		if (ImGui::Button("Load"))
 		{
-			m_lastIdBeforeNewTextLoad = m_AnimCreator->GetTextureManager()->GetLastId();
-			m_fileImportResult = textManager->LoadTexture(m_inputNameNewFile, m_inputSizeX, m_inputSizeY, m_inputNumRows, m_inputNumCols, m_inputOffsetX, m_inputOffsetY);
-			if(m_fileImportResult == LOAD_FAILURE && m_lastIdBeforeNewTextLoad == 0)
-				m_lastIdBeforeNewTextLoad = -1;			
+			m_LastIdBeforeNewTextLoad = m_AnimCreator->GetTextureManager()->GetLastId();
+			m_FileImportResult = textManager->LoadTexture(m_InputNameNewFile, m_InputSizeX, m_InputSizeY, m_InputNumRows, m_InputNumCols, m_InputOffsetX, m_InputOffsetY);
+			if(m_FileImportResult == LOAD_FAILURE && m_LastIdBeforeNewTextLoad == 0)
+				m_LastIdBeforeNewTextLoad = -1;			
 		}
-		if (m_lastIdBeforeNewTextLoad != -1)
+		if (m_LastIdBeforeNewTextLoad != -1)
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Undo"))
 			{
 				int currentId = m_AnimCreator->GetTextureManager()->GetLastId();
-				for (int i = m_lastIdBeforeNewTextLoad; i <= currentId; i++)
+				for (int i = m_LastIdBeforeNewTextLoad; i <= currentId; i++)
 					textManager->RemoveTexture(i);
 
-				m_lastIdBeforeNewTextLoad = -1;
-				m_lastTimeTextureLoaded = 0;
-				m_fileImportResult = LOAD_NONE;
+				m_LastIdBeforeNewTextLoad = -1;
+				m_LastTimeTextureLoaded = 0;
+				m_FileImportResult = LOAD_NONE;
 			}
 		}
 
-		if (m_fileImportResult == LOAD_SUCCESS)
+		if (m_FileImportResult == LOAD_SUCCESS)
 		{
 			ImGui::SameLine();
 			ImGui::TextColored(ImVec4(0, 1, 0, 1), "Textures loaded successfully");
 		}
-		else if (m_fileImportResult == LOAD_FAILURE)
+		else if (m_FileImportResult == LOAD_FAILURE)
 		{
 			ImGui::SameLine();
 			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Error while loading file : Does it really exists?");
@@ -260,12 +260,12 @@ namespace sfge::tools
 			if (ImGui::Button((std::to_string(texture->id) + " : " + texture->fileName).c_str(), ImVec2(125, 0)))
 			{
 				m_SelectedTextureId = texture->id;
-				if (m_doubleClicked)
+				if (m_DoubleClicked)
 				{
-					if (m_currentFrame == -1)
+					if (m_CurrentFrame == -1)
 						m_AnimCreator->GetAnimationManager()->AddOrInsertKey(m_AnimCreator->GetAnimationManager()->GetHighestKeyNum(), texture->id);
 					else
-						m_AnimCreator->GetAnimationManager()->AddOrInsertKey(m_currentFrame, texture->id);
+						m_AnimCreator->GetAnimationManager()->AddOrInsertKey(m_CurrentFrame, texture->id);
 				}
 			}
 			if (ImGui::IsItemHovered())
@@ -288,7 +288,7 @@ namespace sfge::tools
 				else
 					animManager->AddOrInsertKey(animManager->GetHighestKeyNum() + 1, texture->id);
 
-				m_currentFrame = animManager->GetHighestKeyNum();
+				m_CurrentFrame = animManager->GetHighestKeyNum();
 			}
 			if (ImGui::IsItemHovered())
 			{
@@ -328,7 +328,7 @@ namespace sfge::tools
 	void GraphicsManager::DisplayPreviewWindow()
 	{
 		auto animManager = m_AnimCreator->GetAnimationManager();
-		ImGui::SliderInt("All Frames", &m_currentFrame, 0, std::max(0, animManager->GetHighestKeyNum()));
+		ImGui::SliderInt("All Frames", &m_CurrentFrame, 0, std::max(0, animManager->GetHighestKeyNum()));
 
 		ImGui::Columns(5, "colsEditorBtns", false);
 		/*
@@ -336,7 +336,7 @@ namespace sfge::tools
 		if (ImGui::Button(" <<+ "))
 		{
 			animManager->AddOrInsertKey();
-			m_currentFrame = 0;
+			m_CurrentFrame = 0;
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -363,8 +363,8 @@ namespace sfge::tools
 		//Frame before/after
 		if (ImGui::Button("   <+   "))
 		{
-			animManager->AddNewKey(m_currentFrame - 1);
-			m_currentFrame--;
+			animManager->AddNewKey(m_CurrentFrame - 1);
+			m_CurrentFrame--;
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -378,10 +378,10 @@ namespace sfge::tools
 
 		if (ImGui::Button("   <   "))
 		{
-			animManager->SwapKeyTextures(m_currentFrame, m_currentFrame - 1);
-			m_currentFrame--;
-			if (m_currentFrame < 0)
-				m_currentFrame = 0;
+			animManager->SwapKeyTextures(m_CurrentFrame, m_CurrentFrame - 1);
+			m_CurrentFrame--;
+			if (m_CurrentFrame < 0)
+				m_CurrentFrame = 0;
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -392,27 +392,27 @@ namespace sfge::tools
 			ImGui::End();
 		}
 		ImGui::NextColumn();
-		if (!m_doPlayAnimation)
+		if (!m_DoPlayAnimation)
 		{
 			if (ImGui::Button(" Play ", ImVec2(60, 20)))
 			{
-				m_doPlayAnimation = true;
-				m_elapsedTimeSinceNewFrame = 0;
+				m_DoPlayAnimation = true;
+				m_ElapsedTimeSinceNewFrame = 0;
 			}
 		}
 		else
 		{
 			if (ImGui::Button(" Pause ", ImVec2(60, 20)))
-				m_doPlayAnimation = false;
+				m_DoPlayAnimation = false;
 		}
 		ImGui::NextColumn();
 
 		if (ImGui::Button("   >   "))
 		{
-			animManager->SwapKeyTextures(m_currentFrame, m_currentFrame + 1);
-			m_currentFrame++;
-			if (m_currentFrame > animManager->GetHighestKeyNum())
-				m_currentFrame = animManager->GetHighestKeyNum();
+			animManager->SwapKeyTextures(m_CurrentFrame, m_CurrentFrame + 1);
+			m_CurrentFrame++;
+			if (m_CurrentFrame > animManager->GetHighestKeyNum())
+				m_CurrentFrame = animManager->GetHighestKeyNum();
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -426,8 +426,8 @@ namespace sfge::tools
 
 		if (ImGui::Button("   +>   "))
 		{
-			animManager->AddNewKey(m_currentFrame + 1);
-			m_currentFrame++;
+			animManager->AddNewKey(m_CurrentFrame + 1);
+			m_CurrentFrame++;
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -443,8 +443,8 @@ namespace sfge::tools
 		if (ImGui::Button(" ->> "))
 		{
 			animManager->RemoveKey();
-			if (m_currentFrame > animManager->GetHighestKeyNum())
-				m_currentFrame = animManager->GetHighestKeyNum();
+			if (m_CurrentFrame > animManager->GetHighestKeyNum())
+				m_CurrentFrame = animManager->GetHighestKeyNum();
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -459,7 +459,7 @@ namespace sfge::tools
 		if (ImGui::Button(" +>> "))
 		{
 			animManager->AddOrInsertKey();
-			m_currentFrame = animManager->GetHighestKeyNum();
+			m_CurrentFrame = animManager->GetHighestKeyNum();
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -473,7 +473,7 @@ namespace sfge::tools
 		ImGui::Columns(1, "colsEditorBtns", false);
 
 		//Display Image
-		auto idCurrentTexture = animManager->GetTextureIdFromKeyframe(m_currentFrame);
+		auto idCurrentTexture = animManager->GetTextureIdFromKeyframe(m_CurrentFrame);
 		if (idCurrentTexture > -1)
 		{
 			m_AnimCreator->GetTextureManager()->DisplayTexture(idCurrentTexture);
@@ -487,7 +487,7 @@ namespace sfge::tools
 		//***** BUTTONS *****//
 		if (ImGui::Button("Assign selected texture") && m_SelectedTextureId != -1)
 		{
-			animManager->AddOrInsertKey(m_currentFrame, m_SelectedTextureId);
+			animManager->AddOrInsertKey(m_CurrentFrame, m_SelectedTextureId);
 		}
 		if (ImGui::IsItemHovered())
 		{
@@ -502,9 +502,9 @@ namespace sfge::tools
 		ImGui::SameLine();
 		if (ImGui::Button("Remove current frame"))
 		{
-			animManager->RemoveKey(m_currentFrame);
-			if (m_currentFrame > animManager->GetHighestKeyNum())
-				m_currentFrame = animManager->GetHighestKeyNum();
+			animManager->RemoveKey(m_CurrentFrame);
+			if (m_CurrentFrame > animManager->GetHighestKeyNum())
+				m_CurrentFrame = animManager->GetHighestKeyNum();
 		}
 
 		//***** FILE INFORMATIONS *****//
@@ -546,7 +546,7 @@ namespace sfge::tools
 			ImGui::Columns(1, "infoCols");
 		}
 
-		short currentTextId = animManager->GetTextureIdFromKeyframe(m_currentFrame);
+		short currentTextId = animManager->GetTextureIdFromKeyframe(m_CurrentFrame);
 		TextureInfos* currFrame = m_AnimCreator->GetTextureManager()->GetTextureFromId(currentTextId);
 		if (currFrame == nullptr)
 			return;
@@ -587,33 +587,33 @@ namespace sfge::tools
 
 		ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(600.0f, 100.0f), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("Save Current...", &m_openModalSave, window_flags))
+		if (ImGui::Begin("Save Current...", &m_OpenModalSave, window_flags))
 		{
-			if (m_saveResult == SAVE_FAILURE)
+			if (m_SaveResult == SAVE_FAILURE)
 			{
 				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "Couldn't save animation");
 				if (ImGui::Button("Oh ok"))
 				{
-					m_saveResult = SAVE_SUCCESS;
-					m_openModalSave = false;
+					m_SaveResult = SAVE_SUCCESS;
+					m_OpenModalSave = false;
 				}
 			}
-			if (m_saveResult == SAVE_DO_REPLACE)
+			if (m_SaveResult == SAVE_DO_REPLACE)
 			{
 				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "An animation already exists with this name... Do you want to replace it?");
 				ImGui::Columns(4, "yes_or_no", false);
 				ImGui::NextColumn();
 				if (ImGui::Button("Yes"))
 				{
-					m_saveResult =  m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures(), true);
-					m_saveResult = SAVE_SUCCESS;
-					m_openModalSave = false;
+					m_SaveResult =  m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures(), true);
+					m_SaveResult = SAVE_SUCCESS;
+					m_OpenModalSave = false;
 				}
 				ImGui::NextColumn();
 				if (ImGui::Button("No"))
 				{
-					m_saveResult = SAVE_SUCCESS;
-					m_openModalSave = false;
+					m_SaveResult = SAVE_SUCCESS;
+					m_OpenModalSave = false;
 				}
 			}
 		}
@@ -628,7 +628,7 @@ namespace sfge::tools
 
 		ImGui::SetNextWindowPos(ImVec2(100.0f, 250.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(600.0f, 50.0f), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("New animation...", &m_openModalConfirmNew, window_flags))
+		if (ImGui::Begin("New animation...", &m_OpenModalConfirmNew, window_flags))
 		{
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 0.8f), "Are you sure you want to begin a new animation?");
 			ImGui::Columns(4, "yes_or_no", false);
@@ -636,12 +636,12 @@ namespace sfge::tools
 			if (ImGui::Button("Yes"))
 			{
 				m_AnimCreator->GetAnimationManager()->Init();
-				m_openModalConfirmNew = false;
+				m_OpenModalConfirmNew = false;
 			}
 			ImGui::NextColumn();
 			if (ImGui::Button("No"))
 			{
-				m_openModalConfirmNew = false;
+				m_OpenModalConfirmNew = false;
 			}
 		}
 		ImGui::End();

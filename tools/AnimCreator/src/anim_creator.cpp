@@ -35,18 +35,18 @@ namespace sfge::tools
 		m_TextureManager.Init();
 		m_GraphicsManager.Init(this);
 
-		m_isInit = true;
+		m_IsInit = true;
 	}
 	void AnimCreator::Update(float dt)
 	{
-		if (!m_isInit)
+		if (!m_IsInit)
 			Init();
 
 		m_GraphicsManager.Update(dt);
 	}
 	void AnimCreator::Draw()
 	{
-		if (!m_isInit)
+		if (!m_IsInit)
 			return;
 
 		m_GraphicsManager.Draw();

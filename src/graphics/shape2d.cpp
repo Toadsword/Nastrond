@@ -169,6 +169,7 @@ Shape *ShapeManager::AddComponent (Entity entity)
 	auto shapePtr = GetComponentPtr (entity);
 	GetComponentInfo (entity).shapePtr = shapePtr;
 	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::SHAPE2D);
+	m_ComponentsInfo[entity - 1].SetEntity(entity);
 	return shapePtr;
 }
 
