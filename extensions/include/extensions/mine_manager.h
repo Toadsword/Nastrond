@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define DEBUG_CHECK_PRODUCTION
+//#define DEBUG_CHECK_PRODUCTION
 #define TEST_SYSTEM_DEBUG
 	/**
 	 * \author Robin Alves
@@ -58,13 +58,18 @@ namespace sfge::ext
 		void AddNewMine(Vec2f pos);
 
 		/**
-		 * \brief Method that add dwarf to the dwarf slot struc of the given entity. Return false if there is no place available or if the entity do not exist.
+		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
 		 */
 		bool AddDwarfToMine(Entity mineEntity);
 
+		/**
+		 * \brief Method that destroy the mine at the given index.
+		 */
+		bool DestroyMine(Entity mineEntity);
+
 	private:
 		/**
-		 * \brief Method to produce ressources.
+		 * \brief Method to produce resources.
 		 */
 		void RessourcesProduction();
 
@@ -81,8 +86,9 @@ namespace sfge::ext
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
-
+#ifdef TEST_SYSTEM_DEBUG
 		const size_t m_entitiesNmb = 10;
+#endif
 
 		std::vector<Entity> m_mineEntityIndex;
 

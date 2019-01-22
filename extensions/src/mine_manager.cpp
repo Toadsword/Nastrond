@@ -117,10 +117,30 @@ bool sfge::ext::MineManager::AddDwarfToMine(Entity mineEntity)
 	}
 }
 
+bool sfge::ext::MineManager::DestroyMine(Entity mineEntity)
+{
+	for(int i = 0; i < m_mineEntityIndex.size(); i++)
+	{
+		if(m_mineEntityIndex[i] == mineEntity)
+		{
+			m_mineEntityIndex[i] = NULL;
+			EntityManager* entityManager = m_Engine.GetEntityManager();
+			entityManager->DestroyEntity(mineEntity);
+			return true;
+		}
+	}
+	return false;
+}
+
 void sfge::ext::MineManager::RessourcesProduction()
 {
 	for (unsigned i = 0; i < m_entitiesNmb; i++)
 	{
+		if(m_mineEntityIndex[i] == NULL)
+		{
+			continue;
+		}
+
 		GiverInventory tmpIronInventory = m_IronProduction[i];
 
 		//Check if the inventory is full

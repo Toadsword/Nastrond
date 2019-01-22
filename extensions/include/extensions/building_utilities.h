@@ -27,6 +27,9 @@ SOFTWARE.
 
 namespace sfge::ext
 {
+	/**
+	 * \author Robin Alves
+	 */
 	enum RessourceType
 	{
 		NONE,
@@ -35,6 +38,11 @@ namespace sfge::ext
 		TOOL,
 		FOOD
 	};
+
+	/**
+	 * \brief Struct that represent an inventory that must be empty.
+	 * \author Robin Alves
+	 */
 	struct GiverInventory
 	{
 		unsigned int maxCapacity = 100u;
@@ -43,6 +51,10 @@ namespace sfge::ext
 		RessourceType ressourceType = RessourceType::NONE;
 	};
 
+	/**
+	 * \brief Struct that represent an inventory that must be fill.
+	 * \author Robin Alves
+	 */
 	struct RecieverInventory
 	{
 		unsigned int maxCapacity = 100u;
@@ -50,6 +62,10 @@ namespace sfge::ext
 		RessourceType ressourceType = RessourceType::NONE;
 	};
 
+	/**
+	 * \brief Struct that represent the progression of the production by the consumption of one or more receiver inventory to a giver inventory.
+	 * \author Robin Alves
+	 */
 	struct ProgressionProduction
 	{
 		float progression = 0.0f;
@@ -58,6 +74,10 @@ namespace sfge::ext
 		RessourceType ressourceType = RessourceType::NONE;
 	};
 
+	/**
+	 * \brief Struct that represent the number of dwarf attribute to a building, in a building and the maximum of them allow to be attribute.
+	 * \author Robin Alves
+	 */
 	struct DwarfSlots
 	{
 		int maxDwarfCapacity = 5;

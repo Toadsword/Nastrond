@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define DEBUG_CHECK_PRODUCTION
+//#define DEBUG_CHECK_PRODUCTION
 #define TEST_SYSTEM_DEBUG
 
 	/**
@@ -58,7 +58,7 @@ namespace sfge::ext
 		void SpawnForge(Vec2f pos);
 
 		/**
-		 * \brief Method that add dwarf to the dwarf slot struc of the given entity. Return false if there is no place available or if the entity do not exist.
+		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
 		 */
 		bool AddDwarfToForge(Entity mineEntity);
 
@@ -68,6 +68,9 @@ namespace sfge::ext
 		 */
 		void ResizeContainer(const size_t newSize);
 
+		/**
+		 * \brief method that produce tool by consuming iron.
+		 */
 		void ProduceTools();
 
 		Transform2dManager* m_Transform2DManager;
@@ -84,7 +87,6 @@ namespace sfge::ext
 		std::vector<GiverInventory> m_toolsInventories;
 		std::vector<RecieverInventory> m_ironsInventories;
 		std::vector<ProgressionProduction> m_progressionProdTool;
-
 
 		const int m_stackSize = 5;
 

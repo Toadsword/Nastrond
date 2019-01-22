@@ -51,9 +51,14 @@ namespace sfge::ext
 
 		void Draw() override;
 
-
+		/**
+		 * \brief Method that spawn a new dwelling at the given position.
+		 */
 		void AddNewDwelling(Vec2f pos);
 
+		/**
+		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
+		 */
 		bool AddDwarfToDwelling(Entity dwellingEntity);
 
 	private:

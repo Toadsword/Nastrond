@@ -128,6 +128,10 @@ void sfge::ext::ForgeManager::ProduceTools()
 {
 	for (int i = 0; i < m_entitiesNmb; i++)
 	{
+		if(m_forgeEntityIndex[i] == NULL)
+		{
+			continue;
+		}
 
 		GiverInventory tmpToolsInventory = m_toolsInventories[i];
 		RecieverInventory tmpIronInventory = m_ironsInventories[i];
