@@ -45,9 +45,12 @@ public:
 	Tile();
 	Tile(Transform2d* transform);
 
+	void Update();
+
 	void SetParentTilemap(Entity parent);
 	void SetLayer(int newLayer);
 	void SetType(int newType);
+	int GetType();
 
 protected:
 	int m_Layer = -1;
@@ -72,6 +75,7 @@ class TileManager :
 public:
 	using SingleComponentManager::SingleComponentManager;
 	void Init() override;
+	void Update(float dt) override;
 
 	void Collect() override;
 	Tile* AddComponent(Entity entity) override;

@@ -33,6 +33,7 @@
 #include <engine/tilemap.h>
 #include <engine/tile_asset.h>
 #include <graphics/texture.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge 
 {
@@ -45,6 +46,10 @@ Tile::Tile() :
 
 Tile::Tile(Transform2d * transform) :
 	TransformRequiredComponent(transform)
+{
+}
+
+void Tile::Update()
 {
 }
 
@@ -64,6 +69,10 @@ void Tile::SetType(int newType)
 	m_Type = newType;
 }
 
+int Tile::GetType()
+{
+	return m_Type;
+}
 
 void editor::TileInfo::DrawOnInspector()
 {
@@ -78,6 +87,11 @@ void TileManager::Init()
 	SingleComponentManager::Init();
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
 	m_TilemapManager = m_Engine.GetTilemapSystem()->GetTilemapManager();
+}
+
+void TileManager::Update(float dt)
+{
+
 }
 
 void TileManager::Collect()
@@ -100,8 +114,11 @@ Tile * TileManager::AddComponent(Entity entity, TileTypeId tileType)
 {
 	auto* tile = AddComponent(entity);
 	auto& tileInfo = GetComponentInfo(entity);
+	
+	tileInfo.tile = tile;
 
 	tile->SetType(tileType);
+	tileInfo.type = tileType;
 	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(entity, tileType);
 
 	return tile;

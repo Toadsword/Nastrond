@@ -43,7 +43,7 @@ class Tilemap
 public:
 	Tilemap();
 
-	void Init(TileManager* tileManager);
+	void Init(TilemapSystem* tilemapSystem);
 	void Update();
 
 	void SetSize(sf::Vector2<unsigned> newSize);
@@ -59,7 +59,7 @@ protected:
 	int m_Layer = 0;
 	sf::Vector2<unsigned> m_Size = {100, 100};
 
-	TileManager* m_TileManager;
+	TilemapSystem* m_TilemapSystem;
 };
 
 

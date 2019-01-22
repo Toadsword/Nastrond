@@ -94,7 +94,6 @@ bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 
 void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
 {
-
 	m_MaskArray[entity - 1] = m_MaskArray[entity - 1] | static_cast<int>(componentType);
 }
 

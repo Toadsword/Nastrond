@@ -41,13 +41,22 @@ Tilemap::Tilemap()
 {
 }
 
-void Tilemap::Init(TileManager* tileManager)
+void Tilemap::Init(TilemapSystem* tilemapSystem)
 {
-	m_TileManager = tileManager;
+	m_TilemapSystem = tilemapSystem;
 }
 
 void Tilemap::Update()
 {
+	/*
+	for (auto horizontalTiles : m_Tiles)
+	{
+		for (auto tile : horizontalTiles)
+		{
+			m_TilemapSystem->GetTileTypeManager()->SetTileTexture(tile, m_TilemapSystem->GetTileManager()->GetComponentPtr(tile)->GetType());
+		}
+	}
+	*/
 }
 
 void Tilemap::SetSize(sf::Vector2<unsigned> newSize)
@@ -148,10 +157,10 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 	}
 
 	sf::Vector2<unsigned> mapSize = sf::Vector2<unsigned>();
-	if (CheckJsonExists(componentJson, "size") && CheckJsonParameter(componentJson, "size", nlohmann::detail::value_t::array))
+	if (CheckJsonExists(componentJson, "map_size") && CheckJsonParameter(componentJson, "map_size", nlohmann::detail::value_t::array))
 	{
-		mapSize.x = componentJson["size"][0].get<unsigned>();
-		mapSize.y = componentJson["size"][1].get<unsigned>();
+		mapSize.x = componentJson["map_size"][0].get<unsigned>();
+		mapSize.y = componentJson["map_size"][1].get<unsigned>();
 		newTilemap.SetSize(mapSize);
 		newTilemapInfo.size = mapSize;
 	}
@@ -180,16 +189,16 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 
 	sf::Vector2<unsigned> mapSize = tilemap.GetSize();
 	EntityManager* entityManager = m_Engine.GetEntityManager();
-	
+
 	for (unsigned i = 0; i < map.size(); i++)
 	{
 		for (unsigned j = 0; j < map[i].size(); j++)
 		{
 			Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 			m_TileManager->AddComponent(newEntity, map[i][j].get<int>());
+			tilemap.AddTile(Vec2f(i, j), newEntity);
 		}
-	}
-	
+	}	
 }
 
 void TilemapManager::EmptyMap(Entity entity)
@@ -207,8 +216,11 @@ void TilemapManager::EmptyMap(Entity entity)
 		int sizeY = map[i].size();
 		for (int j = 0; j < sizeY; j++)
 		{
-			entityManager->DestroyEntity(map[i][j]);
-			map[i][j] = INVALID_ENTITY;
+			if(map[i][j] != INVALID_ENTITY)
+			{	
+				entityManager->DestroyEntity(map[i][j]);
+				map[i][j] = INVALID_ENTITY;
+			}
 		}
 	}
 }
