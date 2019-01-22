@@ -35,7 +35,7 @@ SOFTWARE.
 namespace sfge::ext
 {
 #define DEBUG_CHECK_PRODUCTION
-#define SYSTEM_TEST_DEBUG
+#define TEST_SYSTEM_DEBUG
 	/**
 	 * \author Robin Alves
 	 */
@@ -57,6 +57,9 @@ namespace sfge::ext
 		 */
 		void AddNewMine(Vec2f pos);
 
+		/**
+		 * \brief Method that add dwarf to the dwarf slot struc of the given entity. Return false if there is no place available or if the entity do not exist.
+		 */
 		bool AddDwarfToMine(Entity mineEntity);
 
 	private:
@@ -71,7 +74,7 @@ namespace sfge::ext
 		void ResizeContainer(size_t newSize);
 
 		/**
-		 * \brief Method that ping the Task Manager when a stack of iron is avalaible.
+		 * \brief Method that ping the Task Manager when a stack of iron is available.
 		 */
 		void IronStackAvalaible(Entity entity);
 

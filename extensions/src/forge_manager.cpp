@@ -37,7 +37,7 @@ void sfge::ext::ForgeManager::Init()
 
 	auto* entityManager = m_Engine.GetEntityManager();
 
-#ifdef SYSTEM_TEST_DEBUG
+#ifdef TEST_SYSTEM_DEBUG
 	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
 
 	for (unsigned i = 0; i < m_entitiesNmb; i++)
@@ -133,7 +133,7 @@ void sfge::ext::ForgeManager::ProduceTools()
 		RecieverInventory tmpIronInventory = m_ironsInventories[i];
 		ProgressionProduction tmpProgressionProdTool = m_progressionProdTool[i];
 
-		if (tmpIronInventory.inventory <= 0 || tmpToolsInventory.inventory + tmpToolsInventory.packNumber * m_stackSize >= tmpToolsInventory.MAX_CAPACITY)
+		if (tmpIronInventory.inventory <= 0 || tmpToolsInventory.inventory + tmpToolsInventory.packNumber * m_stackSize >= tmpToolsInventory.maxCapacity)
 		{
 			continue;
 		}
@@ -173,7 +173,7 @@ void sfge::ext::ForgeManager::ProduceTools()
 		//Just for test
 		for (int i = 0; i < m_entitiesNmb; i++)
 		{
-			m_ironsInventories[i].inventory = m_ironsInventories[i].MAX_CAPACITY;
+			m_ironsInventories[i].inventory = m_ironsInventories[i].maxCapacity;
 		}
 
 		std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(tmpToolsInventory.inventory) +

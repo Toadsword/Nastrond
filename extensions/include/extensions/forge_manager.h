@@ -34,7 +34,7 @@ SOFTWARE.
 namespace sfge::ext
 {
 #define DEBUG_CHECK_PRODUCTION
-#define SYSTEM_TEST_DEBUG
+#define TEST_SYSTEM_DEBUG
 
 	/**
 	 * \author Robin Alves
@@ -53,14 +53,19 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Method that spawn a new mine in the map a the given position.
+		 * \brief Method that spawn a new forge at the given position.
 		 */
 		void SpawnForge(Vec2f pos);
 
+		/**
+		 * \brief Method that add dwarf to the dwarf slot struc of the given entity. Return false if there is no place available or if the entity do not exist.
+		 */
 		bool AddDwarfToForge(Entity mineEntity);
 
 	private:
-
+		/**
+		 * \brief Method to resize all vector to keep the same index for mine.
+		 */
 		void ResizeContainer(const size_t newSize);
 
 		void ProduceTools();
@@ -69,7 +74,7 @@ namespace sfge::ext
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-#ifdef SYSTEM_TEST_DEBUG
+#ifdef TEST_SYSTEM_DEBUG
 		const size_t m_entitiesNmb = 500;
 #endif
 

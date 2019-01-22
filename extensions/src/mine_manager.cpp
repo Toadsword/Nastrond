@@ -37,7 +37,7 @@ void sfge::ext::MineManager::Init()
 
 	EntityManager* entityManager = m_Engine.GetEntityManager();
 
-#ifdef SYSTEM_TEST_DEBUG
+#ifdef TEST_SYSTEM_DEBUG
 	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
 
 	for(int i = 0; i < m_entitiesNmb; i++)
@@ -124,7 +124,7 @@ void sfge::ext::MineManager::RessourcesProduction()
 		GiverInventory tmpIronInventory = m_IronProduction[i];
 
 		//Check if the inventory is full
-		if (!(tmpIronInventory.packNumber * m_packSize >= tmpIronInventory.MAX_CAPACITY))
+		if (!(tmpIronInventory.packNumber * m_packSize >= tmpIronInventory.maxCapacity))
 		{
 			//Produce Iron by checking the number of dwarf in the building
 			tmpIronInventory.inventory += m_ProductionRate * m_dwarfSlots[i].dwarfIn;

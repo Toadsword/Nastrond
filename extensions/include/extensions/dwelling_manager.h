@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define SYSTEM_TEST_DEBUG
+#define TEST_SYSTEM_DEBUG
 
 	/**
 	 * \author Robin Alves
@@ -57,7 +57,9 @@ namespace sfge::ext
 		bool AddDwarfToDwelling(Entity dwellingEntity);
 
 	private:
-
+		/**
+		 * \brief Method to resize all vector to keep the same index for mine.
+		 */
 		void ResizeContainer(const size_t newSize);
 
 
@@ -70,7 +72,7 @@ namespace sfge::ext
 
 		std::vector<DwarfSlots> m_dwarfSlots;
 		std::vector<RecieverInventory> m_foodInventory;
-#ifdef SYSTEM_TEST_DEBUG
+#ifdef TEST_SYSTEM_DEBUG
 		size_t m_entitiesNmb = 10;
 #endif
 	};

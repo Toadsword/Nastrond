@@ -37,7 +37,7 @@ void sfge::ext::DwellingManager::Init()
 
 	auto* entityManager = m_Engine.GetEntityManager();
 
-#ifdef SYSTEM_TEST_DEBUG
+#ifdef TEST_SYSTEM_DEBUG
 	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
 
 	for(int i = 0; i < m_entitiesNmb; i++)
