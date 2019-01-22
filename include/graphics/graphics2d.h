@@ -74,6 +74,8 @@ public:
 	* \return The SFML window
 	*/
 	sf::RenderWindow* GetWindow();
+	sf::Vector2i GetSizeWindow();
+	sf::Vector2i GetPositionWindow();
 
 	AnimationManager* GetAnimationManager();
 	ShapeManager* GetShapeManager();

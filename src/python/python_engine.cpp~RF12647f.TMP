@@ -164,8 +164,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference)
-		.def("get_size_window", &Graphics2dManager::GetSizeWindow, py::return_value_policy::reference)
-		.def("get_position_window", &Graphics2dManager::GetPositionWindow, py::return_value_policy::reference);
+		.def("get_window", &Graphics2dManager::GetWindow, py::return_value_policy::reference);
 
 	py::class_<TextureManager> textureManager(m, "texture_manager");
 	textureManager
