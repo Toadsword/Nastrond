@@ -160,6 +160,7 @@ TEST(Graphics2d, TestCamera)
 
 	json sceneJson;
 	json entityJson;
+
 	json spriteJson;
 	spriteJson["path"] = "data/sprites/other_play.png";
 	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
@@ -168,7 +169,10 @@ TEST(Graphics2d, TestCamera)
 	json entityJson2;
 	json CameraJson;
 	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
-	entityJson2["components"] = json::array({ CameraJson });
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
 
 
 	sceneJson["entities"] = json::array({ entityJson2, entityJson });

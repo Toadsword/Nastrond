@@ -36,6 +36,7 @@ SOFTWARE.
 
 namespace sfge
 {
+
 	class Camera : public TransformRequiredComponent, public Offsetable
 	{
 	public:
@@ -52,6 +53,7 @@ namespace sfge
 
 		void Update(float dt, sf::RenderWindow &window);
 
+		sf::Vector2i Position;
 	protected:
 		sf::View m_View;
 	};
@@ -74,13 +76,16 @@ namespace sfge
 	public:
 		using SingleComponentManager::SingleComponentManager;
 
+		CameraManager(Engine& engine);
+		~CameraManager();
+
 		CameraManager& operator=(const Camera&) = delete;
 		void Init() override;
 		void Update(float dt) override;
 		
 		Camera* GetMainCamera();
 		Camera* GetCameraCurrent();
-		void SetCameraCurrent(short current);
+		void SetCameraCurrent(short newCurrent);
 
 		void Reset();
 		void Collect() override;
@@ -92,9 +97,10 @@ namespace sfge
 	protected:
 		Graphics2dManager* m_GraphicsManager;
 		Transform2dManager* m_Transform2dManager;
+		InputManager* m_InputManager;
 
 		std::vector<Camera> m_cameras;
-		short cameraCurrent = MAINCAMERA;
+		short currentCamera = MAINCAMERA;
 	};
 }
 #endif

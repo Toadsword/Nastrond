@@ -31,7 +31,7 @@ SOFTWARE.
 #include <engine/transform2d.h>
 
 #include <imgui.h>
-#include <imgui-SFML.h>
+#include <imgui-SFML.h>	
 
 namespace sfge
 {
@@ -67,47 +67,56 @@ namespace sfge
 
 	void Camera::Update(float dt, sf::RenderWindow& window)
 	{
-		sf::Vector2u sizeWindow = window.getSize();
-		sf::Vector2i positionWindow = window.getPosition();
+		//sf::Vector2u sizeWindow = window.getSize();
+		//sf::Vector2i positionWindow = window.getPosition();
 
-		sf::Vector2f PositionCamera = GetPosition();
-		float velocityCamera = 150.0f;
+		//sf::Vector2f PositionCamera = GetPosition();
+		//float velocityCamera = 150.0f;
 
+		////system cursor
+		//sf::Vector2i positionCursor = sf::Mouse::getPosition();
+		//positionWindow = window.getPosition();
 
-		//system cursor
-		sf::Vector2i positionCursor = sf::Mouse::getPosition();
-		positionWindow = window.getPosition();
+		//if (positionCursor.x >= positionWindow.x && positionCursor.x <= positionWindow.x + sizeWindow.x
+		//	&& positionCursor.y >= positionWindow.y && positionCursor.y <= positionWindow.y + sizeWindow.y)
+		//{
 
-		if (positionCursor.x >= positionWindow.x && positionCursor.x <= positionWindow.x + sizeWindow.x
-			&& positionCursor.y >= positionWindow.y && positionCursor.y <= positionWindow.y + sizeWindow.y)
-		{
+		//	if (positionCursor.y < positionWindow.y + sizeWindow.y / 100 * 10)
+		//	{
+		//		std::cout << PositionCamera.x << std::endl;
+		//		PositionCamera -= sf::Vector2f(0, velocityCamera*dt);
+		//	}
 
-			if (positionCursor.y < positionWindow.y + sizeWindow.y / 100 * 10)
-			{
-				std::cout << PositionCamera.x << std::endl;
-				PositionCamera -= sf::Vector2f(0, velocityCamera*dt);
-			}
+		//	if (positionCursor.y > positionWindow.y + sizeWindow.y / 100 * 90)
+		//	{
+		//		std::cout << PositionCamera.x << std::endl;
+		//		PositionCamera += sf::Vector2f(0, velocityCamera*dt);
+		//	}
 
-			if (positionCursor.y > positionWindow.y + sizeWindow.y / 100 * 90)
-			{
-				std::cout << PositionCamera.x << std::endl;
-				PositionCamera += sf::Vector2f(0, velocityCamera*dt);
-			}
+		//	if (positionCursor.x < positionWindow.x + sizeWindow.x / 100 * 10)
+		//	{
+		//		std::cout << PositionCamera.x << std::endl;
+		//		PositionCamera -= sf::Vector2f(velocityCamera*dt, 0);
+		//	}
 
-			if (positionCursor.x < positionWindow.x + sizeWindow.x / 100 * 10)
-			{
-				std::cout << PositionCamera.x << std::endl;
-				PositionCamera -= sf::Vector2f(velocityCamera*dt, 0);
-			}
-
-			if (positionCursor.x > positionWindow.x + sizeWindow.x / 100 * 90)
-			{
-				std::cout << PositionCamera.x << std::endl;
-				PositionCamera += sf::Vector2f(velocityCamera*dt, 0);
-			}
-		}
-		SetPosition(PositionCamera);
+		//	if (positionCursor.x > positionWindow.x + sizeWindow.x / 100 * 90)
+		//	{
+		//		std::cout << PositionCamera.x << std::endl;
+		//		PositionCamera += sf::Vector2f(velocityCamera*dt, 0);
+		//	}
+		//}
+		//SetPosition(PositionCamera);
 		window.setView(m_View);
+	}
+
+	CameraManager::CameraManager(Engine& engine): SingleComponentManager(engine)
+	{
+		
+	}
+
+	CameraManager::~CameraManager()
+	{
+		
 	}
 
 	Camera* CameraManager::GetMainCamera()
@@ -133,6 +142,7 @@ namespace sfge
 		SingleComponentManager::Init();
 		m_GraphicsManager = m_Engine.GetGraphics2dManager();
 		m_Transform2dManager = m_Engine.GetTransform2dManager();
+		m_InputManager = m_Engine.GetInputManager();
 	}
 
 
@@ -143,7 +153,7 @@ namespace sfge
 			{
 				if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
 				{
-					if (i == cameraCurrent) 
+					if (i == currentCamera) 
 					{
 						m_Components[i].Update(dt, (*m_GraphicsManager->GetWindow()));
 					}
@@ -151,9 +161,9 @@ namespace sfge
 			}
 	}
 
-	void CameraManager::SetCameraCurrent(short current)
+	void CameraManager::SetCameraCurrent(short newCurrent)
 	{
-		cameraCurrent = current;
+		currentCamera = newCurrent;
 	}
 
 	void CameraManager::Reset()
@@ -167,27 +177,13 @@ namespace sfge
 
 	void CameraManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		auto & newCamera = m_Components[entity - 1];
-		auto & newCameraInfo = m_ComponentsInfo[entity - 1];
+		auto * Camera = AddComponent(entity);
+		const int index = Camera - &m_Components[0];
+		auto* newCameraInfo = &m_ComponentsInfo[index];
 
-		newCameraInfo.camera = &newCamera;
+		newCameraInfo->camera = Camera;
 
-		newCamera.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
-		if (CheckJsonParameter(componentJson, "path", json::value_t::string))
-		{
-			std::string path = componentJson["path"];
-			if (!FileExists(path))
-			{
-				std::ostringstream oss;
-				oss << "Texture file " << path << " does not exist";
-				Log::GetInstance()->Error(oss.str());
-				return;
-			}
-		}
-		else
-		{
-			Log::GetInstance()->Error("[Error] No Path for Camera");
-		}
+		Camera->SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	}
 
 	void CameraManager::DestroyComponent(Entity entity)
@@ -211,7 +207,11 @@ namespace sfge
 
 			float position[2] =
 			{
-				camera->GetPosition().x,
+				camera->
+				
+				
+				
+				GetPosition().x,
 				camera->GetPosition().y
 			};
 			ImGui::InputFloat2("Position", position);

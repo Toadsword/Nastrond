@@ -88,11 +88,9 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("load_scene", &SceneManager::LoadSceneFromName)
 		.def("get_scenes", &SceneManager::GetAllScenes);
 
-	py::class_<CameraManager> cameraManager(m, "CameraManager");
+	py::class_<CameraManager> cameraManager(m, "Camera_Manager");
 	cameraManager
-		.def(py::init<Engine&>(), py::return_value_policy::reference)
-		.def("add_component", &CameraManager::AddComponent, py::return_value_policy::reference)
-		.def("get_component", &CameraManager::GetComponentRef, py::return_value_policy::reference);
+		.def(py::init<Engine&>(), py::return_value_policy::reference);
 
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager
@@ -256,9 +254,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Camera> camera(m, "Camera");
 	camera
-		//.def_readwrite("position", &Camera::Position);
-		.def("get_position", &Camera::GetPosition, py::return_value_policy::reference)
-		.def("set_position", &Camera::SetPosition, py::return_value_policy::reference);
+		.def_readwrite("position", &Camera::Position);
 
 
 	py::class_<Shape> shape(m, "Shape");
@@ -424,7 +420,7 @@ void PythonEngine::Init()
 		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
 		sfgeModule.attr("python_engine") = py::cast(m_Engine.GetPythonEngine(), py::return_value_policy::reference);
 		sfgeModule.attr("graphics2d_manager") = py::cast(m_Engine.GetGraphics2dManager(), py::return_value_policy::reference);
-		//sfgeModule.attr("camera_manager") = py::cast(m_Engine.GetGraphics2dManager()->GetCameraManager(), py::return_value_policy::reference);
+		sfgeModule.attr("camera_manager") = py::cast(m_Engine.GetGraphics2dManager()->GetCameraManager(), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{
