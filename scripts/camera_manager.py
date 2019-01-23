@@ -57,7 +57,5 @@ class CameraManager(Component):
             if self.mouse_position.x - self.position_display.x > self.size_display.x / 100 * (100-self.detection_size_percent):
                 result = Vector2f.lerp(Vector2f(self.mouse_position.x - self.position_display.x, 0), self.size_display, 0.5)
                 dir.x = 1 + 2*((result.x - self.size_display.x) / (self.size_display.x / 100 * self.detection_size_percent))
-            
-            print(dir)
         self.position += dir * self.velocity * dt
         self.cam_component.set_position(self.position)
