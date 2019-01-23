@@ -99,10 +99,10 @@ private:
 	void LoadScripts(std::string dirname = "scripts/");
 
 
-	std::vector<std::string> m_PythonModulePaths{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
-	std::vector<std::string> m_PyClassNames{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
-	std::vector<std::string> m_PyModuleNames{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
-	std::vector<py::object> m_PyModuleObjs{INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER};
+	std::vector<std::string> m_PythonModulePaths = std::vector<std::string>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	std::vector<std::string> m_PyClassNames = std::vector<std::string>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	std::vector<std::string> m_PyModuleNames = std::vector<std::string>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	std::vector<py::object> m_PyModuleObjs = std::vector<py::object>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
 
 	ModuleId m_IncrementalModuleId = 1U;
 
