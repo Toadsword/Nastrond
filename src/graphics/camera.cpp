@@ -35,13 +35,13 @@ SOFTWARE.
 
 namespace sfge
 {
-	Camera::Camera() : TransformRequiredComponent(nullptr) , Offsetable(sf::Vector2f())
+	Camera::Camera() : TransformRequiredComponent(nullptr)
 	{
 		
 	}
 
-	Camera::Camera(Transform2d* transform, sf::Vector2f offset, sf::Vector2f size)
-	: TransformRequiredComponent(transform), Offsetable(offset)	{
+	Camera::Camera(Transform2d* transform, sf::Vector2f size)
+	: TransformRequiredComponent(transform)	{
 		m_View.setSize(size);
 	}
 
@@ -67,45 +67,6 @@ namespace sfge
 
 	void Camera::Update(float dt, sf::RenderWindow& window)
 	{
-		//sf::Vector2u sizeWindow = window.getSize();
-		//sf::Vector2i positionWindow = window.getPosition();
-
-		//sf::Vector2f PositionCamera = GetPosition();
-		//float velocityCamera = 150.0f;
-
-		////system cursor
-		//sf::Vector2i positionCursor = sf::Mouse::getPosition();
-		//positionWindow = window.getPosition();
-
-		//if (positionCursor.x >= positionWindow.x && positionCursor.x <= positionWindow.x + sizeWindow.x
-		//	&& positionCursor.y >= positionWindow.y && positionCursor.y <= positionWindow.y + sizeWindow.y)
-		//{
-
-		//	if (positionCursor.y < positionWindow.y + sizeWindow.y / 100 * 10)
-		//	{
-		//		std::cout << PositionCamera.x << std::endl;
-		//		PositionCamera -= sf::Vector2f(0, velocityCamera*dt);
-		//	}
-
-		//	if (positionCursor.y > positionWindow.y + sizeWindow.y / 100 * 90)
-		//	{
-		//		std::cout << PositionCamera.x << std::endl;
-		//		PositionCamera += sf::Vector2f(0, velocityCamera*dt);
-		//	}
-
-		//	if (positionCursor.x < positionWindow.x + sizeWindow.x / 100 * 10)
-		//	{
-		//		std::cout << PositionCamera.x << std::endl;
-		//		PositionCamera -= sf::Vector2f(velocityCamera*dt, 0);
-		//	}
-
-		//	if (positionCursor.x > positionWindow.x + sizeWindow.x / 100 * 90)
-		//	{
-		//		std::cout << PositionCamera.x << std::endl;
-		//		PositionCamera += sf::Vector2f(velocityCamera*dt, 0);
-		//	}
-		//}
-		//SetPosition(PositionCamera);
 		window.setView(m_View);
 	}
 
@@ -184,6 +145,7 @@ namespace sfge
 		newCameraInfo->camera = Camera;
 
 		Camera->SetTransform(m_Transform2dManager->GetComponentPtr(entity));
+		Camera->SetPosition(sf::Vector2f(0.0f, 0.0f));
 	}
 
 	void CameraManager::DestroyComponent(Entity entity)
@@ -199,12 +161,6 @@ namespace sfge
 		//ImGui::InputInt("Texture Id", (int*)&textureId);
 		if (camera)
 		{
-			float offset[2] = {
-				camera->GetOffset().x,
-				camera->GetOffset().y
-			};
-			ImGui::InputFloat2("Offset", offset);
-
 			float position[2] =
 			{
 				camera->

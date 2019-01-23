@@ -37,13 +37,13 @@ SOFTWARE.
 namespace sfge
 {
 
-	class Camera : public TransformRequiredComponent, public Offsetable
+	class Camera : public TransformRequiredComponent
 	{
 	public:
 		Camera& operator=(const Camera&) = delete;
 
 		Camera();
-		Camera(Transform2d* transform, const sf::Vector2f offset, sf::Vector2f size);
+		Camera(Transform2d* transform, sf::Vector2f size);
 
 		float GetRotation();
 		void SetRotation(float angle);
