@@ -119,14 +119,14 @@ sf::RenderWindow* Graphics2dManager::GetWindow()
 	return m_Window.get();
 }
 
-sf::Vector2i Graphics2dManager::GetSizeWindow()
+sf::Vector2f Graphics2dManager::GetSizeWindow()
 {
-	return sf::Vector2i(m_Window.get()->getSize());
+	return sf::Vector2f(m_Window.get()->getSize());
 }
 
-sf::Vector2i Graphics2dManager::GetPositionWindow()
+sf::Vector2f Graphics2dManager::GetPositionWindow()
 {
-	return m_Window.get()->getPosition();
+	return sf::Vector2f(m_Window.get()->getPosition());
 }
 
 SpriteManager* Graphics2dManager::GetSpriteManager()
