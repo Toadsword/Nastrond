@@ -136,7 +136,7 @@ public:
 	void InitPyComponents();
 protected:
 	int GetFreeComponentIndex() override;
-	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<py::object> m_PythonInstances = std::vector<py::object>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
 
 	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 

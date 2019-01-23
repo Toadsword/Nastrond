@@ -44,8 +44,8 @@ public:
 
 class DestroyObserver
 {
- public:
-  virtual void OnDestroy(Entity entity) = 0;
+public:
+	virtual void OnDestroy(Entity entity) = 0;
 };
 /**
  * \brief Entity index number, starting from 1U
@@ -84,11 +84,12 @@ public:
 	void AddDestroyObserver(DestroyObserver *destroyObserver);
 
 private:
-	std::vector<EntityMask> m_MaskArray{ INIT_ENTITY_NMB };
-	std::vector<editor::EntityInfo> m_EntityInfos{ INIT_ENTITY_NMB };
+	std::vector<EntityMask> m_MaskArray = std::vector<EntityMask>( INIT_ENTITY_NMB );
+	std::vector<editor::EntityInfo> m_EntityInfos = std::vector<editor::EntityInfo>( INIT_ENTITY_NMB );
 	std::set<ResizeObserver*> m_ResizeObservers;
 	std::set<DestroyObserver*> m_DestroyObservers;
 };
+
 /*
 template <>
 void EntityManager::AddResizeObserver(SingleComponentManager<std::any, std::any>* componentManager)
