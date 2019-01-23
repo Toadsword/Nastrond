@@ -40,9 +40,10 @@ TEST(Tilemap, TestLoadTilemap)
 	json sceneJson;
 	json entityJson;
 	json tilemapJson;
-	tilemapJson["path"] = "data/tilemap/nastrond_tilemap.asset";
+	//tilemapJson["path"] = "data/tilemap/nastrond_tilemap.asset";
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
 	tilemapJson["is_isometric"] = false;
+	tilemapJson["layer"] = 1;
 	tilemapJson["tile_scale"] = json::array({2, 1});
 	tilemapJson["map_size"] = json::array({10, 10});
 	tilemapJson["map"] = json::array({
@@ -66,7 +67,6 @@ TEST(Tilemap, TestLoadTilemap)
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
 	//Ce que je faisais :
-	// Tenter de créer une scène et y ajouter une tilemap : la créer, faire en sorte qu'elle se génère comme il faut et qu'il affiche son contenu
 	// Je dois encore gérer le transform d'une tile en fonction de sa position dans la tilemape, et ne pas oublier le fait que la tilemap a une position de base.
 	// Manque encore la gestion du scale des tilemaps, et gérer la position de manière isométrique ou non.
 

@@ -103,6 +103,7 @@ bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
 	m_SpriteManager->GetComponentPtr(tileId)->SetTexture(
 		m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1])
 	);
+
 	return true;
 }
 

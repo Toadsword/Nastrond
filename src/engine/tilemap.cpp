@@ -73,6 +73,16 @@ sf::Vector2<unsigned> Tilemap::GetSize()
 	return m_Size;
 }
 
+void Tilemap::SetTileScale(sf::Vector2<unsigned> newScale)
+{
+	m_TileScale = newScale;
+}
+
+sf::Vector2<unsigned> Tilemap::GetTileScale()
+{
+	return m_TileScale;
+}
+
 void Tilemap::SetLayer(int newLayer)
 {
 	if(newLayer > 0)
@@ -82,6 +92,16 @@ void Tilemap::SetLayer(int newLayer)
 int Tilemap::GetLayer()
 {
 	return m_Layer;
+}
+
+void Tilemap::SetIsometric(bool newIso)
+{
+	m_IsIsometric = newIso;
+}
+
+bool Tilemap::GetIsometric()
+{
+	return m_IsIsometric;
 }
 
 std::vector<std::vector<Entity>>& Tilemap::GetTiles()
@@ -99,10 +119,12 @@ void editor::TilemapInfo::DrawOnInspector()
 	ImGui::Separator();
 	ImGui::Text("Tilemap");
 	ImGui::InputInt("Layer", &layer);
-	int sizeX = size.x;
-	ImGui::InputInt("SizeX", &sizeX);
-	int sizeY = size.y;
-	ImGui::InputInt("SizeY", &sizeX);
+	ImGui::Checkbox("isIsometric", &isIsometric);
+	
+	int aSize[2] = { size.x, size.y };
+	ImGui::InputInt2("Size", aSize);
+	int aScale[2] = { tileScale.x , tileScale.y };
+	ImGui::InputInt2("tileScaleX", aScale);
 }
 
 void TilemapManager::Init()
@@ -147,27 +169,67 @@ Tilemap * TilemapManager::AddComponent(Entity entity)
 
 void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 {
+	json tilemapJson;
+
+	if (CheckJsonExists(componentJson, "path") && CheckJsonParameter(componentJson, "path", nlohmann::detail::value_t::string))
+	{
+		std::string path = componentJson["path"].get<std::string>();
+		{
+			std::ostringstream oss;
+			oss << "Loading scene from: " << path;
+			Log::GetInstance()->Msg(oss.str());
+		}
+		const auto tilemapJsonPtr = LoadJson(path);
+
+		if (tilemapJsonPtr != nullptr)
+			tilemapJson = *tilemapJsonPtr;
+		else
+		{
+			Log::GetInstance()->Error("Couldn't load timemap from path : '" + path + "'.");
+			return;
+		}
+		
+	}
+	else
+		tilemapJson = componentJson;
+	
+
 	auto & newTilemap = m_Components[entity - 1];
 	auto & newTilemapInfo = m_ComponentsInfo[entity - 1];
 
-	if (CheckJsonExists(componentJson, "layer") && CheckJsonParameter(componentJson, "layer", nlohmann::detail::value_t::number_integer))
+	if (CheckJsonExists(tilemapJson, "is_isometric") && CheckJsonParameter(tilemapJson, "is_isometric", nlohmann::detail::value_t::boolean))
 	{
-		newTilemap.SetLayer(componentJson["layer"].get<int>());
-		newTilemapInfo.layer = componentJson["layer"].get<int>();
+		newTilemap.SetIsometric(tilemapJson["is_isometric"].get<bool>());
+		newTilemapInfo.isIsometric = tilemapJson["is_isometric"].get<bool>();
+	}
+	
+	if (CheckJsonExists(tilemapJson, "layer") && CheckJsonParameter(tilemapJson, "layer", nlohmann::detail::value_t::number_integer))
+	{
+		newTilemap.SetLayer(tilemapJson["layer"].get<int>());
+		newTilemapInfo.layer = tilemapJson["layer"].get<int>();
+	}
+
+	sf::Vector2<unsigned> tileScale = sf::Vector2<unsigned>();
+	if (CheckJsonExists(tilemapJson, "tile_scale") && CheckJsonParameter(tilemapJson, "tile_scale", nlohmann::detail::value_t::array))
+	{
+		tileScale.x = tilemapJson["tile_scale"][0].get<unsigned>();
+		tileScale.y = tilemapJson["tile_scale"][1].get<unsigned>();
+		newTilemap.SetTileScale(tileScale);
+		newTilemapInfo.tileScale = tileScale;
 	}
 
 	sf::Vector2<unsigned> mapSize = sf::Vector2<unsigned>();
-	if (CheckJsonExists(componentJson, "map_size") && CheckJsonParameter(componentJson, "map_size", nlohmann::detail::value_t::array))
+	if (CheckJsonExists(tilemapJson, "map_size") && CheckJsonParameter(tilemapJson, "map_size", nlohmann::detail::value_t::array))
 	{
-		mapSize.x = componentJson["map_size"][0].get<unsigned>();
-		mapSize.y = componentJson["map_size"][1].get<unsigned>();
+		mapSize.x = tilemapJson["map_size"][0].get<unsigned>();
+		mapSize.y = tilemapJson["map_size"][1].get<unsigned>();
 		newTilemap.SetSize(mapSize);
 		newTilemapInfo.size = mapSize;
 	}
 
-	if(CheckJsonExists(componentJson, "map") && CheckJsonParameter(componentJson, "map", nlohmann::detail::value_t::array))
+	if(CheckJsonExists(tilemapJson, "map") && CheckJsonParameter(tilemapJson, "map", nlohmann::detail::value_t::array))
 	{
-		InitializeMap(entity, componentJson["map"]);
+		InitializeMap(entity, tilemapJson["map"]);
 	}
 }
 
