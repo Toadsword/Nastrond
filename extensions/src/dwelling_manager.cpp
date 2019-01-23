@@ -35,12 +35,14 @@ void sfge::ext::DwellingManager::Init()
 	Configuration* configuration = m_Engine.GetConfig();
 	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
 
-	auto* entityManager = m_Engine.GetEntityManager();
+	//Load texture
+	m_TexturePath = "data/sprites/building.png";
+	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
+	m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 #ifdef TEST_SYSTEM_DEBUG
-	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
 
-	for(int i = 0; i < m_entitiesNmb; i++)
+	for(auto i = 0; i < m_entitiesNmb; i++)
 	{
 		AddNewDwelling(Vec2f(Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y))));
 	}
@@ -62,36 +64,35 @@ void sfge::ext::DwellingManager::Draw()
 void sfge::ext::DwellingManager::AddNewDwelling(Vec2f pos)
 {
 	auto* entityManager = m_Engine.GetEntityManager();
-	const auto newEntity = entityManager->CreateEntity(0);
+	Configuration* configuration = m_Engine.GetConfig();
+	//entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+
+	const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 
 	size_t newDwelling = m_dwellingEntityIndex.size() + 1;
 
 	ResizeContainer(newDwelling);
-
+	
 	m_dwellingEntityIndex.push_back(newEntity);
 
-	//Load Texture
-	std::string texturePath = "data/sprites/building.png";
-	const auto textureId = m_TextureManager->LoadTexture(texturePath);
-	const auto texture = m_TextureManager->GetTexture(textureId);
-
 	//add transform
-	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = Vec2f(pos.x, pos.y);
 	transformPtr->Scale = Vec2f(0.1f, 0.1f);
 
 	//add texture
-	auto sprite = m_SpriteManager->AddComponent(newEntity);
-	sprite->SetTexture(texture);
+	auto* sprite = m_SpriteManager->AddComponent(newEntity);
+	sprite->SetTexture(m_Texture);
 
-	editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-	spriteInfo.name = "sprite";
+	auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
+	spriteInfo.name = "sprite dwelling";
 	spriteInfo.sprite = sprite;
-	spriteInfo.textureId = textureId;
-	spriteInfo.texturePath = texturePath;
+	spriteInfo.textureId = m_TextureId;
+	spriteInfo.texturePath = m_TexturePath;
 
 	//setup container
-	m_foodInventory[newDwelling].ressourceType = RessourceType::FOOD;
+	//m_foodInventory[newDwelling].ressourceType = RessourceType::FOOD;
+	
 }
 
 bool sfge::ext::DwellingManager::AddDwarfToDwelling(Entity dwellingEntity)

@@ -44,8 +44,6 @@ void DwarfManager::Init() {
 	const auto config = m_Engine.GetConfig();
 	m_FixedDeltaTime = m_Engine.GetConfig()->fixedDeltaTime;
 
-	auto* entityManager = m_Engine.GetEntityManager();
-
 	//Load texture
 	m_TexturePath = "data/sprites/triangle.png";
 	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
@@ -53,8 +51,6 @@ void DwarfManager::Init() {
 
 #ifdef DEBUG_SPAWN_DWARF
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
-
-	entityManager->ResizeEntityNmb(config->currentEntitiesNmb + m_DwarfToSpawn);
 
 	//Create dwarfs
 	for (auto i = 0u; i < m_DwarfToSpawn; i++) {
@@ -66,40 +62,50 @@ void DwarfManager::Init() {
 }
 
 void DwarfManager::SpawnDwarf(const Vec2f pos) {
+
 	auto* entityManager = m_Engine.GetEntityManager();
-	const auto newEntity = entityManager->CreateEntity(0);
+	Configuration* configuration = m_Engine.GetConfig();
+	//entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+
+	const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+
+	//TODO ajouter un check automatique pour mettre le nain à la première place disponible dans les tableaux
 
 	//Check if vectors are big enough, otherwise resize them
-	if (m_DwarfsEntitiesIndex.size() < m_IndexNewDwarf + 1)
-		ResizeContainers(m_DwarfsEntitiesIndex.size() + m_ContainersExtender);
+	if (m_DwarfsEntities.size() < m_IndexNewDwarf + 1)
+		ResizeContainers(m_DwarfsEntities.size() + m_ContainersExtender);
 
 	//Update std::vectors
-	m_DwarfsEntitiesIndex[m_IndexNewDwarf] = newEntity;
+	m_DwarfsEntities[m_IndexNewDwarf] = newEntity;
 	m_States[m_IndexNewDwarf] = State::IDLE;
 	m_Paths[m_IndexNewDwarf] = std::vector<Vec2f>();
+	m_AssociatedDwelling[m_IndexNewDwarf] = INVALID_ENTITY;
+	m_AssociatedWorkingPlace[m_IndexNewDwarf] = INVALID_ENTITY;
 
 	m_IndexNewDwarf++;
 
 	//Add transform
-	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = pos;
 
 	//Add sprite
-	auto sprite = m_SpriteManager->AddComponent(newEntity);
+	auto* sprite = m_SpriteManager->AddComponent(newEntity);
 	sprite->SetTexture(m_Texture);
 
 	//Set sprite infos
 	auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-	spriteInfo.name = "Sprite";
+	spriteInfo.name = "Sprite dwarf";
 	spriteInfo.sprite = sprite;
 	spriteInfo.textureId = m_TextureId;
 	spriteInfo.texturePath = m_TexturePath;
 }
 
 void DwarfManager::ResizeContainers(const size_t newSize) {
-	m_DwarfsEntitiesIndex.resize(newSize);
+	m_DwarfsEntities.resize(newSize);
 	m_Paths.resize(newSize);
 	m_States.resize(newSize);
+	m_AssociatedDwelling.resize(newSize);
+	m_AssociatedWorkingPlace.resize(newSize);
 }
 
 void DwarfManager::Update(float dt) {
@@ -112,7 +118,7 @@ void DwarfManager::Update(float dt) {
 		switch (m_States[i]) { 
 		case IDLE: {
 #ifdef DEBUG_RANDOM_PATH
-			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntitiesIndex[i]);
+			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
 			m_NavigationGraphManager->AskForPath(&m_Paths[i], transformPtr->Position,
 				Vec2f(std::rand() % static_cast<int>(screenSize.x),
 					std::rand() % static_cast<int>(screenSize.y
@@ -140,7 +146,7 @@ void DwarfManager::FixedUpdate() {
 		switch (m_States[i]) { 
 			case IDLE: break;
 			case WALKING: {
-				auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntitiesIndex[i]);
+				auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
 
 				auto dir = m_Paths[i][0] - transformPtr->Position;
 

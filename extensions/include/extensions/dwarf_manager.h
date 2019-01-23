@@ -65,7 +65,7 @@ private:
 	//Dwarfs Holder
 	size_t m_IndexNewDwarf = 0;
 	const size_t m_ContainersExtender = 100;
-	std::vector<unsigned int> m_DwarfsEntitiesIndex;
+	std::vector<Entity> m_DwarfsEntities;
 
 	void ResizeContainers(const size_t newSize);
 
@@ -98,13 +98,17 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100;
+	const size_t m_DwarfToSpawn = 5;
 #endif
 
 	//Dwarfs texture
 	std::string m_TexturePath;
 	TextureId m_TextureId;
 	sf::Texture* m_Texture;
+
+	//Buildings
+	std::vector<Entity> m_AssociatedDwelling;
+	std::vector<Entity> m_AssociatedWorkingPlace;
 };
 }
 
