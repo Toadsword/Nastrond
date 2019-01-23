@@ -153,7 +153,7 @@ TEST(Graphics2d, TestTexture)
 
 
 
-TEST(Graphics2d, TestCamera)
+TEST(Graphics2d, TestPyCamera)
 {
 	sfge::Engine engine;
 	engine.Init();
@@ -181,4 +181,35 @@ TEST(Graphics2d, TestCamera)
 
 	engine.Start();
 
+}
+
+TEST(Graphics2d, TestPyCameraFullScreen)
+{
+	sfge::Engine engine;
+	auto config = std::make_unique<sfge::Configuration>();
+	config->styleWindow = sf::Style::Fullscreen;
+	engine.Init(std::move(config));
+
+	json sceneJson;
+	json entityJson;
+
+	json spriteJson;
+	spriteJson["path"] = "data/sprites/other_play.png";
+	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	entityJson["components"] = json::array({ spriteJson });
+
+	json entityJson2;
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
+
+
+	sceneJson["entities"] = json::array({ entityJson2, entityJson });
+	sceneJson["name"] = "Test Camera";
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
 }

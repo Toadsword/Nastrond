@@ -45,9 +45,13 @@ void Graphics2dManager::Init()
 		m_Windowless = configPtr->windowLess;
 		if (!m_Windowless)
 		{
+			if(configPtr->styleWindow == sf::Style::Fullscreen)
+			{
+				configPtr->screenResolution = sf::Vector2i(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().width);
+			}
 			m_Window = std::make_unique<sf::RenderWindow>(
 				sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
-				"SFGE 0.1");
+				"SFGE 0.1", configPtr->styleWindow);
 			if (configPtr->maxFramerate)
 			{
 				m_Window->setFramerateLimit(configPtr->maxFramerate);
@@ -126,7 +130,14 @@ sf::Vector2f Graphics2dManager::GetSizeWindow()
 
 sf::Vector2f Graphics2dManager::GetPositionWindow()
 {
-	return sf::Vector2f(m_Window.get()->getPosition());
+	if(m_Engine.GetConfig()->styleWindow == sf::Style::Fullscreen)
+	{
+		return sf::Vector2f(m_Window.get()->getPosition());
+	}
+	if (m_Engine.GetConfig()->styleWindow == sf::Style::Default)
+	{
+		return sf::Vector2f(m_Window.get()->getPosition())+ sf::Vector2f(0,29);
+	}
 }
 
 SpriteManager* Graphics2dManager::GetSpriteManager()
