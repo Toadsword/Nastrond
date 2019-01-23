@@ -80,7 +80,7 @@ public:
 	void Collect() override;
 	Tile* AddComponent(Entity entity) override;
 	Tile* AddComponent(Entity entity, TileTypeId tileType);
-	void CreateComponent(TileTypeId tileType, Entity entity);
+	void CreateComponent(Entity entity, TileTypeId tileType);
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 	void OnResize(size_t new_size) override;

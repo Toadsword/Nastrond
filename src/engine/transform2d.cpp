@@ -12,8 +12,7 @@
 namespace sfge
 {
 void editor::Transform2dInfo::DrawOnInspector()
-{
-	
+{	
 	float pos[2] = { transform->Position.x, transform->Position.y };
 	ImGui::Separator();
 	ImGui::Text("Transform");

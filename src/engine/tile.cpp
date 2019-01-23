@@ -124,7 +124,7 @@ Tile * TileManager::AddComponent(Entity entity, TileTypeId tileType)
 	return tile;
 }
 
-void TileManager::CreateComponent(TileTypeId tileType, Entity entity)
+void TileManager::CreateComponent(Entity entity, TileTypeId tileType)
 {
 	auto & newTile = m_Components[entity - 1];
 	auto & newTileInfo = m_ComponentsInfo[entity - 1];

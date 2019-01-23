@@ -259,6 +259,8 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 			Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 			m_TileManager->AddComponent(newEntity, map[i][j].get<int>());
 			tilemap.AddTile(Vec2f(i, j), newEntity);
+			// Gestion du changement de la position du transform de la tile;
+
 		}
 	}	
 }
@@ -296,7 +298,7 @@ void TilemapSystem::Init()
 
 void TilemapSystem::Update(float dt)
 {
-	m_TilemapManager.Update(dt);
+	//m_TilemapManager.Update(dt);
 	//m_TileManager.Update(dt);
 }
 
