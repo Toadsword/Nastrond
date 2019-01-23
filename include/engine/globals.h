@@ -28,7 +28,6 @@
 #define SFGE_GLOBALS_H
 
 
-
 #define PATH_LIMIT 4096
 #define INIT_ENTITY_NMB 10000
 
@@ -42,10 +41,6 @@ enum class ModuleType
 	ENTITY,
 	TRANSFORM2D,
 	GRAPHICS2D,
-
 };
-
-
-
 
 #endif //SFGE_GLOBALS_H

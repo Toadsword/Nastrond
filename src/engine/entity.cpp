@@ -59,6 +59,11 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
         {
             if(m_MaskArray[entity-1] == INVALID_ENTITY)
             {
+				{
+					std::ostringstream oss;
+					oss << "Entity: " << entity;
+					m_EntityInfos[entity - 1].name = oss.str();
+				}
                 return entity;
             }
         }

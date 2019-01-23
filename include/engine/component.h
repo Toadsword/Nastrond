@@ -162,11 +162,12 @@ class SingleComponentManager :
 public:
 	SingleComponentManager(Engine& engine):BasicComponentManager<T,TInfo, componentType>(engine)
 	{
-		BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>{ INIT_ENTITY_NMB };
-        BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB };
-        for(int i = 0; i < INIT_ENTITY_NMB;i++)
+		BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>( INIT_ENTITY_NMB );
+        BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>( INIT_ENTITY_NMB );
+        
+		for(int i = 0; i < INIT_ENTITY_NMB;i++)
         {
-          BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i+1);
+			BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i+1);
         }
 	}
 
@@ -211,24 +212,32 @@ public:
 	{
 		BasicComponentManager<T,TInfo, componentType>::m_Components.resize(newSize);
 		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo.resize(newSize);
+
+		for (int i = 0; i < newSize; i++)
+		{
+			BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i + 1);
+		}
 	}
 protected:
-
 	virtual int GetFreeComponentIndex() override { return 0; };
-
 };
 
 template<class T, class TInfo, ComponentType componentType>
 class MultipleComponentManager : 
 	public BasicComponentManager<T,TInfo, componentType>,
 	public ResizeObserver
-
 {
+
  public:
 	MultipleComponentManager(Engine& engine): BasicComponentManager<T,TInfo, componentType>(engine)
 	{
-		BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER};
-		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+		BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+
+		for (int i = 0; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
+		{
+			BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i + 1);
+		}
 	}
 
 	void Init() override
@@ -240,13 +249,15 @@ class MultipleComponentManager :
 
     virtual void OnResize(size_t newSize) override
     {
-      BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>{ newSize * MULTIPLE_COMPONENTS_MULTIPLIER};
-      BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>{ newSize * MULTIPLE_COMPONENTS_MULTIPLIER };
+		BasicComponentManager<T,TInfo, componentType>::m_Components = std::vector<T>( newSize * MULTIPLE_COMPONENTS_MULTIPLIER);
+		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo = std::vector<TInfo>( newSize * MULTIPLE_COMPONENTS_MULTIPLIER );
+
+		for (int i = 0; i < newSize * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
+		{
+		  BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i + 1);
+		}
     }
-protected:
-
 };
-
 
 
 class LayerComponent

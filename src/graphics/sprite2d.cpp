@@ -74,6 +74,7 @@ void Sprite::Update()
 	{
 		pos += m_Transform->Position;
 		sprite.setRotation(m_Transform->EulerAngle);
+		sprite.setScale(m_Transform->Scale.x, m_Transform->Scale.y);
 	}
 	sprite.setPosition(pos);
 }
@@ -109,8 +110,11 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 	auto& sprite = GetComponentRef(entity);
 	auto& spriteInfo = GetComponentInfo(entity);
 
+	m_Components[entity - 1] = sprite;
+
 	sprite.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	spriteInfo.sprite = &sprite;
+	spriteInfo.SetEntity(entity);
 
 	m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 	return &sprite;

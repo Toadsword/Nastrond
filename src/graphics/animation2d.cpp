@@ -141,6 +141,7 @@ Animation* AnimationManager::AddComponent(Entity entity)
 
 	animation.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	animationInfo.animation = &animation;
+	m_ComponentsInfo[entity - 1].SetEntity(entity);
 
 	m_EntityManager->AddComponentType(entity, ComponentType::ANIMATION2D);
 	return &animation;
