@@ -109,7 +109,10 @@ namespace sfge::ext
 		float m_ProductionRate = 0.01f;
 		const unsigned int m_packSize = 20u;
 
-		int m_TmpDwarfNumber = 5;
+		//Dwarfs texture
+		std::string m_TexturePath;
+		TextureId m_TextureId;
+		sf::Texture* m_Texture;
 	};
 }
 #endif

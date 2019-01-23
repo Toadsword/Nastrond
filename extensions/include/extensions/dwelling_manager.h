@@ -68,7 +68,7 @@ namespace sfge::ext
 		void ResizeContainer(const size_t newSize);
 
 		/**
-		 * \brief return true if a slot in the index is empty then take his place.
+		 * \brief return true if a slot in the index is empty then take this slot.
 		 */
 		bool CheckEmptySlot(Entity newEntity);
 

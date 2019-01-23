@@ -74,7 +74,7 @@ void sfge::ext::DwellingManager::AddNewDwelling(Vec2f pos)
 		//setup container
 		m_foodInventory[newDwelling].ressourceType = RessourceType::FOOD;
 
-		m_dwellingEntityIndex.push_back(newEntity);
+		m_dwellingEntityIndex[newDwelling - 1] = newEntity;
 	}
 
 	//Load Texture

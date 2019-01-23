@@ -37,8 +37,13 @@ void sfge::ext::MineManager::Init()
 
 	EntityManager* entityManager = m_Engine.GetEntityManager();
 
+	//Load Texture
+	m_TexturePath = "data/sprites/building.png";
+	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
+	m_Texture = m_TextureManager->GetTexture(m_TextureId);
+
 #ifdef TEST_SYSTEM_DEBUG
-	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
+	entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + m_entitiesNmb);
 
 	for(int i = 0; i < m_entitiesNmb; i++)
 	{
@@ -68,20 +73,23 @@ void sfge::ext::MineManager::AddNewMine(Vec2f pos)
 	auto* entityManager = m_Engine.GetEntityManager();
 	const auto newEntity = entityManager->CreateEntity(0);
 
+	//if(m_mineEntityIndex.size() <= 0)
+
+
 	if (!CheckEmptySlot(newEntity))
 	{
-		size_t newForge = m_mineEntityIndex.size();
+		size_t newForge = m_mineEntityIndex.size() + 1;
 
-		ResizeContainer(newForge + 1);
-		m_IronProduction[newForge].ressourceType = RessourceType::IRON;
+		ResizeContainer(newForge);
+		m_IronProduction[newForge - 1].ressourceType = RessourceType::IRON;
 
-		m_mineEntityIndex.push_back(newEntity);
+		m_mineEntityIndex[newForge - 1] = newEntity;
 	}
 
-	//Load Texture
-	std::string texturePath = "data/sprites/building.png";
-	const auto textureId = m_TextureManager->LoadTexture(texturePath);
-	const auto texture = m_TextureManager->GetTexture(textureId);
+	////Load Texture
+	//std::string texturePath = "data/sprites/building.png";
+	//const auto textureId = m_TextureManager->LoadTexture(texturePath);
+	//const auto texture = m_TextureManager->GetTexture(textureId);
 
 	//add transform
 	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
@@ -90,13 +98,13 @@ void sfge::ext::MineManager::AddNewMine(Vec2f pos)
 
 	//add texture
 	auto sprite = m_SpriteManager->AddComponent(newEntity);
-	sprite->SetTexture(texture);
+	sprite->SetTexture(m_Texture);
 
 	editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
 	spriteInfo.name = "sprite";
 	spriteInfo.sprite = sprite;
-	spriteInfo.textureId = textureId;
-	spriteInfo.texturePath = texturePath;
+	spriteInfo.textureId = m_TextureId;
+	spriteInfo.texturePath = m_TexturePath;
 }
 
 bool sfge::ext::MineManager::AddDwarfToMine(Entity mineEntity)
@@ -125,7 +133,7 @@ bool sfge::ext::MineManager::DestroyMine(Entity mineEntity)
 	{
 		if(m_mineEntityIndex[i] == mineEntity)
 		{
-			m_mineEntityIndex[i] = NULL;
+			m_mineEntityIndex[i] = INVALID_ENTITY;
 			EntityManager* entityManager = m_Engine.GetEntityManager();
 			entityManager->DestroyEntity(mineEntity);
 			return true;
@@ -150,7 +158,7 @@ void sfge::ext::MineManager::RessourcesProduction()
 {
 	for (unsigned i = 0; i < m_entitiesNmb; i++)
 	{
-		if(m_mineEntityIndex[i] == NULL)
+		if(m_mineEntityIndex[i] == INVALID_ENTITY)
 		{
 			continue;
 		}
@@ -195,9 +203,9 @@ void sfge::ext::MineManager::IronStackAvalaible(Entity entity)
 
 bool sfge::ext::MineManager::CheckEmptySlot(Entity newEntity)
 {
-	for(int i = 0; i < m_mineEntityIndex.size(); i++)
+	for(int i = 0; i < m_mineEntityIndex.size(); ++i)
 	{
-		if(m_mineEntityIndex[i] == NULL)
+		if(m_mineEntityIndex[i] == INVALID_ENTITY)
 		{
 			m_mineEntityIndex[i] = newEntity;
 			const DwarfSlots newDwarfSlot;

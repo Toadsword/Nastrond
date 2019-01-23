@@ -32,12 +32,12 @@ void sfge::ext::ForgeManager::Init()
 	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 
-	Configuration* configuration = m_Engine.GetConfig();
-	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
-
 	auto* entityManager = m_Engine.GetEntityManager();
 
 #ifdef TEST_SYSTEM_DEBUG
+	Configuration* configuration = m_Engine.GetConfig();
+	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
+
 	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
 
 	for (unsigned i = 0; i < m_entitiesNmb; i++)
@@ -75,7 +75,7 @@ void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
 		m_toolsInventories[newForge - 1].ressourceType = RessourceType::TOOL;
 		m_progressionProdTool[newForge - 1].ressourceType = RessourceType::TOOL;
 
-		m_forgeEntityIndex.push_back(newEntity);
+		m_forgeEntityIndex[newForge - 1] = newEntity;
 	}
 
 	//Load Texture
@@ -131,17 +131,18 @@ void sfge::ext::ForgeManager::ProduceTools()
 {
 	for (int i = 0; i < m_entitiesNmb; i++)
 	{
-
 		if(m_forgeEntityIndex[i] == NULL)
 		{
 			continue;
 		}
 
+#ifdef TEST_SYSTEM_DEBUG
 		//Just for test
 		for (int i = 0; i < m_entitiesNmb; i++)
 		{
 			m_ironsInventories[i].inventory = 1000;
 		}
+#endif
 
 		if (m_ironsInventories[i].inventory <= 0 || m_toolsInventories[i].inventory + m_toolsInventories[i].packNumber * m_stackSize >= m_toolsInventories[i].maxCapacity)
 		{

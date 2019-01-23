@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-//#define DEBUG_CHECK_PRODUCTION
+#define DEBUG_CHECK_PRODUCTION
 #define TEST_SYSTEM_DEBUG
 
 	/**
@@ -95,7 +95,7 @@ namespace sfge::ext
 
 		const int m_stackSize = 5;
 
-		const int m_FrameBeforAdd = 5;
+		const int m_FrameBeforAdd = 20;
 	};
 }
 #endif
