@@ -9,7 +9,6 @@ class CameraManager(Component):
     position_display: Vec2f
     position: Vec2f
     mouse_position : Vector2f
-    height_tilebar: int
     
     dir : Vec2f 
     result: Vector2f
@@ -20,7 +19,6 @@ class CameraManager(Component):
         self.size_display = graphics2d_manager.get_size_window()
         self.velocity = 200
         self.detection_size_percent = 15;
-        self.height_tilebar = 29
 
     def update(self,dt):
         #Keyboard
@@ -42,7 +40,7 @@ class CameraManager(Component):
         self.size_display = graphics2d_manager.get_size_window()
         print(self.mouse_position.y)
         
-        if (self.mouse_position.x <= self.position_display.x or self.position_display.x + self.size_display.x <= self.mouse_position.x) or (self.mouse_position.y <= self.position_display.y + self.height_tilebar or self.position_display.y + self.size_display.y + self.height_tilebar  <= self.mouse_position.y):
+        if (self.mouse_position.x <= self.position_display.x or self.position_display.x + self.size_display.x <= self.mouse_position.x) or (self.mouse_position.y <= self.position_display.y or self.position_display.y + self.size_display.y <= self.mouse_position.y):
             pass
         else:
             if self.mouse_position.y - self.position_display.y < self.size_display.y / 100 * self.detection_size_percent:
