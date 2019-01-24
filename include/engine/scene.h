@@ -94,7 +94,7 @@ private:
 
 	std::vector<PySystem*> m_ScenePySystems;
 	EntityManager* m_EntityManager = nullptr;
-	std::vector<IComponentFactory*> m_ComponentManager{sizeof(ComponentType)*8};
+	std::vector<IComponentFactory*> m_ComponentManager = std::vector<IComponentFactory*>(sizeof(ComponentType)*8);
 	std::map<std::string, std::string> m_ScenePathMap;
 
 };

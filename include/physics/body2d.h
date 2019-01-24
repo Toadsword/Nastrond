@@ -34,7 +34,7 @@ SOFTWARE.
 namespace sfge
 {
 
-class Body2d: public TransformRequiredComponent, public Offsetable
+class Body2d: public Offsetable
 {
 public:
 	Body2d();
