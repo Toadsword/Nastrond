@@ -322,8 +322,6 @@ namespace sfge::ext
 		}
 		path.push_back(m_Graph[originIndex]);
 		pathPos.push_back(m_Graph[originIndex].pos);
-		std::reverse(path.begin(), path.end());
-		std::reverse(pathPos.begin(), pathPos.end());
 
 		return pathPos;
 	}
