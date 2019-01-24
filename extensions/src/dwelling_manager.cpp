@@ -65,7 +65,7 @@ void sfge::ext::DwellingManager::AddNewDwelling(Vec2f pos)
 {
 	auto* entityManager = m_Engine.GetEntityManager();
 	Configuration* configuration = m_Engine.GetConfig();
-	//entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+	entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
 
 	const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 
