@@ -46,11 +46,11 @@ public:
 	void Init(TilemapSystem* tilemapSystem);
 	void Update();
 
-	void SetSize(sf::Vector2<unsigned> newSize);
-	sf::Vector2<unsigned> GetSize();
+	void SetSize(Vec2f newSize);
+	Vec2f GetSize();
 
-	void SetTileScale(sf::Vector2<unsigned> newScale);
-	sf::Vector2<unsigned> GetTileScale();
+	void SetTileScale(Vec2f newScale);
+	Vec2f GetTileScale();
 
 	void SetLayer(int newLayer);
 	int GetLayer();
@@ -65,8 +65,8 @@ public:
 protected:
 	std::vector<std::vector<Entity>> m_Tiles;
 	int m_Layer = 0;
-	sf::Vector2<unsigned> m_Size = {100, 100};
-	sf::Vector2<unsigned> m_TileScale = {1, 1};
+	Vec2f m_Size = {100, 100};
+	Vec2f m_TileScale = {1, 1};
 	bool m_IsIsometric = false;
 
 
@@ -82,8 +82,8 @@ struct TilemapInfo : ComponentInfo
 	Tilemap* tilemap = nullptr;
 	int layer = 0;
 	bool isIsometric = false;
-	sf::Vector2<unsigned> size = { 100, 100 };
-	sf::Vector2<unsigned> tileScale= { 100, 100 };
+	Vec2f size = { 100, 100 };
+	Vec2f tileScale= { 100, 100 };
 };
 }
 

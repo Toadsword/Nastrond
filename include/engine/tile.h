@@ -39,7 +39,7 @@ namespace sfge
 class Tilemap;
 class TilemapManager;
 
-class Tile : public LayerComponent, public TransformRequiredComponent
+class Tile : public LayerComponent
 {
 public:
 	Tile();

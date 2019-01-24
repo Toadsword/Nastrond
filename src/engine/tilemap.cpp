@@ -48,37 +48,28 @@ void Tilemap::Init(TilemapSystem* tilemapSystem)
 
 void Tilemap::Update()
 {
-	/*
-	for (auto horizontalTiles : m_Tiles)
-	{
-		for (auto tile : horizontalTiles)
-		{
-			m_TilemapSystem->GetTileTypeManager()->SetTileTexture(tile, m_TilemapSystem->GetTileManager()->GetComponentPtr(tile)->GetType());
-		}
-	}
-	*/
 }
 
-void Tilemap::SetSize(sf::Vector2<unsigned> newSize)
+void Tilemap::SetSize(Vec2f newSize)
 {
 	if (newSize.x <= 0 || newSize.y <= 0)
 		return;
 
 	m_Size = newSize;
-	m_Tiles = std::vector<std::vector<Entity>>{ newSize.x, std::vector<Entity>(newSize.y)};
+	m_Tiles = std::vector<std::vector<Entity>>{ (unsigned)newSize.x, std::vector<Entity>((unsigned)newSize.y)};
 }
 
-sf::Vector2<unsigned> Tilemap::GetSize()
+Vec2f Tilemap::GetSize()
 {
 	return m_Size;
 }
 
-void Tilemap::SetTileScale(sf::Vector2<unsigned> newScale)
+void Tilemap::SetTileScale(Vec2f newScale)
 {
 	m_TileScale = newScale;
 }
 
-sf::Vector2<unsigned> Tilemap::GetTileScale()
+Vec2f Tilemap::GetTileScale()
 {
 	return m_TileScale;
 }
@@ -160,7 +151,9 @@ Tilemap * TilemapManager::AddComponent(Entity entity)
 	auto& tilemap = GetComponentRef(entity);
 	auto& tilemapInfo = GetComponentInfo(entity);
 
-	//tilemap.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
+	if (!m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::TRANSFORM2D))
+		m_Engine.GetTransform2dManager()->AddComponent(entity);
+
 	tilemapInfo.tilemap = &tilemap;
 
 	m_EntityManager->AddComponentType(entity, ComponentType::TILEMAP);
@@ -197,6 +190,9 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 	auto & newTilemap = m_Components[entity - 1];
 	auto & newTilemapInfo = m_ComponentsInfo[entity - 1];
 
+	if (!m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::TRANSFORM2D))
+		m_Engine.GetTransform2dManager()->AddComponent(entity);
+
 	if (CheckJsonExists(tilemapJson, "is_isometric") && CheckJsonParameter(tilemapJson, "is_isometric", nlohmann::detail::value_t::boolean))
 	{
 		newTilemap.SetIsometric(tilemapJson["is_isometric"].get<bool>());
@@ -209,7 +205,7 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 		newTilemapInfo.layer = tilemapJson["layer"].get<int>();
 	}
 
-	sf::Vector2<unsigned> tileScale = sf::Vector2<unsigned>();
+	Vec2f tileScale = Vec2f();
 	if (CheckJsonExists(tilemapJson, "tile_scale") && CheckJsonParameter(tilemapJson, "tile_scale", nlohmann::detail::value_t::array))
 	{
 		tileScale.x = tilemapJson["tile_scale"][0].get<unsigned>();
@@ -218,7 +214,7 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 		newTilemapInfo.tileScale = tileScale;
 	}
 
-	sf::Vector2<unsigned> mapSize = sf::Vector2<unsigned>();
+	Vec2f mapSize = Vec2f();
 	if (CheckJsonExists(tilemapJson, "map_size") && CheckJsonParameter(tilemapJson, "map_size", nlohmann::detail::value_t::array))
 	{
 		mapSize.x = tilemapJson["map_size"][0].get<unsigned>();
@@ -249,9 +245,10 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 	auto & tilemap = m_Components[entity - 1];
 	EmptyMap(entity);
 
-	sf::Vector2<unsigned> mapSize = tilemap.GetSize();
 	EntityManager* entityManager = m_Engine.GetEntityManager();
+	Transform2dManager* transformManager = m_Engine.GetTransform2dManager();
 
+	Vec2f basePos = transformManager->GetComponentPtr(entity)->Position;
 	for (unsigned i = 0; i < map.size(); i++)
 	{
 		for (unsigned j = 0; j < map[i].size(); j++)
@@ -259,8 +256,9 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 			Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 			m_TileManager->AddComponent(newEntity, map[i][j].get<int>());
 			tilemap.AddTile(Vec2f(i, j), newEntity);
-			// Gestion du changement de la position du transform de la tile;
-
+			
+			const Vec2f newPos = basePos + Vec2f(tilemap.GetTileScale().x *i, tilemap.GetTileScale().y * j);
+			transformManager->GetComponentPtr(newEntity)->Position = newPos;
 		}
 	}	
 }
@@ -268,7 +266,7 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 void TilemapManager::EmptyMap(Entity entity)
 {
 	auto & tilemap = m_Components[entity - 1];
-	sf::Vector2<unsigned> mapSize = tilemap.GetSize();
+	Vec2f mapSize = tilemap.GetSize();
 	std::vector<std::vector<Entity>>& map = tilemap.GetTiles();
 
 	EntityManager* entityManager = m_Engine.GetEntityManager();

@@ -38,15 +38,9 @@
 namespace sfge 
 {
 
-Tile::Tile() :
-	TransformRequiredComponent(nullptr)
+Tile::Tile()
 {
 
-}
-
-Tile::Tile(Transform2d * transform) :
-	TransformRequiredComponent(transform)
-{
 }
 
 void Tile::Update()
@@ -103,7 +97,9 @@ Tile * TileManager::AddComponent(Entity entity)
 	auto& tile = GetComponentRef(entity);
 	auto& tileInfo = GetComponentInfo(entity);
 
-	tile.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
+	if (!m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::TRANSFORM2D))
+		m_Engine.GetTransform2dManager()->AddComponent(entity);
+
 	tileInfo.tile = &tile;
 
 	m_EntityManager->AddComponentType(entity, ComponentType::TILE);
