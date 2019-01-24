@@ -37,13 +37,11 @@ SOFTWARE.
 namespace sfge
 {
 
-Animation::Animation() :
-	TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+Animation::Animation() : Offsetable(sf::Vector2f())
 {
 }
 
-Animation::Animation(Transform2d* transform, sf::Vector2f offset)
-	: TransformRequiredComponent(transform), Offsetable(offset)
+Animation::Animation(Transform2d* transform, sf::Vector2f offset) : Offsetable(offset)
 {
 }
 void Animation::Draw(sf::RenderWindow& window)
@@ -68,7 +66,7 @@ void Animation::Init()
 {
 }
 
-void Animation::Update(float dt)
+void Animation::Update(float dt, Transform2d* transform)
 {
 	timeSinceChangedFrame += dt;
 	
@@ -107,9 +105,9 @@ void Animation::Update(float dt)
 	}
 	
 	Vec2f pos = m_Offset;
-	if(m_Transform != nullptr)
+	if(transform != nullptr)
 	{
-		pos += m_Transform->Position;
+		pos += transform->Position;
 	}
 	sprite.setPosition(pos);
 }
@@ -139,7 +137,6 @@ Animation* AnimationManager::AddComponent(Entity entity)
 	auto& animation = GetComponentRef(entity);
 	auto& animationInfo = GetComponentInfo(entity);
 
-	animation.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	animationInfo.animation = &animation;
 	m_ComponentsInfo[entity - 1].SetEntity(entity);
 
@@ -160,9 +157,9 @@ void AnimationManager::Update(float dt)
 	rmt_ScopedCPUSample(Animation2dUpdate,0)
 	for(auto i = 0u; i < m_Components.size();i++)
 	{
-		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D))
+		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
 		{
-			m_Components[i].Update(dt);
+			m_Components[i].Update(dt, m_Transform2dManager->GetComponentPtr(i + 1));
 		}
 	}
 }
@@ -213,8 +210,6 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 
 		auto & newAnimation = m_Components[entity - 1];
 		auto & newAnimationInfo = m_ComponentsInfo[entity - 1];
-		
-		newAnimation.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 		
 		std::string name = "";
 		if (CheckJsonParameter(*framesInfosPtr, "name", json::value_t::string))
@@ -295,5 +290,15 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 void AnimationManager::DestroyComponent(Entity entity)
 {
 	(void) entity;
+}
+
+void AnimationManager::OnResize(size_t newSize) {
+	m_Components.resize(newSize);
+	m_ComponentsInfo.resize(newSize);
+
+	for (size_t i = 0; i < newSize; ++i) {
+		m_ComponentsInfo[i].SetEntity(i + 1);
+		m_ComponentsInfo[i].animation = &m_Components[i];
+	}
 }
 }

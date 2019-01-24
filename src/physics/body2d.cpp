@@ -31,12 +31,11 @@ SOFTWARE.
 #include <engine/engine.h>
 namespace sfge
 {
-Body2d::Body2d() : TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+Body2d::Body2d() : Offsetable(sf::Vector2f())
 {
 }
 
-Body2d::Body2d(Transform2d *transform, Vec2f offset) :
-	TransformRequiredComponent(transform), Offsetable(offset)
+Body2d::Body2d(Transform2d *transform, Vec2f offset) : Offsetable(offset)
 {
 	
 }
