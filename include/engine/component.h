@@ -213,7 +213,7 @@ public:
 		BasicComponentManager<T,TInfo, componentType>::m_Components.resize(newSize);
 		BasicComponentManager<T,TInfo, componentType>::m_ComponentsInfo.resize(newSize);
 
-		for (int i = 0; i < newSize; i++)
+		for (size_t i = 0; i < newSize; i++)
 		{
 			BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i + 1);
 		}
@@ -236,7 +236,7 @@ class MultipleComponentManager :
 
 		for (int i = 0; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
 		{
-			BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i + 1);
+			BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity((i/MULTIPLE_COMPONENTS_MULTIPLIER) + 1);
 		}
 	}
 
@@ -254,7 +254,7 @@ class MultipleComponentManager :
 
 		for (int i = 0; i < newSize * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
 		{
-		  BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity(i + 1);
+		  BasicComponentManager<T, TInfo, componentType>::m_ComponentsInfo[i].SetEntity((i / MULTIPLE_COMPONENTS_MULTIPLIER) + 1);
 		}
     }
 };
