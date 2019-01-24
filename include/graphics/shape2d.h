@@ -46,7 +46,7 @@ enum class ShapeType
 	CONVEX,
 };
 
-class Shape : public Offsetable, public TransformRequiredComponent
+class Shape : public Offsetable
 {
 public:
   	Shape();
@@ -56,7 +56,7 @@ public:
   	virtual ~Shape();
 	void Draw(sf::RenderWindow& window) const;
 	void SetFillColor(sf::Color color) const;
-	void Update(float dt) const;
+	void Update(float dt, Transform2d* transform) const;
 	void SetShape(std::unique_ptr<sf::Shape> shape);
 	sf::Shape* GetShape();
 protected:
