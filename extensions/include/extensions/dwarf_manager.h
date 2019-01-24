@@ -98,7 +98,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 5;
+	const size_t m_DwarfToSpawn = 1;
 #endif
 
 	//Dwarfs texture
@@ -109,6 +109,9 @@ private:
 	//Buildings
 	std::vector<Entity> m_AssociatedDwelling;
 	std::vector<Entity> m_AssociatedWorkingPlace;
+		
+	//Vertex array
+	sf::VertexArray m_VertexArray;
 };
 }
 

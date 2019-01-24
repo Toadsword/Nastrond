@@ -78,7 +78,7 @@ namespace sfge::ext
 		std::vector<DwarfSlots> m_dwarfSlots;
 		std::vector<RecieverInventory> m_foodInventory;
 #ifdef TEST_SYSTEM_DEBUG
-		size_t m_entitiesNmb = 10000;
+		size_t m_entitiesNmb = 0;
 #endif
 
 		//Building texture

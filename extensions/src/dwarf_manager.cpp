@@ -49,6 +49,8 @@ void DwarfManager::Init() {
 	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 	m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
+	m_VertexArray = sf::VertexArray(sf::Quads, 0);
+
 #ifdef DEBUG_SPAWN_DWARF
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 
@@ -82,22 +84,25 @@ void DwarfManager::SpawnDwarf(const Vec2f pos) {
 	m_AssociatedDwelling[m_IndexNewDwarf] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[m_IndexNewDwarf] = INVALID_ENTITY;
 
-	m_IndexNewDwarf++;
+	m_VertexArray.resize(m_IndexNewDwarf * 4 + 4);
+
+	sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+	m_VertexArray[4 * m_IndexNewDwarf].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * m_IndexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+	m_VertexArray[4 * m_IndexNewDwarf + 2].texCoords = textureSize;
+	m_VertexArray[4 * m_IndexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
 
 	//Add transform
 	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = pos;
 
-	//Add sprite
-	auto* sprite = m_SpriteManager->AddComponent(newEntity);
-	sprite->SetTexture(m_Texture);
+	m_VertexArray[4 * m_IndexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
+	m_VertexArray[4 * m_IndexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+	m_VertexArray[4 * m_IndexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
+	m_VertexArray[4 * m_IndexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 
-	//Set sprite infos
-	auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-	spriteInfo.name = "Sprite dwarf";
-	spriteInfo.sprite = sprite;
-	spriteInfo.textureId = m_TextureId;
-	spriteInfo.texturePath = m_TexturePath;
+	m_IndexNewDwarf++;
 }
 
 void DwarfManager::ResizeContainers(const size_t newSize) {
@@ -148,12 +153,10 @@ void DwarfManager::FixedUpdate() {
 			case WALKING: {
 				auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
 
-				auto dir = m_Paths[i][0] - transformPtr->Position;
+				auto dir = m_Paths[i][m_Paths[i].size() - 1] - transformPtr->Position;
 
 				if (dir.GetMagnitude() < m_StoppingDistance) {
-					std::reverse(m_Paths[i].begin(), m_Paths[i].end());
 					m_Paths[i].pop_back();
-					std::reverse(m_Paths[i].begin(), m_Paths[i].end());
 
 					if (m_Paths[i].empty()) {
 						m_States[i] = State::IDLE;
@@ -162,6 +165,13 @@ void DwarfManager::FixedUpdate() {
 				else {
 					//TODO ajouter un manager pour les velocités. L'idées est de créer un système qui ne comporte que ça comme données et fait un traitement uniquement dessus. Il faut rajouter des fonctions comme AddComponent() en lui passant directement l'entité
 					transformPtr->Position += dir.Normalized() * m_SpeedDwarf;
+
+					sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+					m_VertexArray[4 * i].position = transformPtr->Position - textureSize / 2.0f;
+					m_VertexArray[4 * i + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+					m_VertexArray[4 * i + 2].position = transformPtr->Position + textureSize / 2.0f;
+					m_VertexArray[4 * i + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 				}
 				break;
 			}
@@ -188,5 +198,7 @@ void DwarfManager::Draw() {
 		window->draw(lines);
 	}
 #endif
+
+	window->draw(m_VertexArray, m_Texture);
 }
 }
