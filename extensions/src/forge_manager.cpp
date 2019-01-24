@@ -149,7 +149,7 @@ void sfge::ext::ForgeManager::ProduceTools()
 			continue;
 		}
 
-		m_progressionProdTool[i].FrameCoolDown += m_dwarfSlots[i].dwarfIn;
+		m_progressionProdTool[i].FrameCoolDown += /*m_dwarfSlots[i].dwarfIn*/ 5;
 
 		if (m_progressionProdTool[i].FrameCoolDown >= m_FrameBeforAdd)
 		{
@@ -207,5 +207,3 @@ bool sfge::ext::ForgeManager::CheckEmptySlot(Entity newEntity)
 		}
 		return false;
 }
-
-

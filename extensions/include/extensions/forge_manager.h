@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define DEBUG_CHECK_PRODUCTION
+//#define DEBUG_CHECK_PRODUCTION
 #define TEST_SYSTEM_DEBUG
 
 	/**
