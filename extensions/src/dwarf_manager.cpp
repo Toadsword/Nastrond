@@ -67,6 +67,7 @@ void DwarfManager::SpawnDwarf(const Vec2f pos) {
 
 	auto* entityManager = m_Engine.GetEntityManager();
 	Configuration* configuration = m_Engine.GetConfig();
+	//TODO ajouter check pour resizer uniquement s'il le faut
 	entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
 
 	const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
@@ -103,6 +104,62 @@ void DwarfManager::SpawnDwarf(const Vec2f pos) {
 	m_VertexArray[4 * m_IndexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 
 	m_IndexNewDwarf++;
+}
+
+void DwarfManager::DestroyDwarfByEntity(Entity entity) {
+	auto index = -1;
+	for (auto i = 0; i < m_DwarfsEntities.size(); i++) {
+		if(m_DwarfsEntities[i] == entity) {
+			//Destroy entity
+			auto* entityManager = m_Engine.GetEntityManager();
+			entityManager->DestroyEntity(entity);
+
+			index = i;
+			break;
+		}
+	}
+
+	if(index != -1) {
+		//Clean all values
+		m_Paths[index] = std::vector<Vec2f>(0);
+		m_States[index] = State::IDLE;
+		m_AssociatedDwelling[index] = INVALID_ENTITY;
+		m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
+
+		//Reset vertexArray
+		m_VertexArray[4 * index].texCoords = sf::Vector2f(0, 0);
+		m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
+		m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
+		m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
+
+		m_VertexArray[4 * index].position = sf::Vector2f(0, 0);
+		m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
+		m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
+		m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
+	}
+}
+
+void DwarfManager::DestroyDwarfByIndex(unsigned index) {
+	//Destroy entity
+	auto* entityManager = m_Engine.GetEntityManager();
+	entityManager->DestroyEntity(m_DwarfsEntities[index]);
+
+	//Clean all values
+	m_Paths[index] = std::vector<Vec2f>(0);
+	m_States[index] = State::IDLE;
+	m_AssociatedDwelling[index] = INVALID_ENTITY;
+	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
+
+	//Reset vertexArray
+	m_VertexArray[4 * index].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
+
+	m_VertexArray[4 * index].position = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
 }
 
 void DwarfManager::ResizeContainers(const size_t newSize) {
@@ -182,9 +239,8 @@ void DwarfManager::FixedUpdate() {
 }
 
 void DwarfManager::Draw() {
-#ifdef DEBUG_DRAW_PATH
 	auto window = m_Engine.GetGraphics2dManager()->GetWindow();
-
+#ifdef DEBUG_DRAW_PATH
 	for (auto i = 0u; i < m_IndexNewDwarf; i++) {
 		const auto color = m_Colors[i % m_Colors.size()];
 

@@ -56,6 +56,9 @@ public:
 	 */
 	void SpawnDwarf(const Vec2f pos);
 
+	void DestroyDwarfByEntity(Entity entity);
+	void DestroyDwarfByIndex(unsigned int index);
+
 private:
 	Transform2dManager * m_Transform2DManager;
 	TextureManager* m_TextureManager;
@@ -98,7 +101,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 1;
+	const size_t m_DwarfToSpawn = 100;
 #endif
 
 	//Dwarfs texture
