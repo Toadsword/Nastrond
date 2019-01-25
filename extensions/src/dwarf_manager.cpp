@@ -32,7 +32,8 @@ DwarfManager::DwarfManager(sfge::Engine& engine) :
 
 }
 
-void DwarfManager::Init() {
+void DwarfManager::Init() 
+{
 	//Get managers
 	m_Transform2DManager = m_Engine.GetTransform2dManager();
 	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
@@ -63,7 +64,8 @@ void DwarfManager::Init() {
 #endif
 }
 
-void DwarfManager::SpawnDwarf(const Vec2f pos) {
+void DwarfManager::SpawnDwarf(const Vec2f pos) 
+{
 
 	auto* entityManager = m_Engine.GetEntityManager();
 	Configuration* configuration = m_Engine.GetConfig();
@@ -71,39 +73,31 @@ void DwarfManager::SpawnDwarf(const Vec2f pos) {
 	entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
 
 	const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
-
-	//TODO ajouter un check automatique pour mettre le nain à la première place disponible dans les tableaux
-
-	//Check if vectors are big enough, otherwise resize them
-	if (m_DwarfsEntities.size() < m_IndexNewDwarf + 1)
-		ResizeContainers(m_DwarfsEntities.size() + m_ContainersExtender);
+	
+	const int indexNewDwarf = GetIndexForNewEntity();
 
 	//Update std::vectors
-	m_DwarfsEntities[m_IndexNewDwarf] = newEntity;
-	m_States[m_IndexNewDwarf] = State::IDLE;
-	m_Paths[m_IndexNewDwarf] = std::vector<Vec2f>();
-	m_AssociatedDwelling[m_IndexNewDwarf] = INVALID_ENTITY;
-	m_AssociatedWorkingPlace[m_IndexNewDwarf] = INVALID_ENTITY;
-
-	m_VertexArray.resize(m_IndexNewDwarf * 4 + 4);
+	m_DwarfsEntities[indexNewDwarf] = newEntity;
+	m_States[indexNewDwarf] = State::IDLE;
+	m_Paths[indexNewDwarf] = std::vector<Vec2f>();
+	m_AssociatedDwelling[indexNewDwarf] = INVALID_ENTITY;
+	m_AssociatedWorkingPlace[indexNewDwarf] = INVALID_ENTITY;
 
 	sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 
-	m_VertexArray[4 * m_IndexNewDwarf].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * m_IndexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-	m_VertexArray[4 * m_IndexNewDwarf + 2].texCoords = textureSize;
-	m_VertexArray[4 * m_IndexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
+	m_VertexArray[4 * indexNewDwarf].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * indexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+	m_VertexArray[4 * indexNewDwarf + 2].texCoords = textureSize;
+	m_VertexArray[4 * indexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
 
 	//Add transform
 	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = pos;
 
-	m_VertexArray[4 * m_IndexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
-	m_VertexArray[4 * m_IndexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-	m_VertexArray[4 * m_IndexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
-	m_VertexArray[4 * m_IndexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
-
-	m_IndexNewDwarf++;
+	m_VertexArray[4 * indexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
+	m_VertexArray[4 * indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+	m_VertexArray[4 * indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
+	m_VertexArray[4 * indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 }
 
 void DwarfManager::DestroyDwarfByEntity(Entity entity) {
@@ -139,7 +133,7 @@ void DwarfManager::DestroyDwarfByEntity(Entity entity) {
 	}
 }
 
-void DwarfManager::DestroyDwarfByIndex(unsigned index) {
+void DwarfManager::DestroyDwarfByIndex(unsigned int index) {
 	//Destroy entity
 	auto* entityManager = m_Engine.GetEntityManager();
 	entityManager->DestroyEntity(m_DwarfsEntities[index]);
@@ -151,23 +145,41 @@ void DwarfManager::DestroyDwarfByIndex(unsigned index) {
 	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
 
 	//Reset vertexArray
-	m_VertexArray[4 * index].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 0].texCoords = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
 
-	m_VertexArray[4 * index].position = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 0].position = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
 }
 
-void DwarfManager::ResizeContainers(const size_t newSize) {
-	m_DwarfsEntities.resize(newSize);
+void DwarfManager::ResizeContainers() {
+	const size_t newSize = m_DwarfsEntities.size() + m_ContainersExtender;
+
+	m_DwarfsEntities.resize(newSize, INVALID_ENTITY);
 	m_Paths.resize(newSize);
 	m_States.resize(newSize);
-	m_AssociatedDwelling.resize(newSize);
-	m_AssociatedWorkingPlace.resize(newSize);
+	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
+	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
+
+	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
+}
+
+int DwarfManager::GetIndexForNewEntity() {
+	//Check if a place is free
+	for(size_t i = 0; i < m_DwarfsEntities.size(); i++) {
+		if(m_DwarfsEntities[i] == INVALID_ENTITY) {
+			return i;
+		}
+	}
+
+	//Otherwise resize all std::vectors
+	const int index = m_DwarfsEntities.size();
+	ResizeContainers();
+	return index;
 }
 
 void DwarfManager::Update(float dt) {
@@ -176,8 +188,12 @@ void DwarfManager::Update(float dt) {
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
 	
-	for (auto i = 0u; i < m_IndexNewDwarf; i++) {
+	for (auto i = 0u; i < m_DwarfsEntities.size(); i++) {
 		switch (m_States[i]) { 
+		case INVALID:{
+			continue;
+			}
+			break;
 		case IDLE: {
 #ifdef DEBUG_RANDOM_PATH
 			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
@@ -204,8 +220,12 @@ void DwarfManager::Update(float dt) {
 }
 
 void DwarfManager::FixedUpdate() {
-	for (auto i = 0u; i < m_IndexNewDwarf; i++) {
+	for (auto i = 0u; i < m_DwarfsEntities.size(); i++) {
 		switch (m_States[i]) { 
+			case INVALID: {
+				continue;
+			}
+					  break;
 			case IDLE: break;
 			case WALKING: {
 				auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
@@ -241,7 +261,7 @@ void DwarfManager::FixedUpdate() {
 void DwarfManager::Draw() {
 	auto window = m_Engine.GetGraphics2dManager()->GetWindow();
 #ifdef DEBUG_DRAW_PATH
-	for (auto i = 0u; i < m_IndexNewDwarf; i++) {
+	for (auto i = 0u; i < m_Paths.size(); i++) {
 		const auto color = m_Colors[i % m_Colors.size()];
 
 		sf::VertexArray lines{sf::LineStrip, m_Paths[i].size()};
