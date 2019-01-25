@@ -54,13 +54,29 @@ void DwarfManager::Init()
 
 #ifdef DEBUG_SPAWN_DWARF
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
-
+	auto t1 = std::chrono::high_resolution_clock::now();
 	//Create dwarfs
 	for (auto i = 0u; i < m_DwarfToSpawn; i++) {
 		const Vec2f pos(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
 
 		SpawnDwarf(pos);
 	}
+
+	//Destroy dwarf
+	for (auto i = 0u; i < 5; i++) {
+		DestroyDwarfByIndex(i);
+	}
+
+	for (auto i = 0u; i < 20; i++) {
+		const Vec2f pos(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
+
+		SpawnDwarf(pos);
+	}
+
+	//Spawn dwarfs
+	auto t2 = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	std::cout << "Time: " << duration << "\n";
 #endif
 }
 
@@ -69,10 +85,13 @@ void DwarfManager::SpawnDwarf(const Vec2f pos)
 
 	auto* entityManager = m_Engine.GetEntityManager();
 	Configuration* configuration = m_Engine.GetConfig();
-	//TODO ajouter check pour resizer uniquement s'il le faut
-	entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
 
-	const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+	auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+
+	if(newEntity == INVALID_ENTITY) {
+		entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + m_ContainersExtender);
+		newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+	}
 	
 	const int indexNewDwarf = GetIndexForNewEntity();
 
@@ -116,9 +135,10 @@ void DwarfManager::DestroyDwarfByEntity(Entity entity) {
 	if(index != -1) {
 		//Clean all values
 		m_Paths[index] = std::vector<Vec2f>(0);
-		m_States[index] = State::IDLE;
+		m_States[index] = State::INVALID;
 		m_AssociatedDwelling[index] = INVALID_ENTITY;
 		m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
+		m_DwarfsEntities[index] = INVALID_ENTITY;
 
 		//Reset vertexArray
 		m_VertexArray[4 * index].texCoords = sf::Vector2f(0, 0);
@@ -140,7 +160,7 @@ void DwarfManager::DestroyDwarfByIndex(unsigned int index) {
 
 	//Clean all values
 	m_Paths[index] = std::vector<Vec2f>(0);
-	m_States[index] = State::IDLE;
+	m_States[index] = State::INVALID;
 	m_AssociatedDwelling[index] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
 
@@ -190,10 +210,7 @@ void DwarfManager::Update(float dt) {
 	
 	for (auto i = 0u; i < m_DwarfsEntities.size(); i++) {
 		switch (m_States[i]) { 
-		case INVALID:{
-			continue;
-			}
-			break;
+		case INVALID: break;
 		case IDLE: {
 #ifdef DEBUG_RANDOM_PATH
 			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
@@ -206,15 +223,14 @@ void DwarfManager::Update(float dt) {
 			break;
 		}
 
-			case WALKING: 
-			break;
+			case WALKING: break;
 
 			case WAITING_NEW_PATH: 
 				if (!m_Paths[i].empty()) {
 					m_States[i] = State::WALKING;
 				}
 			break;
-			default: ;
+			default: break;
 		}
 	}
 }
@@ -222,10 +238,7 @@ void DwarfManager::Update(float dt) {
 void DwarfManager::FixedUpdate() {
 	for (auto i = 0u; i < m_DwarfsEntities.size(); i++) {
 		switch (m_States[i]) { 
-			case INVALID: {
-				continue;
-			}
-					  break;
+			case INVALID: break;
 			case IDLE: break;
 			case WALKING: {
 				auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
