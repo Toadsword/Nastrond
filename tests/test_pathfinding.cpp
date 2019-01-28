@@ -32,7 +32,8 @@ SOFTWARE.
 #include <python/python_engine.h>
 
 #include <extensions/behaviour_tree.h>
-#include "extensions/python_extensions.h"
+#include <extensions/python_extensions.h>
+#include <extensions/behaviour_tree_nodes.h>
 
 TEST(AI, PriorityQueue)
 {
