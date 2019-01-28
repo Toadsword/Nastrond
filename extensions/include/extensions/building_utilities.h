@@ -30,7 +30,7 @@ namespace sfge::ext
 	/**
 	 * \author Robin Alves
 	 */
-	enum RessourceType
+	enum ResourceType
 	{
 		NONE,
 		IRON,
@@ -47,19 +47,20 @@ namespace sfge::ext
 	{
 		unsigned int maxCapacity = 100u;
 		float inventory = 0u;
-		unsigned short packNumber = 0u;
-		RessourceType ressourceType = RessourceType::NONE;
+		unsigned int packNumber = 0u;
+		unsigned int packSize = 0u;
+		ResourceType ressourceType = ResourceType::NONE;
 	};
 
 	/**
 	 * \brief Represent an inventory that must be fill.
 	 * \author Robin Alves
 	 */
-	struct RecieverInventory
+	struct ReceiverInventory
 	{
 		unsigned int maxCapacity = 100u;
 		float inventory = 0u;
-		RessourceType ressourceType = RessourceType::NONE;
+		ResourceType resourceType = ResourceType::NONE;
 	};
 
 	/**
@@ -71,7 +72,7 @@ namespace sfge::ext
 		float progression = 0.0f;
 		int goal = 20;
 		int FrameCoolDown = 0;
-		RessourceType ressourceType = RessourceType::NONE;
+		ResourceType ressourceType = ResourceType::NONE;
 	};
 
 	/**

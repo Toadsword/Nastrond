@@ -53,24 +53,44 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Create a new mine est setup it at the given position.
+		 * \brief Spawn forge entity at the given position.
 		 */
-		void AddNewMine(Vec2f pos);
+		void AddNewBuilding(Vec2f pos);
+
+		/**
+		 * \brief Destroy the mine at the given index. Return if the entity is not available.
+		 */
+		bool DestroyBuilding(Entity mineEntity);
 
 		/**
 		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
 		 */
-		bool AddDwarfToMine(Entity mineEntity);
+		bool AddDwarfToBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Destroy the mine at the given index.
+		 * \brief Remove dwarf to the dwarf slot struct of the given building. Return false if there is no slot available or if the entity do not exist.
 		 */
-		bool DestroyMine(Entity mineEntity);
+		bool RemoveDwarfToBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Return a mine with all attribution slots for dwarf not take.
+		 * \brief Return a mine with a slot available for a dwarf. If not
 		 */
-		Entity GetFreeMine();
+		Entity GetFreeSlotInBuilding();
+
+		/**
+		 * \brief Return a mine with a stack of Iron available.
+		 */
+		Entity GetBuildingWithResources();
+
+		/**
+		 * \brief Return the type of resources that the building produce.
+		 */
+		ResourceType GetResourceType();
+
+		/**
+		 * \brief Return an amount of the produced resources of the given building entity.
+		 */
+		int GetResourcesBack(Entity entity);
 
 	private:
 		/**
@@ -84,35 +104,38 @@ namespace sfge::ext
 		void ResizeContainer(size_t newSize);
 
 		/**
-		 * \brief Ping the Task Manager when a stack of iron is available.
-		 */
-		void IronStackAvalaible(Entity entity);
-
-		/**
 		 * \brief return true if a slot in the index is empty then take his place.
 		 */
-		bool CheckEmptySlot(Entity newEntity);
+		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
 #ifdef TEST_SYSTEM_DEBUG
-		const size_t m_entitiesNmb = 10;
+		const size_t m_EntitiesNmb = 1000;
+		size_t m_EntitiesCount = 0;
+
+		const unsigned int m_FramesBeforeAdd = 0u;
+		unsigned int m_frameInProgress = 0u;
 #endif
 
-		std::vector<Entity> m_mineEntityIndex;
+		std::vector<Entity> m_EntityIndex;
 
-		std::vector<DwarfSlots> m_dwarfSlots;
-		std::vector<GiverInventory> m_IronProduction;
+		std::vector<DwarfSlots> m_DwarfSlots;
+		std::vector<GiverInventory> m_IronInventory;
 
 		float m_ProductionRate = 0.01f;
-		const unsigned int m_packSize = 20u;
+		unsigned int m_StackSize = 20u;
+		ResourceType m_ResourceType = ResourceType::IRON;
 
-		//Dwarfs texture
+		//Building texture
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
+
+		//Vertex array
+		sf::VertexArray m_VertexArray;
 	};
 }
 #endif

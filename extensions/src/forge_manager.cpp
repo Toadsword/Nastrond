@@ -24,186 +24,304 @@ SOFTWARE.
 
 #include <extensions/forge_manager.h>
 
-sfge::ext::ForgeManager::ForgeManager(Engine& engine): System(engine) {}
 
-void sfge::ext::ForgeManager::Init()
+namespace sfge::ext
 {
-	m_Transform2DManager = m_Engine.GetTransform2dManager();
-	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+	ForgeManager::ForgeManager(Engine& engine) : System(engine) {}
 
-	auto* entityManager = m_Engine.GetEntityManager();
+	void ForgeManager::Init()
+	{
+		m_Transform2DManager = m_Engine.GetTransform2dManager();
+		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+
+		auto* entityManager = m_Engine.GetEntityManager();
+
+		//Load Texture
+		m_TexturePath = "data/sprites/building.png";
+		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
+		m_Texture = m_TextureManager->GetTexture(m_TextureId);
+
+		m_VertexArray = sf::VertexArray(sf::Quads, 0);
+	}
+
+	void ForgeManager::Update(float dt){}
+
+	void ForgeManager::FixedUpdate()
+	{
+		ProduceTools();
 
 #ifdef TEST_SYSTEM_DEBUG
-	Configuration* configuration = m_Engine.GetConfig();
-	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
-
-	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
-
-	for (unsigned i = 0; i < m_entitiesNmb; i++)
-	{
-		SpawnForge(Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y)));
-	}
-#endif
-}
-
-void sfge::ext::ForgeManager::Update(float dt)
-{
-}
-
-void sfge::ext::ForgeManager::FixedUpdate()
-{
-	ProduceTools();
-}
-
-void sfge::ext::ForgeManager::Draw()
-{
-}
-
-void sfge::ext::ForgeManager::SpawnForge(Vec2f pos)
-{
-	auto* entityManager = m_Engine.GetEntityManager();
-	const auto newEntity = entityManager->CreateEntity(0);
-
-	if (!CheckEmptySlot(newEntity))
-	{
-		size_t newForge = m_forgeEntityIndex.size() + 1;
-
-		ResizeContainer(newForge);
-
-		m_ironsInventories[newForge - 1].ressourceType = RessourceType::IRON;
-		m_toolsInventories[newForge - 1].ressourceType = RessourceType::TOOL;
-		m_progressionProdTool[newForge - 1].ressourceType = RessourceType::TOOL;
-
-		m_forgeEntityIndex[newForge - 1] = newEntity;
-	}
-
-	//Load Texture
-	std::string texturePath = "data/sprites/building.png";
-	const auto textureId = m_TextureManager->LoadTexture(texturePath);
-	const auto texture = m_TextureManager->GetTexture(textureId);
-
-	//add transform
-	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
-	transformPtr->Position = Vec2f(pos.x, pos.y);
-
-	//add texture
-	auto sprite = m_SpriteManager->AddComponent(newEntity);
-	sprite->SetTexture(texture);
-
-	editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-	spriteInfo.name = "sprite";
-	spriteInfo.sprite = sprite;
-	spriteInfo.textureId = textureId;
-	spriteInfo.texturePath = texturePath;
-}
-
-bool sfge::ext::ForgeManager::AddDwarfToForge(Entity mineEntity)
-{
-	for (int i = 0; i < m_forgeEntityIndex.size(); i++)
-	{
-		if (m_forgeEntityIndex[i] == mineEntity)
+		m_FrameInProgress++;
+		if (m_FrameInProgress >= m_FramesBeforeAdd && m_EntitiesNmb > m_EntitiesCount)
 		{
-			if (m_dwarfSlots[i].dwarfAttributed < m_dwarfSlots[i].maxDwarfCapacity)
+			m_EntitiesCount++;
+			AddNewBuilding(Vec2f(std::rand() % static_cast<int>(1280), std::rand() % static_cast<int>(720)));
+			m_FrameInProgress = 0;
+		}
+#endif
+	}
+
+	void ForgeManager::Draw()
+	{
+		auto window = m_Engine.GetGraphics2dManager()->GetWindow();
+
+		window->draw(m_VertexArray, m_Texture);
+	}
+
+	void ForgeManager::AddNewBuilding(Vec2f pos)
+	{
+		auto* entityManager = m_Engine.GetEntityManager();
+
+		Configuration* configuration = m_Engine.GetConfig();
+		entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+
+		const auto newEntity = entityManager->CreateEntity(0);
+
+		//add transform
+		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		transformPtr->Position = Vec2f(pos.x, pos.y);
+
+		if (!CheckEmptySlot(newEntity, transformPtr))
+		{
+			size_t newForge = m_EntityIndex.size();
+
+
+			ResizeContainer(newForge + 1);
+
+			m_IronsInventories[newForge].resourceType = ResourceType::IRON;
+			m_ToolsInventories[newForge].ressourceType = ResourceType::TOOL;
+			m_ProgressionProdTool[newForge].ressourceType = ResourceType::TOOL;
+
+			m_EntityIndex[newForge] = newEntity;
+
+			const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+			m_VertexArray[4 * newForge].texCoords = sf::Vector2f(0, 0);
+			m_VertexArray[4 * newForge + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+			m_VertexArray[4 * newForge + 2].texCoords = textureSize;
+			m_VertexArray[4 * newForge + 3].texCoords = sf::Vector2f(0, textureSize.y);
+
+			m_VertexArray[4 * newForge].position = transformPtr->Position - textureSize / 2.0f;
+			m_VertexArray[4 * newForge + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+			m_VertexArray[4 * newForge + 2].position = transformPtr->Position + textureSize / 2.0f;
+			m_VertexArray[4 * newForge + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+
+		}
+	}
+
+	bool ForgeManager::DestroyBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
 			{
-				m_dwarfSlots[i].dwarfAttributed++;
+				m_EntityIndex[i] = INVALID_ENTITY;
+				EntityManager* entityManager = m_Engine.GetEntityManager();
+				entityManager->DestroyEntity(entity);
+
+				sf::Vector2f resetSize = sf::Vector2f(0, 0);
+				m_VertexArray[4 * i].texCoords = resetSize;
+				m_VertexArray[4 * i + 1].texCoords = resetSize;
+				m_VertexArray[4 * i + 2].texCoords = resetSize;
+				m_VertexArray[4 * i + 3].texCoords = resetSize;
 				return true;
-			}
-			else
-			{
-				return false;
 			}
 		}
 		return false;
 	}
-}
 
-void sfge::ext::ForgeManager::ResizeContainer(const size_t newSize)
-{
-	m_dwarfSlots.resize(newSize);
-	m_forgeEntityIndex.resize(newSize);
-	m_toolsInventories.resize(newSize);
-	m_ironsInventories.resize(newSize);
-	m_progressionProdTool.resize(newSize);
-}
-
-void sfge::ext::ForgeManager::ProduceTools()
-{
-	for (int i = 0; i < m_entitiesNmb; i++)
+	bool ForgeManager::AddDwarfToBuilding(Entity entity)
 	{
-		if(m_forgeEntityIndex[i] == NULL)
+		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
-			continue;
-		}
-
-#ifdef TEST_SYSTEM_DEBUG
-		//Just for test
-		for (int i = 0; i < m_entitiesNmb; i++)
-		{
-			m_ironsInventories[i].inventory = 1000;
-		}
-#endif
-
-		if (m_ironsInventories[i].inventory <= 0 || m_toolsInventories[i].inventory + m_toolsInventories[i].packNumber * m_stackSize >= m_toolsInventories[i].maxCapacity)
-		{
-			continue;
-		}
-
-		m_progressionProdTool[i].FrameCoolDown += /*m_dwarfSlots[i].dwarfIn*/ 5;
-
-		if (m_progressionProdTool[i].FrameCoolDown >= m_FrameBeforAdd)
-		{
-			m_ironsInventories[i].inventory--;
-			m_progressionProdTool[i].progression++;
-			m_progressionProdTool[i].FrameCoolDown = 0;
-		}
-
-		if (m_progressionProdTool[i].progression >= m_progressionProdTool[i].goal)
-		{
-			m_toolsInventories[i].inventory++;
-			m_progressionProdTool[i].progression = 0;
-
-			if(m_toolsInventories[i].inventory >= m_stackSize)
+			if (m_EntityIndex[i] == entity)
 			{
-				m_toolsInventories[i].packNumber++;
-				m_toolsInventories[i].inventory -= m_stackSize;
+				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+				{
+					m_DwarfSlots[i].dwarfAttributed++;
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return false;
+		}
+	}
+
+	bool ForgeManager::RemoveDwarfToBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfAttributed--;
 			}
 		}
+		return false;
+	}
+
+	Entity ForgeManager::GetFreeSlotInBuilding()
+	{
+		for (int i = 0; i < m_DwarfSlots.size(); i++)
+		{
+			if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+			{
+				return m_EntityIndex[i];
+			}
+		}
+		return INVALID_ENTITY;
+	}
+
+	ResourceType ForgeManager::GetProducedResourceType()
+	{
+		return m_ResourceTypeProduced;
+	}
+
+	std::vector<ResourceType> ForgeManager::GetNeededResourceType()
+	{
+		std::vector<ResourceType> resourceTypes;
+		resourceTypes.push_back(m_ResourceTypeNeeded);
+		return resourceTypes;
+	}
+
+	int ForgeManager::GetResourcesBack(Entity entity)
+	{
+
+		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_ToolsInventories[i].packNumber--;
+				return m_ToolsInventories[i].packSize;
+			}
+		}
+		return 0;
+	}
+
+	float ForgeManager::GiveResources(Entity entity, int nmbResources, ResourceType resourceType)
+	{
+		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				if(m_IronsInventories[i].resourceType == resourceType)
+				{
+					m_IronsInventories[i].inventory += nmbResources;
+					float tmpResourcesExcess = m_IronsInventories[i].inventory - m_IronsInventories[i].maxCapacity;
+
+					if(tmpResourcesExcess > 0)
+					{
+						return tmpResourcesExcess;
+					}
+				}
+				else
+				{
+					return nmbResources;
+				}
+				
+			}
+		}
+		return nmbResources;
+	}
+
+	void ForgeManager::ResizeContainer(const size_t newSize)
+	{
+		m_DwarfSlots.resize(newSize);
+		m_EntityIndex.resize(newSize);
+		m_ToolsInventories.resize(newSize);
+		m_IronsInventories.resize(newSize);
+		m_ProgressionProdTool.resize(newSize);
+		m_VertexArray.resize(newSize * 4);
+
+	}
+
+	void ForgeManager::ProduceTools()
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == NULL)
+			{
+				continue;
+			}
+
+			if (m_IronsInventories[i].inventory <= 0 || m_ToolsInventories[i].inventory + m_ToolsInventories[i].packNumber * m_ToolsInventories[i].packSize >= m_ToolsInventories[i].maxCapacity)
+			{
+				continue;
+			}
+
+			m_ProgressionProdTool[i].FrameCoolDown += m_DwarfSlots[i].dwarfIn;
+
+			if (m_ProgressionProdTool[i].FrameCoolDown >= m_CoolDownFrames)
+			{
+				m_IronsInventories[i].inventory--;
+				m_ProgressionProdTool[i].progression++;
+				m_ProgressionProdTool[i].FrameCoolDown = 0;
+			}
+
+			if (m_ProgressionProdTool[i].progression >= m_ProgressionProdTool[i].goal)
+			{
+				m_ToolsInventories[i].inventory++;
+				m_ProgressionProdTool[i].progression = 0;
+
+				if (m_ToolsInventories[i].inventory >= m_ToolsInventories[i].packSize)
+				{
+					m_ToolsInventories[i].packNumber++;
+					m_ToolsInventories[i].inventory -= m_ToolsInventories[i].packSize;
+				}
+			}
 
 #ifdef DEBUG_CHECK_PRODUCTION
 
-		std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(m_toolsInventories[i].inventory) +
-			" / and pack Number : " + std::to_string(m_toolsInventories[i].packNumber) + " / progression : " + std::to_string(m_progressionProdTool[i].progression) + "\n";
-		if (i + 1 == m_entitiesNmb)
-		{
-			std::cout << "\n";
-		}
-#endif
-	}
-}
-
-bool sfge::ext::ForgeManager::CheckEmptySlot(Entity newEntity)
-{
-		for (int i = 0; i < m_forgeEntityIndex.size(); i++)
-		{
-			if (m_forgeEntityIndex[i] == NULL)
+			std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(m_ToolsInventories[i].inventory) +
+				" / and pack Number : " + std::to_string(m_ToolsInventories[i].packNumber) + " / progression : " + std::to_string(m_ProgressionProdTool[i].progression) + "\n";
+			if (i + 1 == m_entitiesNmb)
 			{
-				m_forgeEntityIndex[i] = newEntity;
-				const DwarfSlots newDwarfSlot;
-				m_dwarfSlots[i] = newDwarfSlot;
-				const RecieverInventory newIronInventory;
-				m_ironsInventories[i] = newIronInventory;
-				const GiverInventory newToolInventory;
-				m_toolsInventories[i] = newToolInventory;
-				const ProgressionProduction newProgressionProdTool;
-				m_progressionProdTool[i] = newProgressionProdTool;
+				std::cout << "\n";
+			}
+#endif
+		}
+	}
 
-				m_ironsInventories[i].ressourceType = RessourceType::IRON;
-				m_toolsInventories[i].ressourceType = RessourceType::TOOL;
-				m_progressionProdTool[i].ressourceType = RessourceType::TOOL;
+	bool ForgeManager::CheckEmptySlot(Entity newEntity, Transform2d* transformPtr)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == NULL)
+			{
+				m_EntityIndex[i] = newEntity;
+				const DwarfSlots newDwarfSlot;
+				m_DwarfSlots[i] = newDwarfSlot;
+				const ReceiverInventory newIronInventory;
+				m_IronsInventories[i] = newIronInventory;
+				const GiverInventory newToolInventory;
+				m_ToolsInventories[i] = newToolInventory;
+				const ProgressionProduction newProgressionProdTool;
+				m_ProgressionProdTool[i] = newProgressionProdTool;
+
+				m_IronsInventories[i].resourceType = ResourceType::IRON;
+				m_ToolsInventories[i].ressourceType = ResourceType::TOOL;
+				m_ProgressionProdTool[i].ressourceType = ResourceType::TOOL;
+
+				m_ToolsInventories[i].packSize = m_stackSize;
+
+				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+				m_VertexArray[4 * i].texCoords = sf::Vector2f(0, 0);
+				m_VertexArray[4 * i + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+				m_VertexArray[4 * i + 2].texCoords = textureSize;
+				m_VertexArray[4 * i + 3].texCoords = sf::Vector2f(0, textureSize.y);
+
+				m_VertexArray[4 * i].position = transformPtr->Position - textureSize / 2.0f;
+				m_VertexArray[4 * i + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+				m_VertexArray[4 * i + 2].position = transformPtr->Position + textureSize / 2.0f;
+				m_VertexArray[4 * i + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 
 				return true;
 			}
 		}
 		return false;
+	}
 }

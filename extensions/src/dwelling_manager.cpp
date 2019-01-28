@@ -24,121 +24,145 @@ SOFTWARE.
 
 #include <extensions/dwelling_manager.h>
 
-sfge::ext::DwellingManager::DwellingManager(Engine & engine) : System(engine) {}
-
-void sfge::ext::DwellingManager::Init()
+namespace sfge::ext
 {
-	m_Transform2DManager = m_Engine.GetTransform2dManager();
-	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+	DwellingManager::DwellingManager(Engine & engine) : System(engine) {}
 
-	Configuration* configuration = m_Engine.GetConfig();
-	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
+	void DwellingManager::Init()
+	{
+		m_Transform2DManager = m_Engine.GetTransform2dManager();
+		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 
-	//Load texture
-	m_TexturePath = "data/sprites/building.png";
-	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
-	m_Texture = m_TextureManager->GetTexture(m_TextureId);
+		Configuration* configuration = m_Engine.GetConfig();
+		Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
+
+		//Load texture
+		m_TexturePath = "data/sprites/building.png";
+		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
+		m_Texture = m_TextureManager->GetTexture(m_TextureId);
+
+		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 
 #ifdef TEST_SYSTEM_DEBUG
-
-	for(auto i = 0; i < m_entitiesNmb; i++)
-	{
-		AddNewDwelling(Vec2f(Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y))));
-	}
-#endif
-}
-
-void sfge::ext::DwellingManager::Update(float dt)
-{
-}
-
-void sfge::ext::DwellingManager::FixedUpdate()
-{
-}
-
-void sfge::ext::DwellingManager::Draw()
-{
-}
-
-void sfge::ext::DwellingManager::AddNewDwelling(Vec2f pos)
-{
-	auto* entityManager = m_Engine.GetEntityManager();
-	Configuration* configuration = m_Engine.GetConfig();
-	entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
-
-	const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
-
-	size_t newDwelling = m_dwellingEntityIndex.size() + 1;
-
-	ResizeContainer(newDwelling);
-	
-	m_dwellingEntityIndex.push_back(newEntity);
-
-	//add transform
-	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
-	transformPtr->Position = Vec2f(pos.x, pos.y);
-	transformPtr->Scale = Vec2f(0.1f, 0.1f);
-
-	//add texture
-	auto* sprite = m_SpriteManager->AddComponent(newEntity);
-	sprite->SetTexture(m_Texture);
-
-	auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-	spriteInfo.name = "sprite dwelling";
-	spriteInfo.sprite = sprite;
-	spriteInfo.textureId = m_TextureId;
-	spriteInfo.texturePath = m_TexturePath;
-
-	//setup container
-	//m_foodInventory[newDwelling].ressourceType = RessourceType::FOOD;
-	
-}
-
-bool sfge::ext::DwellingManager::AddDwarfToDwelling(Entity dwellingEntity)
-{
-	for (int i = 0; i < m_dwellingEntityIndex.size(); i++)
-	{
-		if (m_dwellingEntityIndex[i] == dwellingEntity)
+		for (auto i = 0; i < m_EntitiesNmb; i++)
 		{
-			if (m_dwarfSlots[i].dwarfAttributed < m_dwarfSlots[i].maxDwarfCapacity)
+			AddNewBuilding(Vec2f(Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y))));
+		}
+#endif
+	}
+
+	void DwellingManager::Update(float dt)
+	{
+	}
+
+	void DwellingManager::FixedUpdate()
+	{
+	}
+
+	void DwellingManager::Draw()
+	{
+		auto window = m_Engine.GetGraphics2dManager()->GetWindow();
+
+		window->draw(m_VertexArray, m_Texture);
+	}
+
+	void DwellingManager::AddNewBuilding(Vec2f pos)
+	{
+		auto* entityManager = m_Engine.GetEntityManager();
+		Configuration* configuration = m_Engine.GetConfig();
+		entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+
+		const auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+		
+		//add transform
+		auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		transformPtr->Position = Vec2f(pos.x, pos.y);
+
+		size_t newDwelling = m_DwellingEntityIndex.size();
+
+		ResizeContainer(newDwelling + 1);
+
+		m_DwellingEntityIndex[newDwelling] = newEntity;
+
+
+		////add texture
+		//auto* sprite = m_SpriteManager->AddComponent(newEntity);
+		//sprite->SetTexture(m_Texture);
+
+		//auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
+		//spriteInfo.name = "sprite dwelling";
+		//spriteInfo.sprite = sprite;
+		//spriteInfo.textureId = m_TextureId;
+		//spriteInfo.texturePath = m_TexturePath;
+
+		//setup container
+		//m_foodInventory[newDwelling].resourceType = RessourceType::FOOD;
+
+		const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+		m_VertexArray[4 * newDwelling].texCoords = sf::Vector2f(0, 0);
+		m_VertexArray[4 * newDwelling + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+		m_VertexArray[4 * newDwelling + 2].texCoords = textureSize;
+		m_VertexArray[4 * newDwelling + 3].texCoords = sf::Vector2f(0, textureSize.y);
+
+		m_VertexArray[4 * newDwelling].position = transformPtr->Position - textureSize / 2.0f;
+		m_VertexArray[4 * newDwelling + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+		m_VertexArray[4 * newDwelling + 2].position = transformPtr->Position + textureSize / 2.0f;
+		m_VertexArray[4 * newDwelling + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+	}
+
+	bool DwellingManager::AddDwarfToBuilding(Entity dwellingEntity)
+	{
+		for (int i = 0; i < m_DwellingEntityIndex.size(); i++)
+		{
+			if (m_DwellingEntityIndex[i] == dwellingEntity)
 			{
-				m_dwarfSlots[i].dwarfAttributed++;
-				return true;
+				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+				{
+					m_DwarfSlots[i].dwarfAttributed++;
+					return true;
+				}
+				else
+				{
+					return false;
+				}
 			}
-			else
+			return false;
+		}
+	}
+
+	bool DwellingManager::RemoveDwarfToBuilding(Entity mineEntity)
+	{
+		return false;
+	}
+
+	void DwellingManager::ResizeContainer(const size_t newSize)
+	{
+		m_DwellingEntityIndex.resize(newSize);
+		m_DwarfSlots.resize(newSize);
+		m_FoodInventory.resize(newSize);
+		m_VertexArray.resize(newSize * 4);
+
+	}
+
+	bool DwellingManager::CheckEmptySlot(Entity newEntity)
+	{
+		for (int i = 0; i < m_DwellingEntityIndex.size(); i++)
+		{
+			if (m_DwellingEntityIndex[i] == NULL)
 			{
-				return false;
+				m_DwellingEntityIndex[i] = newEntity;
+				const DwarfSlots newDwarfSlot;
+				m_DwarfSlots[i] = newDwarfSlot;
+				const ReceiverInventory newFoodIventory;
+				m_FoodInventory[i] = newFoodIventory;
+
+				m_FoodInventory[i].resourceType = ResourceType::FOOD;
+
+				return true;
 			}
 		}
 		return false;
 	}
 }
-
-void sfge::ext::DwellingManager::ResizeContainer(const size_t newSize)
-{
-	m_dwellingEntityIndex.resize(newSize);
-	m_dwarfSlots.resize(newSize);
-	m_foodInventory.resize(newSize);
-}
-
-bool sfge::ext::DwellingManager::CheckEmptySlot(Entity newEntity)
-{
-	for (int i = 0; i < m_dwellingEntityIndex.size(); i++)
-	{
-		if (m_dwellingEntityIndex[i] == NULL)
-		{
-			m_dwellingEntityIndex[i] = newEntity;
-			const DwarfSlots newDwarfSlot;
-			m_dwarfSlots[i] = newDwarfSlot;
-			const RecieverInventory newFoodIventory;
-			m_foodInventory[i] = newFoodIventory;
-
-			m_foodInventory[i].ressourceType = RessourceType::FOOD;
-
-			return true;
-		}
-	}
-	return false;
-}
-

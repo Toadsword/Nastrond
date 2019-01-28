@@ -54,12 +54,22 @@ namespace sfge::ext
 		/**
 		 * \brief Spawn a new dwelling at the given position.
 		 */
-		void AddNewDwelling(Vec2f pos);
+		void AddNewBuilding(Vec2f pos);
+
+		/**
+		 * \brief Destroy the dwelling at the given index. Return if the entity is not available.
+		 */
+		bool DestroyBuilding(Entity mineEntity);
 
 		/**
 		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
 		 */
-		bool AddDwarfToDwelling(Entity dwellingEntity);
+		bool AddDwarfToBuilding(Entity dwellingEntity);
+
+		/**
+		 * \brief Remove dwarf to the dwarf slot struct of the given building. Return false if there is no slot available or if the entity do not exist.
+		 */
+		bool RemoveDwarfToBuilding(Entity mineEntity);
 
 	private:
 		/**
@@ -76,19 +86,22 @@ namespace sfge::ext
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		std::vector<Entity> m_dwellingEntityIndex;
+		std::vector<Entity> m_DwellingEntityIndex;
 
 
-		std::vector<DwarfSlots> m_dwarfSlots;
-		std::vector<RecieverInventory> m_foodInventory;
+		std::vector<DwarfSlots> m_DwarfSlots;
+		std::vector<ReceiverInventory> m_FoodInventory;
 #ifdef TEST_SYSTEM_DEBUG
-		size_t m_entitiesNmb = 0;
+		size_t m_EntitiesNmb = 1000;
 #endif
 
 		//Building texture
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
+
+		//Vertex array
+		sf::VertexArray m_VertexArray;
 	};
 }
 
