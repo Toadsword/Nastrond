@@ -33,29 +33,32 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <editor/editor.h>
 #include <graphics/texture.h>
+#include "physics/physics2d.h"
 
 namespace sfge
 {
-
 	class Camera : public TransformRequiredComponent
 	{
 	public:
 		Camera& operator=(const Camera&) = delete;
 
 		Camera();
-		Camera(Transform2d* transform, sf::Vector2f size);
+		Camera(SpriteManager* sprite_manager, Transform2d* transform, sf::Vector2f size);
 
 		float GetRotation();
 		void SetRotation(float angle);
 		Vec2f GetPosition();
 		void SetPosition(Vec2f position);
+		void OnResize(Vec2f size);
 		sf::View GetView();
 
 		void Update(float dt, sf::RenderWindow &window);
+		void Update(float dt, sf::RenderWindow &window, SpriteManager* spriteManager);
 
 		sf::Vector2i Position;
 	protected:
 		sf::View m_View;
+		SpriteManager* m_SpriteManager;
 	};
 	/**
 	*\author Dylan von Arx
@@ -94,13 +97,15 @@ namespace sfge
 		void CreateComponent(json& componentJson, Entity entity) override;
 		void DestroyComponent(Entity entity) override;
 
+		void InitSystemOcclusion(Camera* camera);
 	protected:
 		Graphics2dManager* m_GraphicsManager;
 		Transform2dManager* m_Transform2dManager;
 		InputManager* m_InputManager;
-
 		std::vector<Camera> m_cameras;
 		short currentCamera = MAINCAMERA;
 	};
+
+	
 }
 #endif

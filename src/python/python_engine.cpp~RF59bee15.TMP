@@ -112,7 +112,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Down", sf::Keyboard::Down)
 		.value("Left", sf::Keyboard::Left)
 		.value("Right", sf::Keyboard::Right)
-		.value("Num0", sf::Keyboard::Num0)
 		.export_values();
 
 	py::class_<MouseManager> mouseManager(m, "MouseManager");
@@ -162,7 +161,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Graphics2dManager> graphics2dManager(m, "Graphics2dManager");
 	graphics2dManager
-		.def(py::init<Engine&>(), py::return_value_policy::reference)
+	    .def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference)
@@ -276,8 +275,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Camera> camera(m, "Camera");
 	camera
-		.def("get_position", &Camera::GetPosition, py::return_value_policy::reference)
-		.def("set_position", &Camera::SetPosition, py::return_value_policy::reference)
+		.def_property("position", &Camera::GetPosition, &Camera::SetPosition)
 		.def("on_resize", &Camera::OnResize, py::return_value_policy::reference);
 
 	py::class_<Shape> shape(m, "Shape");

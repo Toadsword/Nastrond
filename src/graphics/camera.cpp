@@ -37,12 +37,12 @@ namespace sfge
 {
 	Camera::Camera() : TransformRequiredComponent(nullptr)
 	{
-		
 	}
 
-	Camera::Camera(Transform2d* transform, sf::Vector2f size)
+	Camera::Camera(SpriteManager* sprite_manager, Transform2d* transform, sf::Vector2f size)
 	: TransformRequiredComponent(transform)	{
 		m_View.setSize(size);
+		m_SpriteManager = sprite_manager;
 	}
 
 	float Camera::GetRotation()
@@ -65,8 +65,26 @@ namespace sfge
 		m_View.setCenter(position);
 	}
 
+
+	void Camera::Update(float dt, sf::RenderWindow& window, SpriteManager* spriteManager)
+	{
+	}
+
 	void Camera::Update(float dt, sf::RenderWindow& window)
 	{
+		if (false) {
+			auto sprites = m_SpriteManager->GetComponents();
+			for (auto element : sprites)
+			{
+				Log::GetInstance()->Msg("Position : { " + std::to_string(GetPosition().x) + ", " + std::to_string(GetPosition().y) + " }");
+				Vec2f camera_position = GetPosition();
+				Vec2f camera_size = GetView().getSize();
+				Vec2f Sprite_position = element.GetTransform()->Position;
+				sf::Vector2u Sprite_size = element.GetTexture()->getSize();
+
+				Log::GetInstance()->Msg("Distance : { " + std::to_string(camera_position.GetMagnitude() - Sprite_position.GetMagnitude()) + "}");
+			}
+		}
 		window.setView(m_View);
 	}
 
@@ -104,7 +122,10 @@ namespace sfge
 		m_GraphicsManager = m_Engine.GetGraphics2dManager();
 		m_Transform2dManager = m_Engine.GetTransform2dManager();
 		m_InputManager = m_Engine.GetInputManager();
+
 	}
+
+
 
 
 	void CameraManager::Update(float dt)
@@ -163,11 +184,7 @@ namespace sfge
 		{
 			float position[2] =
 			{
-				camera->
-				
-				
-				
-				GetPosition().x,
+				camera->GetPosition().x,
 				camera->GetPosition().y
 			};
 			ImGui::InputFloat2("Position", position);
@@ -177,5 +194,12 @@ namespace sfge
 	sf::View Camera::GetView()
 	{
 		return m_View;
+	}
+
+	void Camera::OnResize(Vec2f size)
+	{
+		float x = size.x;
+		float y = size.y;
+		m_View.reset(sf::FloatRect(0, 0, x , y));
 	}
 }

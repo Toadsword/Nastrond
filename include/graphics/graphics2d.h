@@ -77,6 +77,8 @@ public:
 	sf::Vector2f GetSizeWindow();
 	sf::Vector2f GetPositionWindow();
 
+	void OnChangeScreenMode();
+
 	AnimationManager* GetAnimationManager();
 	ShapeManager* GetShapeManager();
 	SpriteManager* GetSpriteManager();

@@ -80,6 +80,12 @@ void Editor::Update(float dt)
 		m_Enable = !m_Enable;
 		m_Config->editor = m_Enable;
 	}
+
+	if (m_KeyboardManager->IsKeyDown(sf::Keyboard::Key::Num0))
+	{
+		m_GraphicsManager->OnChangeScreenMode();
+	}
+
 	if (m_Enable)
 	{
 		const auto configPtr = m_Engine.GetConfig();

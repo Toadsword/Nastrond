@@ -136,7 +136,30 @@ sf::Vector2f Graphics2dManager::GetPositionWindow()
 	}
 	if (m_Engine.GetConfig()->styleWindow == sf::Style::Default)
 	{
-		return sf::Vector2f(m_Window.get()->getPosition())+ sf::Vector2f(0,29);
+		return sf::Vector2f(m_Window.get()->getPosition()) + sf::Vector2f(8, 38);
+	}
+}
+
+void Graphics2dManager::OnChangeScreenMode()
+{
+	if (const auto configPtr = m_Engine.GetConfig())
+	{
+		switch (configPtr->styleWindow) {
+		case sf::Style::Fullscreen:
+			configPtr->screenResolution = sf::Vector2i(1080, 720);
+			configPtr->styleWindow = sf::Style::None;
+			break;
+		case sf::Style::None:
+			configPtr->styleWindow = sf::Style::Default;
+			break;
+		case sf::Style::Default:
+			configPtr->styleWindow = sf::Style::Fullscreen;
+			break;
+		}
+
+		m_Window->close();
+		m_Window->create(sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
+			"SFGE 0.1", configPtr->styleWindow);
 	}
 }
 

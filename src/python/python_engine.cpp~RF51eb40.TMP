@@ -112,7 +112,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Down", sf::Keyboard::Down)
 		.value("Left", sf::Keyboard::Left)
 		.value("Right", sf::Keyboard::Right)
-		.value("Num0", sf::Keyboard::Num0)
+		.value("Right", sf::Keyboard::F12)
 		.export_values();
 
 	py::class_<MouseManager> mouseManager(m, "MouseManager");
@@ -162,7 +162,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Graphics2dManager> graphics2dManager(m, "Graphics2dManager");
 	graphics2dManager
-		.def(py::init<Engine&>(), py::return_value_policy::reference)
+	    .def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
 		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference)

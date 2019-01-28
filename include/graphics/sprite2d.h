@@ -52,9 +52,11 @@ public:
 	void Init();
 	void Update();
 	void Draw(sf::RenderWindow& window);
+	const sf::Texture* GetTexture();
 	void SetTexture(sf::Texture* newTexture);
 
 
+	bool is_visible;
 
 	
 protected:
