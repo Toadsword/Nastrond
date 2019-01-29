@@ -44,7 +44,7 @@ TEST(Tilemap, TestLoadTilemap)
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
 	tilemapJson["is_isometric"] = false;
 	tilemapJson["layer"] = 1;
-	tilemapJson["tile_scale"] = json::array({2, 1});
+	tilemapJson["tile_scale"] = json::array({40, 20});
 	tilemapJson["map_size"] = json::array({10, 10});
 	tilemapJson["map"] = json::array({
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),

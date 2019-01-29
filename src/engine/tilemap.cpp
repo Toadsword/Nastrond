@@ -249,15 +249,31 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 	Transform2dManager* transformManager = m_Engine.GetTransform2dManager();
 
 	Vec2f basePos = transformManager->GetComponentPtr(entity)->Position;
-	for (unsigned i = 0; i < map.size(); i++)
+	Vec2f tileScale = tilemap.GetTileScale();
+	Vec2f xPos, yPos;
+
+	//Layout of tilemap
+	if (tilemap.GetIsometric())
 	{
-		for (unsigned j = 0; j < map[i].size(); j++)
+		xPos = { tileScale.x / 2.0f, tileScale.y / 2.0f };
+		yPos = { -tileScale.x / 2.0f, tileScale.y / 2.0f };
+	}
+	else
+	{
+		xPos = { tileScale.x , 0 };
+		yPos = { 0, tileScale.y };
+	}
+	//Assigning positions
+	for (unsigned indexX = 0; indexX < map.size(); indexX++)
+	{
+		for (unsigned indexY = 0; indexY < map[indexX].size(); indexY++)
 		{
 			Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
-			m_TileManager->AddComponent(newEntity, map[i][j].get<int>());
-			tilemap.AddTile(Vec2f(i, j), newEntity);
-			
-			const Vec2f newPos = basePos + Vec2f(tilemap.GetTileScale().x *i, tilemap.GetTileScale().y * j);
+			m_TileManager->AddComponent(newEntity, map[indexX][indexY].get<int>());
+			tilemap.AddTile(Vec2f(indexX, indexY), newEntity);
+
+			const Vec2f newPos = basePos + xPos * indexX + yPos * indexY;
+
 			transformManager->GetComponentPtr(newEntity)->Position = newPos;
 		}
 	}	

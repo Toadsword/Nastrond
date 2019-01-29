@@ -43,7 +43,6 @@ class Tile : public LayerComponent
 {
 public:
 	Tile();
-	Tile(Transform2d* transform);
 
 	void Update();
 

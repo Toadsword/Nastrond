@@ -86,6 +86,7 @@ TileTypeId TileTypeManager::LoadTileType(json & jsonData)
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_TILE_TYPE;
 			}
+
 			m_TexturesId[tiletypeId - 1] = textId;
 		}
 	}
@@ -97,12 +98,12 @@ bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
 	if (tileTypeId == INVALID_TILE_TYPE)
 		return false;
 
+	auto* sprite = m_SpriteManager->GetComponentPtr(tileId);
 	if (!m_Engine.GetEntityManager()->HasComponent(tileId, ComponentType::SPRITE2D))
-		m_SpriteManager->AddComponent(tileId);
+		sprite = m_SpriteManager->AddComponent(tileId);
 	
-	m_SpriteManager->GetComponentPtr(tileId)->SetTexture(
-		m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1])
-	);
+	sprite->SetTexture(m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1]));
+	m_SpriteManager->GetComponentInfo(tileId).textureId = m_TexturesId[tileTypeId - 1];
 
 	return true;
 }
@@ -111,7 +112,11 @@ void TileTypeManager::Clear()
 {
 	for (auto& tiletypeId : m_TileTypeId)
 	{
-		tiletypeId = 0U;
+		tiletypeId = INVALID_TILE_TYPE;
+	}
+	for (auto& textureId : m_TexturesId)
+	{
+		textureId = INVALID_TEXTURE;
 	}
 }
 

@@ -56,10 +56,8 @@ void Sprite::Draw(sf::RenderWindow& window)
 void Sprite::SetTexture(sf::Texture* newTexture)
 {
 	sprite.setTexture(*newTexture);
-
 	sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width, sprite.getLocalBounds().height) / 2.0f);
 }
-
 
 void Sprite::Init()
 {
@@ -68,7 +66,7 @@ void Sprite::Init()
 void Sprite::Update(Transform2d* transform)
 {
 	auto pos = m_Offset;
-	
+
 	if(transform != nullptr)
 	{
 		pos += transform->Position;
@@ -117,7 +115,6 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 	m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 	return &sprite;
 }
-
 
 void SpriteManager::Update(float dt)
 {
