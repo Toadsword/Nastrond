@@ -151,7 +151,7 @@ class FindPathToDwelling : public Leaf
 {
 	Status Execute(unsigned index) override
 	{
-		//TODO enregistré un nain dans la liste de dwraf manager pour qu'il aille en direction de sa maison
+		//TODO enregistré un nain dans la liste de dwraf manager pour qu'il aille en direction de sa maison (Thread 1)
 	}
 };
 
@@ -159,7 +159,7 @@ class MoveTo : public Leaf
 {
 	Status Execute(unsigned index) override
 	{
-		//TODO enregistré un nain dans la liste de dwraf manager pour qu'il aille en direction de sa maison
+		//TODO enregistré un dans la liste de déplacement pour suivre son chemin (Thread 2)
 	}
 };
 }

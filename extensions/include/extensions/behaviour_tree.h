@@ -31,6 +31,7 @@ SOFTWARE.
 #include <engine/vector.h>
 #include "engine/globals.h"
 #include "dwarf_manager.h"
+#include "dwelling_manager.h"
 
 
 namespace sfge::ext::behaviour_tree
@@ -107,7 +108,7 @@ public:
 	std::vector<Node::Status> m_PreviousStatus;
 	std::vector<int> m_Counter;
 	DwarfManager* dwarfManager;
-	DwellingManager* dwarfManager;
+	DwellingManager* dwellingManager;
 
 private:
 	//Black board
