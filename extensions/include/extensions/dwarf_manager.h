@@ -56,6 +56,8 @@ public:
 	 */
 	void SpawnDwarf(const Vec2f pos);
 
+	Entity GetDwellingEntity(unsigned int index);
+
 private:
 	Transform2dManager * m_Transform2DManager;
 	TextureManager* m_TextureManager;

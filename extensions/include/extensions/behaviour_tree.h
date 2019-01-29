@@ -30,6 +30,7 @@ SOFTWARE.
 #include <unordered_map>
 #include <engine/vector.h>
 #include "engine/globals.h"
+#include "dwarf_manager.h"
 
 
 namespace sfge::ext::behaviour_tree
@@ -105,6 +106,8 @@ public:
 	std::vector<Node::ptr> m_PreviousNode;
 	std::vector<Node::Status> m_PreviousStatus;
 	std::vector<int> m_Counter;
+	DwarfManager* dwarfManager;
+	DwellingManager* dwarfManager;
 
 private:
 	//Black board

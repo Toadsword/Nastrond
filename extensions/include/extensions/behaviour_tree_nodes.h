@@ -94,34 +94,72 @@ public:
 };
 
 class Leaf : public Node {
+	void Init() override;
 	virtual Status Execute(unsigned index) override = 0;
 };
 
 class DebugUpdateLeaf : public Leaf
 {
 public:
-	void Init() override;
 	Status Execute(unsigned index) override;
 };
 
 class DebugUpdateLeaf2 : public Leaf
 {
 public:
-	void Init() override;
 	Status Execute(unsigned index) override;
 };
 
 class DebugUpdateLeaf3 : public Leaf
 {
 public:
-	void Init() override;
 	Status Execute(unsigned index) override;
 };
 
 class DebugUpdateLeaf4 : public Leaf
 {
 public:
-	void Init() override;
 	Status Execute(unsigned index) override;
+};
+
+class HasDwelling : public Leaf
+{
+public: 
+	void Init() override;
+	Status Execute(unsigned index) override
+	{
+		if(behaviourTree->dwarfManager->GetDwellingEntity(index) == INVALID_ENTITY)
+		{
+			return Status::FAIL;
+		}else
+		{
+			return Status::SUCCESS;
+		}
+	}
+};
+
+class AssignDwelling : public Leaf
+{
+public:
+	Status Execute(unsigned index) override
+	{
+		//TODO demander un bâtiement pour l'assigner à un nain
+	}
+};
+
+class FindPathToDwelling : public Leaf
+{
+	Status Execute(unsigned index) override
+	{
+		//TODO enregistré un nain dans la liste de dwraf manager pour qu'il aille en direction de sa maison
+	}
+};
+
+class MoveTo : public Leaf
+{
+	Status Execute(unsigned index) override
+	{
+		//TODO enregistré un nain dans la liste de dwraf manager pour qu'il aille en direction de sa maison
+	}
 };
 }

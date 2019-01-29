@@ -102,10 +102,6 @@ Node::Status Inverter::Execute(unsigned index)
 	}
 }
 
-void DebugUpdateLeaf::Init()
-{
-}
-
 Node::Status DebugUpdateLeaf::Execute(unsigned index)
 {
 	std::cout << "Execute: DebugUpdateLeaf 1 (success)\n";
@@ -201,24 +197,15 @@ Node::Status Selector::Execute(unsigned index) {
 	return Status::RUNNING;
 }
 
-void DebugUpdateLeaf2::Init()
-{
-}
 Node::Status DebugUpdateLeaf2::Execute(unsigned index)
 {
 	std::cout << "Execute: DebugUpdateLeaf 2 (success)\n";
 	return Status::SUCCESS;
 }
 
-void DebugUpdateLeaf3::Init() {
-}
-
 Node::Status DebugUpdateLeaf3::Execute(unsigned index) {
 	std::cout << "Execute: DebugUpdateLeaf 3 (success)\n";
 	return Status::SUCCESS;
-}
-
-void DebugUpdateLeaf4::Init() {
 }
 
 Node::Status DebugUpdateLeaf4::Execute(unsigned index) {

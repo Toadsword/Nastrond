@@ -105,6 +105,11 @@ void DwarfManager::SpawnDwarf(const Vec2f pos) {
 	m_IndexNewDwarf++;
 }
 
+Entity DwarfManager::GetDwellingEntity(unsigned int index)
+{
+	return m_AssociatedDwelling[index];
+}
+
 void DwarfManager::ResizeContainers(const size_t newSize) {
 	m_DwarfsEntities.resize(newSize);
 	m_Paths.resize(newSize);
