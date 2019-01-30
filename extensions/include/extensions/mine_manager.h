@@ -30,7 +30,7 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 
-#include "extensions/building_utilities.h"
+#include <extensions/building_utilities.h>
 
 namespace sfge::ext
 {
