@@ -221,14 +221,3 @@ TEST(Graphics2d, TestPyCameraFullScreen)
 
 	engine.Start();
 }
-
-TEST(Graphics2d, TestChangeScenes)
-{
-	sfge::Engine engine;
-	engine.Init();
-
-	auto* sceneManager = engine.GetSceneManager();
-
-	sceneManager->LoadSceneFromPath("data/scenes/test_physics.scene");
-	engine.Start();
-}

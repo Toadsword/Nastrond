@@ -33,7 +33,7 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <editor/editor.h>
 #include <graphics/texture.h>
-#include "physics/physics2d.h"
+#include <physics/physics2d.h>
 
 namespace sfge
 {
