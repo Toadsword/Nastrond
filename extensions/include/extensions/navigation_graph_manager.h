@@ -87,7 +87,6 @@ namespace sfge::ext
 		const static short SOLID_COST = 0;
 		const static short ROAD_COST = 1;
 		const static short NORMAL_COST = 1;
-
 		
 		std::vector<GraphNode> m_Graph;
 		sf::VertexArray vertexArray;
