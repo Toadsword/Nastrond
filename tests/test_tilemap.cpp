@@ -35,13 +35,13 @@ TEST(Tilemap, TestLoadTilemap)
 	sfge::Engine engine;
 	engine.Init();
 
-	engine.GetTilemapSystem()->GetTileTypeManager()->LoadTileType("./data/tilemap/nastrond_tiles.asset");
 
 	json sceneJson;
 	json entityJson;
 	json tilemapJson;
 	//tilemapJson["path"] = "data/tilemap/nastrond_tilemap.asset";
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
+	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
 	tilemapJson["is_isometric"] = false;
 	tilemapJson["layer"] = 1;
 	tilemapJson["tile_scale"] = json::array({40, 20});
