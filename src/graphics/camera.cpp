@@ -66,26 +66,14 @@ namespace sfge
 
 	void Camera::Update(float dt, sf::RenderWindow& window)
 	{
-		if (false) {
-			auto sprites = m_SpriteManager->GetComponents();
-			for (auto element : sprites)
-			{
-				Vec2f camera_position = GetPosition();
-				Vec2f camera_size = GetView().getSize();
-				sf::Vector2u Sprite_size = element.GetTexture()->getSize();
-			}
-		}
 		window.setView(m_View);
 	}
 
 	CameraManager::CameraManager(Engine& engine): SingleComponentManager(engine)
-	{
-		
+	{	
 	}
-
 	CameraManager::~CameraManager()
 	{
-		
 	}
 
 	Camera* CameraManager::GetMainCamera()
@@ -111,11 +99,7 @@ namespace sfge
 		m_GraphicsManager = m_Engine.GetGraphics2dManager();
 		m_Transform2dManager = m_Engine.GetTransform2dManager();
 		m_InputManager = m_Engine.GetInputManager();
-
 	}
-
-
-
 
 	void CameraManager::Update(float dt)
 	{

@@ -112,7 +112,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Down", sf::Keyboard::Down)
 		.value("Left", sf::Keyboard::Left)
 		.value("Right", sf::Keyboard::Right)
-		.value("Num0", sf::Keyboard::Num0)
 		.export_values();
 
 	py::class_<MouseManager> mouseManager(m, "MouseManager");

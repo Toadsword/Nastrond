@@ -37,7 +37,6 @@ SOFTWARE.
 
 namespace sfge
 {
-
 void Graphics2dManager::Init()
 {
 	if (const auto configPtr = m_Engine.GetConfig())
@@ -62,7 +61,6 @@ void Graphics2dManager::Init()
 	else
 	{
 		Log::GetInstance()->Error("[Error] Config is null from Graphics Manager");
-		
 	}
 	m_TextureManager.Init();
 	m_ShapeManager.Init();
@@ -136,7 +134,7 @@ sf::Vector2f Graphics2dManager::GetPositionWindow()
 	}
 	if (m_Engine.GetConfig()->styleWindow == sf::Style::Default)
 	{
-		return sf::Vector2f(m_Window.get()->getPosition()) + sf::Vector2f(8, 38);
+		return sf::Vector2f(m_Window.get()->getPosition()) + sf::Vector2f(WINDOW_SIDES_WIDTH_PIXEL, WINDOW_TOP_HEIGTH_PIXEL);
 	}
 }
 
@@ -146,7 +144,7 @@ void Graphics2dManager::OnChangeScreenMode()
 	{
 		switch (configPtr->styleWindow) {
 		case sf::Style::Fullscreen:
-			configPtr->screenResolution = sf::Vector2i(1080, 720);
+			configPtr->screenResolution = sf::Vector2i(WINDOW_DEFAULT_WITDH, WINDOW_DEFAULT_HEIGTH);
 			configPtr->styleWindow = sf::Style::None;
 			break;
 		case sf::Style::None:
@@ -154,6 +152,7 @@ void Graphics2dManager::OnChangeScreenMode()
 			break;
 		case sf::Style::Default:
 			configPtr->styleWindow = sf::Style::Fullscreen;
+			configPtr->screenResolution = sf::Vector2i(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
 			break;
 		}
 

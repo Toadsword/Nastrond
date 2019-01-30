@@ -34,7 +34,11 @@ SOFTWARE.
 
 namespace sfge
 {
+	const int WINDOW_TOP_HEIGTH_PIXEL = 38;
+	const int WINDOW_SIDES_WIDTH_PIXEL = 8;
 
+	const int WINDOW_DEFAULT_HEIGTH = 720;
+	const int WINDOW_DEFAULT_WITDH = 1080;
 /**
 * \brief The Graphics Manager
 */

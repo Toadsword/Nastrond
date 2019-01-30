@@ -37,21 +37,61 @@ SOFTWARE.
 
 namespace sfge
 {
+	/**
+	*\author Dylan von Arx
+	*/
 	class Camera
 	{
 	public:
 		Camera& operator=(const Camera&) = delete;
 
+		/**
+		 * \brief Constructor Camera empty
+		 */
 		Camera();
+
+		/**
+		 * \brief Constructor Camera
+		 * \param SpriteManager*, Transform2d*, sf::vector3f size
+		 */
 		Camera(SpriteManager* sprite_manager, Transform2d* transform, sf::Vector2f size);
 
+		/**
+		 * \brief Get camera Rotation
+		 * \return float Angle
+		 */
 		float GetRotation();
+		
+		/**
+		 * \brief Get a Rotation of Camera
+		 * \param Float angle
+		 */
 		void SetRotation(float angle);
+		
+		/**
+		 * \brief Get camera position
+		 * \return Vec2f position: [x, y]
+		 */
 		Vec2f GetPosition();
+		
+		/**
+		 * \brief Set camera Position
+		 * \param Vec2f postion: [x, y]
+		 */
 		void SetPosition(Vec2f position);
+		
+		/**
+		 * \brief Change a display size of camera
+		 * \param Vec2f size: [x, y]
+		 */
 		void OnResize(Vec2f size);
+		
+		/**
+		 * \brief Get Camera View
+		 * \return sf::view
+		 */
 		sf::View GetView();
-
+		
 		void Update(float dt, sf::RenderWindow &window);
 
 		sf::Vector2i Position;
@@ -59,9 +99,7 @@ namespace sfge
 		sf::View m_View;
 		SpriteManager* m_SpriteManager;
 	};
-	/**
-	*\author Dylan von Arx
-	*/
+
 	namespace editor
 	{
 		struct CameraInfo : ComponentInfo
@@ -82,7 +120,15 @@ namespace sfge
 		~CameraManager();
 
 		CameraManager& operator=(const Camera&) = delete;
+		
+		/**
+		 * \brief Init System and Get Managers need
+		 */
 		void Init() override;
+		
+		/**
+		 * \brief Update CameraCurrent only
+		 */
 		void Update(float dt) override;
 		
 		Camera* GetMainCamera();
@@ -95,8 +141,6 @@ namespace sfge
 		Camera* AddComponent(Entity entity) override;
 		void CreateComponent(json& componentJson, Entity entity) override;
 		void DestroyComponent(Entity entity) override;
-
-		void InitSystemOcclusion(Camera* camera);
 	protected:
 		Graphics2dManager* m_GraphicsManager;
 		Transform2dManager* m_Transform2dManager;
@@ -104,7 +148,5 @@ namespace sfge
 		std::vector<Camera> m_cameras;
 		short currentCamera = MAINCAMERA;
 	};
-
-	
 }
 #endif
