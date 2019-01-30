@@ -56,6 +56,7 @@ public:
 	using System::System;
 	void Update(float dt) override;
 	sf::Vector2i GetLocalPosition(sf::Window& window) const;
+	sf::Vector2i GetWorldPosition() const;
 	bool IsButtonHeld(sf::Mouse::Button button) const;
 	bool IsButtonDown(sf::Mouse::Button button) const;
 	bool IsButtonUp(sf::Mouse::Button button) const;

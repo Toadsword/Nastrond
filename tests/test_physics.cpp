@@ -34,5 +34,4 @@ TEST(Physics, TestBallFallingToGround)
 
 	sceneManager->LoadSceneFromPath("data/scenes/test_physics.scene");
 	engine.Start();
-
 }
