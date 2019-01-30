@@ -42,9 +42,9 @@ TEST(Tilemap, TestLoadTilemap)
 	//tilemapJson["path"] = "data/tilemap/nastrond_tilemap.asset";
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
 	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
-	tilemapJson["is_isometric"] = false;
+	tilemapJson["is_isometric"] = true;
 	tilemapJson["layer"] = 1;
-	tilemapJson["tile_scale"] = json::array({40, 20});
+	tilemapJson["tile_scale"] = json::array({509, 254});
 	tilemapJson["map_size"] = json::array({10, 10});
 	tilemapJson["map"] = json::array({
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
@@ -65,10 +65,6 @@ TEST(Tilemap, TestLoadTilemap)
 	sceneJson["name"] = "Test Tilemap";
 
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
-
-	//Ce que je faisais :
-	// Je dois encore gérer le transform d'une tile en fonction de sa position dans la tilemape, et ne pas oublier le fait que la tilemap a une position de base.
-	// Manque encore la gestion du scale des tilemaps, et gérer la position de manière isométrique ou non.
 
     engine.Start();
 }

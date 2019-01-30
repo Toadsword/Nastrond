@@ -69,7 +69,6 @@ protected:
 	Vec2f m_TileScale = {1, 1};
 	bool m_IsIsometric = false;
 
-
 	TilemapSystem* m_TilemapSystem;
 	TileManager* m_TileManager;
 };
@@ -107,7 +106,7 @@ public:
 	void EmptyMap(Entity entity);
 protected:
 	Transform2dManager* m_Transform2dManager = nullptr;
-	TileManager* m_TileManager = nullptr;
+	TilemapSystem* m_TilemapSystem = nullptr;
 };
 
 

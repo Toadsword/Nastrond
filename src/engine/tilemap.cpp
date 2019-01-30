@@ -134,7 +134,7 @@ void TilemapManager::Init()
 {
 	SingleComponentManager::Init();
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
-	m_TileManager = m_Engine.GetTilemapSystem()->GetTileManager();
+	m_TilemapSystem = m_Engine.GetTilemapSystem();
 }
 
 void TilemapManager::Update(float dt)
@@ -197,7 +197,11 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 	}
 	else
 		tilemapJson = componentJson;
-	
+
+	if(CheckJsonExists(tilemapJson, "reference_path") && CheckJsonParameter(tilemapJson, "reference_path", nlohmann::detail::value_t::string))
+	{
+		m_TilemapSystem->GetTileTypeManager()->LoadTileType(tilemapJson["reference_path"].get<std::string>());		
+	}
 
 	auto & newTilemap = m_Components[entity - 1];
 	auto & newTilemapInfo = m_ComponentsInfo[entity - 1];
@@ -258,9 +262,10 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 	EmptyMap(entity);
 
 	EntityManager* entityManager = m_Engine.GetEntityManager();
-	Transform2dManager* transformManager = m_Engine.GetTransform2dManager();
+	TileManager* tileManager = m_TilemapSystem->GetTileManager();
+	
 
-	Vec2f basePos = transformManager->GetComponentPtr(entity)->Position;
+	Vec2f basePos = m_Transform2dManager->GetComponentPtr(entity)->Position;
 	Vec2f tileScale = tilemap.GetTileScale();
 	Vec2f xPos, yPos;
 
@@ -281,12 +286,12 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 		for (unsigned indexY = 0; indexY < map[indexX].size(); indexY++)
 		{
 			Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
-			m_TileManager->AddComponent(newEntity, map[indexX][indexY].get<int>());
+			tileManager->AddComponent(newEntity, map[indexX][indexY].get<int>());
 			tilemap.AddTile(Vec2f(indexX, indexY), newEntity);
 
 			const Vec2f newPos = basePos + xPos * indexX + yPos * indexY;
 
-			transformManager->GetComponentPtr(newEntity)->Position = newPos;
+			m_Transform2dManager->GetComponentPtr(newEntity)->Position = newPos;
 		}
 	}
 
