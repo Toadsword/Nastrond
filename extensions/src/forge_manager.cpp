@@ -156,6 +156,7 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfAttributed--;
+				return true;
 			}
 		}
 		return false;

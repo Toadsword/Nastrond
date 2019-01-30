@@ -30,13 +30,13 @@ namespace sfge::ext
 
 	void BuildingConstructor::Init()
 	{
-		// TODO : Find a fix for the recuperation of those reference
-		//m_DwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
-		//	"DwellingManager");
-		//m_ForgeManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ForgeManager>(
-		//	"ForgeManager");
-		//m_MineManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<MineManager>(
-		//	"MineManager");	
+		m_DwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
+			"DwellingManager");
+		m_ForgeManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ForgeManager>(
+			"ForgeManager");
+		m_MineManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<MineManager>(
+			"MineManager");
+
 
 		
 	}

@@ -132,18 +132,11 @@ namespace sfge::ext
 		{
 			if (m_EntityIndex[i] == entity)
 			{
-				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
-				{
-					m_DwarfSlots[i].dwarfAttributed++;
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				m_DwarfSlots[i].dwarfAttributed--;
+				return true;
 			}
-			return false;
 		}
+		return false;
 	}
 
 	Entity DwellingManager::GetFreeSlotInBuilding()

@@ -46,9 +46,9 @@ namespace sfge::ext
 	struct GiverInventory
 	{
 		unsigned int maxCapacity = 100u;
-		float inventory = 0u;
 		unsigned int packNumber = 0u;
 		unsigned int packSize = 0u;
+		float inventory = 0u;
 		ResourceType resourceType = ResourceType::NONE;
 	};
 

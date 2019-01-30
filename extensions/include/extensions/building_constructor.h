@@ -26,6 +26,7 @@ SOFTWARE.
 #define BUILDING_CONSTRUCTOR_H
 
 #include <engine/system.h>
+#include "python/python_engine.h"
 
 #include <extensions/dwelling_manager.h>
 #include <extensions/forge_manager.h>
