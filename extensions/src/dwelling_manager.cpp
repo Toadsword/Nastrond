@@ -122,8 +122,8 @@ namespace sfge::ext
 					return false;
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 
 	bool DwellingManager::RemoveDwarfToBuilding(Entity entity)
@@ -149,6 +149,28 @@ namespace sfge::ext
 			}
 		}
 		return INVALID_ENTITY;
+	}
+
+	void DwellingManager::DwarfEnterBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn++;
+			}
+		}
+	}
+
+	void DwellingManager::DwarfExitBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn--;
+			}
+		}
 	}
 
 	void DwellingManager::ConsumeResources()

@@ -145,8 +145,8 @@ namespace sfge::ext
 					return false;
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 
 	bool ForgeManager::RemoveDwarfToBuilding(Entity entity)
@@ -160,6 +160,28 @@ namespace sfge::ext
 			}
 		}
 		return false;
+	}
+
+	void ForgeManager::DwarfEnterBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn++;
+			}
+		}
+	}
+
+	void ForgeManager::DwarfExitBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn--;
+			}
+		}
 	}
 
 	Entity ForgeManager::GetFreeSlotInBuilding()

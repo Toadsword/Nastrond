@@ -163,6 +163,28 @@ namespace sfge::ext
 		return false;
 	}
 
+	void MineManager::DwarfEnterBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn++;
+			}
+		}
+	}
+
+
+	void MineManager::DwarfExitBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn--;
+			}
+		}
+	}
 
 	Entity MineManager::GetFreeSlotInBuilding()
 	{

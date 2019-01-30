@@ -60,17 +60,29 @@ namespace sfge::ext
 		/**
 		 * \brief Destroy the forge at the given index. Return if the entity is not available.
 		 */
-		bool DestroyBuilding(Entity entity);
+		bool DestroyBuilding(Entity forgeEntity);
 
 		/**
 		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if the entity do not exist.
 		 */
-		bool AddDwarfToBuilding(Entity mineEntity);
+		bool AddDwarfToBuilding(Entity forgeEntity);
 
 		/**
 		 * \brief Remove dwarf to the dwarf slot struct of the given entity. Return false if there is no dwarf attribute or if the entity do not exist.
 		 */
-		bool RemoveDwarfToBuilding(Entity mineEntity);
+		bool RemoveDwarfToBuilding(Entity forgeEntity);
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go in.
+		 * \param forgeEntity : The Entity of the forge that the dwarf want to go in.
+		 */
+		void DwarfEnterBuilding(Entity forgeEntity);
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go out.
+		 * \param forgeEntity : The Entity of the forge that the dwarf want to go out.
+		 */
+		void DwarfExitBuilding(Entity forgeEntity);
 
 		/**
 		 * \brief Return a forge entity with a slot available for a dwarf. If not
@@ -90,12 +102,12 @@ namespace sfge::ext
 		/**
 		 * \brief Return an amount of the produced resources of the given building entity.
 		 */
-		int GetResourcesBack(Entity entity);
+		int GetResourcesBack(Entity forgeEntity);
 
 		/**
 		 * \brief Give resources to the the given building entity. Return the number of resources that the building could not recover or all if the building is full or if the resource type is not the good one.
 		 */
-		float GiveResources(Entity entity, int nmbResources, ResourceType resourceType);
+		float GiveResources(Entity forgeEntity, int nmbResources, ResourceType resourceType);
 
 	private:
 		/**

@@ -73,6 +73,18 @@ namespace sfge::ext
 		bool RemoveDwarfToBuilding(Entity mineEntity);
 
 		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go in.
+		 * \param mineEntity : The Entity of the mine that the dwarf want to go in.
+		 */
+		void DwarfEnterBuilding(Entity mineEntity);
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go out.
+		 * \param mineEntity : The Entity of the mine that the dwarf want to go out.
+		 */
+		void DwarfExitBuilding(Entity mineEntity);
+
+		/**
 		 * \brief Return a mine entity with a slot available for a dwarf. If not
 		 */
 		Entity GetFreeSlotInBuilding();
@@ -90,7 +102,7 @@ namespace sfge::ext
 		/**
 		 * \brief Return an amount of the produced resources of the given building entity.
 		 */
-		int GetResourcesBack(Entity entity);
+		int GetResourcesBack(Entity mineEntity);
 
 	private:
 		/**

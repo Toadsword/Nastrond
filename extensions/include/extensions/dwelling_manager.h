@@ -59,7 +59,7 @@ namespace sfge::ext
 		/**
 		 * \brief Destroy the dwelling at the given index. Return if the entity is not available.
 		 */
-		bool DestroyBuilding(Entity mineEntity);
+		bool DestroyBuilding(Entity dwellingEntity);
 
 		/**
 		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
@@ -69,12 +69,24 @@ namespace sfge::ext
 		/**
 		 * \brief Remove dwarf to the dwarf slot struct of the given building. Return false if there is no slot available or if the entity do not exist.
 		 */
-		bool RemoveDwarfToBuilding(Entity mineEntity);
+		bool RemoveDwarfToBuilding(Entity dwellingEntity);
 
 		/**
 		 * \brief Return a dwelling entity with a slot available for a dwarf. If not
 		 */
 		Entity GetFreeSlotInBuilding();
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go in.
+		 * \param dwellingEntity : The Entity of the dwelling that the dwarf want to go in.
+		 */
+		void DwarfEnterBuilding(Entity dwellingEntity);
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go out.
+		 * \param dwellingEntity : The Entity of the dwelling that the dwarf want to go out.
+		 */
+		void DwarfExitBuilding(Entity dwellingEntity);
 
 	private:
 
