@@ -52,34 +52,81 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Method that spawn a new dwelling at the given position.
+		 * \brief Spawn a new dwelling at the given position.
 		 */
-		void AddNewDwelling(Vec2f pos);
+		void AddNewBuilding(Vec2f pos);
 
 		/**
-		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
+		 * \brief Destroy the dwelling at the given index. Return if the entity is not available.
 		 */
-		bool AddDwarfToDwelling(Entity dwellingEntity);
+		bool DestroyBuilding(Entity mineEntity);
+
+		/**
+		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
+		 */
+		bool AddDwarfToBuilding(Entity dwellingEntity);
+
+		/**
+		 * \brief Remove dwarf to the dwarf slot struct of the given building. Return false if there is no slot available or if the entity do not exist.
+		 */
+		bool RemoveDwarfToBuilding(Entity mineEntity);
+
+		/**
+		 * \brief Return a dwelling entity with a slot available for a dwarf. If not
+		 */
+		Entity GetFreeSlotInBuilding();
 
 	private:
+
 		/**
-		 * \brief Method to resize all vector to keep the same index for mine.
+		 * \brief Consume Resources depending on the number of dwarf in.
+		 */
+		void ConsumeResources();
+
+		/**
+		 * \brief Resize all vector to keep the same index for mine.
 		 */
 		void ResizeContainer(const size_t newSize);
 
+		/**
+		 * \brief return true if a slot in the index is empty then take this slot.
+		 */
+		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+
+		/**
+		 * \brief Decrease happiness when call.
+		 */
+		void DecreaseHappiness();
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		std::vector<Entity> m_dwellingEntityIndex;
+		std::vector<Entity> m_EntityIndex;
 
 
-		std::vector<DwarfSlots> m_dwarfSlots;
-		std::vector<RecieverInventory> m_foodInventory;
+		std::vector<DwarfSlots> m_DwarfSlots;
+		std::vector<ReceiverInventory> m_FoodInventories;
+		std::vector<unsigned int> m_CoolDownFramesProgression;
+
 #ifdef TEST_SYSTEM_DEBUG
-		size_t m_entitiesNmb = 10;
+		const size_t m_EntitiesNmb = 1000;
+		size_t m_EntitiesCount = 0;
+
+		const unsigned int m_FramesBeforeAdd = 0u;
+		unsigned int m_FrameInProgress = 0u;
 #endif
+
+
+		const unsigned int m_CoolDownFrames = 2000;
+
+		//Building texture
+		std::string m_TexturePath;
+		TextureId m_TextureId;
+		sf::Texture* m_Texture;
+
+		//Vertex array
+		sf::VertexArray m_VertexArray;
 	};
 }
 
