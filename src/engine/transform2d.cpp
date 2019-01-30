@@ -17,6 +17,8 @@ void editor::Transform2dInfo::DrawOnInspector()
 	ImGui::Separator();
 	ImGui::Text("Transform");
 	ImGui::InputFloat2("Position", pos);
+	transform->Position.x = pos[0];
+	transform->Position.y = pos[1];
 	float scale[2] = { transform->Scale.x, transform->Scale.y };
 	ImGui::InputFloat2("Scale", scale);
 	ImGui::InputFloat("Angle", &transform->EulerAngle);

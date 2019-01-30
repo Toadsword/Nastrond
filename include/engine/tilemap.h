@@ -43,7 +43,7 @@ class Tilemap
 public:
 	Tilemap();
 
-	void Init(TilemapSystem* tilemapSystem);
+	void Init(TileManager* tileManager);
 	void Update();
 
 	void SetSize(Vec2f newSize);
@@ -71,6 +71,7 @@ protected:
 
 
 	TilemapSystem* m_TilemapSystem;
+	TileManager* m_TileManager;
 };
 
 

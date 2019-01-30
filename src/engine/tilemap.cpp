@@ -41,13 +41,25 @@ Tilemap::Tilemap()
 {
 }
 
-void Tilemap::Init(TilemapSystem* tilemapSystem)
+void Tilemap::Init(TileManager* tileManager)
 {
-	m_TilemapSystem = tilemapSystem;
+	m_TileManager = tileManager;
 }
 
 void Tilemap::Update()
 {
+	Tile* tile;
+	for (int indexX = 0; indexX < m_Size.x; indexX++)
+	{
+		for (int indexY = 0; indexY < m_Size.y; indexY++)
+		{
+			tile = m_TileManager->GetComponentPtr(m_Tiles[indexX][indexY]);
+			if (tile != nullptr)
+			{
+				tile->Update();
+			}
+		}
+	}
 }
 
 void Tilemap::SetSize(Vec2f newSize)
@@ -276,7 +288,10 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 
 			transformManager->GetComponentPtr(newEntity)->Position = newPos;
 		}
-	}	
+	}
+
+	if(map.size() > 0)
+		tilemap.SetSize(Vec2f(map.size(), map[0].size()));
 }
 
 void TilemapManager::EmptyMap(Entity entity)
