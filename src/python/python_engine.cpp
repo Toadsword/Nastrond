@@ -64,7 +64,7 @@ namespace sfge
 
 PYBIND11_EMBEDDED_MODULE(SFGE, m)
 {
-	py::class_<Engine> engine(m, "tool_engine");
+	py::class_<Engine> engine(m, "Engine");
 	engine
 		.def_property_readonly("config", [](Engine* engine)
 	{

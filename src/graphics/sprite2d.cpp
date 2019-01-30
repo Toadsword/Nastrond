@@ -38,14 +38,12 @@ SOFTWARE.
 namespace sfge
 {
 
-Sprite::Sprite() :
-	TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+Sprite::Sprite() : Offsetable(sf::Vector2f())
 {
 	is_visible = true;
 }
 
-Sprite::Sprite(Transform2d* transform, sf::Vector2f offset)
-	: TransformRequiredComponent(transform), Offsetable(offset)
+Sprite::Sprite(Transform2d* transform, sf::Vector2f offset) : Offsetable(offset)
 {
 	is_visible = true;
 }
@@ -74,13 +72,15 @@ void Sprite::Init()
 	is_visible = true;
 }
 
-void Sprite::Update()
+void Sprite::Update(Transform2d* transform)
 {
 	auto pos = m_Offset;
-	if(m_Transform != nullptr)
+	
+	if(transform != nullptr)
 	{
-		pos += m_Transform->Position;
-		sprite.setRotation(m_Transform->EulerAngle);
+		pos += transform->Position;
+		sprite.setRotation(transform->EulerAngle);
+		sprite.setScale(transform->Scale.x, transform->Scale.y);
 	}
 	sprite.setPosition(pos);
 }
@@ -119,7 +119,6 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 
 	m_Components[entity - 1] = sprite;
 
-	sprite.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	spriteInfo.sprite = &sprite;
 	spriteInfo.SetEntity(entity);
 
@@ -134,9 +133,9 @@ void SpriteManager::Update(float dt)
 	rmt_ScopedCPUSample(SpriteUpdate,0)
 	for(auto i = 0u; i < m_Components.size();i++)
 	{
-		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D))
+		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
 		{
-			m_Components[i].Update();
+			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1));
 		}
 	}
 }
@@ -186,7 +185,6 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 				}*/
 				texture = textureManager->GetTexture(textureId);
 				newSprite.SetTexture(texture);
-				newSprite.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 				newSpriteInfo.textureId = textureId;
 				newSpriteInfo.sprite = &newSprite;
 			}
@@ -224,5 +222,10 @@ void SpriteManager::OnResize(size_t new_size)
 {
 	m_Components.resize(new_size);
 	m_ComponentsInfo.resize(new_size);
+
+	for (size_t i = 0; i < new_size; ++i) {
+		m_ComponentsInfo[i].SetEntity(i + 1);
+		m_ComponentsInfo[i].sprite = &m_Components[i];
+	}
 }
 }

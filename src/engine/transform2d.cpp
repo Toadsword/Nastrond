@@ -69,16 +69,13 @@ void Transform2dManager::Update(float dt) {
 	}
 }
 
-TransformRequiredComponent::TransformRequiredComponent(Transform2d* transform) : 
-	m_Transform(transform)
-{
-}
-void TransformRequiredComponent::SetTransform (Transform2d *transform)
-{
-	m_Transform = transform;
-}
-Transform2d *TransformRequiredComponent::GetTransform ()
-{
-	return m_Transform;
+void Transform2dManager::OnResize(size_t newSize) {
+	m_Components.resize(newSize);
+	m_ComponentsInfo.resize(newSize);
+
+	for (size_t i = 0; i < newSize; ++i) {
+		m_ComponentsInfo[i].SetEntity(i + 1);
+		m_ComponentsInfo[i].transform = &m_Components[i];
+	}
 }
 }

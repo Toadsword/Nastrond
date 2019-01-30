@@ -58,16 +58,8 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 	void Update(float dt) override;
-};
 
-class TransformRequiredComponent
-{
-public:
-	TransformRequiredComponent(Transform2d* transform);
-	void SetTransform(Transform2d* transform);
-	Transform2d* GetTransform();
-protected:
-	Transform2d * m_Transform = nullptr;
+	void OnResize(size_t newSize) override;
 };
 }
 

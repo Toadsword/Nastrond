@@ -23,101 +23,83 @@ SOFTWARE.
 */
 
 #include <gtest/gtest.h>
-#include <utility/priority_queue.h>
 
 #include <engine/engine.h>
 #include <engine/scene.h>
 #include <engine/component.h>
+#include <iostream>
 
-TEST(AI, PriorityQueue)
-{
-	sfge::PriorityQueue<std::string, int> testList;
 
-	testList.Put("0 => 10", 10);
-	testList.Put("1 => 0", 0);
-	testList.Put("2 => 3", 3);
-	testList.Put("4 => 1", 1);
-
-	while(!testList.Empty()) {
-		std::cout << testList.Get() << "\n";
-	}
-}
-
-TEST(AI, NavigationGraphManager) 
-{
-	sfge::Engine engine;
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-
-	engine.Init(std::move(initConfig));
-	json sceneJson = {
-		{ "name", "Test Navigation Graph SystemCPP" } };
-	json systemJson = {
-		{ "systemClassName", "NavigationGraphManager" }
-	};
-
-	sceneJson["systems"] = json::array({ systemJson });
-	auto* sceneManager = engine.GetSceneManager();
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
-TEST(AI,DwarfMovement)
+TEST(Building, BuildingSpawn)
 {
 	sfge::Engine engine;
 
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
 	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 
 	const auto config = engine.GetConfig();
 
 	json sceneJson = {
-		{ "name", "Dwarf Movements" } };
-	json systemJsonNavigation = {
-		{ "systemClassName", "NavigationGraphManager" }
-	}; 
-	json systemJsonDwarf = {
-		{ "systemClassName", "DwarfManager" }
-	};
+		{ "name", "Spawn Building" } };
 
-	sceneJson["systems"] = json::array({ systemJsonNavigation, systemJsonDwarf });
+	json systemJsonBuildingManager = { 
+		{ "systemClassName", "BuildingsManager" } };
 
-	auto* sceneManager = engine.GetSceneManager();
+	sceneJson["systems"] = json::array({ systemJsonBuildingManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }
 
-TEST(AI, DwarfAndBuilding)
+TEST(Building, MineProduction)
 {
 	sfge::Engine engine;
 
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
 	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 
 	const auto config = engine.GetConfig();
 
 	json sceneJson = {
-		{ "name", "Dwarf And Building" } };
-	json systemJsonNavigation = {
-		{ "systemClassName", "NavigationGraphManager" }
-	};
-	json systemJsonDwarf = {
-		{ "systemClassName", "DwarfManager" }
-	};
-	json systemJsonDwelling = {
-		{ "systemClassName", "DwellingManager"}
-	};
+		{ "name", "Spawn mine and produce" } };
 
-	sceneJson["systems"] = json::array({ systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
+	json systemJsonMineManager = {
+		{ "systemClassName", "MineManager" } };
 
-	auto* sceneManager = engine.GetSceneManager();
+	sceneJson["systems"] = json::array({ systemJsonMineManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+TEST(Building, ForgeProduction)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	engine.Init(std::move(initConfig));
+
+	const auto config = engine.GetConfig();
+
+	json sceneJson = {
+		{ "name", "Spawn Forge and produce" } };
+
+	json systemJsonMineManager = {
+		{ "systemClassName", "ForgeManager" } };
+
+	sceneJson["systems"] = json::array({ systemJsonMineManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();

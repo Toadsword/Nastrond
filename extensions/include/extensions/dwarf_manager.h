@@ -26,12 +26,14 @@ SOFTWARE.
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
-#include "navigation_graph_manager.h"
+#include <extensions/navigation_graph_manager.h>
 
 namespace sfge::ext
 {
 
 #define DEBUG_DRAW_PATH
+#define DEBUG_SPAWN_DWARF
+#define DEBUG_RANDOM_PATH
 
 /**
  * \author Nicolas Schneider
@@ -48,38 +50,69 @@ public:
 
 	void Draw() override;
 
+	/**
+	 * \brief Spawn a new Dwarf at the given position
+	 * \param pos where the dwarf will spawn
+	 */
+	void SpawnDwarf(const Vec2f pos);
+
 private:
 	Transform2dManager * m_Transform2DManager;
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
-
 	NavigationGraphManager* m_NavigationGraphManager;
 
-	const size_t m_entitiesNmb = 10;
+	//Dwarfs Holder
+	size_t m_IndexNewDwarf = 0;
+	const size_t m_ContainersExtender = 100;
+	std::vector<Entity> m_DwarfsEntities;
+
+	void ResizeContainers(const size_t newSize);
 
 	//State management
 	enum State
 	{
 		IDLE,
-		WALKING
+		WALKING,
+		WAITING_NEW_PATH
 	};
-	std::vector<State> m_states{ m_entitiesNmb };
+	std::vector<State> m_States;
 
 	//Path management
-	std::vector<std::vector<Vec2f>> m_paths{ m_entitiesNmb };
+	std::vector<std::vector<Vec2f>> m_Paths;
+	const float m_StoppingDistance = 5;
+
+	//Forces
+	float m_FixedDeltaTime = 0.0f;
+	const float m_SpeedDwarf = 2;
 
 #ifdef DEBUG_DRAW_PATH
-	std::vector<sf::Color> m_colors{ 
-		sf::Color::Black, 
-		sf::Color::Blue, 
-		sf::Color::Cyan, 
-		sf::Color::Green, 
-		sf::Color::Magenta, 
-		sf::Color::Red, 
-		sf::Color::Yellow};
+	std::vector<sf::Color> m_Colors{
+		sf::Color::Black,
+		sf::Color::Blue,
+		sf::Color::Cyan,
+		sf::Color::Green,
+		sf::Color::Magenta,
+		sf::Color::Red,
+		sf::Color::Yellow };
 #endif
+
+#ifdef DEBUG_SPAWN_DWARF
+	const size_t m_DwarfToSpawn = 1;
+#endif
+
+	//Dwarfs texture
+	std::string m_TexturePath;
+	TextureId m_TextureId;
+	sf::Texture* m_Texture;
+
+	//Buildings
+	std::vector<Entity> m_AssociatedDwelling;
+	std::vector<Entity> m_AssociatedWorkingPlace;
+		
+	//Vertex array
+	sf::VertexArray m_VertexArray;
 };
 }
 
 #endif
-
