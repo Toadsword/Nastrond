@@ -35,12 +35,11 @@ SOFTWARE.
 
 namespace sfge
 {
-	Camera::Camera() : TransformRequiredComponent(nullptr)
+	Camera::Camera()
 	{
 	}
 
-	Camera::Camera(SpriteManager* sprite_manager, Transform2d* transform, sf::Vector2f size)
-	: TransformRequiredComponent(transform)	{
+	Camera::Camera(SpriteManager* sprite_manager, Transform2d* transform, sf::Vector2f size){
 		m_View.setSize(size);
 		m_SpriteManager = sprite_manager;
 	}
@@ -62,12 +61,7 @@ namespace sfge
 
 	void Camera::SetPosition(Vec2f position)
 	{
-		m_View.setCenter(position);
-	}
-
-
-	void Camera::Update(float dt, sf::RenderWindow& window, SpriteManager* spriteManager)
-	{
+		m_View.setCenter(sf::Vector2f(position.x, position.y));
 	}
 
 	void Camera::Update(float dt, sf::RenderWindow& window)
@@ -76,13 +70,9 @@ namespace sfge
 			auto sprites = m_SpriteManager->GetComponents();
 			for (auto element : sprites)
 			{
-				Log::GetInstance()->Msg("Position : { " + std::to_string(GetPosition().x) + ", " + std::to_string(GetPosition().y) + " }");
 				Vec2f camera_position = GetPosition();
 				Vec2f camera_size = GetView().getSize();
-				Vec2f Sprite_position = element.GetTransform()->Position;
 				sf::Vector2u Sprite_size = element.GetTexture()->getSize();
-
-				Log::GetInstance()->Msg("Distance : { " + std::to_string(camera_position.GetMagnitude() - Sprite_position.GetMagnitude()) + "}");
 			}
 		}
 		window.setView(m_View);
@@ -108,7 +98,6 @@ namespace sfge
 		auto& camera = GetComponentRef(entity);
 		auto& cameraInfo = GetComponentInfo(entity);
 
-		camera.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 		cameraInfo.camera = &camera;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
 
@@ -164,8 +153,6 @@ namespace sfge
 		auto* newCameraInfo = &m_ComponentsInfo[index];
 
 		newCameraInfo->camera = Camera;
-
-		Camera->SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 		Camera->SetPosition(sf::Vector2f(0.0f, 0.0f));
 	}
 
@@ -187,7 +174,7 @@ namespace sfge
 				camera->GetPosition().x,
 				camera->GetPosition().y
 			};
-			ImGui::InputFloat2("Position", position);
+		    ImGui::InputFloat2("Position", position);
 		}
 	}
 

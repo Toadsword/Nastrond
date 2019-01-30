@@ -37,7 +37,7 @@ SOFTWARE.
 
 namespace sfge
 {
-	class Camera : public TransformRequiredComponent
+	class Camera
 	{
 	public:
 		Camera& operator=(const Camera&) = delete;
@@ -53,7 +53,6 @@ namespace sfge
 		sf::View GetView();
 
 		void Update(float dt, sf::RenderWindow &window);
-		void Update(float dt, sf::RenderWindow &window, SpriteManager* spriteManager);
 
 		sf::Vector2i Position;
 	protected:

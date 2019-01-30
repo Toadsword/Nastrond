@@ -172,23 +172,7 @@ TEST(Graphics2d, TestPyCamera)
 		{ "angle", 0.0f },
 		{ "type", static_cast<int>(sfge::ComponentType::TRANSFORM2D) },
 	};
-	json shapeJson = {
-		{"type", static_cast<int>(sfge::ComponentType::SHAPE2D)},
-		{"shape_type", sfge::ShapeType::RECTANGLE},
-		{"size", {200, 200}}
-	};
-	json bodyJson =
-	{
-		{"type", static_cast<int>(sfge::ComponentType::BODY2D)},
-		{"body_type", b2_staticBody}
-	};
-	json ColliderIMGjson = {
-	{"type", static_cast<int>(sfge::ComponentType::COLLIDER2D)},
-	{"collider_type", sfge::ColliderType::BOX},
-	{"size", {200,200} },
-	{"sensor",  true}
-	};
-	entityJson["components"] = json::array({ spriteJson, transformJson, shapeJson ,bodyJson, ColliderIMGjson });
+	entityJson["components"] = json::array({ spriteJson, transformJson });
 
 	json entityJson2;
 	json CameraJson;
@@ -196,35 +180,7 @@ TEST(Graphics2d, TestPyCamera)
 	json pyCameraJson;
 	pyCameraJson["script_path"] = "scripts/camera_manager.py";
 	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
-	//Adding transform
-	transformJson =
-	{
-		{ "position", { 0, 0 } },
-		{ "angle", 0.0f },
-		{ "type", static_cast<int>(sfge::ComponentType::TRANSFORM2D) },
-	};
-	shapeJson = {
-	{"type", static_cast<int>(sfge::ComponentType::SHAPE2D)},
-	{"shape_type", sfge::ShapeType::RECTANGLE},
-	{"size", {800, 720}}
-	};
-	bodyJson =
-	{
-		{"type", static_cast<int>(sfge::ComponentType::BODY2D)},
-		{"body_type", b2_dynamicBody}
-	};
-	json Colliderjson={
-		{"type", static_cast<int>(sfge::ComponentType::COLLIDER2D)},
-		{"collider_type", sfge::ColliderType::BOX},
-		{"size", {800,720} },
-		{"sensor",  true}
-	};
-	json ScriptJson =
-	{
-		{"type", 64},
-		{"script_path", "scripts/contact_test.py"}
-	};
-	entityJson2["components"] = json::array({ CameraJson, pyCameraJson, transformJson, shapeJson, bodyJson, Colliderjson, ScriptJson });
+	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
 
 
 	sceneJson["entities"] = json::array({ entityJson2, entityJson });
