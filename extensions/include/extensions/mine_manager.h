@@ -73,7 +73,7 @@ namespace sfge::ext
 		bool RemoveDwarfToBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Return a mine with a slot available for a dwarf. If not
+		 * \brief Return a mine entity with a slot available for a dwarf. If not
 		 */
 		Entity GetFreeSlotInBuilding();
 
@@ -117,7 +117,7 @@ namespace sfge::ext
 		size_t m_EntitiesCount = 0;
 
 		const unsigned int m_FramesBeforeAdd = 0u;
-		unsigned int m_frameInProgress = 0u;
+		unsigned int m_FrameInProgress = 0u;
 #endif
 
 		std::vector<Entity> m_EntityIndex;

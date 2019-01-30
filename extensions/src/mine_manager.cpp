@@ -52,12 +52,12 @@ namespace sfge::ext
 		RessourcesProduction();
 
 #ifdef TEST_SYSTEM_DEBUG
-		m_frameInProgress++;
-		if(m_frameInProgress >= m_FramesBeforeAdd && m_EntitiesNmb > m_EntitiesCount)
+		m_FrameInProgress++;
+		if(m_FrameInProgress >= m_FramesBeforeAdd && m_EntitiesNmb > m_EntitiesCount)
 		{
 			m_EntitiesCount++;
 			AddNewBuilding(Vec2f(std::rand() % static_cast<int>(1280), std::rand() % static_cast<int>(720)));
-			m_frameInProgress = 0;
+			m_FrameInProgress = 0;
 		}
 #endif
 	}
@@ -86,10 +86,10 @@ namespace sfge::ext
 
 		if (!CheckEmptySlot(newEntity, transformPtr))
 		{
-			size_t newMine = m_EntityIndex.size();
+			const size_t newMine = m_EntityIndex.size();
 
 			ResizeContainer(newMine + 1);
-			m_IronInventory[newMine].ressourceType = ResourceType::IRON;
+			m_IronInventory[newMine].resourceType = ResourceType::IRON;
 
 			m_IronInventory[newMine].packSize = m_StackSize;
 
@@ -260,7 +260,7 @@ namespace sfge::ext
 				const GiverInventory newIronInventory;
 				m_IronInventory[i] = newIronInventory;
 
-				m_IronInventory[i].ressourceType = ResourceType::IRON;
+				m_IronInventory[i].resourceType = ResourceType::IRON;
 
 				m_IronInventory[i].packSize = m_StackSize;
 

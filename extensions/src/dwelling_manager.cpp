@@ -43,13 +43,6 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
-
-#ifdef TEST_SYSTEM_DEBUG
-		for (auto i = 0; i < m_EntitiesNmb; i++)
-		{
-			AddNewBuilding(Vec2f(Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y))));
-		}
-#endif
 	}
 
 	void DwellingManager::Update(float dt)
@@ -58,6 +51,16 @@ namespace sfge::ext
 
 	void DwellingManager::FixedUpdate()
 	{
+		ConsumeResources();
+#ifdef TEST_SYSTEM_DEBUG
+		m_FrameInProgress++;
+		if (m_FrameInProgress >= m_FramesBeforeAdd && m_EntitiesNmb > m_EntitiesCount)
+		{
+			m_EntitiesCount++;
+			AddNewBuilding(Vec2f(std::rand() % static_cast<int>(1280), std::rand() % static_cast<int>(720)));
+			m_FrameInProgress = 0;
+		}
+#endif
 	}
 
 	void DwellingManager::Draw()
@@ -79,44 +82,35 @@ namespace sfge::ext
 		auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(pos.x, pos.y);
 
-		size_t newDwelling = m_DwellingEntityIndex.size();
+		if (!CheckEmptySlot(newEntity, transformPtr))
+		{
+			const size_t newDwelling = m_EntityIndex.size();
 
-		ResizeContainer(newDwelling + 1);
+			ResizeContainer(newDwelling + 1);
+			m_FoodInventories[newDwelling].resourceType = ResourceType::FOOD;
+			m_CoolDownFramesProgression[newDwelling] = 0u;
 
-		m_DwellingEntityIndex[newDwelling] = newEntity;
+			m_EntityIndex[newDwelling] = newEntity;
 
+			const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 
-		////add texture
-		//auto* sprite = m_SpriteManager->AddComponent(newEntity);
-		//sprite->SetTexture(m_Texture);
+			m_VertexArray[4 * newDwelling].texCoords = sf::Vector2f(0, 0);
+			m_VertexArray[4 * newDwelling + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+			m_VertexArray[4 * newDwelling + 2].texCoords = textureSize;
+			m_VertexArray[4 * newDwelling + 3].texCoords = sf::Vector2f(0, textureSize.y);
 
-		//auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-		//spriteInfo.name = "sprite dwelling";
-		//spriteInfo.sprite = sprite;
-		//spriteInfo.textureId = m_TextureId;
-		//spriteInfo.texturePath = m_TexturePath;
-
-		//setup container
-		//m_foodInventory[newDwelling].resourceType = RessourceType::FOOD;
-
-		const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-		m_VertexArray[4 * newDwelling].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * newDwelling + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-		m_VertexArray[4 * newDwelling + 2].texCoords = textureSize;
-		m_VertexArray[4 * newDwelling + 3].texCoords = sf::Vector2f(0, textureSize.y);
-
-		m_VertexArray[4 * newDwelling].position = transformPtr->Position - textureSize / 2.0f;
-		m_VertexArray[4 * newDwelling + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-		m_VertexArray[4 * newDwelling + 2].position = transformPtr->Position + textureSize / 2.0f;
-		m_VertexArray[4 * newDwelling + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+			m_VertexArray[4 * newDwelling].position = transformPtr->Position - textureSize / 2.0f;
+			m_VertexArray[4 * newDwelling + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+			m_VertexArray[4 * newDwelling + 2].position = transformPtr->Position + textureSize / 2.0f;
+			m_VertexArray[4 * newDwelling + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+		}
 	}
 
 	bool DwellingManager::AddDwarfToBuilding(Entity dwellingEntity)
 	{
-		for (int i = 0; i < m_DwellingEntityIndex.size(); i++)
+		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
-			if (m_DwellingEntityIndex[i] == dwellingEntity)
+			if (m_EntityIndex[i] == dwellingEntity)
 			{
 				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
 				{
@@ -132,37 +126,123 @@ namespace sfge::ext
 		}
 	}
 
-	bool DwellingManager::RemoveDwarfToBuilding(Entity mineEntity)
+	bool DwellingManager::RemoveDwarfToBuilding(Entity entity)
 	{
-		return false;
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+				{
+					m_DwarfSlots[i].dwarfAttributed++;
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return false;
+		}
+	}
+
+	Entity DwellingManager::GetFreeSlotInBuilding()
+	{
+		for (int i = 0; i < m_DwarfSlots.size(); i++)
+		{
+			if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+			{
+				return m_EntityIndex[i];
+			}
+		}
+		return INVALID_ENTITY;
+	}
+
+	void DwellingManager::ConsumeResources()
+	{
+		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == INVALID_ENTITY)
+			{
+				continue;
+			}
+
+
+
+			if (m_FoodInventories[i].inventory <= 0)
+			{
+				DecreaseHappiness();
+				continue;
+			}
+			else if(m_DwarfSlots[i].dwarfIn <= 0)
+			{
+				continue;
+			}
+
+			m_CoolDownFramesProgression[i]++;
+
+			if(m_CoolDownFramesProgression[i] >= m_CoolDownFrames)
+			{
+				m_FoodInventories[i].inventory -= m_DwarfSlots[i].dwarfIn;
+				if(m_FoodInventories[i].inventory < 0)
+				{
+					m_FoodInventories[i].inventory = 0;
+					DecreaseHappiness();
+					continue;
+				}
+			}
+		}
 	}
 
 	void DwellingManager::ResizeContainer(const size_t newSize)
 	{
-		m_DwellingEntityIndex.resize(newSize);
+		m_EntityIndex.resize(newSize);
 		m_DwarfSlots.resize(newSize);
-		m_FoodInventory.resize(newSize);
+		m_FoodInventories.resize(newSize);
+		m_CoolDownFramesProgression.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
 
 	}
 
-	bool DwellingManager::CheckEmptySlot(Entity newEntity)
+	bool DwellingManager::CheckEmptySlot(Entity newEntity, Transform2d* transformPtr)
 	{
-		for (int i = 0; i < m_DwellingEntityIndex.size(); i++)
+		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
-			if (m_DwellingEntityIndex[i] == NULL)
+			if (m_EntityIndex[i] == NULL)
 			{
-				m_DwellingEntityIndex[i] = newEntity;
+				m_EntityIndex[i] = newEntity;
 				const DwarfSlots newDwarfSlot;
 				m_DwarfSlots[i] = newDwarfSlot;
-				const ReceiverInventory newFoodIventory;
-				m_FoodInventory[i] = newFoodIventory;
+				const ReceiverInventory newFoodInventory;
+				m_FoodInventories[i] = newFoodInventory;
+				const unsigned int newCoolDown = 0;
+				m_CoolDownFramesProgression[i] = 0;
 
-				m_FoodInventory[i].resourceType = ResourceType::FOOD;
+
+				m_FoodInventories[i].resourceType = ResourceType::FOOD;
+
+				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+				m_VertexArray[4 * i].texCoords = sf::Vector2f(0, 0);
+				m_VertexArray[4 * i + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+				m_VertexArray[4 * i + 2].texCoords = textureSize;
+				m_VertexArray[4 * i + 3].texCoords = sf::Vector2f(0, textureSize.y);
+
+				m_VertexArray[4 * i].position = transformPtr->Position - textureSize / 2.0f;
+				m_VertexArray[4 * i + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+				m_VertexArray[4 * i + 2].position = transformPtr->Position + textureSize / 2.0f;
+				m_VertexArray[4 * i + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+
 
 				return true;
 			}
 		}
 		return false;
+	}
+
+
+	void DwellingManager::DecreaseHappiness()
+	{
+		// TODO : Setup this function to decrease Happiness
 	}
 }

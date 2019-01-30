@@ -71,7 +71,18 @@ namespace sfge::ext
 		 */
 		bool RemoveDwarfToBuilding(Entity mineEntity);
 
+		/**
+		 * \brief Return a dwelling entity with a slot available for a dwarf. If not
+		 */
+		Entity GetFreeSlotInBuilding();
+
 	private:
+
+		/**
+		 * \brief Consume Resources depending on the number of dwarf in.
+		 */
+		void ConsumeResources();
+
 		/**
 		 * \brief Resize all vector to keep the same index for mine.
 		 */
@@ -80,20 +91,34 @@ namespace sfge::ext
 		/**
 		 * \brief return true if a slot in the index is empty then take this slot.
 		 */
-		bool CheckEmptySlot(Entity newEntity);
+		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+
+		/**
+		 * \brief Decrease happiness when call.
+		 */
+		void DecreaseHappiness();
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		std::vector<Entity> m_DwellingEntityIndex;
+		std::vector<Entity> m_EntityIndex;
 
 
 		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<ReceiverInventory> m_FoodInventory;
+		std::vector<ReceiverInventory> m_FoodInventories;
+		std::vector<unsigned int> m_CoolDownFramesProgression;
+
 #ifdef TEST_SYSTEM_DEBUG
-		size_t m_EntitiesNmb = 1000;
+		const size_t m_EntitiesNmb = 1000;
+		size_t m_EntitiesCount = 0;
+
+		const unsigned int m_FramesBeforeAdd = 0u;
+		unsigned int m_FrameInProgress = 0u;
 #endif
+
+
+		const unsigned int m_CoolDownFrames = 2000;
 
 		//Building texture
 		std::string m_TexturePath;

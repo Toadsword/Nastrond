@@ -49,7 +49,7 @@ namespace sfge::ext
 		float inventory = 0u;
 		unsigned int packNumber = 0u;
 		unsigned int packSize = 0u;
-		ResourceType ressourceType = ResourceType::NONE;
+		ResourceType resourceType = ResourceType::NONE;
 	};
 
 	/**
@@ -64,6 +64,18 @@ namespace sfge::ext
 	};
 
 	/**
+	 * \brief Represent an inventory that must be fill.
+	 * \author Robin Alves
+	 */
+	struct Inventory
+	{
+		unsigned int maxCapacity = 100u;
+		float inventory = 0u;
+		ResourceType resourceType = ResourceType::NONE;
+	};
+
+
+	/**
 	 * \brief Represent the progression of the production by the consumption of one or more receiver inventory to a giver inventory.
 	 * \author Robin Alves
 	 */
@@ -72,7 +84,7 @@ namespace sfge::ext
 		float progression = 0.0f;
 		int goal = 20;
 		int FrameCoolDown = 0;
-		ResourceType ressourceType = ResourceType::NONE;
+		ResourceType resourceType = ResourceType::NONE;
 	};
 
 	/**
@@ -86,5 +98,4 @@ namespace sfge::ext
 		int dwarfIn = 0;
 	};
 }
-
 #endif

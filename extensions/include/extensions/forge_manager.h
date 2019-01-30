@@ -73,7 +73,7 @@ namespace sfge::ext
 		bool RemoveDwarfToBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Return a mine with a slot available for a dwarf. If not
+		 * \brief Return a forge entity with a slot available for a dwarf. If not
 		 */
 		Entity GetFreeSlotInBuilding();
 
@@ -118,7 +118,7 @@ namespace sfge::ext
 		SpriteManager* m_SpriteManager;
 
 #ifdef TEST_SYSTEM_DEBUG
-		const size_t m_EntitiesNmb = 1000;
+		const size_t m_EntitiesNmb = 10000;
 		size_t m_EntitiesCount = 0;
 
 		const unsigned int m_FramesBeforeAdd = 0u;

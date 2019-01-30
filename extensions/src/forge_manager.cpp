@@ -35,8 +35,6 @@ namespace sfge::ext
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 
-		auto* entityManager = m_Engine.GetEntityManager();
-
 		//Load Texture
 		m_TexturePath = "data/sprites/building.png";
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
@@ -90,8 +88,8 @@ namespace sfge::ext
 			ResizeContainer(newForge + 1);
 
 			m_IronsInventories[newForge].resourceType = ResourceType::IRON;
-			m_ToolsInventories[newForge].ressourceType = ResourceType::TOOL;
-			m_ProgressionProdTool[newForge].ressourceType = ResourceType::TOOL;
+			m_ToolsInventories[newForge].resourceType = ResourceType::TOOL;
+			m_ProgressionProdTool[newForge].resourceType = ResourceType::TOOL;
 
 			m_EntityIndex[newForge] = newEntity;
 
@@ -302,8 +300,8 @@ namespace sfge::ext
 				m_ProgressionProdTool[i] = newProgressionProdTool;
 
 				m_IronsInventories[i].resourceType = ResourceType::IRON;
-				m_ToolsInventories[i].ressourceType = ResourceType::TOOL;
-				m_ProgressionProdTool[i].ressourceType = ResourceType::TOOL;
+				m_ToolsInventories[i].resourceType = ResourceType::TOOL;
+				m_ProgressionProdTool[i].resourceType = ResourceType::TOOL;
 
 				m_ToolsInventories[i].packSize = m_stackSize;
 
