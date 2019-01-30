@@ -37,6 +37,7 @@ SOFTWARE.
 
 #include <tools/tools_pch.h>
 #include "extensions/dwelling_manager.h"
+#include "extensions/building_constructor.h"
 #include "extensions/behaviour_tree.h"
 
 
@@ -69,6 +70,10 @@ void ExtendPython(py::module& m)
 
 	py::class_<DwellingManager, System> dwellingManager(m, "DwellingManager");
 	dwellingManager
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingConstructor, System> buildingConstructor(m, "BuildingConstructor");
+	buildingConstructor
 		.def(py::init<Engine&>());
 
 	py::class_<behaviour_tree::BehaviourTree, System> behaviourTree(m, "BehaviourTree");
