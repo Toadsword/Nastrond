@@ -81,7 +81,7 @@ void Editor::Update(float dt)
 		m_Config->editor = m_Enable;
 	}
 
-	if (m_KeyboardManager->IsKeyDown(sf::Keyboard::Key::Num0))
+	if (m_KeyboardManager->IsKeyDown(sf::Keyboard::Key::F1))
 	{
 		m_GraphicsManager->OnChangeScreenMode();
 	}
