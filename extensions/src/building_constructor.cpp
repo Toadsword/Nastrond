@@ -36,7 +36,7 @@ namespace sfge::ext
 		//m_ForgeManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ForgeManager>(
 		//	"ForgeManager");
 		//m_MineManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<MineManager>(
-		//	"MineManager");
+		//	"MineManager");	
 
 		
 	}

@@ -56,8 +56,6 @@ namespace sfge::ext
 		DwellingManager* m_DwellingManager;
 		ForgeManager* m_ForgeManager;
 		MineManager* m_MineManager;
-
-		std::vector<void> hello;
 	};
 }
 #endif
