@@ -38,15 +38,31 @@
 
 namespace sfge
 {
+/**
+ * \author : Duncan Bourquard
+ * \version : 1.0
+ * \date : 30.01.2019
+ */
+
 class Tilemap
 {
 public:
+	/**
+	 * \brief Constructor of tilemap.
+	 */
 	Tilemap();
 
+	/**
+	 * \brief Init the tilemap.
+	 * \param tileManager Pointer to the Tilemanager created in the engine.
+	 */
 	void Init(TileManager* tileManager);
+	
+	/**
+	 * \brief Update the tilemap and all the tiles within.
+	 */
 	void Update();
 
-	void SetSize(Vec2f newSize);
 	Vec2f GetSize();
 
 	void SetTileScale(Vec2f newScale);
@@ -60,19 +76,48 @@ public:
 	
 	std::vector<std::vector<Entity>>& GetTiles();
 
+	/**
+	 * \brief Assign a Tile entity to a position in the tilemap. If the position is out of bounds, does nothing.
+	 * \param pos Position of the tile.
+	 * \param entity Tile Entity.
+	 */
 	void AddTile(Vec2f pos, Entity entity);
 
-protected:
-	std::vector<std::vector<Entity>> m_Tiles;
-	int m_Layer = 0;
-	Vec2f m_Size = {100, 100};
-	Vec2f m_TileScale = {1, 1};
-	bool m_IsIsometric = false;
+	/**
+	 * \brief Returns the EntityId positionned at specified position
+	 * \param pos Position of the tile.
+	 * \return Entity
+	 */
+	Entity GetTileAt(Vec2f pos);
 
-	TilemapSystem* m_TilemapSystem;
+	/**
+	 * \brief Resize the limit size of the tilemap
+	 * \param newSize New size of the tilemap
+	 */
+	void ResizeTilemap(Vec2f newSize);
+
+protected:
+	/**
+	 * \brief Contains all the entites "tile" stored in the tilemap
+	 */
+	std::vector<std::vector<Entity>> m_Tiles;
+	/**
+	 * \brief Scale of a tile in the tilemap
+	 */
+	Vec2f m_TileScale = {1, 1};
+	/**
+	 * \brief Layer of the tilemap (Concerns the layer of drawing)
+	 */
+	int m_Layer = 0;
+	/**
+	 * \brief Displays the tilemap as an isometric one or not
+	 */
+	bool m_IsIsometric = false;
+	/**
+	 * \brief Pointer to the TileManager
+	 */
 	TileManager* m_TileManager;
 };
-
 
 namespace editor
 {
@@ -80,10 +125,6 @@ struct TilemapInfo : ComponentInfo
 {
 	void DrawOnInspector() override;
 	Tilemap* tilemap = nullptr;
-	int layer = 0;
-	bool isIsometric = false;
-	Vec2f size = { 100, 100 };
-	Vec2f tileScale= { 100, 100 };
 };
 }
 
@@ -102,8 +143,18 @@ public:
 	void DestroyComponent(Entity entity) override;
 	void OnResize(size_t new_size) override;
 
+	/**
+	 * \brief Create a tilemap with the json passed 
+	 * \param entity 
+	 * \param map Json tilemap data to construct the tilemap one
+	 */
 	void InitializeMap(Entity entity, json& map);
+	/**
+	 * \brief Empty the map and destroys all the entity tiles attached to it.
+	 * \param entity containing the tilemap
+	 */
 	void EmptyMap(Entity entity);
+
 protected:
 	Transform2dManager* m_Transform2dManager = nullptr;
 	TilemapSystem* m_TilemapSystem = nullptr;
@@ -116,21 +167,18 @@ public:
 	using System::System;
 
 	/**
-		* \brief Initialize the Tilemap Manager
-		*/
+	* \brief Initialize the Tilemap Manager
+	*/
 	void Init() override;
 
 	/**
-		* \brief Update the Tilemap Manager
-		* \param dt Delta time since last frame
-		*/
+	* \brief Update the Tilemap Manager
+	* \param dt Delta time since last frame
+	*/
 	void Update(float dt) override;
 
 	void FixedUpdate() override;
 
-	/**
-	* \brief Destroy the window and other
-	*/
 	void Destroy() override;
 
 	void Clear() override;

@@ -28,13 +28,10 @@ SOFTWARE.
 #include <gtest/gtest.h>
 #include <fstream>
 
-
 TEST(Tilemap, TestLoadTilemap)
 {
-
 	sfge::Engine engine;
 	engine.Init();
-
 
 	json sceneJson;
 	json entityJson;

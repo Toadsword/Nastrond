@@ -49,9 +49,10 @@ void Tilemap::Init(TileManager* tileManager)
 void Tilemap::Update()
 {
 	Tile* tile;
-	for (int indexX = 0; indexX < m_Size.x; indexX++)
+	Vec2f size = GetSize();
+	for (int indexX = 0; indexX < size.x; indexX++)
 	{
-		for (int indexY = 0; indexY < m_Size.y; indexY++)
+		for (int indexY = 0; indexY < size.y; indexY++)
 		{
 			tile = m_TileManager->GetComponentPtr(m_Tiles[indexX][indexY]);
 			if (tile != nullptr)
@@ -62,18 +63,11 @@ void Tilemap::Update()
 	}
 }
 
-void Tilemap::SetSize(Vec2f newSize)
-{
-	if (newSize.x <= 0 || newSize.y <= 0)
-		return;
-
-	m_Size = newSize;
-	m_Tiles = std::vector<std::vector<Entity>>{ (unsigned)newSize.x, std::vector<Entity>((unsigned)newSize.y)};
-}
-
 Vec2f Tilemap::GetSize()
 {
-	return m_Size;
+	if (m_Tiles.empty())
+		return Vec2f();
+	return Vec2f(m_Tiles.size(), m_Tiles[0].size());
 }
 
 void Tilemap::SetTileScale(Vec2f newScale)
@@ -114,20 +108,53 @@ std::vector<std::vector<Entity>>& Tilemap::GetTiles()
 
 void Tilemap::AddTile(Vec2f pos, Entity entity)
 {
-	m_Tiles[pos.x][pos.y] = entity;
+	if(pos.x < m_Tiles.size() && pos.y < m_Tiles[0].size())
+		m_Tiles[pos.x][pos.y] = entity;
+}
+
+Entity Tilemap::GetTileAt(Vec2f pos)
+{
+	return m_Tiles[pos.x][pos.y];
+}
+
+void Tilemap::ResizeTilemap(Vec2f newSize)
+{
+	std::vector<std::vector<Entity>> oldTiles = m_Tiles;
+	Vec2f oldSize = GetSize();
+
+	m_Tiles = std::vector<std::vector<Entity>>{ 
+		static_cast<unsigned>(newSize.x), 
+		std::vector<Entity>(static_cast<unsigned>(newSize.y)) 
+	};
+
+	if(newSize.x > 0 && newSize.y > 0)
+	{	
+		for(unsigned indexX = 0; indexX < m_Tiles.size(); indexX++)
+		{
+			for(unsigned indexY = 0; indexY < m_Tiles.size(); indexY++)
+			{
+				if (indexX >= oldSize.x && indexY >= oldSize.y)
+					m_Tiles[indexX][indexY] = INVALID_ENTITY;
+				else
+					m_Tiles[indexX][indexY] = oldTiles[indexX][indexY];
+			}		
+		}
+	}
 }
 
 void editor::TilemapInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Tilemap");
+
+	int layer = tilemap->GetLayer();
 	ImGui::InputInt("Layer", &layer);
-	ImGui::Checkbox("isIsometric", &isIsometric);
+
+	bool isIsometric = tilemap->GetIsometric();
+	ImGui::Checkbox("Is isometric", &isIsometric);
 	
-	int aSize[2] = { size.x, size.y };
-	ImGui::InputInt2("Size", aSize);
-	int aScale[2] = { tileScale.x , tileScale.y };
-	ImGui::InputInt2("tileScaleX", aScale);
+	int aScale[2] = { tilemap->GetTileScale().x , tilemap->GetTileScale().y };
+	ImGui::InputInt2("Tile scale", aScale);
 }
 
 void TilemapManager::Init()
@@ -190,7 +217,7 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 			tilemapJson = *tilemapJsonPtr;
 		else
 		{
-			Log::GetInstance()->Error("Couldn't load timemap from path : '" + path + "'.");
+			Log::GetInstance()->Error("Couldn't load tilemap from path : '" + path + "'.");
 			return;
 		}
 		
@@ -206,37 +233,35 @@ void TilemapManager::CreateComponent(json & componentJson, Entity entity)
 	auto & newTilemap = m_Components[entity - 1];
 	auto & newTilemapInfo = m_ComponentsInfo[entity - 1];
 
+	newTilemapInfo.tilemap = &newTilemap;
+
 	if (!m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::TRANSFORM2D))
 		m_Engine.GetTransform2dManager()->AddComponent(entity);
 
 	if (CheckJsonExists(tilemapJson, "is_isometric") && CheckJsonParameter(tilemapJson, "is_isometric", nlohmann::detail::value_t::boolean))
 	{
 		newTilemap.SetIsometric(tilemapJson["is_isometric"].get<bool>());
-		newTilemapInfo.isIsometric = tilemapJson["is_isometric"].get<bool>();
 	}
 	
 	if (CheckJsonExists(tilemapJson, "layer") && CheckJsonParameter(tilemapJson, "layer", nlohmann::detail::value_t::number_integer))
 	{
 		newTilemap.SetLayer(tilemapJson["layer"].get<int>());
-		newTilemapInfo.layer = tilemapJson["layer"].get<int>();
 	}
 
-	Vec2f tileScale = Vec2f();
 	if (CheckJsonExists(tilemapJson, "tile_scale") && CheckJsonParameter(tilemapJson, "tile_scale", nlohmann::detail::value_t::array))
 	{
+		Vec2f tileScale = Vec2f();
 		tileScale.x = tilemapJson["tile_scale"][0].get<unsigned>();
 		tileScale.y = tilemapJson["tile_scale"][1].get<unsigned>();
 		newTilemap.SetTileScale(tileScale);
-		newTilemapInfo.tileScale = tileScale;
 	}
 
-	Vec2f mapSize = Vec2f();
 	if (CheckJsonExists(tilemapJson, "map_size") && CheckJsonParameter(tilemapJson, "map_size", nlohmann::detail::value_t::array))
 	{
+		Vec2f mapSize = Vec2f();
 		mapSize.x = tilemapJson["map_size"][0].get<unsigned>();
 		mapSize.y = tilemapJson["map_size"][1].get<unsigned>();
-		newTilemap.SetSize(mapSize);
-		newTilemapInfo.size = mapSize;
+		newTilemap.ResizeTilemap(mapSize);
 	}
 
 	if(CheckJsonExists(tilemapJson, "map") && CheckJsonParameter(tilemapJson, "map", nlohmann::detail::value_t::array))
@@ -261,12 +286,14 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 	auto & tilemap = m_Components[entity - 1];
 	EmptyMap(entity);
 
+	if (map.empty())
+		tilemap.ResizeTilemap(Vec2f(map.size(), map[0].size()));
+
 	EntityManager* entityManager = m_Engine.GetEntityManager();
 	TileManager* tileManager = m_TilemapSystem->GetTileManager();
 	
-
-	Vec2f basePos = m_Transform2dManager->GetComponentPtr(entity)->Position;
-	Vec2f tileScale = tilemap.GetTileScale();
+	const Vec2f basePos = m_Transform2dManager->GetComponentPtr(entity)->Position;
+	const Vec2f tileScale = tilemap.GetTileScale();
 	Vec2f xPos, yPos;
 
 	//Layout of tilemap
@@ -280,12 +307,13 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 		xPos = { tileScale.x , 0 };
 		yPos = { 0, tileScale.y };
 	}
+
 	//Assigning positions
 	for (unsigned indexX = 0; indexX < map.size(); indexX++)
 	{
 		for (unsigned indexY = 0; indexY < map[indexX].size(); indexY++)
 		{
-			Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+			const Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 			tileManager->AddComponent(newEntity, map[indexX][indexY].get<int>());
 			tilemap.AddTile(Vec2f(indexX, indexY), newEntity);
 
@@ -294,25 +322,19 @@ void TilemapManager::InitializeMap(Entity entity, json & map)
 			m_Transform2dManager->GetComponentPtr(newEntity)->Position = newPos;
 		}
 	}
-
-	if(map.size() > 0)
-		tilemap.SetSize(Vec2f(map.size(), map[0].size()));
 }
 
 void TilemapManager::EmptyMap(Entity entity)
 {
 	auto & tilemap = m_Components[entity - 1];
-	Vec2f mapSize = tilemap.GetSize();
+	const Vec2f mapSize = tilemap.GetSize();
 	std::vector<std::vector<Entity>>& map = tilemap.GetTiles();
 
 	EntityManager* entityManager = m_Engine.GetEntityManager();
 
-	int sizeX = map.size();
-
-	for (int i = 0; i < sizeX; i++)
+	for (int i = 0; i < mapSize.x; i++)
 	{
-		int sizeY = map[i].size();
-		for (int j = 0; j < sizeY; j++)
+		for (int j = 0; j < mapSize.y; j++)
 		{
 			if(map[i][j] != INVALID_ENTITY)
 			{	
