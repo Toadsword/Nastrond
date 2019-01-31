@@ -22,27 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "engine/ui.h"
+#include <SFML/Graphics.hpp>
+#include <editor/editor_info.h>
+#include <utility/json_utility.h>
+#include <engine/component.h>
 
-namespace  sfge
+namespace sfge
 {
-	void UIManager::Init()
-	{
-		m_EntityManager = m_Engine.GetEntityManager();
-	}
+	struct Text {
+		sf::Text text;
+		sf::Font font;
+		sf::Color color;
+	};
 
-	void UIManager::Update(float dt)
+	struct TextInfo : editor::ComponentInfo
 	{
-		
-	}
+		void DrawOnInspector() override;
+		Text* text = nullptr;
+	};
 
-	void UIManager::FixedUpdate()
-	{
-		
-	}
+	class TextManager : public SingleComponentManager<Text, TextInfo, ComponentType::TEXT> {
+		using SingleComponentManager::SingleComponentManager;
+		void CreateComponent(json& componentJson, Entity entity) override;
+		Text* AddComponent(Entity entity) override;
+		void DestroyComponent(Entity entity) override;
 
-	void UIManager::Draw()
-	{
-		
-	}
+		void SetString(Entity entity, const std::string& newText);
+		void SetFont(Entity entity, const std::string& newFontPath);
+		void SetSize(Entity entity, const unsigned newSize);
+
+		std::string GetString(Entity entity);
+		std::string GetFont(Entity entity);
+		unsigned GetSize(Entity entity);
+	};
 }
