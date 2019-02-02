@@ -24,6 +24,8 @@ SOFTWARE.
 
 #include <extensions/dwarf_manager.h>
 #include <python/python_engine.h>
+#include <extensions/behaviour_tree_nodes.h>
+#include <extensions/behaviour_tree.h>
 
 namespace sfge::ext
 {
@@ -39,6 +41,10 @@ void DwarfManager::Init() {
 	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 	m_NavigationGraphManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<NavigationGraphManager>(
 		"NavigationGraphManager");
+
+	//Associate behaviour tree
+	auto* BT =  m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
+	BT->SetEntities(&m_DwarfsEntities);
 
 	//Read config
 	const auto config = m_Engine.GetConfig();
@@ -110,12 +116,42 @@ Entity DwarfManager::GetDwellingEntity(unsigned int index)
 	return m_AssociatedDwelling[index];
 }
 
+void DwarfManager::AssignDwellingToDwarf(unsigned int index, Entity dwellingEntity) {
+	m_AssociatedDwelling[index] = dwellingEntity;
+}
+
+bool DwarfManager::IsDwarfAtDestination(unsigned int index) {
+	if(!m_Paths[index].empty()) {
+		const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[index])->Position;
+
+		auto dir = m_Paths[index][0] - position;
+		return dir.GetMagnitude() < m_StoppingDistance;
+	}
+	return true;
+}
+
+void DwarfManager::BTAddPathToDwelling(unsigned int index) {
+	m_BT_pathDwarfToDwelling.push_back(index);
+}
+
+void DwarfManager::BtFindRandomPath(unsigned int index) {
+	m_BT_pathDwarfToRandom.push_back(index);
+}
+
+void DwarfManager::BTAddPathFollower(unsigned int index) {
+	m_BT_followingPath.push_back(index);
+}
+
 void DwarfManager::ResizeContainers(const size_t newSize) {
 	m_DwarfsEntities.resize(newSize);
 	m_Paths.resize(newSize);
 	m_States.resize(newSize);
 	m_AssociatedDwelling.resize(newSize);
 	m_AssociatedWorkingPlace.resize(newSize);
+
+	//Associate behaviour tree
+	auto* BT = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
+	BT->SetEntities(&m_DwarfsEntities);
 }
 
 void DwarfManager::Update(float dt) {
@@ -123,8 +159,41 @@ void DwarfManager::Update(float dt) {
 	const auto config = m_Engine.GetConfig();
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
-	
-	for (auto i = 0u; i < m_IndexNewDwarf; i++) {
+	//Random path
+	for (int i = 0; i < m_BT_pathDwarfToRandom.size(); ++i) {
+		std::cout << "Helo\n";
+		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[m_BT_pathDwarfToRandom[i]]);
+		m_NavigationGraphManager->AskForPath(&m_Paths[m_BT_pathDwarfToRandom[i]], transformPtr->Position,
+			Vec2f(std::rand() % static_cast<int>(screenSize.x),
+				std::rand() % static_cast<int>(screenSize.y
+					)));
+	}
+	m_BT_pathDwarfToRandom.clear();
+
+	//Follow path
+	for (int i = 0; i < m_BT_followingPath.size(); ++i) {
+		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[m_BT_followingPath[i]]);
+
+		auto dir = m_Paths[m_BT_followingPath[i]][m_Paths[m_BT_followingPath[i]].size() - 1] - transformPtr->Position;
+
+		if (dir.GetMagnitude() < m_StoppingDistance) {
+			m_Paths[m_BT_followingPath[i]].pop_back();
+		}
+		else {
+			transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
+
+			sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+			m_VertexArray[4 * m_BT_followingPath[i]].position = transformPtr->Position - textureSize / 2.0f;
+			m_VertexArray[4 * m_BT_followingPath[i] + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+			m_VertexArray[4 * m_BT_followingPath[i] + 2].position = transformPtr->Position + textureSize / 2.0f;
+			m_VertexArray[4 * m_BT_followingPath[i] + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+		}
+	}
+	m_BT_followingPath.clear();
+
+
+	/*for (auto i = 0u; i < m_IndexNewDwarf; i++) {
 		switch (m_States[i]) { 
 		case IDLE: {
 #ifdef DEBUG_RANDOM_PATH
@@ -148,11 +217,11 @@ void DwarfManager::Update(float dt) {
 			break;
 			default: ;
 		}
-	}
+	}*/
 }
 
 void DwarfManager::FixedUpdate() {
-	for (auto i = 0u; i < m_IndexNewDwarf; i++) {
+	/*for (auto i = 0u; i < m_IndexNewDwarf; i++) {
 		switch (m_States[i]) { 
 			case IDLE: break;
 			case WALKING: {
@@ -183,7 +252,7 @@ void DwarfManager::FixedUpdate() {
 			case WAITING_NEW_PATH: break;
 			default: ;
 		}
-	}
+	}*/
 }
 
 void DwarfManager::Draw() {

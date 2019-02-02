@@ -29,10 +29,9 @@ SOFTWARE.
 #include <memory>
 #include <unordered_map>
 #include <engine/vector.h>
-#include "engine/globals.h"
-#include "dwarf_manager.h"
-#include "dwelling_manager.h"
-
+#include <engine/globals.h>
+#include <extensions/dwarf_manager.h>
+#include <extensions/dwelling_manager.h>
 
 namespace sfge::ext::behaviour_tree
 {
@@ -120,6 +119,192 @@ private:
 
 
 	Node::ptr m_RootNode = nullptr;
+};
+
+class CompositeNode : public Node {
+public:
+	void AddChild(Node::ptr child) { m_Children.push_back(child); }
+	bool HasChildren() const { return !m_Children.empty(); }
+protected:
+	std::vector<Node::ptr> m_Children;
+};
+
+class Sequence : public CompositeNode {
+public:
+	Sequence(BehaviourTree* BT);
+
+	void Init() override;
+	Status Execute(unsigned int index) override;
+};
+
+class Selector : public CompositeNode {
+public:
+	Selector(BehaviourTree* BT);
+
+	void Init() override;
+	Status Execute(unsigned int index) override;
+};
+
+class Decorator : public Node {
+public:
+
+	void SetChild(Node::ptr node) { m_Child = node; }
+	bool HasChild() const { return m_Child != nullptr; }
+
+protected:
+	Node::ptr m_Child = nullptr;
+};
+
+class Repeater : public Decorator
+{
+public:
+	Repeater(BehaviourTree* BT, int limit = 0);
+
+	void Init() override;
+
+	Status Execute(unsigned int index) override;
+
+private:
+	int m_Limit;
+};
+
+class Inverter : public Decorator
+{
+public:
+	Inverter(BehaviourTree* BT);
+
+	void Init() override;
+
+	Status Execute(unsigned int index) override;
+};
+
+class Succeeder : public Decorator
+{
+public:
+	Succeeder(BehaviourTree* BT);
+
+	void Init() override;
+
+	Status Execute(unsigned index) override;
+};
+
+class Leaf : public Node {
+	virtual Status Execute(unsigned index) override = 0;
+};
+
+class DebugUpdateLeaf : public Leaf
+{
+public:
+	void Init() override {}
+
+	Status Execute(unsigned index) override;
+};
+
+class DebugUpdateLeaf2 : public Leaf
+{
+public:
+	void Init() override {}
+
+	Status Execute(unsigned index) override;
+};
+
+class DebugUpdateLeaf3 : public Leaf
+{
+public:
+	void Init() override {}
+
+	Status Execute(unsigned index) override;
+};
+
+class DebugUpdateLeaf4 : public Leaf
+{
+public:
+	void Init() override {}
+
+	Status Execute(unsigned index) override;
+};
+
+class HasDwelling : public Leaf
+{
+public:
+	void Init() override {}
+
+	Status Execute(unsigned index) override
+	{
+		if (behaviourTree->dwarfManager->GetDwellingEntity(index) == INVALID_ENTITY)
+		{
+			return Status::FAIL;
+		}
+		else
+		{
+			return Status::SUCCESS;
+		}
+	}
+};
+
+class AssignDwelling : public Leaf
+{
+public:
+	void Init() override {}
+
+	Status Execute(unsigned int index) override
+	{
+		auto const dwellingEntity = behaviourTree->dwellingManager->GetFreeSlotInBuilding();
+
+		if (dwellingEntity == INVALID_ENTITY) {
+			return Status::FAIL;
+		}
+		else {
+			behaviourTree->dwarfManager->AssignDwellingToDwarf(index, dwellingEntity);
+			behaviourTree->dwellingManager->AddDwarfToBuilding(dwellingEntity);
+			return Status::SUCCESS;
+		}
+	}
+};
+
+class FindRandomPath : public Leaf {
+public:
+	FindRandomPath(BehaviourTree* BT) { behaviourTree = BT; }
+
+	void Init() override {}
+	Status Execute(unsigned index) override
+	{
+		std::cout << "Execute: find random path \n";
+		behaviourTree->dwarfManager->BtFindRandomPath(index);
+		return Status::SUCCESS;
+	}
+};
+
+class FindPathToDwelling : public Leaf
+{
+public:
+	void Init() override {}
+
+	Status Execute(unsigned index) override
+	{
+		behaviourTree->dwarfManager->BTAddPathToDwelling(index);
+		return Status::SUCCESS;
+	}
+};
+
+class MoveTo : public Leaf
+{
+public:
+	MoveTo(BehaviourTree* BT) {behaviourTree = BT;}
+
+	void Init() override {}
+	Status Execute(unsigned index) override
+	{
+		std::cout << "Execute: Move to\n";
+		if (behaviourTree->dwarfManager->IsDwarfAtDestination(index)) {
+			std::cout << "->SUCCESS\n";
+			return Status::SUCCESS;
+		}else {
+			behaviourTree->dwarfManager->BTAddPathFollower(index);
+			std::cout << "->RUNNING\n";
+			return Status::RUNNING;
+		}
+	}
 };
 }
 

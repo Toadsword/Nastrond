@@ -56,7 +56,29 @@ public:
 	 */
 	void SpawnDwarf(const Vec2f pos);
 
+	//Dwelling 
+	/**
+	 * \brief Get the dwelling associated to a dwarf
+	 * \param index of the dwarf
+	 * \return entity of dwelling, if none return INVALID_ENTIY
+	 */
 	Entity GetDwellingEntity(unsigned int index);
+
+	/**
+	 * \brief Assign a dwelling to a dwarf
+	 * \param index of the dwarf
+	 * \param dwellingEntity to assign to the dwarf
+	 */
+	void AssignDwellingToDwarf(unsigned int index, Entity dwellingEntity);
+
+	bool IsDwarfAtDestination(unsigned int index);
+
+	//Behaviour tree communication function
+	void BTAddPathToDwelling(unsigned int index);
+
+	void BtFindRandomPath(unsigned int index);
+
+	void BTAddPathFollower(unsigned int index);
 
 private:
 	Transform2dManager * m_Transform2DManager;
@@ -86,7 +108,7 @@ private:
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
-	const float m_SpeedDwarf = 2;
+	const float m_SpeedDwarf = 100;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
@@ -114,6 +136,11 @@ private:
 		
 	//Vertex array
 	sf::VertexArray m_VertexArray;
+
+	//Data filed by the behaviourTree
+	std::vector<int> m_BT_pathDwarfToDwelling;
+	std::vector<int> m_BT_pathDwarfToRandom;
+	std::vector<int> m_BT_followingPath;
 };
 }
 

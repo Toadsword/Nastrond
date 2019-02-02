@@ -212,3 +212,58 @@ TEST(AI, BehaviourTree)
 
 	engine.Start();
 }
+
+TEST(AI, BehaviourTreeRandomPath)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	auto* sceneManager = engine.GetSceneManager();
+
+	json sceneJson = {
+		{ "name", "Behaviour tree" } };
+	json systemJsonBehaviourTree = {
+		{ "systemClassName", "BehaviourTree" }
+	};
+	json systemJsonNavigation = {
+		{ "systemClassName", "NavigationGraphManager" }
+	};
+	json systemJsonDwarf = {
+		{ "systemClassName", "DwarfManager" }
+	};
+	json systemJsonDwelling = {
+		{ "systemClassName", "DwellingManager"}
+	};
+
+	sceneJson["systems"] = json::array({ systemJsonBehaviourTree,  systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
+	
+	//Repeater
+	auto repeater = std::make_shared<sfge::ext::behaviour_tree::Repeater>(behaviourTree, 0);
+	behaviourTree->SetRootNode(repeater);
+
+	//Sequence
+	auto sequence = std::make_shared<sfge::ext::behaviour_tree::Sequence>(behaviourTree);
+	sequence->parentNode = repeater;
+	repeater->SetChild(sequence);
+	
+	//Find random path
+	auto findPath = std::make_shared<sfge::ext::behaviour_tree::FindRandomPath>(behaviourTree);
+	findPath->parentNode = sequence;
+	sequence->AddChild(findPath);
+
+	//Follow path
+	auto followPath = std::make_shared<sfge::ext::behaviour_tree::MoveTo>(behaviourTree);
+	followPath->parentNode = sequence;
+	sequence->AddChild(followPath);
+	
+	engine.Start();
+}
