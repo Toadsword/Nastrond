@@ -78,9 +78,12 @@ public:
 	std::vector<Entity>* m_Entities;
 
 	std::vector<Node::ptr> m_CurrentNode;
-	std::vector<Node::ptr> m_PreviousNode;
+	std::vector<bool> m_FlowGoesDown;
 	std::vector<Node::Status> m_PreviousStatus;
-	std::vector<short> m_Counter;
+
+	std::vector<char> m_Counter;
+	std::vector<char> m_Child;
+
 	DwarfManager* dwarfManager;
 	DwellingManager* dwellingManager;
 
