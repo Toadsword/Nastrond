@@ -269,7 +269,7 @@ public:
 	void Init() override {}
 	Status Execute(unsigned index) override
 	{
-		std::cout << "Execute: find random path \n";
+		//std::cout << "Execute: find random path [" << index << "] \n";
 		behaviourTree->dwarfManager->BtFindRandomPath(index);
 		return Status::SUCCESS;
 	}
@@ -295,13 +295,27 @@ public:
 	void Init() override {}
 	Status Execute(unsigned index) override
 	{
-		std::cout << "Execute: Move to\n";
+		//std::cout << "Execute: move to [" << index << "] \n";
 		if (behaviourTree->dwarfManager->IsDwarfAtDestination(index)) {
-			std::cout << "->SUCCESS\n";
 			return Status::SUCCESS;
 		}else {
 			behaviourTree->dwarfManager->BTAddPathFollower(index);
-			std::cout << "->RUNNING\n";
+			return Status::RUNNING;
+		}
+	}
+};
+
+class WaitForPath : public Leaf
+{
+public:
+	WaitForPath(BehaviourTree* BT) { behaviourTree = BT; }
+
+	void Init() override {}
+	Status Execute(unsigned index) override
+	{
+		if (behaviourTree->dwarfManager->HasPath(index)) {
+			return Status::SUCCESS;
+		}else {
 			return Status::RUNNING;
 		}
 	}

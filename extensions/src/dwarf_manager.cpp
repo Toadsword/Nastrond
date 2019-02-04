@@ -130,6 +130,10 @@ bool DwarfManager::IsDwarfAtDestination(unsigned int index) {
 	return true;
 }
 
+bool DwarfManager::HasPath(unsigned index) {
+	return !m_Paths[index].empty();
+}
+
 void DwarfManager::BTAddPathToDwelling(unsigned int index) {
 	m_BT_pathDwarfToDwelling.push_back(index);
 }
@@ -143,7 +147,7 @@ void DwarfManager::BTAddPathFollower(unsigned int index) {
 }
 
 void DwarfManager::ResizeContainers(const size_t newSize) {
-	m_DwarfsEntities.resize(newSize);
+	m_DwarfsEntities.resize(newSize, INVALID_ENTITY);
 	m_Paths.resize(newSize);
 	m_States.resize(newSize);
 	m_AssociatedDwelling.resize(newSize);
@@ -161,7 +165,6 @@ void DwarfManager::Update(float dt) {
 #endif
 	//Random path
 	for (int i = 0; i < m_BT_pathDwarfToRandom.size(); ++i) {
-		std::cout << "Helo\n";
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[m_BT_pathDwarfToRandom[i]]);
 		m_NavigationGraphManager->AskForPath(&m_Paths[m_BT_pathDwarfToRandom[i]], transformPtr->Position,
 			Vec2f(std::rand() % static_cast<int>(screenSize.x),
@@ -176,7 +179,7 @@ void DwarfManager::Update(float dt) {
 
 		auto dir = m_Paths[m_BT_followingPath[i]][m_Paths[m_BT_followingPath[i]].size() - 1] - transformPtr->Position;
 
-		if (dir.GetMagnitude() < m_StoppingDistance) {
+		if (dir.GetMagnitude() < m_StoppingDistance && m_Paths[m_BT_followingPath[i]].size() > 1) {
 			m_Paths[m_BT_followingPath[i]].pop_back();
 		}
 		else {

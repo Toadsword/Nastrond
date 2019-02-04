@@ -45,10 +45,13 @@ void BehaviourTree::Update(float dt)
 		m_PreviousStatus.resize(m_Entities->size());
 		m_Counter.resize(m_Entities->size(), 0);
 	}
-	std::cout << "=========UPDATE==============\n";
-	std::cout << m_Entities->size() << "\n";
-	for(size_t i = 0; i < 1; i++)
+
+	for(size_t i = 0; i < m_Entities->size(); i++)
 	{
+		if(m_Entities->at(i) == INVALID_ENTITY) {
+			continue;
+		}
+
 		m_PreviousStatus[i] = m_CurrentNode[i]->Execute(i);
 
 		if(m_PreviousStatus[i] != Node::Status::RUNNING)
@@ -174,7 +177,6 @@ void Repeater::Init()
 
 Node::Status Repeater::Execute(unsigned int index)
 {
-	std::cout << "Execute: Repeater\n";
 	if (behaviourTree->m_PreviousNode[index] == parentNode) {
 		behaviourTree->m_Counter[index] = 0;
 	}
@@ -182,12 +184,10 @@ Node::Status Repeater::Execute(unsigned int index)
 		//If limit == 0 => inifinity, if m_Counter == m_Limit it's over
 		if (m_Limit > 0 && ++behaviourTree->m_Counter[index] == m_Limit)
 		{
-			std::cout << "count = " << behaviourTree->m_Counter[index] << "\n";
 			behaviourTree->m_Counter[index] = 0;
 			return Status::SUCCESS;
 		}
 		else if (m_Limit > 0) {
-			std::cout << "count = " << behaviourTree->m_Counter[index] << "\n";
 		}
 	}
 
@@ -212,7 +212,6 @@ Node::Status Inverter::Execute(unsigned index)
 {
 	if (behaviourTree->m_PreviousNode[index] == parentNode)
 	{
-		std::cout << "Execute: Inverter\n";
 		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
 		behaviourTree->m_CurrentNode[index] = m_Child;
 
@@ -221,13 +220,11 @@ Node::Status Inverter::Execute(unsigned index)
 
 	if (behaviourTree->m_PreviousStatus[index] == Status::SUCCESS)
 	{
-		std::cout << "Invert success to fail\n";
 		return Status::FAIL;
 	}
 
 	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL)
 	{
-		std::cout << "Invert fail to success\n";
 		return Status::SUCCESS;
 	}
 
@@ -252,8 +249,6 @@ void Sequence::Init()
 
 Node::Status Sequence::Execute(unsigned int index)
 {
-	std::cout << "Execute: Sequence\n";
-
 	//if last one returned fail => then it's a fail
 	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL)
 	{

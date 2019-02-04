@@ -260,6 +260,11 @@ TEST(AI, BehaviourTreeRandomPath)
 	findPath->parentNode = sequence;
 	sequence->AddChild(findPath);
 
+	//Has path
+	auto waitForPath = std::make_shared<sfge::ext::behaviour_tree::WaitForPath>(behaviourTree);
+	waitForPath->parentNode = sequence;
+	sequence->AddChild(waitForPath);
+
 	//Follow path
 	auto followPath = std::make_shared<sfge::ext::behaviour_tree::MoveTo>(behaviourTree);
 	followPath->parentNode = sequence;

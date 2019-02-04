@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define TEST_SYSTEM_DEBUG
+//#define TEST_SYSTEM_DEBUG
 
 	/**
 	 * \author Robin Alves

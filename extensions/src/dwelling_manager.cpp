@@ -122,8 +122,9 @@ namespace sfge::ext
 					return false;
 				}
 			}
-			return false;
 		}
+
+		return false;
 	}
 
 	bool DwellingManager::RemoveDwarfToBuilding(Entity entity)

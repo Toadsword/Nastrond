@@ -73,6 +73,8 @@ public:
 
 	bool IsDwarfAtDestination(unsigned int index);
 
+	bool HasPath(unsigned int index);
+
 	//Behaviour tree communication function
 	void BTAddPathToDwelling(unsigned int index);
 
@@ -108,7 +110,7 @@ private:
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
-	const float m_SpeedDwarf = 100;
+	const float m_SpeedDwarf = 25;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
@@ -122,7 +124,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 1;
+	const size_t m_DwarfToSpawn = 10;
 #endif
 
 	//Dwarfs texture
