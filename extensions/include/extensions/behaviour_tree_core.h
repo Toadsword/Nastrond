@@ -27,9 +27,8 @@ SOFTWARE.
 #include <engine/system.h>
 #include <vector>
 #include <memory>
-#include <unordered_map>
-#include <engine/vector.h>
 #include <engine/globals.h>
+
 #include <extensions/dwarf_manager.h>
 #include <extensions/dwelling_manager.h>
 
@@ -86,6 +85,9 @@ public:
 
 	DwarfManager* dwarfManager;
 	DwellingManager* dwellingManager;
+
+	const bool FLOW_GOES_DOWN = true;
+	const bool FLOW_GOES_UP = false;
 
 private:
 	Node::ptr m_RootNode = nullptr;
@@ -158,8 +160,6 @@ public:
 class Leaf : public Node {
 public:
 	explicit Leaf(BehaviourTree* BT, ptr parentNode) : Node(BT, parentNode){}
-
-	virtual Status Execute(unsigned index) override = 0;
 };
 }
 

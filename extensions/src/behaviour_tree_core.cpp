@@ -31,20 +31,17 @@ Node::Node(BehaviourTree* BT, ptr parentNode) {
 	m_parentNode = parentNode;
 }
 
-BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) 
-{
+BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) {
 }
 
-void BehaviourTree::Init()
-{
+void BehaviourTree::Init() {
 	dwarfManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwarfManager>("DwarfManager");
-	dwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>("DwellingManager");
+	dwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
+		"DwellingManager");
 }
 
-void BehaviourTree::Update(float dt)
-{
-	if(m_CurrentNode.size() < m_Entities->size())
-	{
+void BehaviourTree::Update(float dt) {
+	if (m_CurrentNode.size() < m_Entities->size()) {
 		m_CurrentNode.resize(m_Entities->size(), m_RootNode);
 		m_FlowGoesDown.resize(m_Entities->size());
 		m_PreviousStatus.resize(m_Entities->size());
@@ -52,9 +49,8 @@ void BehaviourTree::Update(float dt)
 		m_Child.resize(m_Entities->size(), 0);
 	}
 
-	for(size_t i = 0; i < m_Entities->size(); i++)
-	{
-		if(m_Entities->at(i) == INVALID_ENTITY) {
+	for (size_t i = 0; i < m_Entities->size(); i++) {
+		if (m_Entities->at(i) == INVALID_ENTITY) {
 			continue;
 		}
 
@@ -62,116 +58,94 @@ void BehaviourTree::Update(float dt)
 	}
 }
 
-void BehaviourTree::FixedUpdate()
-{
+void BehaviourTree::FixedUpdate() {
 }
 
-void BehaviourTree::Draw()
-{
+void BehaviourTree::Draw() {
 }
 
-void BehaviourTree::SetRootNode(const Node::ptr& rootNode)
-{
+void BehaviourTree::SetRootNode(const Node::ptr& rootNode) {
 	m_RootNode = rootNode;
 }
 
-void BehaviourTree::SetEntities(std::vector<Entity>* entities)
-{
+void BehaviourTree::SetEntities(std::vector<Entity>* entities) {
 	m_Entities = entities;
 }
 
-Repeater::Repeater(BehaviourTree* BT, ptr parentNode, int limit) : Decorator(BT, parentNode)
-{
+Repeater::Repeater(BehaviourTree* BT, ptr parentNode, int limit) : Decorator(BT, parentNode) {
 	m_Limit = limit;
 }
 
-Node::Status Repeater::Execute(unsigned int index)
-{
+Node::Status Repeater::Execute(unsigned int index) {
 	//If flow goes down => start counter 
 	if (behaviourTree->m_FlowGoesDown[index]) {
 		behaviourTree->m_Counter[index] = 0;
 	}
 	else {
 		//If limit == 0 => inifinity, if m_Counter == m_Limit it's over
-		if (m_Limit > 0 && ++behaviourTree->m_Counter[index] == m_Limit)
-		{
+		if (m_Limit > 0 && ++behaviourTree->m_Counter[index] == m_Limit) {
 			behaviourTree->m_Counter[index] = 0;
 
-			behaviourTree->m_FlowGoesDown[index] = false;
+			behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
 			behaviourTree->m_CurrentNode[index] = m_parentNode;
 
 			return Status::SUCCESS;
 		}
-		else if (m_Limit > 0) {
+
+		if (m_Limit > 0) {
 		}
 	}
 
 	//Switch current node to child
-	behaviourTree->m_FlowGoesDown[index] = true;
+	behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_DOWN;
 	behaviourTree->m_CurrentNode[index] = m_Child;
 
 	return Status::RUNNING;
 }
 
-Node::Status Inverter::Execute(unsigned index)
-{
-	if (behaviourTree->m_FlowGoesDown[index])
-	{
+Node::Status Inverter::Execute(unsigned int index) {
+	if (behaviourTree->m_FlowGoesDown[index]) {
 		behaviourTree->m_CurrentNode[index] = m_Child;
 
 		return Status::RUNNING;
 	}
 
-	if (behaviourTree->m_PreviousStatus[index] == Status::SUCCESS)
-	{
-		behaviourTree->m_FlowGoesDown[index] = false;
+	if (behaviourTree->m_PreviousStatus[index] == Status::SUCCESS) {
+		behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
 		behaviourTree->m_CurrentNode[index] = m_parentNode;
 		return Status::FAIL;
 	}
 
-	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL)
-	{
-		behaviourTree->m_FlowGoesDown[index] = false;
+	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL) {
+		behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
 		behaviourTree->m_CurrentNode[index] = m_parentNode;
 		return Status::SUCCESS;
 	}
-
-	if (behaviourTree->m_PreviousStatus[index] == Status::RUNNING)
-	{
-		std::cout << "Inverter: THIS IS NOT POSSIBLE\n";
-	}
 }
 
-Node::Status Sequence::Execute(unsigned int index)
-{
+Node::Status Sequence::Execute(unsigned int index) {
 	//if last one returned fail => then it's a fail
-	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL)
-	{
+	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL) {
 		behaviourTree->m_CurrentNode[index] = m_parentNode;
 		return Status::FAIL;
 	}
 
 	//If last one is parent => first time entering the sequence
-	if (behaviourTree->m_FlowGoesDown[index])
-	{
+	if (behaviourTree->m_FlowGoesDown[index]) {
 		behaviourTree->m_Child[index] = 0;
 		behaviourTree->m_CurrentNode[index] = m_Children[0];
 		return Status::RUNNING;
 	}
 
 	//Else it means that the previous node is a children
-	for (size_t i = 0; i < m_Children.size(); i++)
-	{
-		if (i == behaviourTree->m_Child[index])
-		{
-			if (i == m_Children.size() - 1)
-			{
+	for (size_t i = 0; i < m_Children.size(); i++) {
+		if (i == behaviourTree->m_Child[index]) {
+			if (i == m_Children.size() - 1) {
 				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::SUCCESS;
 			}
-			else
-			{
-				behaviourTree->m_FlowGoesDown[index] = true;
+			else {
+				behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_DOWN;
 				behaviourTree->m_Child[index]++;
 				behaviourTree->m_CurrentNode[index] = m_Children[i + 1];
 				return Status::RUNNING;
@@ -183,18 +157,15 @@ Node::Status Sequence::Execute(unsigned int index)
 
 Node::Status Selector::Execute(unsigned index) {
 	//If last one is parent => first time entering the sequence
-	if (behaviourTree->m_FlowGoesDown[index])
-	{
+	if (behaviourTree->m_FlowGoesDown[index]) {
 		behaviourTree->m_Child[index] = 0;
 		behaviourTree->m_CurrentNode[index] = m_Children[0];
 		return Status::RUNNING;
 	}
 
 	//Else it means that the previous node is a children
-	for (size_t i = 0; i < m_Children.size(); i++)
-	{
-		if (i == behaviourTree->m_Child[index])
-		{
+	for (size_t i = 0; i < m_Children.size(); i++) {
+		if (i == behaviourTree->m_Child[index]) {
 			//If last one is a success => going out of node
 			if (behaviourTree->m_PreviousStatus[index] == Status::SUCCESS) {
 				behaviourTree->m_CurrentNode[index] = m_parentNode;
@@ -202,9 +173,8 @@ Node::Status Selector::Execute(unsigned index) {
 			}
 
 			//Else if not last child => go next child
-			if (i < m_Children.size() - 1)
-			{
-				behaviourTree->m_FlowGoesDown[index] = true;
+			if (i < m_Children.size() - 1) {
+				behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_DOWN;
 				behaviourTree->m_CurrentNode[index] = m_Children[i + 1];
 				behaviourTree->m_Child[index]++;
 
@@ -221,10 +191,8 @@ Node::Status Selector::Execute(unsigned index) {
 	return Status::RUNNING;
 }
 
-Node::Status Succeeder::Execute(unsigned index)
-{
-	if (behaviourTree->m_FlowGoesDown[index])
-	{
+Node::Status Succeeder::Execute(unsigned int index) {
+	if (behaviourTree->m_FlowGoesDown[index]) {
 		behaviourTree->m_CurrentNode[index] = m_Child;
 		return Status::RUNNING;
 	}
