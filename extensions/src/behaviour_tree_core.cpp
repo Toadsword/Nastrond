@@ -26,6 +26,11 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
+Node::Node(BehaviourTree* BT, ptr parentNode) {
+	behaviourTree = BT;
+	m_parentNode = parentNode;
+}
+
 BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) 
 {
 }
@@ -53,12 +58,6 @@ void BehaviourTree::Update(float dt)
 		}
 
 		m_PreviousStatus[i] = m_CurrentNode[i]->Execute(i);
-
-		if(m_PreviousStatus[i] != Node::Status::RUNNING)
-		{
-			m_PreviousNode[i] = m_CurrentNode[i];
-			m_CurrentNode[i] = m_CurrentNode[i]->parentNode;
-		}
 	}
 }
 
@@ -73,7 +72,6 @@ void BehaviourTree::Draw()
 void BehaviourTree::SetRootNode(const Node::ptr& rootNode)
 {
 	m_RootNode = rootNode;
-	m_RootNode->parentNode = nullptr;
 }
 
 void BehaviourTree::SetEntities(std::vector<Entity>* entities)
@@ -81,15 +79,14 @@ void BehaviourTree::SetEntities(std::vector<Entity>* entities)
 	m_Entities = entities;
 }
 
-Repeater::Repeater(BehaviourTree* BT, int limit)
+Repeater::Repeater(BehaviourTree* BT, ptr parentNode, int limit) : Decorator(BT, parentNode)
 {
 	m_Limit = limit;
-	behaviourTree = BT;
 }
 
 Node::Status Repeater::Execute(unsigned int index)
 {
-	if (behaviourTree->m_PreviousNode[index] == parentNode) {
+	if (behaviourTree->m_PreviousNode[index] == m_parentNode) {
 		behaviourTree->m_Counter[index] = 0;
 	}
 	else {
@@ -97,6 +94,10 @@ Node::Status Repeater::Execute(unsigned int index)
 		if (m_Limit > 0 && ++behaviourTree->m_Counter[index] == m_Limit)
 		{
 			behaviourTree->m_Counter[index] = 0;
+
+			behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+			behaviourTree->m_CurrentNode[index] = m_parentNode;
+
 			return Status::SUCCESS;
 		}
 		else if (m_Limit > 0) {
@@ -110,14 +111,9 @@ Node::Status Repeater::Execute(unsigned int index)
 	return Status::RUNNING;
 }
 
-Inverter::Inverter(BehaviourTree* BT)
-{
-	behaviourTree = BT;
-}
-
 Node::Status Inverter::Execute(unsigned index)
 {
-	if (behaviourTree->m_PreviousNode[index] == parentNode)
+	if (behaviourTree->m_PreviousNode[index] == m_parentNode)
 	{
 		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
 		behaviourTree->m_CurrentNode[index] = m_Child;
@@ -127,11 +123,15 @@ Node::Status Inverter::Execute(unsigned index)
 
 	if (behaviourTree->m_PreviousStatus[index] == Status::SUCCESS)
 	{
+		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+		behaviourTree->m_CurrentNode[index] = m_parentNode;
 		return Status::FAIL;
 	}
 
 	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL)
 	{
+		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+		behaviourTree->m_CurrentNode[index] = m_parentNode;
 		return Status::SUCCESS;
 	}
 
@@ -141,22 +141,18 @@ Node::Status Inverter::Execute(unsigned index)
 	}
 }
 
-
-Sequence::Sequence(BehaviourTree * BT)
-{
-	behaviourTree = BT;
-}
-
 Node::Status Sequence::Execute(unsigned int index)
 {
 	//if last one returned fail => then it's a fail
 	if (behaviourTree->m_PreviousStatus[index] == Status::FAIL)
 	{
+		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+		behaviourTree->m_CurrentNode[index] = m_parentNode;
 		return Status::FAIL;
 	}
 
 	//If last one is parent => first time entering the sequence
-	if (behaviourTree->m_PreviousNode[index] == parentNode)
+	if (behaviourTree->m_PreviousNode[index] == m_parentNode)
 	{
 		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
 		behaviourTree->m_CurrentNode[index] = m_Children[0];
@@ -170,6 +166,8 @@ Node::Status Sequence::Execute(unsigned int index)
 		{
 			if (i == m_Children.size() - 1)
 			{
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::SUCCESS;
 			}
 			else
@@ -183,13 +181,9 @@ Node::Status Sequence::Execute(unsigned int index)
 	return Status::RUNNING;
 }
 
-Selector::Selector(BehaviourTree* BT) {
-	behaviourTree = BT;
-}
-
 Node::Status Selector::Execute(unsigned index) {
 	//If last one is parent => first time entering the sequence
-	if (behaviourTree->m_PreviousNode[index] == parentNode)
+	if (behaviourTree->m_PreviousNode[index] == m_parentNode)
 	{
 		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
 		behaviourTree->m_CurrentNode[index] = m_Children[0];
@@ -203,6 +197,8 @@ Node::Status Selector::Execute(unsigned index) {
 		{
 			//If last one is a success => going out of node
 			if (behaviourTree->m_PreviousStatus[index] == Status::SUCCESS) {
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::SUCCESS;
 			}
 
@@ -215,6 +211,8 @@ Node::Status Selector::Execute(unsigned index) {
 			}
 			else //mean that they all failed => return fail
 			{
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::FAIL;
 			}
 		}
@@ -222,20 +220,17 @@ Node::Status Selector::Execute(unsigned index) {
 	return Status::RUNNING;
 }
 
-Succeeder::Succeeder(BehaviourTree * BT)
-{
-	behaviourTree = BT;
-}
-
 Node::Status Succeeder::Execute(unsigned index)
 {
-	if (behaviourTree->m_PreviousNode[index] == parentNode)
+	if (behaviourTree->m_PreviousNode[index] == m_parentNode)
 	{
 		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
 		behaviourTree->m_CurrentNode[index] = m_Child;
 		return Status::RUNNING;
 	}
 
+	behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+	behaviourTree->m_CurrentNode[index] = m_parentNode;
 	return Status::SUCCESS;
 }
 }

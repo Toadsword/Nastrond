@@ -40,6 +40,11 @@ class BehaviourTree;
 
 class Node {
 public:
+	using ptr = std::shared_ptr<Node>;
+
+	explicit Node(BehaviourTree* BT, ptr parentNode);
+	virtual ~Node() = default;
+
 	enum class Status {
 		SUCCESS,
 		FAIL,
@@ -48,17 +53,15 @@ public:
 
 	virtual Status Execute(unsigned int index) = 0;
 
-	using ptr = std::shared_ptr<Node>;
-
-	Node::ptr parentNode;
-
 protected:
-	BehaviourTree * behaviourTree;
+	BehaviourTree* behaviourTree;
+
+	ptr m_parentNode;
 };
 
 class BehaviourTree : public System {
 public:
-	BehaviourTree(sfge::Engine& engine);
+	BehaviourTree(Engine& engine);
 
 	void Init() override;
 
@@ -77,33 +80,35 @@ public:
 	std::vector<Node::ptr> m_CurrentNode;
 	std::vector<Node::ptr> m_PreviousNode;
 	std::vector<Node::Status> m_PreviousStatus;
-	std::vector<int> m_Counter;
+	std::vector<short> m_Counter;
 	DwarfManager* dwarfManager;
 	DwellingManager* dwellingManager;
 
 private:
-
 	Node::ptr m_RootNode = nullptr;
 };
 
 class CompositeNode : public Node {
 public:
-	void AddChild(Node::ptr child) { m_Children.push_back(child); }
+	explicit CompositeNode(BehaviourTree* BT, ptr parentNode) : Node(BT, parentNode){}
+
+	void AddChild(ptr child) { m_Children.push_back(child); }
 	bool HasChildren() const { return !m_Children.empty(); }
 protected:
-	std::vector<Node::ptr> m_Children;
+	std::vector<ptr> m_Children;
 };
 
 class Sequence : public CompositeNode {
 public:
-	Sequence(BehaviourTree* BT);
+	Sequence(BehaviourTree* BT, ptr parentNode) : CompositeNode(BT, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
 
 class Selector : public CompositeNode {
 public:
-	Selector(BehaviourTree* BT);
+	Selector(BehaviourTree* BT, ptr parentNode) : CompositeNode(BT, parentNode) {}
+	~Selector() = default;
 
 	Status Execute(unsigned int index) override;
 };
@@ -111,17 +116,19 @@ public:
 class Decorator : public Node {
 public:
 
+	explicit Decorator(BehaviourTree* BT, ptr parentNode) : Node(BT, parentNode) { }
+
 	void SetChild(Node::ptr node) { m_Child = node; }
 	bool HasChild() const { return m_Child != nullptr; }
 
 protected:
-	Node::ptr m_Child = nullptr;
+	ptr m_Child = nullptr;
 };
 
 class Repeater : public Decorator
 {
 public:
-	Repeater(BehaviourTree* BT, int limit = 0);
+	Repeater(BehaviourTree* BT, ptr parentNode, int limit = 0);
 	
 	Status Execute(unsigned int index) override;
 
@@ -132,7 +139,7 @@ private:
 class Inverter : public Decorator
 {
 public:
-	Inverter(BehaviourTree* BT);
+	Inverter(BehaviourTree* BT, ptr parentNode) : Decorator(BT, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
@@ -140,12 +147,15 @@ public:
 class Succeeder : public Decorator
 {
 public:
-	Succeeder(BehaviourTree* BT);
+	Succeeder(BehaviourTree* BT, ptr parentNode) : Decorator(BT, parentNode) {}
 
 	Status Execute(unsigned index) override;
 };
 
 class Leaf : public Node {
+public:
+	explicit Leaf(BehaviourTree* BT, ptr parentNode) : Node(BT, parentNode){}
+
 	virtual Status Execute(unsigned index) override = 0;
 };
 }

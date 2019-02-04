@@ -29,19 +29,23 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-
 	class HasDwelling : public Leaf
 	{
 	public:
+		HasDwelling(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode){}
 
 		Status Execute(unsigned index) override
 		{
 			if (behaviourTree->dwarfManager->GetDwellingEntity(index) == INVALID_ENTITY)
 			{
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::FAIL;
 			}
 			else
 			{
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::SUCCESS;
 			}
 		}
@@ -50,17 +54,23 @@ namespace sfge::ext::behaviour_tree
 	class AssignDwelling : public Leaf
 	{
 	public:
+		AssignDwelling(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode) {}
 
 		Status Execute(unsigned int index) override
 		{
 			auto const dwellingEntity = behaviourTree->dwellingManager->GetFreeSlotInBuilding();
 
 			if (dwellingEntity == INVALID_ENTITY) {
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::FAIL;
 			}
 			else {
 				behaviourTree->dwarfManager->AssignDwellingToDwarf(index, dwellingEntity);
 				behaviourTree->dwellingManager->AddDwarfToBuilding(dwellingEntity);
+
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::SUCCESS;
 			}
 		}
@@ -68,12 +78,15 @@ namespace sfge::ext::behaviour_tree
 
 	class FindRandomPath : public Leaf {
 	public:
-		FindRandomPath(BehaviourTree* BT) { behaviourTree = BT; }
+		FindRandomPath(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode){}
 
 		Status Execute(unsigned index) override
 		{
 			//std::cout << "Execute: find random path [" << index << "] \n";
 			behaviourTree->dwarfManager->BtFindRandomPath(index);
+
+			behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+			behaviourTree->m_CurrentNode[index] = m_parentNode;
 			return Status::SUCCESS;
 		}
 	};
@@ -85,6 +98,9 @@ namespace sfge::ext::behaviour_tree
 		Status Execute(unsigned index) override
 		{
 			behaviourTree->dwarfManager->BTAddPathToDwelling(index);
+
+			behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+			behaviourTree->m_CurrentNode[index] = m_parentNode;
 			return Status::SUCCESS;
 		}
 	};
@@ -92,12 +108,14 @@ namespace sfge::ext::behaviour_tree
 	class MoveTo : public Leaf
 	{
 	public:
-		MoveTo(BehaviourTree* BT) { behaviourTree = BT; }
+		MoveTo(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode) {}
 
 		Status Execute(unsigned index) override
 		{
 			//std::cout << "Execute: move to [" << index << "] \n";
 			if (behaviourTree->dwarfManager->IsDwarfAtDestination(index)) {
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::SUCCESS;
 			}
 			else {
@@ -110,11 +128,13 @@ namespace sfge::ext::behaviour_tree
 	class WaitForPath : public Leaf
 	{
 	public:
-		WaitForPath(BehaviourTree* BT) { behaviourTree = BT; }
+		WaitForPath(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode) {}
 
 		Status Execute(unsigned index) override
 		{
 			if (behaviourTree->dwarfManager->HasPath(index)) {
+				behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
+				behaviourTree->m_CurrentNode[index] = m_parentNode;
 				return Status::SUCCESS;
 			}
 			else {
