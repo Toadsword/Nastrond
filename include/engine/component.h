@@ -56,9 +56,9 @@ enum class ComponentType : int
 	SOUND = 1 << 5,
 	PYCOMPONENT = 1 << 6,
 	ANIMATION2D = 1 << 7,
-	UIELEMENT = 1 << 8,
-	TEXT = 1 << 9,
-	IMAGE = 1 << 10,
+	RECTTRANSFORM = 1 << 8,
+	IMAGE = 1 << 9,
+	TEXT = 1 << 10,
 	BUTTON = 1 << 11,
 };
 

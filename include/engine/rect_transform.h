@@ -22,33 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_UI_H
-#define SFGE_UI_H
-
-#include <engine/entity.h>
-#include <engine/system.h>
-#include <engine/rect_transform.h>
-#include <graphics/text.h>
-#include <graphics/button.h>
-#include <graphics/image.h>
+#include <editor/editor_info.h>
+#include <utility/json_utility.h>
+#include <engine/component.h>
+#include <engine/transform2d.h>
 
 namespace sfge
-{	
-	class UIManager : public System {
-	public:
-		UIManager(Engine& engine);
+{
+	struct RectTransform : Transform2d {
+		Vec2f size;
+		Vec2f halfSize;
+	};
 
-		void Init() override;
-		void Update(float dt) override;
-		void FixedUpdate() override;
-		void Draw() override;
-	private:
-		// Managers
-		EntityManager* m_EntityManager;
-		RectTransformManager* m_RectTransformManager;
-		ImageManager* m_ImageManager;
-		TextManager* m_TextManager;
-		ButtonManager* m_ButtonManager;
+	struct RectTransformInfo : editor::ComponentInfo
+	{
+		void DrawOnInspector() override;
+		RectTransform* rectTransform = nullptr;
+	};
+
+	class RectTransformManager : public SingleComponentManager<RectTransform, RectTransformInfo, ComponentType::RECTTRANSFORM> {
+		using SingleComponentManager::SingleComponentManager;
+		void CreateComponent(json& componentJson, Entity entity) override;
+		RectTransform* AddComponent(Entity entity) override;
+		void DestroyComponent(Entity entity) override;
+
+		void SetPosition(Entity entity, const Vec2f& newPosition);
+		void SetScale(Entity entity, const Vec2f& newScale);
+		void SetAngle(Entity entity, const float& newAngle);
+		void SetSize(Entity entity, const Vec2f& newSize);
+
+		Vec2f GetPosition(Entity entity);
+		Vec2f GetScale(Entity entity);
+		float GetAngle(Entity entity);
+		Vec2f GetSize(Entity entity);
 	};
 }
-#endif

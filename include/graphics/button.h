@@ -26,46 +26,50 @@ SOFTWARE.
 #include <editor/editor_info.h>
 #include <utility/json_utility.h>
 #include <engine/component.h>
-#include <engine/transform2d.h>
 
 namespace sfge
 {
-	struct UIElement : Transform2d {
-		Vec2f size;
-		Vec2f halfSize;
+	enum ButtonState
+	{
+		NONE,
+		HOVERED,
+		CLICKED
+	};
+
+	struct Button {
 		sf::Sprite sprite;
+		sf::Sprite spriteHovered;
+		sf::Sprite spriteClicked;
 		sf::Texture texture;
+		sf::Texture textureHovered;
+		sf::Texture textureClicked;
 		sf::Color color;
+		sf::Color colorHovered;
+		sf::Color colorClicked;
 		void* action = nullptr;
 		void* data = nullptr;
+
+		ButtonState state = ButtonState::NONE;
 	};
 
-	struct UIElementInfo : editor::ComponentInfo
+	struct ButtonInfo : editor::ComponentInfo
 	{
 		void DrawOnInspector() override;
-		UIElement* rectTransform = nullptr;
+		Button* button = nullptr;
 	};
 
-	class UIElementManager : public SingleComponentManager<UIElement, UIElementInfo, ComponentType::UIELEMENT> {
+	class ButtonManager : public SingleComponentManager<Button, ButtonInfo, ComponentType::BUTTON> {
 		using SingleComponentManager::SingleComponentManager;
 		void CreateComponent(json& componentJson, Entity entity) override;
-		UIElement* AddComponent(Entity entity) override;
+		Button* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;
 
-		void SetPosition(Entity entity, const Vec2f& newPosition);
-		void SetScale(Entity entity, const Vec2f& newScale);
-		void SetAngle(Entity entity, const float& newAngle);
-		void SetSize(Entity entity, const Vec2f& newSize);
 		void SetSprite(Entity entity, const std::string& newSpritePath);
+		void SetSpriteHovered(Entity entity, const std::string& newSpritePath);
+		void SetSpriteClicked(Entity entity, const std::string& newSpritePath);
 		void SetAction(Entity entity, const void* function, const void* data);
 
 		void CheckMouseOnButton(Entity entity, Vec2f& mousePosition);
 		void OnClick(Entity entity, void* (function)(void *), void* data);
-
-		Vec2f GetPosition(Entity entity);
-		Vec2f GetScale(Entity entity);
-		float GetAngle(Entity entity);
-		Vec2f GetSize(Entity entity);
-		//std::string GetSprite(Entity entity);
 	};
 }

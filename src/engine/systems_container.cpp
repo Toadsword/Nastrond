@@ -36,7 +36,8 @@ SystemsContainer::SystemsContainer(Engine &engine) :
 	pythonEngine(engine),
 	physicsManager(engine),
 	editor(engine),
-	entityManager(engine)
+	entityManager(engine),
+	uiManager(engine)
 {
 
 }

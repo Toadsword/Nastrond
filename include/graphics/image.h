@@ -22,33 +22,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_UI_H
-#define SFGE_UI_H
-
-#include <engine/entity.h>
-#include <engine/system.h>
-#include <engine/rect_transform.h>
-#include <graphics/text.h>
-#include <graphics/button.h>
-#include <graphics/image.h>
+#include <SFML/Graphics.hpp>
+#include <editor/editor_info.h>
+#include <utility/json_utility.h>
+#include <engine/component.h>
 
 namespace sfge
-{	
-	class UIManager : public System {
-	public:
-		UIManager(Engine& engine);
+{
+	struct Image {
+		sf::Sprite sprite;
+		sf::Texture texture;
+		sf::Color color;
+	};
 
-		void Init() override;
-		void Update(float dt) override;
-		void FixedUpdate() override;
+	struct ImageInfo : editor::ComponentInfo
+	{
+		void DrawOnInspector() override;
+		Image* image = nullptr;
+	};
+
+	class ImageManager : public SingleComponentManager<Image, ImageInfo, ComponentType::IMAGE> {
+		using SingleComponentManager::SingleComponentManager;
+		void CreateComponent(json& componentJson, Entity entity) override;
+		Image* AddComponent(Entity entity) override;
+		void DestroyComponent(Entity entity) override;
+
 		void Draw() override;
-	private:
-		// Managers
-		EntityManager* m_EntityManager;
-		RectTransformManager* m_RectTransformManager;
-		ImageManager* m_ImageManager;
-		TextManager* m_TextManager;
-		ButtonManager* m_ButtonManager;
+
+		void SetSprite(Entity entity, const std::string& newSpritePath);
 	};
 }
-#endif
