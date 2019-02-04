@@ -31,7 +31,7 @@ SOFTWARE.
 
 #include <python/python_engine.h>
 
-#include <extensions/behaviour_tree.h>
+#include <extensions/behaviour_tree_core.h>
 #include <extensions/python_extensions.h>
 #include <extensions/behaviour_tree_nodes.h>
 
@@ -125,90 +125,6 @@ TEST(AI, DwarfAndBuilding)
 
 	auto* sceneManager = engine.GetSceneManager();
 	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
-TEST(AI, BehaviourTree)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-
-	auto* sceneManager = engine.GetSceneManager();
-
-	json sceneJson = {
-		{ "name", "Behaviour tree" } };
-	json systemJsonBehaviourTree = {
-		{ "systemClassName", "BehaviourTree" }
-	};
-
-	sceneJson["systems"] = json::array({systemJsonBehaviourTree});
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
-
-	//Repeater
-	auto repeater = std::make_shared<sfge::ext::behaviour_tree::Repeater>(behaviourTree, 0);
-	behaviourTree->SetRootNode(repeater);
-
-	//Sequence
-	auto sequence = std::make_shared<sfge::ext::behaviour_tree::Sequence>(behaviourTree);
-	sequence->parentNode = repeater;
-	repeater->SetChild(sequence);
-
-	//Leaf 1
-	auto debugLeaf = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf>();
-	debugLeaf->parentNode = sequence;
-	sequence->AddChild(debugLeaf);
-
-	//Leaf 2
-	auto debugLeaf2 = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf2>();
-	debugLeaf2->parentNode = sequence;
-	sequence->AddChild(debugLeaf2);
-
-	//Selector
-	auto selector = std::make_shared<sfge::ext::behaviour_tree::Selector>(behaviourTree);
-	selector->parentNode = sequence;
-	sequence->AddChild(selector);
-
-	//Inverter
-	auto inverter = std::make_shared<sfge::ext::behaviour_tree::Inverter>(behaviourTree);
-	inverter->parentNode = selector;
-	selector->AddChild(inverter);
-
-	//Leaf 3
-	auto debugLeaf3 = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf3>();
-	debugLeaf3->parentNode = inverter;
-	inverter->SetChild(debugLeaf3);
-
-	//Repeater 2
-	auto repeater2 = std::make_shared<sfge::ext::behaviour_tree::Repeater>(behaviourTree, 4);
-	repeater2->parentNode = selector;
-	selector->AddChild(repeater2);
-
-	//Succeeder
-	auto succeeder = std::make_shared<sfge::ext::behaviour_tree::Succeeder>(behaviourTree);
-	succeeder->parentNode = repeater2;
-	repeater2->SetChild(succeeder);
-
-	//Leaf 4
-	auto debugLeaf4 = std::make_shared<sfge::ext::behaviour_tree::DebugUpdateLeaf4>();
-	debugLeaf4->parentNode = succeeder;
-	succeeder->SetChild(debugLeaf4);
-	
-	auto* entityManager = engine.GetEntityManager();
-	const auto newEntity = entityManager->CreateEntity(0);
-
-	std::vector<Entity> entities = std::vector<Entity>();
-	entities.push_back(newEntity);
-
-	behaviourTree->SetEntities(&entities);
 
 	engine.Start();
 }

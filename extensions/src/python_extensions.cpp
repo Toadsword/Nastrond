@@ -38,7 +38,7 @@ SOFTWARE.
 #include <tools/tools_pch.h>
 #include "extensions/dwelling_manager.h"
 #include "extensions/building_constructor.h"
-#include "extensions/behaviour_tree.h"
+#include "extensions/behaviour_tree_core.h"
 
 
 namespace sfge::ext

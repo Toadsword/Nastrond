@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <extensions/behaviour_tree.h>
+#include <extensions/behaviour_tree_core.h>
 #include <python/python_engine.h>
 
 namespace sfge::ext::behaviour_tree
@@ -81,98 +81,10 @@ void BehaviourTree::SetEntities(std::vector<Entity>* entities)
 	m_Entities = entities;
 }
 
-void BehaviourTree::SetBools(const std::string& key, std::vector<bool>* value)
-{
-	m_Bools[key] = value;
-}
-
-bool BehaviourTree::GetBool(const std::string& key, const Entity entity)
-{
-	if (m_Bools.find(key) == m_Bools.end()) {
-		m_Bools[key] = nullptr;
-	}
-	return  m_Bools[key]->at(GetInt("entityIndex", entity));
-}
-
-bool BehaviourTree::HasBool(const std::string& key) const
-{
-	return m_Bools.find(key) != m_Bools.end();
-}
-
-void BehaviourTree::SetInts(const std::string& key, std::vector<int>* value) {
-	m_Ints[key] = value;
-}
-
-int BehaviourTree::GetInt(const std::string& key, const unsigned int index) {
-	if (m_Ints.find(key) == m_Ints.end()) {
-		m_Ints[key] = nullptr;
-	}
-	return  m_Ints[key]->at(index);
-}
-
-bool BehaviourTree::HasInt(const std::string& key) {
-	return m_Ints.find(key) != m_Ints.end();
-}
-
-void BehaviourTree::SetFloats(const std::string& key, std::vector<float>* value)
-{
-	m_Floats[key] = value;
-}
-
-float BehaviourTree::GetFloat(const std::string& key, const unsigned int index)
-{
-	if (m_Floats.find(key) == m_Floats.end()) {
-		m_Floats[key] = nullptr;
-	}
-	return m_Floats[key]->at(index);
-}
-
-bool BehaviourTree::HasFloat(const std::string& key) const
-{
-	return m_Floats.find(key) != m_Floats.end();
-}
-
-void BehaviourTree::SetString(const std::string& key, std::vector<std::string>* value) {
-	m_Strings[key] = value;
-}
-
-std::string BehaviourTree::GetString(const std::string& key, const unsigned int index) {
-	if (m_Strings.find(key) == m_Strings.end()) {
-		m_Strings[key] = nullptr;
-	}
-	return m_Strings[key]->at(index);
-}
-
-bool BehaviourTree::HasString(const std::string& key) const {
-	return m_Strings.find(key) != m_Strings.end();
-}
-
-void BehaviourTree::SetVec2f(const std::string& key, std::vector<Vec2f>* value)
-{
-	m_Vec2fs[key] = value;
-}
-
-Vec2f BehaviourTree::GetVec2f(const std::string& key, const unsigned int index)
-{
-	if (m_Vec2fs.find(key) == m_Vec2fs.end()) {
-		m_Vec2fs[key] = nullptr;
-	}
-	return m_Vec2fs[key]->at(index);
-}
-
-bool BehaviourTree::HasVec2f(const std::string& key) const
-{
-	return m_Vec2fs.find(key) != m_Vec2fs.end();
-}
-
 Repeater::Repeater(BehaviourTree* BT, int limit)
 {
 	m_Limit = limit;
 	behaviourTree = BT;
-}
-
-void Repeater::Init()
-{
 }
 
 Node::Status Repeater::Execute(unsigned int index)
@@ -203,11 +115,6 @@ Inverter::Inverter(BehaviourTree* BT)
 	behaviourTree = BT;
 }
 
-void Inverter::Init()
-{
-
-}
-
 Node::Status Inverter::Execute(unsigned index)
 {
 	if (behaviourTree->m_PreviousNode[index] == parentNode)
@@ -234,17 +141,10 @@ Node::Status Inverter::Execute(unsigned index)
 	}
 }
 
-Node::Status DebugUpdateLeaf::Execute(unsigned index)
-{
-	std::cout << "Execute: DebugUpdateLeaf 1 (success)\n";
-	return Status::SUCCESS;
-}
+
 Sequence::Sequence(BehaviourTree * BT)
 {
 	behaviourTree = BT;
-}
-void Sequence::Init()
-{
 }
 
 Node::Status Sequence::Execute(unsigned int index)
@@ -287,12 +187,7 @@ Selector::Selector(BehaviourTree* BT) {
 	behaviourTree = BT;
 }
 
-void Selector::Init() {
-}
-
 Node::Status Selector::Execute(unsigned index) {
-	std::cout << "Execute: Selector\n";
-
 	//If last one is parent => first time entering the sequence
 	if (behaviourTree->m_PreviousNode[index] == parentNode)
 	{
@@ -327,42 +222,20 @@ Node::Status Selector::Execute(unsigned index) {
 	return Status::RUNNING;
 }
 
-Node::Status DebugUpdateLeaf2::Execute(unsigned index)
-{
-	std::cout << "Execute: DebugUpdateLeaf 2 (success)\n";
-	return Status::SUCCESS;
-}
-
-Node::Status DebugUpdateLeaf3::Execute(unsigned index) {
-	std::cout << "Execute: DebugUpdateLeaf 3 (success)\n";
-	return Status::SUCCESS;
-}
-
-Node::Status DebugUpdateLeaf4::Execute(unsigned index) {
-	std::cout << "Execute: DebugUpdateLeaf 4 (fail)\n";
-	return Status::FAIL;
-}
-
 Succeeder::Succeeder(BehaviourTree * BT)
 {
 	behaviourTree = BT;
-}
-
-void Succeeder::Init()
-{
 }
 
 Node::Status Succeeder::Execute(unsigned index)
 {
 	if (behaviourTree->m_PreviousNode[index] == parentNode)
 	{
-		std::cout << "Execute: Succeeder \/\n";
 		behaviourTree->m_PreviousNode[index] = behaviourTree->m_CurrentNode[index];
 		behaviourTree->m_CurrentNode[index] = m_Child;
 		return Status::RUNNING;
 	}
 
-	std::cout << "Execture: Succeeder return SUCCESS\n";
 	return Status::SUCCESS;
 }
 }
