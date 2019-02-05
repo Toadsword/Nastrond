@@ -37,6 +37,7 @@ namespace sfge::ext
 	 */
 	class WarehouseManager : public System
 	{
+	public:
 		WarehouseManager(Engine& engine);
 
 		void Init() override;

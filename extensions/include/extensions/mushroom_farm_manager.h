@@ -37,6 +37,7 @@ namespace sfge::ext
 	 */
 	class MushroomFarmManager : public System
 	{
+	public:
 		MushroomFarmManager(Engine& engine);
 
 		void Init() override;

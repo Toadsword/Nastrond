@@ -70,17 +70,18 @@ namespace sfge::ext
 		//{
 		switch (/*type*/ buildingType)
 		{
-		case BuildingType::FORGE :
+		case BuildingType::FORGE: {
 			Entity forgeEntity = INVALID_ENTITY;
 			forgeEntity = m_ForgeManager->GetFreeSlotInBuilding();
 
-			if(forgeEntity == INVALID_ENTITY)
+			if (forgeEntity == INVALID_ENTITY)
 				return INVALID_ENTITY;
 
 			m_ForgeManager->AddDwarfToBuilding(forgeEntity);
 			return forgeEntity;
+		}
 
-		case BuildingType::MINE:
+		case BuildingType::MINE: {
 			Entity mineEntity = INVALID_ENTITY;
 			mineEntity = m_MineManager->GetFreeSlotInBuilding();
 
@@ -89,8 +90,9 @@ namespace sfge::ext
 
 			m_MineManager->AddDwarfToBuilding(mineEntity);
 			return mineEntity;
+		}
 
-		case BuildingType::EXCAVATION_POST:
+		case BuildingType::EXCAVATION_POST: 
 			break;
 		case BuildingType::MUSHROOM_FARM:
 			break;
