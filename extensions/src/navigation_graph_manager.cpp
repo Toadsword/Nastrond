@@ -78,11 +78,15 @@ namespace sfge::ext
 
 	void NavigationGraphManager::Update(float dt)
 	{
-		if (!m_WaitingPaths.empty()) {
-			WaitingPath waitingPath = m_WaitingPaths.front();
+		for (size_t i = 0; i < maxPathForOneUpdate; i++) {
+			if (m_WaitingPaths.empty()) {
+				break;
+			}
+
+			auto waitingPath = m_WaitingPaths.front();
 			m_WaitingPaths.pop();
 
-			std::vector<Vec2f> tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
+			auto tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
 			waitingPath.path->assign(tmp.begin(), tmp.end());
 		}
 	}
