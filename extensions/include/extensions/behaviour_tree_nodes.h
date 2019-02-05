@@ -29,6 +29,9 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
+/**
+ * author Nicolas Schneider
+ */
 class HasDwelling final : public Leaf
 {
 public:
@@ -37,6 +40,9 @@ public:
 	Status Execute(unsigned int index) override;
 };
 
+/**
+* author Nicolas Schneider
+*/
 class AssignDwelling final : public Leaf
 {
 public:
@@ -45,6 +51,9 @@ public:
 	Status Execute(unsigned int index) override;
 };
 
+/**
+* author Nicolas Schneider
+*/
 class FindRandomPath final : public Leaf {
 public:
 	FindRandomPath(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode){}
@@ -52,6 +61,9 @@ public:
 	Status Execute(unsigned int index) override;
 };
 
+/**
+* author Nicolas Schneider
+*/
 class FindPathToDwelling final : public Leaf
 {
 public:
@@ -60,6 +72,9 @@ public:
 	Status Execute(unsigned int index) override;
 };
 
+/**
+* author Nicolas Schneider
+*/
 class MoveTo final : public Leaf
 {
 public:
@@ -68,6 +83,9 @@ public:
 	Status Execute(unsigned int index) override;
 };
 
+/**
+* author Nicolas Schneider
+*/
 class WaitForPath final : public Leaf
 {
 public:

@@ -122,6 +122,8 @@ Node::Status Inverter::Execute(const unsigned int index) {
 		m_BehaviourTree->currentNode[index] = m_ParentNode;
 		return Status::SUCCESS;
 	}
+
+	return Status::FAIL;
 }
 
 void CompositeNode::AddChild(const ptr& child) {
