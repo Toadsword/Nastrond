@@ -52,8 +52,7 @@ class Graphics2dManager;
 /**
 * \brief Animation component used in the GameObject
 */
-class Animation:
-	public LayerComponent, public TransformRequiredComponent, public Offsetable
+class Animation: public LayerComponent, public Offsetable
 {
 public:
 
@@ -61,7 +60,7 @@ public:
 	Animation(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
-	void Update(float dt);
+	void Update(float dt, Transform2d* transform);
 	void Draw(sf::RenderWindow& window);
 	void SetAnimation(std::vector<AnimationFrame> newFrameList, float newSpeed, bool newIsLooped);
 
@@ -105,6 +104,8 @@ public:
 	Animation* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
+
+	void OnResize(size_t newSize) override;
 
 protected:
 	Graphics2dManager* m_GraphicsManager;
