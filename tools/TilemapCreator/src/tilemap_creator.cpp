@@ -23,20 +23,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#include <tools/tools_pch.h>
-#include <engine/engine.h>
-#include <anim_creator.h>
+
 #include <tilemap_creator.h>
 
 namespace sfge::tools
 {
-void ExtendPythonTools(py::module& m)
+void TilemapCreator::Init()
 {
-    py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-    animCreator
-		.def(py::init<Engine&>());
-    py::class_<TilemapCreator, System> tilemapCreator(m, "TilemapCreator");
-    tilemapCreator
-		.def(py::init<Engine&>());
+	Log::GetInstance()->Msg("Init TilemapCreator");
+	m_TilemapImguiManager.Init(this);
+
+	m_IsInit = true;
 }
+
+void TilemapCreator::Update(float dt)
+{
+	if (!m_IsInit)
+		Init();
+
+	m_TilemapImguiManager.Update(dt);
+}
+
+
+void TilemapCreator::Draw()
+{
+	if (!m_IsInit)
+		return;
+
+	m_TilemapImguiManager.Draw();
+}
+
+TilemapImguiManager* TilemapCreator::GetTilemapImguiManager()
+{
+	return &m_TilemapImguiManager;
+}
+
 }

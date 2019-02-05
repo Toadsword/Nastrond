@@ -23,20 +23,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#include <tools/tools_pch.h>
-#include <engine/engine.h>
-#include <anim_creator.h>
-#include <tilemap_creator.h>
+#ifndef SFGE_TOOLS_TILEMAP_CREATOR_H
+#define SFGE_TOOLS_TILEMAP_CREATOR_H
+
+#include <engine/system.h>
+#include <tilemap_imgui_manager.h>
 
 namespace sfge::tools
 {
-void ExtendPythonTools(py::module& m)
+class TilemapCreator : public System
 {
-    py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-    animCreator
-		.def(py::init<Engine&>());
-    py::class_<TilemapCreator, System> tilemapCreator(m, "TilemapCreator");
-    tilemapCreator
-		.def(py::init<Engine&>());
+    using System::System;
+    /*
+    * \brief Called at scene init (a good place to link to other Systems)
+    */
+    void Init() override;
+    
+	/*
+    * \brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
+    */
+    void Update(float dt) override;
+    
+	/*
+    * \brief Called every graphic frame after Update
+    */
+    void Draw() override;
+
+	TilemapImguiManager* GetTilemapImguiManager();
+
+protected:
+	/**
+	 * \brief Pointer to the Graphics Manager of the Engine.
+	 */
+	TilemapImguiManager m_TilemapImguiManager;
+
+	bool m_IsInit = false;
+};
 }
-}
+#endif
