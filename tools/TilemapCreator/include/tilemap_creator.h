@@ -33,21 +33,22 @@ namespace sfge::tools
 {
 class TilemapCreator : public System
 {
-    using System::System;
-    /*
-    * \brief Called at scene init (a good place to link to other Systems)
-    */
-    void Init() override;
-    
+public:
+	using System::System;
 	/*
-    * \brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
-    */
-    void Update(float dt) override;
-    
+	* \brief Called at scene init (a good place to link to other Systems)
+	*/
+	void Init() override;
+
 	/*
-    * \brief Called every graphic frame after Update
-    */
-    void Draw() override;
+	* \brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration)
+	*/
+	void Update(float dt) override;
+
+	/*
+	* \brief Called every graphic frame after Update
+	*/
+	void Draw() override;
 
 	TilemapImguiManager* GetTilemapImguiManager();
 

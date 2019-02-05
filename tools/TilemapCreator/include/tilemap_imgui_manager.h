@@ -27,49 +27,38 @@ Date : February 2019
 Project : TilemapCreator for SFGE
 */
 
-
-#ifndef GRAPHICS_MANAGER_H
-#define GRAPHICS_MANAGER_H
-
-#include <SFML/Graphics.hpp>
-
-#include <tilemap_creator.h>
-#include <engine/tilemap.h>
+#ifndef TILEMAP_IMGUI_MANAGER_H
+#define TILEMAP_IMGUI_MANAGER_H
 
 namespace sfge::tools
 {
 /**
- * Constants
- */
-const int WINDOW_WIDTH = 900;
-const int WINDOW_HEIGHT = 600;
-const int MAX_FRAMERATE = 60;
-const char WINDOW_NAME[] = "TilemapCreator";
-
-const float TIME_TO_DOUBLE_CLICK = 0.5;
-const float TIME_BEFORE_REFRESH_LOADED_TEXTURE_STATUS = 5;
-
-/**
  * Prototype
  */
-class ToolEngine;
 class TilemapCreator;
 
 /**
- * \brief GraphicsManager : Deals with all the graphics of the application.
+ * Constants
+ */
+const int TILEMAP_WINDOW_WIDTH = 900;
+const int TILEMAP_WINDOW_HEIGHT = 600;
+const int TILEMAP_MAX_FRAMERATE = 60;
+const char TILEMAP_WINDOW_NAME[] = "TilemapCreator";
+
+/**
+ * \brief TilemapImguiManager : Deals with all the graphics of the tool.
  * Display the window, sort all the elements using ImGui and deals with the User Interface.
  */
 class TilemapImguiManager {
 
 public:
-
 	/**
-	 * \brief Constructor of the Graphics Manager.
+	 * \brief Constructor of the Tilemap Imgui Manager.
 	 */
-	TilemapImguiManager() {}
+	TilemapImguiManager() = default;
 
 	/**
-	 * \brief Initializer of the Graphics Manager. This function must be called before running, at it creates all the graphics needs.
+	 * \brief Initializer of the Tilemap Imgui Manager. This function must be called before running, at it creates all the graphics needs.
 	 * \return The pointer to the created windows.
 	 */
 	void Init(TilemapCreator* engine);
@@ -83,70 +72,12 @@ public:
 	 */
 	void Draw();
 
-	/**
-	 * \brief Display the menu of the application.
-	 */
-	void DisplayMenuWindow();
-	/**
-	 * \brief Display the file section of the application.
-	 */
-	void DisplayFileWindow();
-	/**
-	 * \brief Display the animation preview section of the application.
-	 * \param dt Time passed between the last frame and the current one.
-	 */
-	void DisplayPreviewWindow();
-	/**
-	 * \brief Display the information section of the animation and of the current Frame of the application.
-	 */
-	void DisplayAnimationInformationsWindow();
-
-	/**
-	 * \brief Display the modal used to save the animation.
-	 */
-	void OpenModalSave();
-	/**
-	 * \brief Display the modal used to confirm the reset of the animation to the application.
-	 */
-	void OpenModalConfirmNew();
-
-	/**
-	 * \brief Getter of the graphic window of the application.
-	 * \return The graphic windows used of the application.
-	 */
-	sf::RenderWindow* GetWindow();
 
 private:
 	/**
 	 * \brief Initialized state of the graphics.
 	 */
 	bool m_IsInit = false;
-
-	/* ------------------------------------ Input control ---------------------------------------- */
-	/**
-	 * \brief Stored time since the user last clicked.
-	 */
-	float m_TimeSinceLastClick = 0;
-	/**
-	 * \brief Stored input if the user double clicked last frame.
-	 */
-	bool m_DoubleClicked = false;
-
-	/* -------------------------------------- Modal Save  ----------------------------------- */
-	/**
-	 * \brief true if we display the modal to confirm the save the animation, false otherwise.
-	 */
-	bool m_OpenModalSave = false;
-	/**
-	 * \brief Result of the saved animation. Used to allow the user to confirm the possible replacement of the animation.
-	 */
-	//LogSaveError m_SaveResult = SAVE_SUCCESS;
-
-	/* -------------------------------------- Modal new animation  ----------------------------------- */
-	/**
-	 * \brief true if we display the modal to confirm the reset of the animation, false otherwise.
-	 */
-	bool m_OpenModalConfirmNew = false;
 
 	/* -------------------------------------- Others ----------------------------------- */
 	/**

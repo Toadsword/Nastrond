@@ -25,6 +25,7 @@ SOFTWARE.
 */
 
 #include <tilemap_creator.h>
+#include <utility/log.h>
 
 namespace sfge::tools
 {
