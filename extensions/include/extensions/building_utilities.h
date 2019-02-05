@@ -30,7 +30,7 @@ namespace sfge::ext
 	/**
 	 * \author Robin Alves
 	 */
-	enum RessourceType
+	enum ResourceType
 	{
 		NONE,
 		IRON,
@@ -46,24 +46,37 @@ namespace sfge::ext
 	struct GiverInventory
 	{
 		unsigned int maxCapacity = 100u;
+		unsigned int packNumber = 0u;
+		unsigned int packSize = 0u;
 		float inventory = 0u;
-		unsigned short packNumber = 0u;
-		RessourceType ressourceType = RessourceType::NONE;
+		ResourceType resourceType = ResourceType::NONE;
 	};
 
 	/**
-	 * \brief Struct that represent an inventory that must be fill.
+	 * \brief Represent an inventory that must be fill.
 	 * \author Robin Alves
 	 */
-	struct RecieverInventory
+	struct ReceiverInventory
 	{
 		unsigned int maxCapacity = 100u;
 		float inventory = 0u;
-		RessourceType ressourceType = RessourceType::NONE;
+		ResourceType resourceType = ResourceType::NONE;
 	};
 
 	/**
-	 * \brief Struct that represent the progression of the production by the consumption of one or more receiver inventory to a giver inventory.
+	 * \brief Represent an inventory that must be fill.
+	 * \author Robin Alves
+	 */
+	struct Inventory
+	{
+		unsigned int maxCapacity = 100u;
+		float inventory = 0u;
+		ResourceType resourceType = ResourceType::NONE;
+	};
+
+
+	/**
+	 * \brief Represent the progression of the production by the consumption of one or more receiver inventory to a giver inventory.
 	 * \author Robin Alves
 	 */
 	struct ProgressionProduction
@@ -71,11 +84,11 @@ namespace sfge::ext
 		float progression = 0.0f;
 		int goal = 20;
 		int FrameCoolDown = 0;
-		RessourceType ressourceType = RessourceType::NONE;
+		ResourceType resourceType = ResourceType::NONE;
 	};
 
 	/**
-	 * \brief Struct that represent the number of dwarf attribute to a building, in a building and the maximum of them allow to be attribute.
+	 * \brief Represent the number of dwarf attribute to a building, in a building and the maximum of them allow to be attribute.
 	 * \author Robin Alves
 	 */
 	struct DwarfSlots
@@ -85,5 +98,4 @@ namespace sfge::ext
 		int dwarfIn = 0;
 	};
 }
-
 #endif
