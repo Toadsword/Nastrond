@@ -29,7 +29,7 @@
 
 
 #define PATH_LIMIT 4096
-#define INIT_ENTITY_NMB 10000
+#define INIT_ENTITY_NMB 1200
 
 #define SFGE_VERSION 0.2
 
