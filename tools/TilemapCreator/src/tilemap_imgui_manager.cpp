@@ -23,8 +23,8 @@ SOFTWARE.
 
 ----------------------------
 Author : Duncan Bourquard (bourquardduncan@gmail.com)
-Date : November 2018
-Project : AnimationTool for SFGE
+Date : February 2019
+Project : TilemapCreator for SFGE
 */
 #include <tilemap_imgui_manager.h>
 
@@ -80,6 +80,13 @@ namespace sfge::tools
 
 	void TilemapImguiManager::DrawMainWindow()
 	{
-
+		auto components = m_TilemapCreator->GetTilemapManager()->GetComponents();
+		for (auto i = 0u; i < components.size(); i++)
+		{
+			if (m_TilemapCreator->GetEngine().GetEntityManager()->HasComponent(i + 1, ComponentType::TILEMAP))
+			{
+				m_Components[i].Update();
+			}
+		}
 	}
 }

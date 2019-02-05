@@ -34,6 +34,9 @@ void TilemapCreator::Init()
 	Log::GetInstance()->Msg("Init TilemapCreator");
 	m_TilemapImguiManager.Init(this);
 
+	m_TilemapManager = m_Engine.GetTilemapSystem()->GetTilemapManager();
+	m_TileTypeManager = m_Engine.GetTilemapSystem()->GetTileTypeManager();
+
 	m_IsInit = true;
 }
 
@@ -57,6 +60,16 @@ void TilemapCreator::Draw()
 TilemapImguiManager* TilemapCreator::GetTilemapImguiManager()
 {
 	return &m_TilemapImguiManager;
+}
+
+TilemapManager* TilemapCreator::GetTilemapManager()
+{
+	return m_TilemapManager;
+}
+
+TileTypeManager* TilemapCreator::GetTileTypeManager()
+{
+	return m_TileTypeManager;
 }
 
 }

@@ -27,10 +27,12 @@ SOFTWARE.
 #define SFGE_TOOLS_TILEMAP_CREATOR_H
 
 #include <engine/system.h>
+#include <engine/tilemap.h>
 #include <tilemap_imgui_manager.h>
 
 namespace sfge::tools
 {
+
 class TilemapCreator : public System
 {
 public:
@@ -51,12 +53,20 @@ public:
 	void Draw() override;
 
 	TilemapImguiManager* GetTilemapImguiManager();
+	TilemapManager* GetTilemapManager();
+	TileTypeManager* GetTileTypeManager();
 
 protected:
 	/**
 	 * \brief Pointer to the Graphics Manager of the Engine.
 	 */
 	TilemapImguiManager m_TilemapImguiManager;
+
+	/**
+	 * \brief Reference to the TilemapManager.
+	 */
+	TilemapManager* m_TilemapManager = nullptr;
+	TileTypeManager* m_TileTypeManager = nullptr;
 
 	bool m_IsInit = false;
 };
