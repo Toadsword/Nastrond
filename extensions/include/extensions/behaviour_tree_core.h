@@ -64,7 +64,7 @@ public:
 	 * \param index of the dwarf
 	 * \return 
 	 */
-	virtual Status Execute(unsigned int index) = 0;
+	virtual void Execute(unsigned int index) = 0;
 
 protected:
 	BehaviourTree* m_BehaviourTree;
@@ -146,7 +146,7 @@ class Sequence final : public CompositeNode {
 public:
 	Sequence(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
-	Status Execute(unsigned int index) override;
+	void Execute(unsigned int index) override;
 };
 
 /**
@@ -156,7 +156,7 @@ class Selector final : public CompositeNode {
 public:
 	Selector(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
-	Status Execute(unsigned int index) override;
+	void Execute(unsigned int index) override;
 };
 
 /**
@@ -191,7 +191,7 @@ class Repeater final : public Decorator
 public:
 	Repeater(BehaviourTree* bt, const ptr& parentNode, int limit = 0);
 	
-	Status Execute(unsigned int index) override;
+	void Execute(unsigned int index) override;
 
 private:
 	int m_Limit;
@@ -205,7 +205,7 @@ class Inverter final : public Decorator
 public:
 	Inverter(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
-	Status Execute(unsigned int index) override;
+	void Execute(unsigned int index) override;
 };
 
 /**
@@ -216,7 +216,7 @@ class Succeeder final : public Decorator
 public:
 	Succeeder(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
-	Status Execute(unsigned int index) override;
+	void Execute(unsigned int index) override;
 };
 
 /**
