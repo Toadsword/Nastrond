@@ -45,21 +45,14 @@ namespace sfge::ext
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 	}
 
-	void MineManager::Update(float dt) {}
+	void MineManager::Update(float dt)
+	{
+		(void) dt;
+	}
 
 	void MineManager::FixedUpdate()
 	{
-		RessourcesProduction();
-
-#ifdef TEST_SYSTEM_DEBUG
-		m_FrameInProgress++;
-		if(m_FrameInProgress >= m_FramesBeforeAdd && m_EntitiesNmb > m_EntitiesCount)
-		{
-			m_EntitiesCount++;
-			AddNewBuilding(Vec2f(std::rand() % static_cast<int>(1280), std::rand() % static_cast<int>(720)));
-			m_FrameInProgress = 0;
-		}
-#endif
+		Produce();
 	}
 
 	void MineManager::Draw()
@@ -71,7 +64,7 @@ namespace sfge::ext
 
 
 
-	void MineManager::AddNewBuilding(Vec2f pos)
+	void MineManager::AddNewBuilding(Vec2f position)
 	{
 		auto* entityManager = m_Engine.GetEntityManager();
 
@@ -82,30 +75,20 @@ namespace sfge::ext
 
 		//add transform
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
-		transformPtr->Position = Vec2f(pos.x, pos.y);
+		transformPtr->Position = Vec2f(position.x, position.y);
 
 		if (!CheckEmptySlot(newEntity, transformPtr))
 		{
 			const size_t newMine = m_EntityIndex.size();
 
-			ResizeContainer(newMine + 1);
+			ResizeContainer(newMine + CONTAINER_EXTENDER);
 			m_IronInventory[newMine].resourceType = ResourceType::IRON;
 
 			m_IronInventory[newMine].packSize = m_StackSize;
 
 			m_EntityIndex[newMine] = newEntity;
 
-			const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-			m_VertexArray[4 * newMine].texCoords = sf::Vector2f(0, 0);
-			m_VertexArray[4 * newMine + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-			m_VertexArray[4 * newMine + 2].texCoords = textureSize;
-			m_VertexArray[4 * newMine + 3].texCoords = sf::Vector2f(0, textureSize.y);
-
-			m_VertexArray[4 * newMine].position = transformPtr->Position - textureSize / 2.0f;
-			m_VertexArray[4 * newMine + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-			m_VertexArray[4 * newMine + 2].position = transformPtr->Position + textureSize / 2.0f;
-			m_VertexArray[4 * newMine + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+			AttributionVertexArray(newMine, transformPtr);
 		}
 	}
 
@@ -170,6 +153,9 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn++;
+				if(m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
+					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
+
 			}
 		}
 	}
@@ -182,6 +168,9 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn--;
+				if (m_DwarfSlots[i].dwarfIn < 0)
+					m_DwarfSlots[i].dwarfIn = 0;
+
 			}
 		}
 	}
@@ -210,7 +199,7 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	ResourceType MineManager::GetResourceType()
+	ResourceType MineManager::GetProducedResourceType()
 	{
 		return m_ResourceType;
 	}
@@ -225,10 +214,10 @@ namespace sfge::ext
 				return m_IronInventory[i].packSize;
 			}
 		}
-		return 0;
+		return EMPTY_INVENTORY;
 	}
 
-	void MineManager::RessourcesProduction()
+	void MineManager::Produce()
 	{
 		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
 		{
@@ -249,23 +238,12 @@ namespace sfge::ext
 					m_IronInventory[i].packNumber++;
 				}
 			}
-
-#ifdef DEBUG_CHECK_PRODUCTION
-
-			std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(m_IronInventory[i].inventory) +
-				" / and pack Number : " + std::to_string(m_IronInventory[i].packNumber) + "\n";
-
-			if (i + 1 == m_entitiesNmb)
-			{
-				std::cout << "\n";
-			}
-#endif
 		}
 	}
 
 	void MineManager::ResizeContainer(size_t newSize)
 	{
-		m_EntityIndex.resize(newSize);
+		m_EntityIndex.resize(newSize, INVALID_ENTITY);
 		m_DwarfSlots.resize(newSize);
 		m_IronInventory.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
@@ -287,22 +265,26 @@ namespace sfge::ext
 
 				m_IronInventory[i].packSize = m_StackSize;
 
-				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-				m_VertexArray[4 * i].texCoords = sf::Vector2f(0, 0);
-				m_VertexArray[4 * i + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-				m_VertexArray[4 * i + 2].texCoords = textureSize;
-				m_VertexArray[4 * i + 3].texCoords = sf::Vector2f(0, textureSize.y);
-
-				m_VertexArray[4 * i].position = transformPtr->Position - textureSize / 2.0f;
-				m_VertexArray[4 * i + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-				m_VertexArray[4 * i + 2].position = transformPtr->Position + textureSize / 2.0f;
-				m_VertexArray[4 * i + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+				AttributionVertexArray(i, transformPtr);
 
 				return true;
 			}
 		}
 		return false;
+	}
+	void MineManager::AttributionVertexArray(int newEntity, Transform2d * transformPtr)
+	{
+		const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+		m_VertexArray[4 * newEntity].texCoords = sf::Vector2f(0, 0);
+		m_VertexArray[4 * newEntity + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+		m_VertexArray[4 * newEntity + 2].texCoords = textureSize;
+		m_VertexArray[4 * newEntity + 3].texCoords = sf::Vector2f(0, textureSize.y);
+
+		m_VertexArray[4 * newEntity].position = transformPtr->Position - textureSize / 2.0f;
+		m_VertexArray[4 * newEntity + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+		m_VertexArray[4 * newEntity + 2].position = transformPtr->Position + textureSize / 2.0f;
+		m_VertexArray[4 * newEntity + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 	}
 }
 

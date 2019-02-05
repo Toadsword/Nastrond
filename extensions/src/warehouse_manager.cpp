@@ -22,36 +22,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/building_constructor.h>
-
-namespace sfge::ext
-{
-	BuildingConstructor::BuildingConstructor(sfge::Engine& engine) : System(engine){}
-
-	void BuildingConstructor::Init()
-	{
-		m_DwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
-			"DwellingManager");
-		m_ForgeManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ForgeManager>(
-			"ForgeManager");
-		m_MineManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<MineManager>(
-			"MineManager");
-
-
-		
-	}
-
-	void BuildingConstructor::Update(float dt)
-	{
-	}
-
-	void BuildingConstructor::FixedUpdate()
-	{
-	}
-
-	void BuildingConstructor::Draw()
-	{
-	}
-
-
-}

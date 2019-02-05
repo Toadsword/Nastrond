@@ -51,16 +51,7 @@ namespace sfge::ext
 
 	void DwellingManager::FixedUpdate()
 	{
-		ConsumeResources();
-#ifdef TEST_SYSTEM_DEBUG
-		m_FrameInProgress++;
-		if (m_FrameInProgress >= m_FramesBeforeAdd && m_EntitiesNmb > m_EntitiesCount)
-		{
-			m_EntitiesCount++;
-			AddNewBuilding(Vec2f(std::rand() % static_cast<int>(1280), std::rand() % static_cast<int>(720)));
-			m_FrameInProgress = 0;
-		}
-#endif
+		Consume();
 	}
 
 	void DwellingManager::Draw()
@@ -86,7 +77,7 @@ namespace sfge::ext
 		{
 			const size_t newDwelling = m_EntityIndex.size();
 
-			ResizeContainer(newDwelling + 1);
+			ResizeContainer(newDwelling + CONTAINER_EXTENDER);
 			m_FoodInventories[newDwelling].resourceType = ResourceType::FOOD;
 			m_CoolDownFramesProgression[newDwelling] = 0u;
 
@@ -158,6 +149,8 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn++;
+				if (m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
+					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
 			}
 		}
 	}
@@ -169,11 +162,46 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn--;
+				if (m_DwarfSlots[i].dwarfIn < 0)
+					m_DwarfSlots[i].dwarfIn = 0;
 			}
 		}
 	}
 
-	void DwellingManager::ConsumeResources()
+	std::vector<ResourceType> DwellingManager::GetNeededResourceType()
+	{
+		std::vector<ResourceType> resourceTypes;
+		resourceTypes.push_back(m_ResourceTypeNeeded);
+		return resourceTypes;
+	}
+
+	float DwellingManager::GiveResources(Entity entity, int nmbResources, ResourceType resourceType)
+	{
+		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				if (m_FoodInventories[i].resourceType == resourceType)
+				{
+					m_FoodInventories[i].inventory += nmbResources;
+					float resourcesExcess = m_FoodInventories[i].inventory - m_FoodInventories[i].maxCapacity;
+
+					if (resourcesExcess > 0)
+					{
+						m_FoodInventories[i].inventory -= resourcesExcess;
+						return resourcesExcess;
+					}
+				}
+				else
+				{
+					return nmbResources;
+				}
+			}
+		}
+		return nmbResources;
+	}
+
+	void DwellingManager::Consume()
 	{
 		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
 		{
@@ -181,8 +209,6 @@ namespace sfge::ext
 			{
 				continue;
 			}
-
-
 
 			if (m_FoodInventories[i].inventory <= 0)
 			{

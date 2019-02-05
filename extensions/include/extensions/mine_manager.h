@@ -25,8 +25,6 @@ SOFTWARE.
 #ifndef MINE_MANAGER_H
 #define MINE_MANAGER_H
 
-#include <iostream>
-
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 
@@ -34,8 +32,6 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-//#define DEBUG_CHECK_PRODUCTION
-#define TEST_SYSTEM_DEBUG
 	/**
 	 * \author Robin Alves
 	 */
@@ -53,22 +49,29 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Spawn forge entity at the given position.
+		 * \brief Spawn a mine entity at the given position.
+		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f pos);
+		void AddNewBuilding(Vec2f position);
 
 		/**
-		 * \brief Destroy the mine at the given index. Return if the entity is not available.
+		 * \brief Destroy the mine at the given index.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return true if the Entity exist and is a mine.
 		 */
 		bool DestroyBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
+		 * \brief attribute a dwarf to the given mine entity.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return true if the entity exist and is a mine and if a dwarf has been added to the building.
 		 */
 		bool AddDwarfToBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Remove dwarf to the dwarf slot struct of the given building. Return false if there is no slot available or if the entity do not exist.
+		 * \brief remove the attribution of a dwarf to the given mine entity.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return true if the entity exist and is a mine and if a dwarf has been added to the building.
 		 */
 		bool RemoveDwarfToBuilding(Entity mineEntity);
 
@@ -79,58 +82,67 @@ namespace sfge::ext
 		void DwarfEnterBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Increment the dwarf slot to tell that a dwarf go out.
+		 * \brief decrement the dwarf slot to tell that a dwarf go out.
 		 * \param mineEntity : The Entity of the mine that the dwarf want to go out.
 		 */
 		void DwarfExitBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Return a mine entity with a slot available for a dwarf. If not
+		 * \brief Get a mine with a slot free for a dwarf.
+		 * \return An entity of a mine.
 		 */
 		Entity GetFreeSlotInBuilding();
 
 		/**
-		 * \brief Return a mine with a stack of Iron available.
+		 * \brief get a mine that have resources ready to be taken.
+		 * \return a mine entity with resources.
 		 */
 		Entity GetBuildingWithResources();
 
 		/**
-		 * \brief Return the type of resources that the building produce.
+		 * \brief get the type of resources that a mine produce.
+		 * \return a resource type.
 		 */
-		ResourceType GetResourceType();
+		ResourceType GetProducedResourceType();
 
 		/**
-		 * \brief Return an amount of the produced resources of the given building entity.
+		 * \brief get a certain amount of resources that A forge have produce.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return an int of an amount of resources.
 		 */
 		int GetResourcesBack(Entity mineEntity);
 
 	private:
 		/**
-		 * \brief Produce resources.
+		 * \brief Produce iron.
 		 */
-		void RessourcesProduction();
+		void Produce();
 
 		/**
-		 * \brief Resize all vector to keep the same index for mine.
+		 * \brief Resize all vector in one go to keep the synchronize all index.
+		 * \param newSize : the size with the new number of building.
 		 */
 		void ResizeContainer(size_t newSize);
 
 		/**
-		 * \brief return true if a slot in the index is empty then take his place.
+		 * \brief check if a slot already setup is empty and fill it.
+		 * \param newEntity : the entity that is newly created.
+		 * \param transformPtr : the transform of the newly created.
+		 * \return true if a slot was empty and has been fill.
 		 */
 		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+
+
+		/**
+		 * \brief Setup The Vertex array for the sprite of the entity.
+		 * \param transformPtr : the transform of the entity.
+		 * \param newEntity : the index of the entity.
+		 */
+		void AttributionVertexArray(int newEntity, Transform2d* transformPtr);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
-
-#ifdef TEST_SYSTEM_DEBUG
-		const size_t m_EntitiesNmb = 1000;
-		size_t m_EntitiesCount = 0;
-
-		const unsigned int m_FramesBeforeAdd = 0u;
-		unsigned int m_FrameInProgress = 0u;
-#endif
 
 		std::vector<Entity> m_EntityIndex;
 
@@ -139,6 +151,7 @@ namespace sfge::ext
 
 		float m_ProductionRate = 0.01f;
 		unsigned int m_StackSize = 20u;
+
 		ResourceType m_ResourceType = ResourceType::IRON;
 
 		//Building texture

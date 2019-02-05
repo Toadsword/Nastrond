@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef BUILDING_CONSTRUCTOR_H
-#define BUILDING_CONSTRUCTOR_H
+#ifndef BUILDING_MANAGER_H
+#define BUILDING_MANAGER_H
 
 #include <engine/system.h>
 #include <python/python_engine.h>
@@ -31,18 +31,20 @@ SOFTWARE.
 #include <extensions/dwelling_manager.h>
 #include <extensions/forge_manager.h>
 #include <extensions/mine_manager.h>
+#include <extensions/excavation_post_manager.h>
+#include <extensions/mushroom_farm_manager.h>
+#include <extensions/warehouse_manager.h>
+
 
 namespace sfge::ext
 {
-#define TEST_SYSTEM_DEBUG
-
 	/**
 	 * \author Robin Alves
 	 */
-	class BuildingConstructor : public System
+	class BuildingManager : public System
 	{
 	public:
-		BuildingConstructor(Engine& engine);
+		BuildingManager(Engine& engine);
 
 		void Init() override;
 
@@ -52,11 +54,29 @@ namespace sfge::ext
 
 		void Draw() override;
 
-	private:
 
+		enum BuildingType
+		{
+			FORGE,
+			MINE,
+			EXCAVATION_POST,
+			MUSHROOM_FARM,
+			WAREHOUSE,
+			DWELLING, //Warning : Dwelling are not consider as working place
+			LENGTH
+		};
+
+
+		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
+
+	private:
 		DwellingManager* m_DwellingManager;
 		ForgeManager* m_ForgeManager;
 		MineManager* m_MineManager;
+		ExcavationPostManager* m_ExcavationPostManager;
+		MushroomFarmManager* m_MushroomFarmManager;
+		WarehouseManager* m_WarehouseManager;
+
 	};
 }
 #endif

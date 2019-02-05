@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef MUSHROOM_FARM_MANAGER_H
-#define MUSHROOM_FARM_MANAGER_H
+#ifndef WAREHOUSE_MANAGER_H
+#define WAREHOUSE_MANAGER_H
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
@@ -35,9 +35,9 @@ namespace sfge::ext
 	/**
 	 * \author Robin Alves
 	 */
-	class MushroomFarmManager : public System
+	class WarehouseManager : public System
 	{
-		MushroomFarmManager(Engine& engine);
+		WarehouseManager(Engine& engine);
 
 		void Init() override;
 

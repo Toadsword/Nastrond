@@ -34,10 +34,10 @@ SOFTWARE.
 #include <extensions/dwarf_manager.h>
 #include <extensions/mine_manager.h>
 #include <extensions/forge_manager.h>
+#include <extensions/dwelling_manager.h>
 
 #include <tools/tools_pch.h>
-#include "extensions/dwelling_manager.h"
-#include "extensions/building_constructor.h"
+#include "extensions/building_manager.h"
 
 
 namespace sfge::ext
@@ -71,8 +71,8 @@ void ExtendPython(py::module& m)
 	dwellingManager
 		.def(py::init<Engine&>());
 
-	py::class_<BuildingConstructor, System> buildingConstructor(m, "BuildingConstructor");
-	buildingConstructor
+	py::class_<BuildingManager, System> buildingManager(m, "BuildingManager");
+	buildingManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);
