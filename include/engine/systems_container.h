@@ -34,7 +34,6 @@
 #include <engine/entity.h>
 #include <engine/transform2d.h>
 #include <editor/editor.h>
-#include <engine/tilemap.h>
 
 namespace sfge
 {
@@ -53,7 +52,6 @@ struct SystemsContainer
   Editor editor;
   EntityManager entityManager;
   Transform2dManager transformManager;
-  TilemapSystem tilemapSystem;
 
 };
 }

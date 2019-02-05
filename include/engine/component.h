@@ -55,9 +55,7 @@ enum class ComponentType : int
 	COLLIDER2D = 1 << 4,
 	SOUND = 1 << 5,
 	PYCOMPONENT = 1 << 6,
-	ANIMATION2D = 1 << 7,
-	TILEMAP = 1 << 8,
-	TILE = 1 << 9,
+	ANIMATION2D = 1 << 7
 };
 
 class IComponentFactory
