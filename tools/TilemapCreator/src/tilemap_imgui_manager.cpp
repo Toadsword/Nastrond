@@ -68,5 +68,18 @@ namespace sfge::tools
 	{
 		if (!m_IsInit)
 			return;
+
+		ImGui::SetNextWindowPos(ImVec2(100.0f, 100.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(TILEMAP_WINDOW_WIDTH, TILEMAP_WINDOW_HEIGHT), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin(TILEMAP_WINDOW_NAME, NULL, ImGuiWindowFlags_NoCollapse))
+		{
+			DrawMainWindow();
+		}
+		ImGui::End();
+	}
+
+	void TilemapImguiManager::DrawMainWindow()
+	{
+
 	}
 }

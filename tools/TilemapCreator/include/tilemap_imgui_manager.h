@@ -40,7 +40,7 @@ class TilemapCreator;
 /**
  * Constants
  */
-const int TILEMAP_WINDOW_WIDTH = 900;
+const int TILEMAP_WINDOW_WIDTH = 400;
 const int TILEMAP_WINDOW_HEIGHT = 600;
 const int TILEMAP_MAX_FRAMERATE = 60;
 const char TILEMAP_WINDOW_NAME[] = "TilemapCreator";
@@ -71,6 +71,8 @@ public:
 	 * \brief Displays the graphics of the tool of the current frame.
 	 */
 	void Draw();
+
+	void DrawMainWindow();
 
 
 private:
