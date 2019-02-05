@@ -110,7 +110,7 @@ namespace sfge::ext
 		std::vector<unsigned int> m_CoolDownFramesProgression;
 
 #ifdef TEST_SYSTEM_DEBUG
-		const size_t m_EntitiesNmb = 10;
+		const size_t m_EntitiesNmb = 0;
 		size_t m_EntitiesCount = 0;
 
 		const unsigned int m_FramesBeforeAdd = 0u;

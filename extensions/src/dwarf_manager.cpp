@@ -125,7 +125,13 @@ bool DwarfManager::IsDwarfAtDestination(unsigned int index) {
 		const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[index])->Position;
 
 		auto dir = m_Paths[index][0] - position;
-		return dir.GetMagnitude() < m_StoppingDistance;
+		if( dir.GetMagnitude() < m_StoppingDistance) {
+			m_Paths[index].clear();
+
+			return true;
+		}else {
+			return false;
+		}
 	}
 	return true;
 }
@@ -154,7 +160,7 @@ void DwarfManager::ResizeContainers(const size_t newSize) {
 	m_AssociatedWorkingPlace.resize(newSize);
 
 	//Associate behaviour tree
-	auto* BT = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
+	auto* BT = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behaviour_tree::BehaviourTree>("BehaviourTree");
 	BT->SetEntities(&m_DwarfsEntities);
 }
 
@@ -164,7 +170,7 @@ void DwarfManager::Update(float dt) {
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
 	//Random path
-	for (int i = 0; i < m_BT_pathDwarfToRandom.size(); ++i) {
+	for (int i = 0; i < m_BT_pathDwarfToRandom.size(); i++) {
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[m_BT_pathDwarfToRandom[i]]);
 		m_NavigationGraphManager->AskForPath(&m_Paths[m_BT_pathDwarfToRandom[i]], transformPtr->Position,
 			Vec2f(std::rand() % static_cast<int>(screenSize.x),
@@ -174,7 +180,7 @@ void DwarfManager::Update(float dt) {
 	m_BT_pathDwarfToRandom.clear();
 
 	//Follow path
-	for (int i = 0; i < m_BT_followingPath.size(); ++i) {
+	for (int i = 0; i < m_BT_followingPath.size(); i++) {
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[m_BT_followingPath[i]]);
 
 		auto dir = m_Paths[m_BT_followingPath[i]][m_Paths[m_BT_followingPath[i]].size() - 1] - transformPtr->Position;
@@ -194,68 +200,9 @@ void DwarfManager::Update(float dt) {
 		}
 	}
 	m_BT_followingPath.clear();
-
-
-	/*for (auto i = 0u; i < m_IndexNewDwarf; i++) {
-		switch (m_States[i]) { 
-		case IDLE: {
-#ifdef DEBUG_RANDOM_PATH
-			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
-			m_NavigationGraphManager->AskForPath(&m_Paths[i], transformPtr->Position,
-				Vec2f(std::rand() % static_cast<int>(screenSize.x),
-					std::rand() % static_cast<int>(screenSize.y
-						)));
-			m_States[i] = State::WAITING_NEW_PATH;
-#endif
-			break;
-		}
-
-			case WALKING: 
-			break;
-
-			case WAITING_NEW_PATH: 
-				if (!m_Paths[i].empty()) {
-					m_States[i] = State::WALKING;
-				}
-			break;
-			default: ;
-		}
-	}*/
 }
 
 void DwarfManager::FixedUpdate() {
-	/*for (auto i = 0u; i < m_IndexNewDwarf; i++) {
-		switch (m_States[i]) { 
-			case IDLE: break;
-			case WALKING: {
-				auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
-
-				auto dir = m_Paths[i][m_Paths[i].size() - 1] - transformPtr->Position;
-
-				if (dir.GetMagnitude() < m_StoppingDistance) {
-					m_Paths[i].pop_back();
-
-					if (m_Paths[i].empty()) {
-						m_States[i] = State::IDLE;
-					}
-				}
-				else {
-					//TODO ajouter un manager pour les velocités. L'idées est de créer un système qui ne comporte que ça comme données et fait un traitement uniquement dessus. Il faut rajouter des fonctions comme AddComponent() en lui passant directement l'entité
-					transformPtr->Position += dir.Normalized() * m_SpeedDwarf;
-
-					sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-					m_VertexArray[4 * i].position = transformPtr->Position - textureSize / 2.0f;
-					m_VertexArray[4 * i + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-					m_VertexArray[4 * i + 2].position = transformPtr->Position + textureSize / 2.0f;
-					m_VertexArray[4 * i + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
-				}
-				break;
-			}
-			case WAITING_NEW_PATH: break;
-			default: ;
-		}
-	}*/
 }
 
 void DwarfManager::Draw() {

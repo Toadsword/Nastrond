@@ -90,7 +90,7 @@ private:
 
 	//Dwarfs Holder
 	size_t m_IndexNewDwarf = 0;
-	const size_t m_ContainersExtender = 100;
+	const size_t m_ContainersExtender = 1000;
 	std::vector<Entity> m_DwarfsEntities;
 
 	void ResizeContainers(const size_t newSize);
@@ -124,7 +124,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 10;
+	const size_t m_DwarfToSpawn = 1000;
 #endif
 
 	//Dwarfs texture
