@@ -43,21 +43,14 @@ namespace sfge::ext
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 	}
 
-	void ForgeManager::Update(float dt){}
+	void ForgeManager::Update(float dt)
+	{
+		(void) dt;
+	}
 
 	void ForgeManager::FixedUpdate()
 	{
 		ProduceTools();
-
-#ifdef TEST_SYSTEM_DEBUG
-		m_FrameInProgress++;
-		if (m_FrameInProgress >= m_FramesBeforeAdd && m_EntitiesNmb > m_EntitiesCount)
-		{
-			m_EntitiesCount++;
-			AddNewBuilding(Vec2f(std::rand() % static_cast<int>(1280), std::rand() % static_cast<int>(720)));
-			m_FrameInProgress = 0;
-		}
-#endif
 	}
 
 	void ForgeManager::Draw()
@@ -85,7 +78,7 @@ namespace sfge::ext
 			size_t newForge = m_EntityIndex.size();
 
 
-			ResizeContainer(newForge + 1);
+			ResizeContainer(newForge + CONTAINER_EXTENDER);
 
 			m_IronsInventories[newForge].resourceType = ResourceType::IRON;
 			m_ToolsInventories[newForge].resourceType = ResourceType::TOOL;
@@ -145,8 +138,8 @@ namespace sfge::ext
 					return false;
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 
 	bool ForgeManager::RemoveDwarfToBuilding(Entity entity)
@@ -158,8 +151,34 @@ namespace sfge::ext
 				m_DwarfSlots[i].dwarfAttributed--;
 				return true;
 			}
-		}
+		} 
 		return false;
+	}
+
+	void ForgeManager::DwarfEnterBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn++;
+				if (m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
+					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
+			}
+		}
+	}
+
+	void ForgeManager::DwarfExitBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn--;
+				if (m_DwarfSlots[i].dwarfIn < 0)
+					m_DwarfSlots[i].dwarfIn = 0;
+			}
+		}
 	}
 
 	Entity ForgeManager::GetFreeSlotInBuilding()
@@ -167,6 +186,18 @@ namespace sfge::ext
 		for (int i = 0; i < m_DwarfSlots.size(); i++)
 		{
 			if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+			{
+				return m_EntityIndex[i];
+			}
+		}
+		return INVALID_ENTITY;
+	}
+
+	Entity ForgeManager::GetBuildingWithResources()
+	{
+		for (int i = 0; i < m_ToolsInventories.size(); i++)
+		{
+			if (m_ToolsInventories[i].packNumber > 0)
 			{
 				return m_EntityIndex[i];
 			}
@@ -188,7 +219,6 @@ namespace sfge::ext
 
 	int ForgeManager::GetResourcesBack(Entity entity)
 	{
-
 		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
 		{
 			if (m_EntityIndex[i] == entity)
@@ -197,7 +227,7 @@ namespace sfge::ext
 				return m_ToolsInventories[i].packSize;
 			}
 		}
-		return 0;
+		return EMPTY_INVENTORY;
 	}
 
 	float ForgeManager::GiveResources(Entity entity, int nmbResources, ResourceType resourceType)
@@ -213,6 +243,7 @@ namespace sfge::ext
 
 					if(tmpResourcesExcess > 0)
 					{
+						m_IronsInventories[i].inventory -= tmpResourcesExcess;
 						return tmpResourcesExcess;
 					}
 				}
@@ -229,12 +260,11 @@ namespace sfge::ext
 	void ForgeManager::ResizeContainer(const size_t newSize)
 	{
 		m_DwarfSlots.resize(newSize);
-		m_EntityIndex.resize(newSize);
+		m_EntityIndex.resize(newSize, INVALID_ENTITY);
 		m_ToolsInventories.resize(newSize);
 		m_IronsInventories.resize(newSize);
 		m_ProgressionProdTool.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
-
 	}
 
 	void ForgeManager::ProduceTools()
@@ -271,16 +301,6 @@ namespace sfge::ext
 					m_ToolsInventories[i].inventory -= m_ToolsInventories[i].packSize;
 				}
 			}
-
-#ifdef DEBUG_CHECK_PRODUCTION
-
-			std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(m_ToolsInventories[i].inventory) +
-				" / and pack Number : " + std::to_string(m_ToolsInventories[i].packNumber) + " / progression : " + std::to_string(m_ProgressionProdTool[i].progression) + "\n";
-			if (i + 1 == m_entitiesNmb)
-			{
-				std::cout << "\n";
-			}
-#endif
 		}
 	}
 
@@ -304,7 +324,7 @@ namespace sfge::ext
 				m_ToolsInventories[i].resourceType = ResourceType::TOOL;
 				m_ProgressionProdTool[i].resourceType = ResourceType::TOOL;
 
-				m_ToolsInventories[i].packSize = m_stackSize;
+				m_ToolsInventories[i].packSize = m_StackSize;
 
 				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 

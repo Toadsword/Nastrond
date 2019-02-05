@@ -22,41 +22,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef BUILDING_CONSTRUCTOR_H
-#define BUILDING_CONSTRUCTOR_H
-
-#include <engine/system.h>
-#include <python/python_engine.h>
-
-#include <extensions/dwelling_manager.h>
-#include <extensions/forge_manager.h>
-#include <extensions/mine_manager.h>
+#include <extensions/warehouse_manager.h>
 
 namespace sfge::ext
 {
-#define TEST_SYSTEM_DEBUG
+	WarehouseManager::WarehouseManager(Engine& engine) : System(engine){}
 
-	/**
-	 * \author Robin Alves
-	 */
-	class BuildingConstructor : public System
+	void WarehouseManager::Init()
 	{
-	public:
-		BuildingConstructor(Engine& engine);
+	}
 
-		void Init() override;
+	void WarehouseManager::Update(float dt)
+	{
+	}
 
-		void Update(float dt) override;
+	void WarehouseManager::FixedUpdate()
+	{
+	}
 
-		void FixedUpdate() override;
+	void WarehouseManager::AddNewBuilding(Vec2f position)
+	{
+	}
 
-		void Draw() override;
+	bool WarehouseManager::DestroyBuilding(Entity warehouseEntity)
+	{
+		return false;
+	}
 
-	private:
+	bool WarehouseManager::AddDwarfToBuilding(Entity warehouseEntity)
+	{
+		return false;
+	}
 
-		DwellingManager* m_DwellingManager;
-		ForgeManager* m_ForgeManager;
-		MineManager* m_MineManager;
-	};
+	bool WarehouseManager::RemoveDwarfToBuilding(Entity warehouseEntity)
+	{
+		return false;
+	}
+
+	void WarehouseManager::DwarfEnterBuilding(Entity warehouseEntity)
+	{
+	}
+
+	void WarehouseManager::DwarfExitBuilding(Entity warehouseEntity)
+	{
+	}
+
+	Entity WarehouseManager::GetFreeSlotInBuilding()
+	{
+		return Entity();
+	}
+
+
+
 }
-#endif
