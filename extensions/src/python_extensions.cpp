@@ -34,9 +34,10 @@ SOFTWARE.
 #include <extensions/dwarf_manager.h>
 #include <extensions/mine_manager.h>
 #include <extensions/forge_manager.h>
+#include <extensions/dwelling_manager.h>
 
 #include <tools/tools_pch.h>
-#include "extensions/dwelling_manager.h"
+#include "extensions/building_manager.h"
 
 
 namespace sfge::ext
@@ -68,6 +69,22 @@ void ExtendPython(py::module& m)
 
 	py::class_<DwellingManager, System> dwellingManager(m, "DwellingManager");
 	dwellingManager
+		.def(py::init<Engine&>());
+
+	py::class_<ExcavationPostManager, System> excavationPostManager(m, "ExcavationPostManager");
+	excavationPostManager
+		.def(py::init<Engine&>());
+
+	py::class_<MushroomFarmManager, System> mushroomFarmManager(m, "MushroomFarmManager");
+	mushroomFarmManager
+		.def(py::init<Engine&>());
+
+	py::class_<WarehouseManager, System> warehouseManager(m, "WarehouseManager");
+	warehouseManager
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingManager, System> buildingManager(m, "BuildingManager");
+	buildingManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);

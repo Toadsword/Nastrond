@@ -22,24 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef FORGE_MANAGER_H
-#define FORGE_MANAGER_H
+#ifndef EXCAVATION_POST_MANAGER_H
+#define EXCAVATION_POST_MANAGER_H
 
 #include <engine/system.h>
-#include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
 
 #include <extensions/building_utilities.h>
 
 namespace sfge::ext
 {
+
 	/**
 	 * \author Robin Alves
 	 */
-	class ForgeManager : public System
+	class ExcavationPostManager : public System
 	{
 	public:
-		ForgeManager(Engine& engine);
+		ExcavationPostManager(Engine& engine);
 
 		void Init() override;
 
@@ -50,96 +50,80 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Spawn a forge entity at the given position.
+		 * \brief spawn an excavation post entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
 		void AddNewBuilding(Vec2f position);
 
 		/**
-		 * \brief Destroy the forge at the given index.
-		 * \param forgeEntity : an entity that is a forge.
-		 * \return true if the Entity exist and is a forge.
+		 * \brief destroy the excavation post at the given index.
+		 * \param excavationPostEntity : an entity that is an excavation post.
+		 * \return true if the Entity exist.
 		 */
-		bool DestroyBuilding(Entity forgeEntity);
+		bool DestroyBuilding(Entity excavationPostEntity);
 
 		/**
-		 * \brief attribute a dwarf to the given forge entity.
-		 * \param forgeEntity : an entity that is a forge.
-		 * \return true if the entity exist and is a forge and if a dwarf has been added to the building.
+		 * \brief attribute a dwarf to the given excavation post entity.
+		 * \param excavationPostEntity : an entity that is an excavation post.
+		 * \return true if the entity exist and is excavation post and if a dwarf has been added to the building.
 		 */
-		bool AddDwarfToBuilding(Entity forgeEntity);
+		bool AddDwarfToBuilding(Entity excavationPostEntity);
 
 		/**
-		 * \brief remove the attribution of a dwarf to the given forge entity.
-		 * \param forgeEntity : an entity that is a forge.
-		 * \return true if the entity exist and is a forge and if a dwarf has been added to the building.
+		 * \brief remove the attribution of a dwarf to the given excavation post entity.
+		 * \param excavationPostEntity : an entity that is an excavation post.
+		 * \return true if the entity exist and is an excavation post and if a dwarf has been added to the building.
 		 */
-		bool RemoveDwarfToBuilding(Entity forgeEntity);
+		bool RemoveDwarfToBuilding(Entity excavationPostEntity);
 
 		/**
 		 * \brief Increment the dwarf slot to tell that a dwarf go in.
-		 * \param forgeEntity : The Entity of the forge that the dwarf want to go in.
+		 * \param excavationPostEntity : The Entity of the excavation post that the dwarf want to go in.
 		 */
-		void DwarfEnterBuilding(Entity forgeEntity);
+		void DwarfEnterBuilding(Entity excavationPostEntity);
 
 		/**
 		 * \brief decrement the dwarf slot to tell that a dwarf go out.
-		 * \param forgeEntity : The Entity of the forge that the dwarf want to go out.
+		 * \param excavationPostEntity : The Entity of the excavation post that the dwarf want to go out.
 		 */
-		void DwarfExitBuilding(Entity forgeEntity);
+		void DwarfExitBuilding(Entity excavationPostEntity);
 
 		/**
-		 * \brief Get a forge with a slot free for a dwarf.
-		 * \return An entity of a forge.
+		 * \brief get a excavation post with a slot free for a dwarf.
+		 * \return an entity of an Excavation post.
 		 */
 		Entity GetFreeSlotInBuilding();
 
 		/**
 		 * \brief get a forge that have resources ready to be taken.
-		 * \return a forge entity with resources.
+		 * \return a excavation post entity with resources.
 		 */
 		Entity GetBuildingWithResources();
 
 		/**
-		 * \brief get the type of resources that a forge produce.
+		 * \brief get the type of resources that an excavation post produce.
 		 * \return a resource type.
 		 */
 		ResourceType GetProducedResourceType();
 
 		/**
-		 * \brief Get all resources that the building need to do his work.
-		 * \return a vector with all the type of resources that the forge need.
-		 */
-		std::vector<ResourceType> GetNeededResourceType();
-
-		/**
-		 * \brief get a certain amount of resources that a forge have produce.
-		 * \param forgeEntity : an entity that is a forge.
+		 * \brief get a certain amount of resources.
+		 * \param excavationPostEntity : an entity that is an excavation post.
 		 * \return an int of an amount of resources.
 		 */
-		int GetResourcesBack(Entity forgeEntity);
-
-		/**
-		 * \brief give resources that the forge need to produce.
-		 * \param forgeEntity : an entity that is a forge.
-		 * \param nmbResources : the number of resources that needed to be deposit.
-		 * \param resourceType : the type of resources that want to be deposit.
-		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
-		 */
-		float GiveResources(Entity forgeEntity, int nmbResources, ResourceType resourceType);
+		int GetResourcesBack(Entity excavationPostEntity);
 
 	private:
 		/**
-		 * \brief Consume iron to produce tool.
-		 */
-		void ProduceTools();
-
-		/**
 		 * \brief Resize all vector in one go to keep the synchronize all index.
-		 * \param newSize : the size with the new number of building.
+		 * \param newSize : the size with the number of building.
 		 */
 		void ResizeContainer(const size_t newSize);
 
+		/**
+		 * \brief produce stone.
+		 */
+		void Produce();
 
 		/**
 		 * \brief check if a slot already setup is empty and fill it.
@@ -156,18 +140,13 @@ namespace sfge::ext
 		std::vector<Entity> m_EntityIndex;
 
 		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<GiverInventory> m_ToolsInventories;
-		std::vector<ReceiverInventory> m_IronsInventories;
-		std::vector<ProgressionProduction> m_ProgressionProdTool;
+		std::vector<GiverInventory> m_StoneInventories;
 
+		float m_ProductionRate = 0.01f;
 
-		const int m_StackSize = 5;
+		unsigned int m_StackSize = 20u;
 
-		const int m_CoolDownFrames = 20;
-
-		ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
-		ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
-
+		ResourceType m_ResourceType = ResourceType::STONE;
 
 		//Building texture
 		std::string m_TexturePath;
@@ -176,7 +155,8 @@ namespace sfge::ext
 
 		//Vertex array
 		sf::VertexArray m_VertexArray;
+
 	};
 }
-#endif
 
+#endif

@@ -22,18 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/forge_manager.h>
-
+#include <extensions/excavation_post_manager.h>
 
 namespace sfge::ext
 {
-	ForgeManager::ForgeManager(Engine& engine) : System(engine) {}
+	ExcavationPostManager::ExcavationPostManager(Engine& engine) : System(engine) {}
 
-	void ForgeManager::Init()
+	void ExcavationPostManager::Init()
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+
+		EntityManager* entityManager = m_Engine.GetEntityManager();
 
 		//Load Texture
 		m_TexturePath = "data/sprites/building.png";
@@ -43,24 +44,21 @@ namespace sfge::ext
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 	}
 
-	void ForgeManager::Update(float dt)
+	void ExcavationPostManager::Update(float dt) {}
+
+	void ExcavationPostManager::FixedUpdate()
 	{
-		(void) dt;
+		Produce();
 	}
 
-	void ForgeManager::FixedUpdate()
-	{
-		ProduceTools();
-	}
-
-	void ForgeManager::Draw()
+	void ExcavationPostManager::Draw()
 	{
 		auto window = m_Engine.GetGraphics2dManager()->GetWindow();
 
 		window->draw(m_VertexArray, m_Texture);
 	}
 
-	void ForgeManager::AddNewBuilding(Vec2f pos)
+	void ExcavationPostManager::AddNewBuilding(Vec2f position)
 	{
 		auto* entityManager = m_Engine.GetEntityManager();
 
@@ -71,37 +69,35 @@ namespace sfge::ext
 
 		//add transform
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
-		transformPtr->Position = Vec2f(pos.x, pos.y);
+		transformPtr->Position = Vec2f(position.x, position.y);
 
 		if (!CheckEmptySlot(newEntity, transformPtr))
 		{
-			size_t newForge = m_EntityIndex.size();
+			const size_t newExcavationPost = m_EntityIndex.size();
 
+			ResizeContainer(newExcavationPost + 1);
+			m_StoneInventories[newExcavationPost].resourceType = ResourceType::IRON;
 
-			ResizeContainer(newForge + CONTAINER_EXTENDER);
+			m_StoneInventories[newExcavationPost].packSize = m_StackSize;
 
-			m_IronsInventories[newForge].resourceType = ResourceType::IRON;
-			m_ToolsInventories[newForge].resourceType = ResourceType::TOOL;
-			m_ProgressionProdTool[newForge].resourceType = ResourceType::TOOL;
-
-			m_EntityIndex[newForge] = newEntity;
+			m_EntityIndex[newExcavationPost] = newEntity;
 
 			const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 
-			m_VertexArray[4 * newForge].texCoords = sf::Vector2f(0, 0);
-			m_VertexArray[4 * newForge + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-			m_VertexArray[4 * newForge + 2].texCoords = textureSize;
-			m_VertexArray[4 * newForge + 3].texCoords = sf::Vector2f(0, textureSize.y);
+			m_VertexArray[4 * newExcavationPost].texCoords = sf::Vector2f(0, 0);
+			m_VertexArray[4 * newExcavationPost + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+			m_VertexArray[4 * newExcavationPost + 2].texCoords = textureSize;
+			m_VertexArray[4 * newExcavationPost + 3].texCoords = sf::Vector2f(0, textureSize.y);
 
-			m_VertexArray[4 * newForge].position = transformPtr->Position - textureSize / 2.0f;
-			m_VertexArray[4 * newForge + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-			m_VertexArray[4 * newForge + 2].position = transformPtr->Position + textureSize / 2.0f;
-			m_VertexArray[4 * newForge + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
-
+			m_VertexArray[4 * newExcavationPost].position = transformPtr->Position - textureSize / 2.0f;
+			m_VertexArray[4 * newExcavationPost + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+			m_VertexArray[4 * newExcavationPost + 2].position = transformPtr->Position + textureSize / 2.0f;
+			m_VertexArray[4 * newExcavationPost + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 		}
+
 	}
 
-	bool ForgeManager::DestroyBuilding(Entity entity)
+	bool ExcavationPostManager::DestroyBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
@@ -122,7 +118,7 @@ namespace sfge::ext
 		return false;
 	}
 
-	bool ForgeManager::AddDwarfToBuilding(Entity entity)
+	bool ExcavationPostManager::AddDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
@@ -142,7 +138,7 @@ namespace sfge::ext
 		return false;
 	}
 
-	bool ForgeManager::RemoveDwarfToBuilding(Entity entity)
+	bool ExcavationPostManager::RemoveDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
@@ -151,11 +147,11 @@ namespace sfge::ext
 				m_DwarfSlots[i].dwarfAttributed--;
 				return true;
 			}
-		} 
+		}
 		return false;
 	}
 
-	void ForgeManager::DwarfEnterBuilding(Entity entity)
+	void ExcavationPostManager::DwarfEnterBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
@@ -168,7 +164,7 @@ namespace sfge::ext
 		}
 	}
 
-	void ForgeManager::DwarfExitBuilding(Entity entity)
+	void ExcavationPostManager::DwarfExitBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
@@ -181,7 +177,7 @@ namespace sfge::ext
 		}
 	}
 
-	Entity ForgeManager::GetFreeSlotInBuilding()
+	Entity ExcavationPostManager::GetFreeSlotInBuilding()
 	{
 		for (int i = 0; i < m_DwarfSlots.size(); i++)
 		{
@@ -193,11 +189,11 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	Entity ForgeManager::GetBuildingWithResources()
+	Entity ExcavationPostManager::GetBuildingWithResources()
 	{
-		for (int i = 0; i < m_ToolsInventories.size(); i++)
+		for (int i = 0; i < m_StoneInventories.size(); i++)
 		{
-			if (m_ToolsInventories[i].packNumber > 0)
+			if (m_StoneInventories[i].packNumber > 0)
 			{
 				return m_EntityIndex[i];
 			}
@@ -205,126 +201,71 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	ResourceType ForgeManager::GetProducedResourceType()
+	ResourceType ExcavationPostManager::GetProducedResourceType()
 	{
-		return m_ResourceTypeProduced;
+		return m_ResourceType;
 	}
 
-	std::vector<ResourceType> ForgeManager::GetNeededResourceType()
-	{
-		std::vector<ResourceType> resourceTypes;
-		resourceTypes.push_back(m_ResourceTypeNeeded);
-		return resourceTypes;
-	}
-
-	int ForgeManager::GetResourcesBack(Entity entity)
+	int ExcavationPostManager::GetResourcesBack(Entity entity)
 	{
 		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
-				m_ToolsInventories[i].packNumber--;
-				return m_ToolsInventories[i].packSize;
+				m_StoneInventories[i].packNumber--;
+				return m_StoneInventories[i].packSize;
 			}
 		}
 		return EMPTY_INVENTORY;
 	}
 
-	float ForgeManager::GiveResources(Entity entity, int nmbResources, ResourceType resourceType)
-	{
-		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
-		{
-			if (m_EntityIndex[i] == entity)
-			{
-				if(m_IronsInventories[i].resourceType == resourceType)
-				{
-					m_IronsInventories[i].inventory += nmbResources;
-					float tmpResourcesExcess = m_IronsInventories[i].inventory - m_IronsInventories[i].maxCapacity;
-
-					if(tmpResourcesExcess > 0)
-					{
-						m_IronsInventories[i].inventory -= tmpResourcesExcess;
-						return tmpResourcesExcess;
-					}
-				}
-				else
-				{
-					return nmbResources;
-				}
-				
-			}
-		}
-		return nmbResources;
-	}
-
-	void ForgeManager::ResizeContainer(const size_t newSize)
+	void ExcavationPostManager::ResizeContainer(const size_t newSize)
 	{
 		m_DwarfSlots.resize(newSize);
 		m_EntityIndex.resize(newSize, INVALID_ENTITY);
-		m_ToolsInventories.resize(newSize);
-		m_IronsInventories.resize(newSize);
-		m_ProgressionProdTool.resize(newSize);
+		m_StoneInventories.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
 	}
 
-	void ForgeManager::ProduceTools()
+	void ExcavationPostManager::Produce()
 	{
-		for (int i = 0; i < m_EntityIndex.size(); i++)
+		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
 		{
-			if (m_EntityIndex[i] == NULL)
+			if (m_EntityIndex[i] == INVALID_ENTITY)
 			{
 				continue;
 			}
 
-			if (m_IronsInventories[i].inventory <= 0 || m_ToolsInventories[i].inventory + m_ToolsInventories[i].packNumber * m_ToolsInventories[i].packSize >= m_ToolsInventories[i].maxCapacity)
+			//Check if the inventory is full
+			if (!(m_StoneInventories[i].packNumber * m_StoneInventories[i].packSize >= m_StoneInventories[i].maxCapacity))
 			{
-				continue;
-			}
+				//Produce Iron by checking the number of dwarf in the building
+				m_StoneInventories[i].inventory += m_ProductionRate * m_DwarfSlots[i].dwarfIn;
 
-			m_ProgressionProdTool[i].FrameCoolDown += m_DwarfSlots[i].dwarfIn;
-
-			if (m_ProgressionProdTool[i].FrameCoolDown >= m_CoolDownFrames)
-			{
-				m_IronsInventories[i].inventory--;
-				m_ProgressionProdTool[i].progression++;
-				m_ProgressionProdTool[i].FrameCoolDown = 0;
-			}
-
-			if (m_ProgressionProdTool[i].progression >= m_ProgressionProdTool[i].goal)
-			{
-				m_ToolsInventories[i].inventory++;
-				m_ProgressionProdTool[i].progression = 0;
-
-				if (m_ToolsInventories[i].inventory >= m_ToolsInventories[i].packSize)
+				if (m_StoneInventories[i].inventory >= m_StoneInventories[i].packSize)
 				{
-					m_ToolsInventories[i].packNumber++;
-					m_ToolsInventories[i].inventory -= m_ToolsInventories[i].packSize;
+					m_StoneInventories[i].inventory -= m_StoneInventories[i].packSize;
+					m_StoneInventories[i].packNumber++;
 				}
 			}
 		}
 	}
 
-	bool ForgeManager::CheckEmptySlot(Entity newEntity, Transform2d* transformPtr)
+	bool ExcavationPostManager::CheckEmptySlot(Entity newEntity, Transform2d * transformPtr)
 	{
-		for (int i = 0; i < m_EntityIndex.size(); i++)
+		for (int i = 0; i < m_EntityIndex.size(); ++i)
 		{
-			if (m_EntityIndex[i] == NULL)
+			if (m_EntityIndex[i] == INVALID_ENTITY)
 			{
 				m_EntityIndex[i] = newEntity;
 				const DwarfSlots newDwarfSlot;
 				m_DwarfSlots[i] = newDwarfSlot;
-				const ReceiverInventory newIronInventory;
-				m_IronsInventories[i] = newIronInventory;
-				const GiverInventory newToolInventory;
-				m_ToolsInventories[i] = newToolInventory;
-				const ProgressionProduction newProgressionProdTool;
-				m_ProgressionProdTool[i] = newProgressionProdTool;
+				const GiverInventory newIronInventory;
+				m_StoneInventories[i] = newIronInventory;
 
-				m_IronsInventories[i].resourceType = ResourceType::IRON;
-				m_ToolsInventories[i].resourceType = ResourceType::TOOL;
-				m_ProgressionProdTool[i].resourceType = ResourceType::TOOL;
+				m_StoneInventories[i].resourceType = ResourceType::STONE;
 
-				m_ToolsInventories[i].packSize = m_StackSize;
+				m_StoneInventories[i].packSize = m_StackSize;
 
 				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 
@@ -343,4 +284,6 @@ namespace sfge::ext
 		}
 		return false;
 	}
+
+
 }

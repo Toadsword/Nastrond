@@ -30,37 +30,14 @@ SOFTWARE.
 #include <iostream>
 
 
-TEST(Building, BuildingSpawn)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	engine.Init(std::move(initConfig));
-
-	const auto config = engine.GetConfig();
-
-	json sceneJson = {
-		{ "name", "Spawn Building" } };
-
-	json systemJsonBuildingManager = { 
-		{ "systemClassName", "BuildingsManager" } };
-
-	sceneJson["systems"] = json::array({ systemJsonBuildingManager });
-
-	sfge::SceneManager* sceneManager = engine.GetSceneManager();
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
 TEST(Building, MineProduction)
 {
 	sfge::Engine engine;
 
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
 	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 
 	const auto config = engine.GetConfig();
@@ -86,6 +63,8 @@ TEST(Building, ForgeProduction)
 
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
 	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 
 	const auto config = engine.GetConfig();
@@ -97,6 +76,60 @@ TEST(Building, ForgeProduction)
 		{ "systemClassName", "ForgeManager" } };
 
 	sceneJson["systems"] = json::array({ systemJsonMineManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+TEST(Building, DwellingSpawn)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	const auto config = engine.GetConfig();
+
+	json sceneJson = {
+		{ "name", "Spawn Dwelling" } };
+
+	json systemJsonDwellingManager = {
+		{ "systemClassName", "DwellingManager" } };
+
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+TEST(Building, BuildingManager)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	const auto config = engine.GetConfig();
+
+	json sceneJson = {
+		{ "name", "Building Manager Test" } };
+
+	json systemJsonBuildingManager = {
+		{ "systemClassName", "BuildingManager" } };
+
+	sceneJson["systems"] = json::array({ systemJsonBuildingManager });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 

@@ -24,163 +24,267 @@ SOFTWARE.
 
 #include <extensions/mine_manager.h>
 
-sfge::ext::MineManager::MineManager(Engine& engine) : System(engine) {}
 
-void sfge::ext::MineManager::Init()
+namespace sfge::ext
 {
-	m_Transform2DManager = m_Engine.GetTransform2dManager();
-	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+	MineManager::MineManager(Engine& engine) : System(engine) {}
 
-	Configuration* configuration = m_Engine.GetConfig();
-	Vec2f screenSize = sf::Vector2f(configuration->screenResolution.x, configuration->screenResolution.y);
-
-	EntityManager* entityManager = m_Engine.GetEntityManager();
-
-#ifdef TEST_SYSTEM_DEBUG
-	entityManager->ResizeEntityNmb(m_entitiesNmb + 100);
-
-	for(int i = 0; i < m_entitiesNmb; i++)
+	void MineManager::Init()
 	{
-		AddNewMine(Vec2f(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y)));
+		m_Transform2DManager = m_Engine.GetTransform2dManager();
+		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+
+		EntityManager* entityManager = m_Engine.GetEntityManager();
+
+		//Load Texture
+		m_TexturePath = "data/sprites/building.png";
+		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
+		m_Texture = m_TextureManager->GetTexture(m_TextureId);
+
+		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 	}
-#endif
-}
 
-void sfge::ext::MineManager::Update(float dt)
-{
-	
-}
-
-void sfge::ext::MineManager::FixedUpdate()
-{
-	RessourcesProduction();
-}
-
-void sfge::ext::MineManager::Draw()
-{
-}
-
-
-
-void sfge::ext::MineManager::AddNewMine(Vec2f pos)
-{
-	auto* entityManager = m_Engine.GetEntityManager();
-	const auto newEntity = entityManager->CreateEntity(0);
-
-	size_t newForge = m_mineEntityIndex.size() + 1;
-
-	ResizeContainer(newForge);
-
-	m_mineEntityIndex.push_back(newEntity);
-
-	//Load Texture
-	std::string texturePath = "data/sprites/building.png";
-	const auto textureId = m_TextureManager->LoadTexture(texturePath);
-	const auto texture = m_TextureManager->GetTexture(textureId);
-
-	//add transform
-	auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
-	transformPtr->Position = Vec2f(pos.x, pos.y);
-	transformPtr->Scale = Vec2f(0.1f, 0.1f);
-
-	//add texture
-	auto sprite = m_SpriteManager->AddComponent(newEntity);
-	sprite->SetTexture(texture);
-
-	editor::SpriteInfo& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
-	spriteInfo.name = "sprite";
-	spriteInfo.sprite = sprite;
-	spriteInfo.textureId = textureId;
-	spriteInfo.texturePath = texturePath;
-
-	m_IronProduction[newForge - 1].ressourceType = RessourceType::IRON;
-}
-
-bool sfge::ext::MineManager::AddDwarfToMine(Entity mineEntity)
-{
-	for (int i = 0; i < m_mineEntityIndex.size(); i++)
+	void MineManager::Update(float dt)
 	{
-		if (m_mineEntityIndex[i] == mineEntity)
+		(void) dt;
+	}
+
+	void MineManager::FixedUpdate()
+	{
+		Produce();
+	}
+
+	void MineManager::Draw()
+	{
+		auto window = m_Engine.GetGraphics2dManager()->GetWindow();
+
+		window->draw(m_VertexArray, m_Texture);
+	}
+
+
+
+	void MineManager::AddNewBuilding(Vec2f position)
+	{
+		auto* entityManager = m_Engine.GetEntityManager();
+
+		Configuration* configuration = m_Engine.GetConfig();
+		entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+
+		const auto newEntity = entityManager->CreateEntity(0);
+
+		//add transform
+		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		transformPtr->Position = Vec2f(position.x, position.y);
+
+		if (!CheckEmptySlot(newEntity, transformPtr))
 		{
-			if (m_dwarfSlots[i].dwarfAttributed < m_dwarfSlots[i].maxDwarfCapacity)
+			const size_t newMine = m_EntityIndex.size();
+
+			ResizeContainer(newMine + CONTAINER_EXTENDER);
+			m_IronInventory[newMine].resourceType = ResourceType::IRON;
+
+			m_IronInventory[newMine].packSize = m_StackSize;
+
+			m_EntityIndex[newMine] = newEntity;
+
+			AttributionVertexArray(newMine, transformPtr);
+		}
+	}
+
+	bool MineManager::DestroyBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
 			{
-				m_dwarfSlots[i].dwarfAttributed++;
+				m_EntityIndex[i] = INVALID_ENTITY;
+				EntityManager* entityManager = m_Engine.GetEntityManager();
+				entityManager->DestroyEntity(entity);
+
+				sf::Vector2f resetSize = sf::Vector2f(0, 0);
+				m_VertexArray[4 * i].texCoords = resetSize;
+				m_VertexArray[4 * i + 1].texCoords = resetSize;
+				m_VertexArray[4 * i + 2].texCoords = resetSize;
+				m_VertexArray[4 * i + 3].texCoords = resetSize;
 				return true;
-			}
-			else
-			{
-				return false;
 			}
 		}
 		return false;
 	}
-}
 
-bool sfge::ext::MineManager::DestroyMine(Entity mineEntity)
-{
-	for(int i = 0; i < m_mineEntityIndex.size(); i++)
+	bool MineManager::AddDwarfToBuilding(Entity entity)
 	{
-		if(m_mineEntityIndex[i] == mineEntity)
+		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
-			m_mineEntityIndex[i] = NULL;
-			EntityManager* entityManager = m_Engine.GetEntityManager();
-			entityManager->DestroyEntity(mineEntity);
-			return true;
+			if (m_EntityIndex[i] == entity)
+			{
+				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+				{
+					m_DwarfSlots[i].dwarfAttributed++;
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+
+	bool MineManager::RemoveDwarfToBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfAttributed--;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void MineManager::DwarfEnterBuilding(Entity entity)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == entity)
+			{
+				m_DwarfSlots[i].dwarfIn++;
+				if(m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
+					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
+
+			}
 		}
 	}
-	return false;
-}
 
-void sfge::ext::MineManager::RessourcesProduction()
-{
-	for (unsigned i = 0; i < m_entitiesNmb; i++)
+
+	void MineManager::DwarfExitBuilding(Entity entity)
 	{
-		if(m_mineEntityIndex[i] == NULL)
+		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
-			continue;
-		}
-
-		GiverInventory tmpIronInventory = m_IronProduction[i];
-
-		//Check if the inventory is full
-		if (!(tmpIronInventory.packNumber * m_packSize >= tmpIronInventory.maxCapacity))
-		{
-			//Produce Iron by checking the number of dwarf in the building
-			tmpIronInventory.inventory += m_ProductionRate * m_dwarfSlots[i].dwarfIn;
-
-			if (tmpIronInventory.inventory >= m_packSize)
+			if (m_EntityIndex[i] == entity)
 			{
-				tmpIronInventory.inventory -= m_packSize;
-				tmpIronInventory.packNumber++;
-				IronStackAvalaible(i + 1);
+				m_DwarfSlots[i].dwarfIn--;
+				if (m_DwarfSlots[i].dwarfIn < 0)
+					m_DwarfSlots[i].dwarfIn = 0;
+
+			}
+		}
+	}
+
+	Entity MineManager::GetFreeSlotInBuilding()
+	{
+		for (int i = 0; i < m_DwarfSlots.size(); i++)
+		{
+			if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
+			{
+				return m_EntityIndex[i];
+			}
+		}
+		return INVALID_ENTITY;
+	}
+
+	Entity MineManager::GetBuildingWithResources()
+	{
+		for (int i = 0; i < m_IronInventory.size(); i++)
+		{
+			if (m_IronInventory[i].packNumber > 0)
+			{
+				return m_EntityIndex[i];
+			}
+		}
+		return INVALID_ENTITY;
+	}
+
+	ResourceType MineManager::GetProducedResourceType()
+	{
+		return m_ResourceType;
+	}
+
+	int MineManager::GetResourcesBack(Entity entity)
+	{
+		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if(m_EntityIndex[i] == entity)
+			{
+				m_IronInventory[i].packNumber--;
+				return m_IronInventory[i].packSize;
+			}
+		}
+		return EMPTY_INVENTORY;
+	}
+
+	void MineManager::Produce()
+	{
+		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
+		{
+			if (m_EntityIndex[i] == INVALID_ENTITY)
+			{
+				continue;
 			}
 
-			m_IronProduction[i].packNumber = tmpIronInventory.packNumber;
-			m_IronProduction[i].inventory = tmpIronInventory.inventory;
-		}
+			//Check if the inventory is full
+			if (!(m_IronInventory[i].packNumber * m_IronInventory[i].packSize >= m_IronInventory[i].maxCapacity))
+			{
+				//Produce Iron by checking the number of dwarf in the building
+				m_IronInventory[i].inventory += m_ProductionRate * m_DwarfSlots[i].dwarfIn;
 
-#ifdef DEBUG_CHECK_PRODUCTION
-
-		std::cout << "Iron Inventory of mine " + std::to_string(i + 1) + " : " + std::to_string(tmpIronInventory.inventory) +
-			" / and pack Number : " + std::to_string(tmpIronInventory.packNumber) + "\n";
-		if (i + 1 == m_entitiesNmb)
-		{
-			std::cout << "\n";
+				if (m_IronInventory[i].inventory >= m_IronInventory[i].packSize)
+				{
+					m_IronInventory[i].inventory -= m_IronInventory[i].packSize;
+					m_IronInventory[i].packNumber++;
+				}
+			}
 		}
-#endif
 	}
-}
 
-void sfge::ext::MineManager::ResizeContainer(size_t newSize)
-{
-	m_mineEntityIndex.resize(newSize);
-	m_dwarfSlots.resize(newSize);
-	m_IronProduction.resize(newSize);
-}
+	void MineManager::ResizeContainer(size_t newSize)
+	{
+		m_EntityIndex.resize(newSize, INVALID_ENTITY);
+		m_DwarfSlots.resize(newSize);
+		m_IronInventory.resize(newSize);
+		m_VertexArray.resize(newSize * 4);
+	}
 
-void sfge::ext::MineManager::IronStackAvalaible(Entity entity)
-{
-	
+	bool MineManager::CheckEmptySlot(Entity newEntity, Transform2d* transformPtr)
+	{
+		for (int i = 0; i < m_EntityIndex.size(); ++i)
+		{
+			if (m_EntityIndex[i] == INVALID_ENTITY)
+			{
+				m_EntityIndex[i] = newEntity;
+				const DwarfSlots newDwarfSlot;
+				m_DwarfSlots[i] = newDwarfSlot;
+				const GiverInventory newIronInventory;
+				m_IronInventory[i] = newIronInventory;
+
+				m_IronInventory[i].resourceType = ResourceType::IRON;
+
+				m_IronInventory[i].packSize = m_StackSize;
+
+				AttributionVertexArray(i, transformPtr);
+
+				return true;
+			}
+		}
+		return false;
+	}
+	void MineManager::AttributionVertexArray(int newEntity, Transform2d * transformPtr)
+	{
+		const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+		m_VertexArray[4 * newEntity].texCoords = sf::Vector2f(0, 0);
+		m_VertexArray[4 * newEntity + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+		m_VertexArray[4 * newEntity + 2].texCoords = textureSize;
+		m_VertexArray[4 * newEntity + 3].texCoords = sf::Vector2f(0, textureSize.y);
+
+		m_VertexArray[4 * newEntity].position = transformPtr->Position - textureSize / 2.0f;
+		m_VertexArray[4 * newEntity + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+		m_VertexArray[4 * newEntity + 2].position = transformPtr->Position + textureSize / 2.0f;
+		m_VertexArray[4 * newEntity + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+	}
 }
 

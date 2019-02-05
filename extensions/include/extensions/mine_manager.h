@@ -25,17 +25,13 @@ SOFTWARE.
 #ifndef MINE_MANAGER_H
 #define MINE_MANAGER_H
 
-#include <iostream>
-
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 
-#include "extensions/building_utilities.h"
+#include <extensions/building_utilities.h>
 
 namespace sfge::ext
 {
-//#define DEBUG_CHECK_PRODUCTION
-#define TEST_SYSTEM_DEBUG
 	/**
 	 * \author Robin Alves
 	 */
@@ -53,52 +49,118 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Method that create a new mine est setup it at the given position.
+		 * \brief Spawn a mine entity at the given position.
+		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewMine(Vec2f pos);
+		void AddNewBuilding(Vec2f position);
 
 		/**
-		 * \brief Method that add dwarf to the dwarf slot struct of the given entity. Return false if there is no place available or if the entity do not exist.
+		 * \brief Destroy the mine at the given index.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return true if the Entity exist and is a mine.
 		 */
-		bool AddDwarfToMine(Entity mineEntity);
+		bool DestroyBuilding(Entity mineEntity);
 
 		/**
-		 * \brief Method that destroy the mine at the given index.
+		 * \brief attribute a dwarf to the given mine entity.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return true if the entity exist and is a mine and if a dwarf has been added to the building.
 		 */
-		bool DestroyMine(Entity mineEntity);
+		bool AddDwarfToBuilding(Entity mineEntity);
+
+		/**
+		 * \brief remove the attribution of a dwarf to the given mine entity.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return true if the entity exist and is a mine and if a dwarf has been added to the building.
+		 */
+		bool RemoveDwarfToBuilding(Entity mineEntity);
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go in.
+		 * \param mineEntity : The Entity of the mine that the dwarf want to go in.
+		 */
+		void DwarfEnterBuilding(Entity mineEntity);
+
+		/**
+		 * \brief decrement the dwarf slot to tell that a dwarf go out.
+		 * \param mineEntity : The Entity of the mine that the dwarf want to go out.
+		 */
+		void DwarfExitBuilding(Entity mineEntity);
+
+		/**
+		 * \brief Get a mine with a slot free for a dwarf.
+		 * \return An entity of a mine.
+		 */
+		Entity GetFreeSlotInBuilding();
+
+		/**
+		 * \brief get a mine that have resources ready to be taken.
+		 * \return a mine entity with resources.
+		 */
+		Entity GetBuildingWithResources();
+
+		/**
+		 * \brief get the type of resources that a mine produce.
+		 * \return a resource type.
+		 */
+		ResourceType GetProducedResourceType();
+
+		/**
+		 * \brief get a certain amount of resources that A forge have produce.
+		 * \param mineEntity : an entity that is a mine.
+		 * \return an int of an amount of resources.
+		 */
+		int GetResourcesBack(Entity mineEntity);
 
 	private:
 		/**
-		 * \brief Method to produce resources.
+		 * \brief Produce iron.
 		 */
-		void RessourcesProduction();
+		void Produce();
 
 		/**
-		 * \brief Method to resize all vector to keep the same index for mine.
+		 * \brief Resize all vector in one go to keep the synchronize all index.
+		 * \param newSize : the size with the new number of building.
 		 */
 		void ResizeContainer(size_t newSize);
 
 		/**
-		 * \brief Method that ping the Task Manager when a stack of iron is available.
+		 * \brief check if a slot already setup is empty and fill it.
+		 * \param newEntity : the entity that is newly created.
+		 * \param transformPtr : the transform of the newly created.
+		 * \return true if a slot was empty and has been fill.
 		 */
-		void IronStackAvalaible(Entity entity);
+		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+
+
+		/**
+		 * \brief Setup The Vertex array for the sprite of the entity.
+		 * \param transformPtr : the transform of the entity.
+		 * \param newEntity : the index of the entity.
+		 */
+		void AttributionVertexArray(int newEntity, Transform2d* transformPtr);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
-#ifdef TEST_SYSTEM_DEBUG
-		const size_t m_entitiesNmb = 10;
-#endif
 
-		std::vector<Entity> m_mineEntityIndex;
+		std::vector<Entity> m_EntityIndex;
 
-		std::vector<DwarfSlots> m_dwarfSlots;
-		std::vector<GiverInventory> m_IronProduction;
+		std::vector<DwarfSlots> m_DwarfSlots;
+		std::vector<GiverInventory> m_IronInventory;
 
 		float m_ProductionRate = 0.01f;
-		unsigned int m_packSize = 20u;
+		unsigned int m_StackSize = 20u;
 
-		int m_TmpDwarfNumber = 5;
+		ResourceType m_ResourceType = ResourceType::IRON;
+
+		//Building texture
+		std::string m_TexturePath;
+		TextureId m_TextureId;
+		sf::Texture* m_Texture;
+
+		//Vertex array
+		sf::VertexArray m_VertexArray;
 	};
 }
 #endif
