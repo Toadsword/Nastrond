@@ -41,6 +41,7 @@ namespace sfge::tools
 	void TilemapImguiManager::Init(TilemapCreator* engine)
 	{
 		m_TilemapCreator = engine;
+		m_EntityManager = engine->GetEngine().GetEntityManager();
 		m_IsInit = true;
 	}
 
@@ -60,8 +61,6 @@ namespace sfge::tools
 			//m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
 			//m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
 		}
-
-		//ImGui::ShowDemoWindow();
 	}
 
 	void TilemapImguiManager::Draw()
@@ -69,23 +68,100 @@ namespace sfge::tools
 		if (!m_IsInit)
 			return;
 
+		//ImGui::ShowDemoWindow();
+		
 		ImGui::SetNextWindowPos(ImVec2(100.0f, 100.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(TILEMAP_WINDOW_WIDTH, TILEMAP_WINDOW_HEIGHT), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin(TILEMAP_WINDOW_NAME, NULL, ImGuiWindowFlags_NoCollapse))
+		if (ImGui::Begin(TILEMAP_WINDOW_NAME, NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar))
 		{
+			DisplayMenuWindow();
 			DrawMainWindow();
 		}
 		ImGui::End();
 	}
 
+	void TilemapImguiManager::DisplayMenuWindow()
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("New"))
+				{
+					Entity newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
+					m_TilemapCreator->GetTilemapManager()->AddComponent(newEntity);
+				}
+				if (ImGui::MenuItem("Add new Tiletype"))
+				{
+					//m_OpenAddTexture = true;
+				}
+				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
+				{
+					//m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
+					//m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+	}
+
 	void TilemapImguiManager::DrawMainWindow()
 	{
 		auto components = m_TilemapCreator->GetTilemapManager()->GetComponents();
+		ImGui::Text("List of Tilemap");
 		for (auto i = 0u; i < components.size(); i++)
 		{
-			if (m_TilemapCreator->GetEngine().GetEntityManager()->HasComponent(i + 1, ComponentType::TILEMAP))
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
 			{
-				m_Components[i].Update();
+				bool selectedOne = m_SelectedTilemap == i + 1;
+				ImGui::Selectable(m_EntityManager->GetEntityInfo(i + 1).name.c_str(), &selectedOne);
+				if (selectedOne)
+					m_SelectedTilemap = i + 1;
+			}
+		}
+		ImGui::Separator();
+
+		if(m_SelectedTilemap > INVALID_ENTITY)
+		{
+			Tilemap* tilemap = m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap);
+			if(tilemap)
+			{
+				ImGui::Spacing();
+				if (ImGui::CollapsingHeader("TilemapInfo"))
+				{
+					{
+						bool isIso = tilemap->GetIsometric();
+						ImGui::Checkbox("Is Isometric", &isIso);
+
+						if (isIso != tilemap->GetIsometric())
+							tilemap->SetIsometric(isIso);
+					}
+					{
+						Vec2f currentSize = tilemap->GetSize();
+						int aSize[2] = { currentSize.x , currentSize.y };
+						ImGui::InputInt2("Tilemap Size", aSize);
+
+						if (aSize[0] != currentSize.x || aSize[1] != currentSize.y)
+							tilemap->ResizeTilemap(Vec2f(aSize[0], aSize[1]));
+					}				
+					{
+						
+						Vec2f currentScale = tilemap->GetTileScale();
+						int aScale[2] = { currentScale.x , currentScale.y };
+						ImGui::InputInt2("Tile scale", aScale);
+
+						if (aScale[0] != currentScale.x || aScale[1] != currentScale.y)
+							tilemap->SetTileScale(Vec2f(aScale[0], aScale[1]));
+					}
+					{
+						int aLayer = tilemap->GetLayer();
+						ImGui::InputInt("Layer", &aLayer);
+						if (aLayer != tilemap->GetLayer())
+							tilemap->SetLayer(aLayer);
+					}
+
+				}
 			}
 		}
 	}

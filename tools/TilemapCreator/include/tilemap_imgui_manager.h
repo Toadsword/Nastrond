@@ -29,6 +29,7 @@ Project : TilemapCreator for SFGE
 
 #ifndef TILEMAP_IMGUI_MANAGER_H
 #define TILEMAP_IMGUI_MANAGER_H
+#include "engine/entity.h"
 
 namespace sfge::tools
 {
@@ -72,8 +73,8 @@ public:
 	 */
 	void Draw();
 
+	void DisplayMenuWindow();
 	void DrawMainWindow();
-
 
 private:
 	/**
@@ -81,11 +82,17 @@ private:
 	 */
 	bool m_IsInit = false;
 
+	unsigned m_SelectedTilemap = 0;
+
 	/* -------------------------------------- Others ----------------------------------- */
 	/**
 	 * \brief Reference to the Engine.
 	 */
 	TilemapCreator* m_TilemapCreator = nullptr;
+	/**
+	 * \brief Reference to the Entity Manager.
+	 */
+	EntityManager* m_EntityManager = nullptr;
 };
 }
 #endif // ifndef GRAPHICS_MANAGER_H

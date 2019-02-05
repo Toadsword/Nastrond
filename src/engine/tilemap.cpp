@@ -129,14 +129,14 @@ void Tilemap::ResizeTilemap(Vec2f newSize)
 
 	if(newSize.x > 0 && newSize.y > 0)
 	{	
-		for(unsigned indexX = 0; indexX < m_Tiles.size(); indexX++)
+		for(unsigned indexX = 0; indexX < newSize.x; indexX++)
 		{
-			for(unsigned indexY = 0; indexY < m_Tiles.size(); indexY++)
+			for(unsigned indexY = 0; indexY < newSize.y; indexY++)
 			{
-				if (indexX >= oldSize.x && indexY >= oldSize.y)
-					m_Tiles[indexX][indexY] = INVALID_ENTITY;
-				else
+				if (indexX < oldSize.x && indexY < oldSize.y)
 					m_Tiles[indexX][indexY] = oldTiles[indexX][indexY];
+				else
+					m_Tiles[indexX][indexY] = INVALID_ENTITY;
 			}		
 		}
 	}
