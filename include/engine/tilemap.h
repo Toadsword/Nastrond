@@ -62,7 +62,11 @@ public:
 	 * \brief Update the tilemap and all the tiles within.
 	 */
 	void Update();
-
+	
+	/**
+	 * \brief Calculate the size of the tilemap and returns it.
+	 * \return the size of the tilemap.
+	 */
 	Vec2f GetSize();
 
 	void SetTileScale(Vec2f newScale);
@@ -149,6 +153,7 @@ public:
 	 * \param map Json tilemap data to construct the tilemap one
 	 */
 	void InitializeMap(Entity entity, json& map);
+
 	/**
 	 * \brief Empty the map and destroys all the entity tiles attached to it.
 	 * \param entity containing the tilemap
@@ -195,5 +200,4 @@ protected:
 	TileTypeManager m_TileTypeManager { m_Engine };
 };
 }
-
 #endif /* INCLUDE_TILEMAP_H_ */

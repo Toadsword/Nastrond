@@ -24,7 +24,7 @@
 
  /*******************************
   * Author : Duncan Bourquard
-  * Date : 16.01.2019
+  * Date : 05.02.2019
   */
 
 #ifndef SFGE_TILE_H_
@@ -39,6 +39,10 @@ namespace sfge
 class Tilemap;
 class TilemapManager;
 
+/**
+ * \brief Tile class. Represent a single square of a Tilemap
+ * \author Duncan Bourquard
+ */
 class Tile : public LayerComponent
 {
 public:
@@ -47,27 +51,37 @@ public:
 	void Update();
 
 	void SetParentTilemap(Entity parent);
+	Entity GetParentTilemap();
+
 	void SetLayer(int newLayer);
-	void SetType(int newType);
-	int GetType();
+	int GetLayer();
+
+	void SetType(TileTypeId newType);
+	TileTypeId GetType();
 
 protected:
 	int m_Layer = -1;
-	int m_Type = -1;
-	Entity m_ParentTilemapEntity;
+	TileTypeId m_Type = INVALID_TILE_TYPE;
+	Entity m_ParentTilemapEntity = INVALID_ENTITY;
 };
 
 namespace editor
 {
+	/**
+	 * \brief ComponentInfo of Tile class.
+	 * \author Duncan Bourquard
+	 */
 	struct TileInfo : ComponentInfo
 	{
 		void DrawOnInspector() override;
 		Tile* tile = nullptr;
-		int layer = -1;
-		int type = -1;
 	};
 }
 
+/**
+ * \brief Manager of Tile class.
+ * \author Duncan Bourquard
+ */
 class TileManager :
 	public SingleComponentManager<Tile, editor::TileInfo, ComponentType::TILE>
 {

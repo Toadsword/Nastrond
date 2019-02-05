@@ -44,8 +44,8 @@ using TileTypeId = unsigned;
 const TileTypeId INVALID_TILE_TYPE = 0U;
 
 /**
-* \brief The Texture Manager is the cache of all the textures used for sprites or other objects
-*
+* \brief The Texture Manager is the cache of all the textures used for sprites or other 
+* \author Duncan Bourquard
 */
 class TileTypeManager : public System
 {
@@ -66,8 +66,8 @@ public:
 	TileTypeId LoadTileType(std::string filename);
 
 	/**
-	* \brief load the tile types from the disk
-	* \param filename The filename string containing the tile types used in the game
+	* \brief load the tile types from the data passed in argument
+	* \param jsonData Datas containing the tile types used
 	* \return The strictly positive tile type id > 0, if equals 0 then the tile types was not loaded
 	*/
 	TileTypeId LoadTileType(json& jsonData);

@@ -52,18 +52,28 @@ void Tile::SetParentTilemap(Entity parent)
 	m_ParentTilemapEntity = parent;
 }
 
+Entity Tile::GetParentTilemap()
+{
+	return m_ParentTilemapEntity;
+}
+
 void Tile::SetLayer(int newLayer)
 {
 	if (newLayer > 0)
 		m_Layer = newLayer;
 }
 
-void Tile::SetType(int newType)
+int Tile::GetLayer()
+{
+	return m_Layer;
+}
+
+void Tile::SetType(TileTypeId newType)
 {
 	m_Type = newType;
 }
 
-int Tile::GetType()
+TileTypeId Tile::GetType()
 {
 	return m_Type;
 }
@@ -72,7 +82,9 @@ void editor::TileInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Tile");
+	int layer = tile->GetLayer();
 	ImGui::InputInt("Layer", &layer);
+	int type = tile->GetType();
 	ImGui::InputInt("Type", &type);
 }
 
@@ -114,7 +126,6 @@ Tile * TileManager::AddComponent(Entity entity, TileTypeId tileType)
 	tileInfo.tile = tile;
 
 	tile->SetType(tileType);
-	tileInfo.type = tileType;
 	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(entity, tileType);
 
 	return tile;

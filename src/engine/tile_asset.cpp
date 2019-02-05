@@ -111,13 +111,10 @@ bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
 void TileTypeManager::Clear()
 {
 	for (auto& tiletypeId : m_TileTypeId)
-	{
 		tiletypeId = INVALID_TILE_TYPE;
-	}
+	
 	for (auto& textureId : m_TexturesId)
-	{
 		textureId = INVALID_TEXTURE;
-	}
 }
 
 void TileTypeManager::Collect()
