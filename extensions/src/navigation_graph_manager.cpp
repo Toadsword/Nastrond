@@ -22,317 +22,307 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/navigation_graph_manager.h>
 #include <engine/engine.h>
-#include <iostream>
-#include "utility/priority_queue.h"
+#include <utility/priority_queue.h>
+
+#include <extensions/navigation_graph_manager.h>
 
 namespace sfge::ext
 {
-	NavigationGraphManager::NavigationGraphManager(Engine & engine) :
-		System(engine)
-	{
-	}
+NavigationGraphManager::NavigationGraphManager(Engine & engine) :
+	System(engine)
+{
+}
 
-	void NavigationGraphManager::Init()
-	{
-		m_Graphics2DManager = m_Engine.GetGraphics2dManager();
+void NavigationGraphManager::Init()
+{
+	m_Graphics2DManager = m_Engine.GetGraphics2dManager();
 
 #ifdef DEBUG_MAP
-		std::vector<std::vector<int>> map;
+	std::vector<std::vector<int>> map;
 
-		int size = 250u;
+	const int size = 250u;
 
-		for (int i = 0; i < size; i++) {
-			std::vector<int> line;
-			line.resize(size);
+	for (size_t i = 0; i < size; i++) {
+		std::vector<int> line;
+		line.resize(size);
 
-			for (int j = 0; j < size; j++) {
-				line[j] = NORMAL_COST;
-			}
-			map.push_back(line);
+		for (size_t j = 0; j < size; j++) {
+			line[j] = NORMAL_COST;
 		}
+		map.push_back(line);
+	}
 
-		for (int i = 0; i < size; i++) {
-			Vec2f pos(std::rand() % size, std::rand() % size);
+	for (size_t i = 0; i < size; i++) {
+		const Vec2f pos(std::rand() % size, std::rand() % size);
 
-			int width = std::rand() % 15;
-			int height = std::rand() % 15;
+		const auto width = std::rand() % 15;
+		const auto height = std::rand() % 15;
 
-			for (int x = 0; x < width; x++) {
-				for (int y = 0; y < height; y++) {
-					if (pos.x + x < size && pos.y + y < size) {
-						map[pos.x + x][pos.y + y] = 0;
-					}
+		for (auto x = 0; x < width; x++) {
+			for (auto y = 0; y < height; y++) {
+				if (pos.x + x < size && pos.y + y < size) {
+					map[pos.x + x][pos.y + y] = 0;
 				}
 			}
 		}
+	}
 
-		vertexArray = sf::VertexArray(sf::Quads, 4 * map.size() * map[0].size());
+	m_VertexArray = sf::VertexArray(sf::Quads, 4 * map.size() * map[0].size());
 
-		m_mapSize = Vec2f(map.size(), map[0].size());
+	m_MapSize = Vec2f(map.size(), map[0].size());
 
-		BuildGraphFromArray(map);
+	BuildGraphFromArray(map);
 #endif
-	}
+}
 
-	void NavigationGraphManager::Update(float dt)
-	{
-		for (size_t i = 0; i < maxPathForOneUpdate; i++) {
-			if (m_WaitingPaths.empty()) {
-				break;
-			}
-
-			auto waitingPath = m_WaitingPaths.front();
-			m_WaitingPaths.pop();
-
-			auto tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
-			waitingPath.path->assign(tmp.begin(), tmp.end());
+void NavigationGraphManager::Update(float dt)
+{
+	for (size_t i = 0; i < m_MaxPathForOneUpdate; i++) {
+		if (m_WaitingPaths.empty()) {
+			break;
 		}
+
+		auto waitingPath = m_WaitingPaths.front();
+		m_WaitingPaths.pop();
+
+		auto tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
+		waitingPath.path->assign(tmp.begin(), tmp.end());
 	}
+}
 
-	void NavigationGraphManager::FixedUpdate() {
+void NavigationGraphManager::FixedUpdate() {
 
-	}
+}
 
-	void NavigationGraphManager::Draw() {
+void NavigationGraphManager::Draw() {
 
-		rmt_ScopedCPUSample(NavigationGraphManagerDraw, 0);
+	rmt_ScopedCPUSample(NavigationGraphManagerDraw, 0);
 
-		auto window = m_Graphics2DManager->GetWindow();
+	auto window = m_Graphics2DManager->GetWindow();
 
-		window->draw(vertexArray);
-	}
+	window->draw(m_VertexArray);
+}
 
-	void NavigationGraphManager::AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination) {
-		WaitingPath waitingPath{ path, destination, origin };
-		m_WaitingPaths.push(waitingPath);
-	}
+void NavigationGraphManager::AskForPath(std::vector<Vec2f>* path, const Vec2f origin, const Vec2f destination) {
+	const WaitingPath waitingPath{ path, destination, origin };
+	m_WaitingPaths.push(waitingPath);
+}
 
-	/**
-	 * \brief Create graph nodes from an array 2x2 of cost
-	 * \param map array 2x2 of cost
-	 */
-	void NavigationGraphManager::BuildGraphFromArray(std::vector<std::vector<int>>& map)
-	{
-		for (auto y = 0; y < map.size(); y++) {
-			for (auto x = 0; x < map[y].size(); x++) {
+void NavigationGraphManager::BuildGraphFromArray(std::vector<std::vector<int>>& map)
+{
+	for (auto y = 0; y < map.size(); y++) {
+		for (auto x = 0; x < map[y].size(); x++) {
 
-				GraphNode node;
+			GraphNode node;
 
-				node.cost = map[y][x];
-				node.pos = Vec2f(x * m_tileExtends.x + m_tileExtends.x * 0.5f, y * m_tileExtends.y + m_tileExtends.y * 0.5f);
+			node.cost = map[y][x];
+			node.pos = Vec2f(x * m_TileExtends.x + m_TileExtends.x * 0.5f, y * m_TileExtends.y + m_TileExtends.y * 0.5f);
 
-				// set position
-				vertexArray[4 * ((y * map.size()) + x)].position = sf::Vector2f(node.pos.x - m_tileExtends.x * 0.5f, node.pos.y - m_tileExtends.y * 0.5f);
-				vertexArray[4 * ((y * map.size()) + x) + 1].position = sf::Vector2f(node.pos.x + m_tileExtends.x * 0.5f, node.pos.y - m_tileExtends.y * 0.5f);
-				vertexArray[4 * ((y * map.size()) + x) + 2].position = sf::Vector2f(node.pos.x + m_tileExtends.x * 0.5f, node.pos.y + m_tileExtends.y * 0.5f);
-				vertexArray[4 * ((y * map.size()) + x) + 3].position = sf::Vector2f(node.pos.x - m_tileExtends.x * 0.5f, node.pos.y + m_tileExtends.y * 0.5f);
+			// set position
+			m_VertexArray[4 * ((y * map.size()) + x)].position = sf::Vector2f(node.pos.x - m_TileExtends.x * 0.5f, node.pos.y - m_TileExtends.y * 0.5f);
+			m_VertexArray[4 * ((y * map.size()) + x) + 1].position = sf::Vector2f(node.pos.x + m_TileExtends.x * 0.5f, node.pos.y - m_TileExtends.y * 0.5f);
+			m_VertexArray[4 * ((y * map.size()) + x) + 2].position = sf::Vector2f(node.pos.x + m_TileExtends.x * 0.5f, node.pos.y + m_TileExtends.y * 0.5f);
+			m_VertexArray[4 * ((y * map.size()) + x) + 3].position = sf::Vector2f(node.pos.x - m_TileExtends.x * 0.5f, node.pos.y + m_TileExtends.y * 0.5f);
 
 #ifndef DEBUG_MOD
-				if (node.cost == SOLID_COST) {
-					// set colors
-					vertexArray[4 * ((y * map.size()) + x)].color = sf::Color::Red;
-					vertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::Red;
-					vertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::Red;
-					vertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::Red;
-				}
-				else {
-					// set colors
-					vertexArray[4 * ((y * map.size()) + x)].color = sf::Color::White;
-					vertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::White;
-					vertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::White;
-					vertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::White;
-				}
+			if (node.cost == SOLID_COST) {
+				// set colors
+				m_VertexArray[4 * ((y * map.size()) + x)].color = sf::Color::Red;
+				m_VertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::Red;
+				m_VertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::Red;
+				m_VertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::Red;
+			}
+			else {
+				// set colors
+				m_VertexArray[4 * ((y * map.size()) + x)].color = sf::Color::White;
+				m_VertexArray[4 * ((y * map.size()) + x) + 1].color = sf::Color::White;
+				m_VertexArray[4 * ((y * map.size()) + x) + 2].color = sf::Color::White;
+				m_VertexArray[4 * ((y * map.size()) + x) + 3].color = sf::Color::White;
+			}
 #endif
-				m_Graph.push_back(node);
-			}
-		}
-
-		for (int y = 0; y < map.size(); y++) {
-			for (int x = 0; x < map[y].size(); x++) {
-				const int index = y * map.size() + x;
-
-				GraphNode node = m_Graph[index];
-
-				if (node.cost == SOLID_COST) {
-					continue;
-				}
-
-				for (int i = -1; i < 2; i++) {
-					for (int j = -1; j < 2; j++) {
-						if (i == 0 && j == 0) continue;
-
-						if (y + i < 0 || y + i >= map.size() || x + j < 0 || x + j >= map[y].size()) continue;
-
-						const int indexNeighbor = (y + i) * map.size() + (x + j);
-
-						if (m_Graph[indexNeighbor].cost == SOLID_COST) continue;
-
-						//Add cross without checking other neighbors
-						if (i == 0 || j == 0) {
-							node.neighborsIndex.push_back(indexNeighbor);
-						}
-						else {
-							if (m_Graph[y * map.size() + (x + j)].cost != SOLID_COST &&
-								m_Graph[(y + i) * map.size() + x].cost != SOLID_COST) {
-								node.neighborsIndex.push_back(indexNeighbor);
-							}
-						}
-					}
-				}
-				m_Graph[index] = node;
-			}
+			m_Graph.push_back(node);
 		}
 	}
 
-	/**
-	 * \brief Function to get a path from a point to another
-	 * \param origin position from where the path must start
-	 * \param destination position where the agent want to go
-	 * \return the path between the origin and the destination
-	 */
-	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& destination)
-	{
-		float distanceOrigin = INFINITY;
-		float distanceDestination = INFINITY;
+	for (size_t y = 0; y < map.size(); y++) {
+		for (size_t x = 0; x < map[y].size(); x++) {
+			const int index = y * map.size() + x;
 
-		unsigned int indexOrigin = 0, indexDestination = 0;
+			auto node = m_Graph[index];
 
-		for (auto i = 0u; i < m_Graph.size(); i++) {
-			if (m_Graph[i].cost == SOLID_COST)
-			{
+			if (node.cost == SOLID_COST) {
 				continue;
 			}
 
-			float dist1 = GetSquaredDistance(origin, m_Graph[i].pos);
+			for (size_t i = -1; i < 2; i++) {
+				for (size_t j = -1; j < 2; j++) {
+					if (i == 0 && j == 0) continue;
 
-			if (dist1 < distanceOrigin) {
-				distanceOrigin = dist1;
-				indexOrigin = i;
+					if (y + i < 0 || y + i >= map.size() || x + j < 0 || x + j >= map[y].size()) continue;
+
+					const int indexNeighbor = (y + i) * map.size() + (x + j);
+
+					if (m_Graph[indexNeighbor].cost == SOLID_COST) continue;
+
+					//Add cross without checking other neighbors
+					if (i == 0 || j == 0) {
+						node.neighborsIndex.push_back(indexNeighbor);
+					}
+					else {
+						if (m_Graph[y * map.size() + (x + j)].cost != SOLID_COST &&
+							m_Graph[(y + i) * map.size() + x].cost != SOLID_COST) {
+							node.neighborsIndex.push_back(indexNeighbor);
+						}
+					}
+				}
 			}
+			m_Graph[index] = node;
+		}
+	}
+}
 
-			float dist2 = GetSquaredDistance(destination, m_Graph[i].pos);
+std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& destination)
+{
+	auto distanceOrigin = INFINITY;
+	auto distanceDestination = INFINITY;
 
-			if (dist2 < distanceDestination) {
-				distanceDestination = dist2;
-				indexDestination = i;
-			}
+	unsigned int indexOrigin = 0, indexDestination = 0;
+
+	for (auto i = 0u; i < m_Graph.size(); i++) {
+		if (m_Graph[i].cost == SOLID_COST)
+		{
+			continue;
 		}
 
-		return GetPathFromTo(indexOrigin, indexDestination);
+		const auto dist1 = GetSquaredDistance(origin, m_Graph[i].pos);
+
+		if (dist1 < distanceOrigin) {
+			distanceOrigin = dist1;
+			indexOrigin = i;
+		}
+
+		const auto dist2 = GetSquaredDistance(destination, m_Graph[i].pos);
+
+		if (dist2 < distanceDestination) {
+			distanceDestination = dist2;
+			indexDestination = i;
+		}
 	}
 
-	std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int originIndex, const unsigned int destinationIndex)
-	{
-#ifdef DEBUG_MOD
-		for (auto y = 0; y < m_mapSize.y; y++) {
-			for (auto x = 0; x < m_mapSize.x; x++) {
-				GraphNode node = m_Graph[((y * m_mapSize.y) + x)];
+	return GetPathFromTo(indexOrigin, indexDestination);
+}
 
-				if (originIndex == ((y * m_mapSize.y) + x)) {
-					vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Green;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Green;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Green;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Green;
-				}
-				else if (destinationIndex == ((y * m_mapSize.y) + x)) {
-					vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Magenta;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Magenta;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Magenta;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Magenta;
-				}
-				else if (node.cost == SOLID_COST) {
-					vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Red;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Red;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Red;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Red;
-				}
-				else {
-					vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::White;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::White;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::White;
-					vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::White;
-				}
+std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int originIndex, const unsigned int destinationIndex)
+{
+#ifdef DEBUG_MOD
+	for (auto y = 0; y < m_mapSize.y; y++) {
+		for (auto x = 0; x < m_mapSize.x; x++) {
+			GraphNode node = m_Graph[((y * m_mapSize.y) + x)];
+
+			if (originIndex == ((y * m_mapSize.y) + x)) {
+				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Green;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Green;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Green;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Green;
+			}
+			else if (destinationIndex == ((y * m_mapSize.y) + x)) {
+				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Magenta;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Magenta;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Magenta;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Magenta;
+			}
+			else if (node.cost == SOLID_COST) {
+				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Red;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Red;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Red;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Red;
+			}
+			else {
+				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::White;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::White;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::White;
+				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::White;
 			}
 		}
+	}
 #endif
 
-		PriorityQueue<unsigned int, float> openNodes;
-		openNodes.Put(originIndex, 0);
+	PriorityQueue<unsigned int, float> openNodes;
+	openNodes.Put(originIndex, 0);
 
-		std::unordered_map<unsigned int, unsigned int> cameFrom;
-		std::unordered_map<unsigned int, short> costSoFar;
+	std::unordered_map<unsigned int, unsigned int> cameFrom;
+	std::unordered_map<unsigned int, short> costSoFar;
 
-		cameFrom[originIndex] = originIndex;
-		costSoFar[originIndex] = 0;
+	cameFrom[originIndex] = originIndex;
+	costSoFar[originIndex] = 0;
 
-		while (!openNodes.Empty()) {
-			const auto indexCurrent = openNodes.Get();
+	while (!openNodes.Empty()) {
+		const auto indexCurrent = openNodes.Get();
 
-			if (indexCurrent == destinationIndex) {
-				break;
-			}
+		if (indexCurrent == destinationIndex) {
+			break;
+		}
 
 #ifdef DEBUG_MOD
-			vertexArray[4 * indexCurrent].color = sf::Color::Yellow;
-			vertexArray[4 * indexCurrent + 1].color = sf::Color::Yellow;
-			vertexArray[4 * indexCurrent + 2].color = sf::Color::Yellow;
-			vertexArray[4 * indexCurrent + 3].color = sf::Color::Yellow;
+		vertexArray[4 * indexCurrent].color = sf::Color::Yellow;
+		vertexArray[4 * indexCurrent + 1].color = sf::Color::Yellow;
+		vertexArray[4 * indexCurrent + 2].color = sf::Color::Yellow;
+		vertexArray[4 * indexCurrent + 3].color = sf::Color::Yellow;
 #endif
-			for (auto indexNext : m_Graph[indexCurrent].neighborsIndex) {
-				auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
+		for (auto indexNext : m_Graph[indexCurrent].neighborsIndex) {
+			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
+			
+			const auto newCost = costSoFar[indexCurrent] + distance;
+
+			if (costSoFar.find(indexNext) == costSoFar.end() ||
+				newCost < costSoFar[indexNext]) {
+
+				costSoFar[indexNext] = newCost;
+				//Breaking tie value
+				const auto dx1 = std::abs(m_Graph[indexNext].pos.x - m_Graph[destinationIndex].pos.x);
+				const auto dy1 = std::abs(m_Graph[indexNext].pos.y - m_Graph[destinationIndex].pos.y);
+				const auto dx2 = std::abs(m_Graph[originIndex].pos.x - m_Graph[destinationIndex].pos.x);
+				const auto dy2 = std::abs(m_Graph[originIndex].pos.y - m_Graph[destinationIndex].pos.y);
+				const auto cross = abs(dx1*dy2 - dx2 * dy1);
+
+				//Heuristic
+				auto heuristic = m_Heuristic1 * (dx1 + dy1) + (m_Heuristic2 - 2 * m_Heuristic1) * std::min(dx1, dy1);
+				heuristic += cross * 0.001f;
+
+				const auto priority = newCost + heuristic;
+				openNodes.Put(indexNext, priority);
 				
-				const auto newCost = costSoFar[indexCurrent] + distance;
-
-				if (costSoFar.find(indexNext) == costSoFar.end() ||
-					newCost < costSoFar[indexNext]) {
-
-					costSoFar[indexNext] = newCost;
-					//Breaking tie value
-					const auto dx1 = std::abs(m_Graph[indexNext].pos.x - m_Graph[destinationIndex].pos.x);
-					const auto dy1 = std::abs(m_Graph[indexNext].pos.y - m_Graph[destinationIndex].pos.y);
-					const auto dx2 = std::abs(m_Graph[originIndex].pos.x - m_Graph[destinationIndex].pos.x);
-					const auto dy2 = std::abs(m_Graph[originIndex].pos.y - m_Graph[destinationIndex].pos.y);
-					float cross = abs(dx1*dy2 - dx2 * dy1);
-
-					//Heuristic
-					auto heuristic = HEURISTIC_1 * (dx1 + dy1) + (HEURISTIC_2 - 2 * HEURISTIC_1) * std::min(dx1, dy1);
-					heuristic += cross * 0.001f;
-
-					float priority = newCost + heuristic;
-					openNodes.Put(indexNext, priority);
-					
-					cameFrom[indexNext] = indexCurrent;
-				}
+				cameFrom[indexNext] = indexCurrent;
 			}
 		}
+	}
 
-		std::vector<GraphNode> path;
+	std::vector<GraphNode> path;
 
-		std::vector<Vec2f> pathPos;
-		auto currentNodeIndex = destinationIndex;
-		while (currentNodeIndex != originIndex) {
-			pathPos.push_back(m_Graph[currentNodeIndex].pos);
+	std::vector<Vec2f> pathPos;
+	auto currentNodeIndex = destinationIndex;
+	while (currentNodeIndex != originIndex) {
+		pathPos.push_back(m_Graph[currentNodeIndex].pos);
 
 #ifdef DEBUG_MOD
-			vertexArray[4 * currentNodeIndex].color = sf::Color::Cyan;
-			vertexArray[4 * currentNodeIndex + 1].color = sf::Color::Cyan;
-			vertexArray[4 * currentNodeIndex + 2].color = sf::Color::Cyan;
-			vertexArray[4 * currentNodeIndex + 3].color = sf::Color::Cyan;
+		vertexArray[4 * currentNodeIndex].color = sf::Color::Cyan;
+		vertexArray[4 * currentNodeIndex + 1].color = sf::Color::Cyan;
+		vertexArray[4 * currentNodeIndex + 2].color = sf::Color::Cyan;
+		vertexArray[4 * currentNodeIndex + 3].color = sf::Color::Cyan;
 #endif
-			path.push_back(m_Graph[currentNodeIndex]);
-			currentNodeIndex = cameFrom[currentNodeIndex];
-		}
-		path.push_back(m_Graph[originIndex]);
-		pathPos.push_back(m_Graph[originIndex].pos);
-		std::reverse(path.begin(), path.end());
-		std::reverse(pathPos.begin(), pathPos.end());
-
-		return pathPos;
+		path.push_back(m_Graph[currentNodeIndex]);
+		currentNodeIndex = cameFrom[currentNodeIndex];
 	}
+	path.push_back(m_Graph[originIndex]);
+	pathPos.push_back(m_Graph[originIndex].pos);
+	std::reverse(path.begin(), path.end());
+	std::reverse(pathPos.begin(), pathPos.end());
 
-	float NavigationGraphManager::GetSquaredDistance(Vec2f& v1, Vec2f& v2) {
-		return (v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y);
-	}
+	return pathPos;
+}
+
+float NavigationGraphManager::GetSquaredDistance(Vec2f& v1, Vec2f& v2) {
+	return (v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y);
+}
 }
