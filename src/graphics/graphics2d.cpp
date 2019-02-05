@@ -168,7 +168,6 @@ void Graphics2dManager::Clear()
 
 void Graphics2dManager::Collect()
 {
-
 	m_TextureManager.Collect();
 	m_SpriteManager.Collect();
 }
