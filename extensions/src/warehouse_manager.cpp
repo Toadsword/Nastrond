@@ -22,3 +22,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <extensions/warehouse_manager.h>
+
+namespace sfge::ext
+{
+	WarehouseManager::WarehouseManager(Engine& engine) : System(engine){}
+
+	void WarehouseManager::Init()
+	{
+	}
+
+	void WarehouseManager::Update(float dt)
+	{
+	}
+
+	void WarehouseManager::FixedUpdate()
+	{
+	}
+
+	void WarehouseManager::AddNewBuilding(Vec2f position)
+	{
+	}
+
+	bool WarehouseManager::DestroyBuilding(Entity warehouseEntity)
+	{
+		return false;
+	}
+
+	bool WarehouseManager::AddDwarfToBuilding(Entity warehouseEntity)
+	{
+		return false;
+	}
+
+	bool WarehouseManager::RemoveDwarfToBuilding(Entity warehouseEntity)
+	{
+		return false;
+	}
+
+	void WarehouseManager::DwarfEnterBuilding(Entity warehouseEntity)
+	{
+	}
+
+	void WarehouseManager::DwarfExitBuilding(Entity warehouseEntity)
+	{
+	}
+
+	Entity WarehouseManager::GetFreeSlotInBuilding()
+	{
+		return Entity();
+	}
+
+
+
+}

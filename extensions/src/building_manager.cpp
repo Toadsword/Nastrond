@@ -49,55 +49,56 @@ namespace sfge::ext
 
 	Entity BuildingManager::AttributeDwarfToWorkingPlace(BuildingType buildingType)
 	{
-		std::vector<BuildingType> buildingTypes;
-		for (int i = 0; i < BuildingType::LENGTH - 1; i++)
+		//std::vector<BuildingType> buildingTypes;
+		//for (int i = 0; i < BuildingType::LENGTH - 1; i++)
+		//{
+		//	if (buildingType == static_cast<BuildingType>(i))
+		//	{
+		//		buildingTypes.push_back(static_cast<BuildingType>(i));
+		//	}
+		//}
+
+		//for (int i = 0; i < BuildingType::LENGTH - 1; i++)
+		//{
+		//	if (buildingType == static_cast<BuildingType>(i))
+		//		continue;
+
+		//	buildingTypes.push_back(static_cast<BuildingType>(i));
+		//}
+
+		//for (BuildingType type : buildingTypes)
+		//{
+		switch (/*type*/ buildingType)
 		{
-			if (buildingType == static_cast<BuildingType>(i))
-			{
-				buildingTypes.push_back(static_cast<BuildingType>(i));
-			}
+		case BuildingType::FORGE :
+			Entity forgeEntity = INVALID_ENTITY;
+			forgeEntity = m_ForgeManager->GetFreeSlotInBuilding();
+
+			if(forgeEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_ForgeManager->AddDwarfToBuilding(forgeEntity);
+			return forgeEntity;
+
+		case BuildingType::MINE:
+			Entity mineEntity = INVALID_ENTITY;
+			mineEntity = m_MineManager->GetFreeSlotInBuilding();
+
+			if (mineEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_MineManager->AddDwarfToBuilding(mineEntity);
+			return mineEntity;
+
+		case BuildingType::EXCAVATION_POST:
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			break;
+		case BuildingType::WAREHOUSE:
+			break;
 		}
-
-		for (int i = 0; i < BuildingType::LENGTH - 1; i++)
-		{
-			if (buildingType == static_cast<BuildingType>(i))
-				continue;
-
-			buildingTypes.push_back(static_cast<BuildingType>(i));
-		}
-
-		for (BuildingType type : buildingTypes)
-		{
-			switch (type)
-			{
-			case BuildingType::FORGE :
-				Entity forgeEntity = INVALID_ENTITY;
-				forgeEntity = m_ForgeManager->GetFreeSlotInBuilding();
-
-				if(forgeEntity == INVALID_ENTITY)
-					continue;
-
-				m_ForgeManager->AddDwarfToBuilding(forgeEntity);
-				return forgeEntity;
-
-			case BuildingType::MINE:
-				Entity mineEntity = INVALID_ENTITY;
-				forgeEntity = m_MineManager->GetFreeSlotInBuilding();
-
-				if (forgeEntity == INVALID_ENTITY)
-					continue;
-
-				m_MineManager->AddDwarfToBuilding(forgeEntity);
-				return forgeEntity;
-
-			case BuildingType::EXCAVATION_POST:
-				break;
-			case BuildingType::MUSHROOM_FARM:
-				break;
-			case BuildingType::WAREHOUSE:
-				break;
-			}
-		}
+		//}
+		return INVALID_ENTITY;
 	}
 
 

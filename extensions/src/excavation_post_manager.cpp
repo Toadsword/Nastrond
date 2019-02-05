@@ -222,7 +222,7 @@ namespace sfge::ext
 	void ExcavationPostManager::ResizeContainer(const size_t newSize)
 	{
 		m_DwarfSlots.resize(newSize);
-		m_EntityIndex.resize(newSize);
+		m_EntityIndex.resize(newSize, INVALID_ENTITY);
 		m_StoneInventories.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
 	}

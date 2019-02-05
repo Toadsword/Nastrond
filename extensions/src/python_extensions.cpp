@@ -71,6 +71,18 @@ void ExtendPython(py::module& m)
 	dwellingManager
 		.def(py::init<Engine&>());
 
+	py::class_<ExcavationPostManager, System> excavationPostManager(m, "ExcavationPostManager");
+	excavationPostManager
+		.def(py::init<Engine&>());
+
+	py::class_<MushroomFarmManager, System> mushroomFarmManager(m, "MushroomFarmManager");
+	mushroomFarmManager
+		.def(py::init<Engine&>());
+
+	py::class_<WarehouseManager, System> warehouseManager(m, "WarehouseManager");
+	warehouseManager
+		.def(py::init<Engine&>());
+
 	py::class_<BuildingManager, System> buildingManager(m, "BuildingManager");
 	buildingManager
 		.def(py::init<Engine&>());

@@ -237,7 +237,7 @@ namespace sfge::ext
 
 	void DwellingManager::ResizeContainer(const size_t newSize)
 	{
-		m_EntityIndex.resize(newSize);
+		m_EntityIndex.resize(newSize, INVALID_ENTITY);
 		m_DwarfSlots.resize(newSize);
 		m_FoodInventories.resize(newSize);
 		m_CoolDownFramesProgression.resize(newSize);

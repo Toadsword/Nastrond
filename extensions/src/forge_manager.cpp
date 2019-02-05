@@ -151,7 +151,7 @@ namespace sfge::ext
 				m_DwarfSlots[i].dwarfAttributed--;
 				return true;
 			}
-		}
+		} 
 		return false;
 	}
 
@@ -260,7 +260,7 @@ namespace sfge::ext
 	void ForgeManager::ResizeContainer(const size_t newSize)
 	{
 		m_DwarfSlots.resize(newSize);
-		m_EntityIndex.resize(newSize);
+		m_EntityIndex.resize(newSize, INVALID_ENTITY);
 		m_ToolsInventories.resize(newSize);
 		m_IronsInventories.resize(newSize);
 		m_ProgressionProdTool.resize(newSize);

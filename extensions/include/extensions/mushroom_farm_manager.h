@@ -46,47 +46,47 @@ namespace sfge::ext
 		void FixedUpdate() override;
 
 		/**
-		 * \brief Spawn a warehouse entity at the given position.
+		 * \brief Spawn a mushroom farm entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
 		void AddNewBuilding(Vec2f position);
 
 		/**
-		 * \brief Destroy the warehouse at the given index.
-		 * \param warehouseEntity : an entity that is a warehouse.
-		 * \return true if the Entity exist and is a warehouse.
+		 * \brief Destroy the mushroom farm at the given index.
+		 * \param mushroomFarmEntity : an entity that is a mushroom farm.
+		 * \return true if the Entity exist and is a mushroom farm.
 		 */
-		bool DestroyBuilding(Entity warehouseEntity);
+		bool DestroyBuilding(Entity mushroomFarmEntity);
 
 		/**
-		 * \brief attribute a dwarf to the given warehouse entity.
-		 * \param warehouseEntity : an entity that is a warehouse.
-		 * \return true if the entity exist and is a warehouse and if a dwarf has been added to the building.
+		 * \brief attribute a dwarf to the given mushroom farm entity.
+		 * \param mushroomFarmEntity : an entity that is a mushroom farm.
+		 * \return true if the entity exist and is a mushroom farm and if a dwarf has been added to the building.
 		 */
-		bool AddDwarfToBuilding(Entity warehouseEntity);
+		bool AddDwarfToBuilding(Entity mushroomFarmEntity);
 
 		/**
-		 * \brief remove the attribution of a dwarf to the given warehouse entity.
-		 * \param warehouseEntity : an entity that is a warehouse.
-		 * \return true if the entity exist and is a warehouse and if a dwarf has been added to the building.
+		 * \brief remove the attribution of a dwarf to the given mushroom farm entity.
+		 * \param mushroomFarmEntity : an entity that is a mushroom farm.
+		 * \return true if the entity exist and is a mushroom farm and if a dwarf has been added to the building.
 		 */
-		bool RemoveDwarfToBuilding(Entity warehouseEntity);
+		bool RemoveDwarfToBuilding(Entity mushroomFarmEntity);
 
 		/**
 		 * \brief Increment the dwarf slot to tell that a dwarf go in.
-		 * \param warehouseEntity : The Entity of the warehouse that the dwarf want to go in.
+		 * \param mushroomFarmEntity : The Entity of the mushroom farm that the dwarf want to go in.
 		 */
-		void DwarfEnterBuilding(Entity warehouseEntity);
+		void DwarfEnterBuilding(Entity mushroomFarmEntity);
 
 		/**
 		 * \brief decrement the dwarf slot to tell that a dwarf go out.
-		 * \param warehouseEntity : The Entity of the warehouse that the dwarf want to go out.
+		 * \param mushroomFarmEntity : The Entity of the mushroom farm that the dwarf want to go out.
 		 */
-		void DwarfExitBuilding(Entity warehouseEntity);
+		void DwarfExitBuilding(Entity mushroomFarmEntity);
 
 		/**
-		 * \brief Get a warehouse with a slot free for a dwarf.
-		 * \return An entity of a warehouse.
+		 * \brief Get a mushroom farm with a slot free for a dwarf.
+		 * \return An entity of a mushroom farm.
 		 */
 		Entity GetFreeSlotInBuilding();
 
