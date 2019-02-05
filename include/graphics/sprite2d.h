@@ -54,6 +54,9 @@ public:
 	void Draw(sf::RenderWindow& window);
 	void SetTexture(sf::Texture* newTexture);
 
+
+
+	
 protected:
 	sf::Sprite sprite;
 };
@@ -94,6 +97,9 @@ protected:
 	Graphics2dManager* m_GraphicsManager = nullptr;
 	Transform2dManager* m_Transform2dManager = nullptr;
 };
+
+
+
 
 }
 #endif // !SFGE_SPRITE

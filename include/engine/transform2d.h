@@ -32,6 +32,7 @@
 namespace sfge
 {
 
+
 struct Transform2d
 {
 	Vec2f Position;

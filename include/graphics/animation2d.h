@@ -68,6 +68,7 @@ protected:
 	std::vector<AnimationFrame> frameList;
 	sf::Sprite sprite;
 	short currentFrameKey = 0;
+	//std::vector<AnimationFrame>::iterator currentFrame = frameList.begin();
 	float timeSinceChangedFrame = 0;
 	float speed = 0.1f;
 	bool isLooped = false;
@@ -81,7 +82,7 @@ struct AnimationInfo : ComponentInfo
 	void DrawOnInspector() override;
 	Animation* animation = nullptr;
 	std::string name = "";
-	float speed = 0.1f;
+	int speed = 100;
 	bool isLooped = false;
 };
 }
@@ -110,6 +111,9 @@ protected:
 	Graphics2dManager* m_GraphicsManager;
 	Transform2dManager* m_Transform2dManager;
 };
+
+
+
 
 }
 #endif // !SFGE_ANIMATION

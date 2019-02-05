@@ -76,6 +76,7 @@ public:
 	void Collect() override;
 
 
+
 private:
   	bool HasValidExtension(std::string filename);
 	void LoadTextures(std::string dataDirname);
@@ -84,6 +85,7 @@ private:
 	std::vector<sf::Texture> m_Textures = std::vector<sf::Texture>( INIT_ENTITY_NMB * 4 );
 	std::vector<size_t> m_TextureIdsRefCounts = std::vector<size_t>( INIT_ENTITY_NMB * 4, 0 );
 	TextureId m_IncrementId = 0U;
+
 };
 }
 
