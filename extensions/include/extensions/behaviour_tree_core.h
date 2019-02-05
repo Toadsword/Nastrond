@@ -24,9 +24,10 @@ SOFTWARE.
 #ifndef SFGE_EXT_BEHAVIOUR_TREE_CORE_H
 #define SFGE_EXT_BEHAVIOUR_TREE_CORE_H
 
-#include <engine/system.h>
 #include <vector>
 #include <memory>
+
+#include <engine/system.h>
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
@@ -34,16 +35,15 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-
 class BehaviourTree;
 
 class Node {
 public:
 	using ptr = std::shared_ptr<Node>;
 
-	explicit Node(BehaviourTree* BT, ptr parentNode);
+	explicit Node(BehaviourTree* bt, ptr parentNode);
 	virtual ~Node() = default;
-
+	
 	enum class Status {
 		SUCCESS,
 		FAIL,
@@ -53,14 +53,14 @@ public:
 	virtual Status Execute(unsigned int index) = 0;
 
 protected:
-	BehaviourTree* behaviourTree;
+	BehaviourTree* m_BehaviourTree;
 
-	ptr m_parentNode;
+	ptr m_ParentNode;
 };
 
-class BehaviourTree : public System {
+class BehaviourTree final : public System {
 public:
-	BehaviourTree(Engine& engine);
+	explicit BehaviourTree(Engine& engine);
 
 	void Init() override;
 
@@ -72,22 +72,22 @@ public:
 
 	void SetRootNode(const Node::ptr& rootNode);
 
-	void SetEntities(std::vector<Entity>* entities);
+	void SetEntities(std::vector<Entity>* vectorEntities);
 	
-	std::vector<Entity>* m_Entities;
+	std::vector<Entity>* entities;
 
-	std::vector<Node::ptr> m_CurrentNode;
-	std::vector<bool> m_FlowGoesDown;
-	std::vector<Node::Status> m_PreviousStatus;
+	std::vector<Node::ptr> currentNode;
+	std::vector<bool> doesFlowGoDown;
+	std::vector<Node::Status> previousStatus;
 
-	std::vector<char> m_Counter;
-	std::vector<char> m_Child;
+	std::vector<char> repeaterCounter;
+	std::vector<char> sequenceActiveChild;
 
 	DwarfManager* dwarfManager;
 	DwellingManager* dwellingManager;
 
-	const bool FLOW_GOES_DOWN = true;
-	const bool FLOW_GOES_UP = false;
+	const bool flowGoDown = true;
+	const bool flowGoUp = false;
 
 private:
 	Node::ptr m_RootNode = nullptr;
@@ -95,25 +95,24 @@ private:
 
 class CompositeNode : public Node {
 public:
-	explicit CompositeNode(BehaviourTree* BT, ptr parentNode) : Node(BT, parentNode){}
+	explicit CompositeNode(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode){}
 
-	void AddChild(ptr child) { m_Children.push_back(child); }
-	bool HasChildren() const { return !m_Children.empty(); }
+	void AddChild(const ptr& child);
+	bool HasChildren() const;
 protected:
 	std::vector<ptr> m_Children;
 };
 
-class Sequence : public CompositeNode {
+class Sequence final : public CompositeNode {
 public:
-	Sequence(BehaviourTree* BT, ptr parentNode) : CompositeNode(BT, parentNode) {}
+	Sequence(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
 
-class Selector : public CompositeNode {
+class Selector final : public CompositeNode {
 public:
-	Selector(BehaviourTree* BT, ptr parentNode) : CompositeNode(BT, parentNode) {}
-	~Selector() = default;
+	Selector(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
@@ -121,10 +120,10 @@ public:
 class Decorator : public Node {
 public:
 
-	explicit Decorator(BehaviourTree* BT, ptr parentNode) : Node(BT, parentNode) { }
+	explicit Decorator(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
 
-	void SetChild(Node::ptr node) { m_Child = node; }
-	bool HasChild() const { return m_Child != nullptr; }
+	void SetChild(const Node::ptr& node);
+	bool HasChild() const;
 
 protected:
 	ptr m_Child = nullptr;
@@ -133,7 +132,7 @@ protected:
 class Repeater : public Decorator
 {
 public:
-	Repeater(BehaviourTree* BT, ptr parentNode, int limit = 0);
+	Repeater(BehaviourTree* bt, const ptr& parentNode, int limit = 0);
 	
 	Status Execute(unsigned int index) override;
 
@@ -144,7 +143,7 @@ private:
 class Inverter : public Decorator
 {
 public:
-	Inverter(BehaviourTree* BT, ptr parentNode) : Decorator(BT, parentNode) {}
+	Inverter(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
@@ -152,14 +151,14 @@ public:
 class Succeeder : public Decorator
 {
 public:
-	Succeeder(BehaviourTree* BT, ptr parentNode) : Decorator(BT, parentNode) {}
+	Succeeder(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
-	Status Execute(unsigned index) override;
+	Status Execute(unsigned int index) override;
 };
 
 class Leaf : public Node {
 public:
-	explicit Leaf(BehaviourTree* BT, ptr parentNode) : Node(BT, parentNode){}
+	explicit Leaf(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode){}
 };
 }
 

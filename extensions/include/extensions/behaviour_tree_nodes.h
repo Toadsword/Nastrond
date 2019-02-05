@@ -29,49 +29,49 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-class HasDwelling : public Leaf
+class HasDwelling final : public Leaf
 {
 public:
-	HasDwelling(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode){}
+	HasDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode){}
 
 	Status Execute(unsigned int index) override;
 };
 
-class AssignDwelling : public Leaf
+class AssignDwelling final : public Leaf
 {
 public:
-	AssignDwelling(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode) {}
+	AssignDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
 
-class FindRandomPath : public Leaf {
+class FindRandomPath final : public Leaf {
 public:
-	FindRandomPath(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode){}
+	FindRandomPath(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode){}
 
 	Status Execute(unsigned int index) override;
 };
 
-class FindPathToDwelling : public Leaf
+class FindPathToDwelling final : public Leaf
 {
 public:
-	FindPathToDwelling(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode) {}
+	FindPathToDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
 
-class MoveTo : public Leaf
+class MoveTo final : public Leaf
 {
 public:
-	MoveTo(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode) {}
+	MoveTo(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };
 
-class WaitForPath : public Leaf
+class WaitForPath final : public Leaf
 {
 public:
-	WaitForPath(BehaviourTree* BT, ptr parentNode) : Leaf(BT, parentNode) {}
+	WaitForPath(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	Status Execute(unsigned int index) override;
 };

@@ -26,11 +26,11 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-Node::Status HasDwelling::Execute(unsigned int index) { //TODO Demander à Elias si ça devrait être en const ou non
-	behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
-	behaviourTree->m_CurrentNode[index] = m_parentNode;
+Node::Status HasDwelling::Execute(const unsigned int index) {
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
 
-	if (behaviourTree->dwarfManager->GetDwellingEntity(index) == INVALID_ENTITY)
+	if (m_BehaviourTree->dwarfManager->GetDwellingEntity(index) == INVALID_ENTITY)
 	{
 		return Status::FAIL;
 	}
@@ -40,54 +40,54 @@ Node::Status HasDwelling::Execute(unsigned int index) { //TODO Demander à Elias 
 	}
 }
 
-Node::Status AssignDwelling::Execute(unsigned int index) {
-	auto const dwellingEntity = behaviourTree->dwellingManager->GetFreeSlotInBuilding();
+Node::Status AssignDwelling::Execute(const unsigned int index) {
+	auto const dwellingEntity = m_BehaviourTree->dwellingManager->GetFreeSlotInBuilding();
 
-	behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
-	behaviourTree->m_CurrentNode[index] = m_parentNode;
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
 
 	if (dwellingEntity == INVALID_ENTITY) {
 		return Status::FAIL;
 	}
 	else {
-		behaviourTree->dwarfManager->AssignDwellingToDwarf(index, dwellingEntity);
-		behaviourTree->dwellingManager->AddDwarfToBuilding(dwellingEntity);
+		m_BehaviourTree->dwarfManager->AssignDwellingToDwarf(index, dwellingEntity);
+		m_BehaviourTree->dwellingManager->AddDwarfToBuilding(dwellingEntity);
 
 		return Status::SUCCESS;
 	}
 }
 
-Node::Status FindRandomPath::Execute(unsigned int index) {
-	behaviourTree->dwarfManager->BtFindRandomPath(index);
+Node::Status FindRandomPath::Execute(const unsigned int index) {
+	m_BehaviourTree->dwarfManager->BtFindRandomPath(index);
 
-	behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
-	behaviourTree->m_CurrentNode[index] = m_parentNode;
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
 	return Status::SUCCESS;
 }
 
-Node::Status FindPathToDwelling::Execute(unsigned int index) {
-	behaviourTree->dwarfManager->BTAddPathToDwelling(index);
+Node::Status FindPathToDwelling::Execute(const unsigned int index) {
+	m_BehaviourTree->dwarfManager->BTAddPathToDwelling(index);
 
-	behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
-	behaviourTree->m_CurrentNode[index] = m_parentNode;
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
 	return Status::SUCCESS;
 }
 
-Node::Status MoveTo::Execute(unsigned int index) {
-	if (behaviourTree->dwarfManager->IsDwarfAtDestination(index)) {
-		behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
-		behaviourTree->m_CurrentNode[index] = m_parentNode;
+Node::Status MoveTo::Execute(const unsigned int index) {
+	if (m_BehaviourTree->dwarfManager->IsDwarfAtDestination(index)) {
+		m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+		m_BehaviourTree->currentNode[index] = m_ParentNode;
 		return Status::SUCCESS;
 	}
 
-	behaviourTree->dwarfManager->BTAddPathFollower(index);
+	m_BehaviourTree->dwarfManager->BTAddPathFollower(index);
 	return Status::RUNNING;
 }
 
-Node::Status WaitForPath::Execute(unsigned int index) {
-	if (behaviourTree->dwarfManager->HasPath(index)) {
-		behaviourTree->m_FlowGoesDown[index] = behaviourTree->FLOW_GOES_UP;
-		behaviourTree->m_CurrentNode[index] = m_parentNode;
+Node::Status WaitForPath::Execute(const unsigned int index) {
+	if (m_BehaviourTree->dwarfManager->HasPath(index)) {
+		m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+		m_BehaviourTree->currentNode[index] = m_ParentNode;
 		return Status::SUCCESS;
 	}
 
