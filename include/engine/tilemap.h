@@ -90,7 +90,7 @@ public:
 	/**
 	 * \brief Returns the EntityId positionned at specified position
 	 * \param pos Position of the tile.
-	 * \return Entity
+	 * \return Entity wanted
 	 */
 	Entity GetTileAt(Vec2f pos);
 
@@ -114,13 +114,13 @@ protected:
 	 */
 	int m_Layer = 0;
 	/**
-	 * \brief Displays the tilemap as an isometric one or not
-	 */
-	bool m_IsIsometric = false;
-	/**
 	 * \brief Pointer to the TileManager
 	 */
 	TileManager* m_TileManager;
+	/**
+	 * \brief Displays the tilemap as an isometric one or not
+	 */
+	bool m_IsIsometric = false;
 };
 
 namespace editor
@@ -144,6 +144,7 @@ public:
 	void Collect() override;
 	Tilemap* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
+	void UpdateTile(Entity tilemapEntity, Vec2f pos, TileTypeId tileTypeId);
 	void DestroyComponent(Entity entity) override;
 	void OnResize(size_t new_size) override;
 
