@@ -216,33 +216,33 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& d
 std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int originIndex, const unsigned int destinationIndex)
 {
 #ifdef DEBUG_MOD
-	for (auto y = 0; y < m_mapSize.y; y++) {
-		for (auto x = 0; x < m_mapSize.x; x++) {
-			GraphNode node = m_Graph[((y * m_mapSize.y) + x)];
+	for (auto y = 0; y < m_MapSize.y; y++) {
+		for (auto x = 0; x < m_MapSize.x; x++) {
+			GraphNode node = m_Graph[((y * m_MapSize.y) + x)];
 
-			if (originIndex == ((y * m_mapSize.y) + x)) {
-				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Green;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Green;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Green;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Green;
+			if (originIndex == ((y * m_MapSize.y) + x)) {
+				m_VertexArray[4 * ((y * m_MapSize.y) + x)].color = sf::Color::Green;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 1].color = sf::Color::Green;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 2].color = sf::Color::Green;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 3].color = sf::Color::Green;
 			}
-			else if (destinationIndex == ((y * m_mapSize.y) + x)) {
-				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Magenta;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Magenta;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Magenta;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Magenta;
+			else if (destinationIndex == ((y * m_MapSize.y) + x)) {
+				m_VertexArray[4 * ((y * m_MapSize.y) + x)].color = sf::Color::Magenta;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 1].color = sf::Color::Magenta;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 2].color = sf::Color::Magenta;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 3].color = sf::Color::Magenta;
 			}
 			else if (node.cost == SOLID_COST) {
-				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::Red;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::Red;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::Red;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::Red;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x)].color = sf::Color::Red;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 1].color = sf::Color::Red;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 2].color = sf::Color::Red;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 3].color = sf::Color::Red;
 			}
 			else {
-				vertexArray[4 * ((y * m_mapSize.y) + x)].color = sf::Color::White;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 1].color = sf::Color::White;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 2].color = sf::Color::White;
-				vertexArray[4 * ((y * m_mapSize.y) + x) + 3].color = sf::Color::White;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x)].color = sf::Color::White;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 1].color = sf::Color::White;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 2].color = sf::Color::White;
+				m_VertexArray[4 * ((y * m_MapSize.y) + x) + 3].color = sf::Color::White;
 			}
 		}
 	}
@@ -265,10 +265,10 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 		}
 
 #ifdef DEBUG_MOD
-		vertexArray[4 * indexCurrent].color = sf::Color::Yellow;
-		vertexArray[4 * indexCurrent + 1].color = sf::Color::Yellow;
-		vertexArray[4 * indexCurrent + 2].color = sf::Color::Yellow;
-		vertexArray[4 * indexCurrent + 3].color = sf::Color::Yellow;
+		m_VertexArray[4 * indexCurrent].color = sf::Color::Yellow;
+		m_VertexArray[4 * indexCurrent + 1].color = sf::Color::Yellow;
+		m_VertexArray[4 * indexCurrent + 2].color = sf::Color::Yellow;
+		m_VertexArray[4 * indexCurrent + 3].color = sf::Color::Yellow;
 #endif
 		for (auto indexNext : m_Graph[indexCurrent].neighborsIndex) {
 			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
@@ -306,10 +306,10 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 		pathPos.push_back(m_Graph[currentNodeIndex].pos);
 
 #ifdef DEBUG_MOD
-		vertexArray[4 * currentNodeIndex].color = sf::Color::Cyan;
-		vertexArray[4 * currentNodeIndex + 1].color = sf::Color::Cyan;
-		vertexArray[4 * currentNodeIndex + 2].color = sf::Color::Cyan;
-		vertexArray[4 * currentNodeIndex + 3].color = sf::Color::Cyan;
+		m_VertexArray[4 * currentNodeIndex].color = sf::Color::Cyan;
+		m_VertexArray[4 * currentNodeIndex + 1].color = sf::Color::Cyan;
+		m_VertexArray[4 * currentNodeIndex + 2].color = sf::Color::Cyan;
+		m_VertexArray[4 * currentNodeIndex + 3].color = sf::Color::Cyan;
 #endif
 		path.push_back(m_Graph[currentNodeIndex]);
 		currentNodeIndex = cameFrom[currentNodeIndex];
