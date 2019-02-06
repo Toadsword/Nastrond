@@ -24,55 +24,62 @@ SOFTWARE.
 #ifndef NAVIGATION_GRAPH_MANAGER_H
 #define NAVIGATION_GRAPH_MANAGER_H
 
-#include "engine/system.h"
 #include <vector>
-#include "engine/vector.h"
-#include "graphics/graphics2d.h"
+
+#include <graphics/graphics2d.h>
+
+#include <engine/system.h>
+#include <engine/vector.h>
+
 
 namespace sfge::ext
 {
-	/**
-	 * \author Nicolas Schneider
-	 */
-	struct GraphNode {
-		float cost;
-		std::vector<unsigned int> neighborsIndex;
-		Vec2f pos;
-	};
+/**
+ * \author Nicolas Schneider
+ */
+struct GraphNode final {
+	float cost;
+	std::vector<unsigned int> neighborsIndex;
+	Vec2f pos;
+};
 
 //#define DEBUG_MOD
 #define DEBUG_MAP
 /**
  * \author Nicolas Schneider
  */
-	class NavigationGraphManager : public System {
-	public:
-		NavigationGraphManager(Engine& engine);
+class NavigationGraphManager final : public System {
+public:
+	explicit NavigationGraphManager(Engine& engine);
 
-		void Init() override;
+	void Init() override;
 
-		void Update(float dt) override;
+	void Update(float dt) override;
 
-		void FixedUpdate() override;
+	void FixedUpdate() override;
 
-		void Draw() override;
+	void Draw() override;
 
+	/**
+	 * \brief Ask a path from the origin to a destination, store datas to be used when the path finder is free
+	 * \param path 
+	 * \param origin 
+	 * \param destination 
+	 */
 	void AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination);
 
+private:
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
-	private:
-		void BuildGraphFromArray(std::vector<std::vector<int>>& map);
+	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
 
-		static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
+	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 
-		void DrawQuad(sf::RenderWindow* window, Vec2f pos, sf::Color col);
-
-		Graphics2dManager* m_Graphics2DManager;
+	Graphics2dManager* m_Graphics2DManager;
 
 	//Queue for waiting path
-	struct WaitingPath {
+	struct WaitingPath final {
 		std::vector<Vec2f>* path;
 		Vec2f destination;
 		Vec2f origin;
@@ -80,23 +87,25 @@ namespace sfge::ext
 	std::queue<WaitingPath> m_WaitingPaths;
 
 	//Heuristic for pathfinding
-	const float HEURISTIC_1 = 1;
-	const float HEURISTIC_2 = sqrt(2.f);
+	const float m_Heuristic1 = 1;
+	const float m_Heuristic2 = sqrt(2.f);
 
-		//Constant for cost
-		const static short SOLID_COST = 0;
-		const static short ROAD_COST = 1;
-		const static short NORMAL_COST = 1;
-		
-		std::vector<GraphNode> m_Graph;
-		sf::VertexArray vertexArray;
+	//Constant for cost
+	const static short SOLID_COST = 0;
+	const static short ROAD_COST = 1;
+	const static short NORMAL_COST = 2;
+
+	const short m_MaxPathForOneUpdate = 16;
+	
+	std::vector<GraphNode> m_Graph;
+	sf::VertexArray m_VertexArray;
 
 #ifdef DEBUG_MAP
-		//Map info
-		const Vec2f m_tileExtends = Vec2f(6, 6);
-		Vec2f m_mapSize;
+	//Map info
+	const Vec2f m_TileExtends = Vec2f(6, 6);
+	Vec2f m_MapSize;
 #endif
-	};
+};
 }
 
 #endif

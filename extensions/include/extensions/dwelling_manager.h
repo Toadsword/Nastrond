@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define TEST_SYSTEM_DEBUG
 
 	/**
 	 * \author Robin Alves
@@ -52,39 +51,75 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Spawn a new dwelling at the given position.
+		 * \brief Spawn a dwelling entity at the given position.
+		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f pos);
+		void AddNewBuilding(Vec2f position);
 
 		/**
-		 * \brief Destroy the dwelling at the given index. Return if the entity is not available.
+		 * \brief Destroy the dwelling at the given index.
+		 * \param dwellingEntity : an entity that is a dwelling.
+		 * \return true if the Entity exist and is a dwelling.
 		 */
-		bool DestroyBuilding(Entity mineEntity);
+		bool DestroyBuilding(Entity dwellingEntity);
 
 		/**
-		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if there is no slot available or if the entity do not exist.
-		 */
+		 * \brief attribute a dwarf to the given dwelling entity.
+		 * \param dwellingEntity : an entity that is a dwelling.
+		 * \return true if the entity exist and is a dwelling and if a dwarf has been added to the building.
+		 */ 
 		bool AddDwarfToBuilding(Entity dwellingEntity);
 
 		/**
-		 * \brief Remove dwarf to the dwarf slot struct of the given building. Return false if there is no slot available or if the entity do not exist.
+		 * \brief remove the attribution of a dwarf to the given dwelling entity.
+		 * \param dwellingEntity : an entity that is a dwelling.
+		 * \return true if the entity exist and is a dwelling and if a dwarf has been added to the building.
 		 */
-		bool RemoveDwarfToBuilding(Entity mineEntity);
+		bool RemoveDwarfToBuilding(Entity dwellingEntity);
 
 		/**
-		 * \brief Return a dwelling entity with a slot available for a dwarf. If not
+		 * \brief Get a dwelling with a slot free for a dwarf.
+		 * \return An entity of a dwelling.
 		 */
 		Entity GetFreeSlotInBuilding();
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go in.
+		 * \param dwellingEntity : The Entity of the dwelling that the dwarf want to go in.
+		 */
+		void DwarfEnterBuilding(Entity dwellingEntity);
+
+		/**
+		 * \brief Increment the dwarf slot to tell that a dwarf go out.
+		 * \param dwellingEntity : The Entity of the dwelling that the dwarf want to go out.
+		 */
+		void DwarfExitBuilding(Entity dwellingEntity);
+
+		/**
+		 * \brief Get all resources that the building need to do his work.
+		 * \return a vector with all the type of resources that the dwelling need.
+		 */
+		std::vector<ResourceType> GetNeededResourceType();
+
+		/**
+		 * \brief give resources that the dwelling need.
+		 * \param dwellingEntity : an entity that is a dwelling.
+		 * \param nmbResources : the number of resources that needed to be deposit.
+		 * \param resourceType : the type of resources that want to be deposit.
+		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
+		 */
+		float GiveResources(Entity dwellingEntity, int nmbResources, ResourceType resourceType);
 
 	private:
 
 		/**
 		 * \brief Consume Resources depending on the number of dwarf in.
 		 */
-		void ConsumeResources();
+		void Consume();
 
 		/**
-		 * \brief Resize all vector to keep the same index for mine.
+		 * \brief Resize all vector in one go to keep the synchronize all index.
+		 * \param newSize : the size with the new number of building.
 		 */
 		void ResizeContainer(const size_t newSize);
 
@@ -109,14 +144,7 @@ namespace sfge::ext
 		std::vector<ReceiverInventory> m_FoodInventories;
 		std::vector<unsigned int> m_CoolDownFramesProgression;
 
-#ifdef TEST_SYSTEM_DEBUG
-		const size_t m_EntitiesNmb = 0;
-		size_t m_EntitiesCount = 0;
-
-		const unsigned int m_FramesBeforeAdd = 0u;
-		unsigned int m_FrameInProgress = 0u;
-#endif
-
+		const ResourceType m_ResourceTypeNeeded = ResourceType::FOOD;
 		const unsigned int m_CoolDownFrames = 2000;
 
 		//Building texture

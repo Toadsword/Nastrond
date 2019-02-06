@@ -192,6 +192,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 		{
 			m_EntityManager->ResizeEntityNmb(entityNmb);
 		}
+
 		for(auto& entityJson : sceneJson["entities"])
 		{
 			Entity entity = INVALID_ENTITY;
@@ -262,9 +263,7 @@ void SceneManager::LoadSceneFromJson(json& sceneJson, std::unique_ptr<editor::Sc
 	auto* pythonEngine = m_Engine.GetPythonEngine();
 	pythonEngine->InitScriptsInstances();
 
-	InitScenePySystems();
-	
-	
+	InitScenePySystems();	
 }
 
 std::list<std::string> SceneManager::GetAllScenes()

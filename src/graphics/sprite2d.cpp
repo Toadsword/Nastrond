@@ -40,10 +40,12 @@ namespace sfge
 
 Sprite::Sprite() : Offsetable(sf::Vector2f())
 {
+	is_visible = true;
 }
 
 Sprite::Sprite(Transform2d* transform, sf::Vector2f offset) : Offsetable(offset)
 {
+	is_visible = true;
 }
 void Sprite::Draw(sf::RenderWindow& window)
 {
@@ -53,22 +55,25 @@ void Sprite::Draw(sf::RenderWindow& window)
 	
 	window.draw(sprite);
 }
+const sf::Texture* Sprite::GetTexture()
+{
+	return sprite.getTexture();
+}
 void Sprite::SetTexture(sf::Texture* newTexture)
 {
 	sprite.setTexture(*newTexture);
-
 	sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width, sprite.getLocalBounds().height) / 2.0f);
 }
 
-
 void Sprite::Init()
 {
+	is_visible = true;
 }
 
 void Sprite::Update(Transform2d* transform)
 {
 	auto pos = m_Offset;
-	
+
 	if(transform != nullptr)
 	{
 		pos += transform->Position;
@@ -93,6 +98,7 @@ void editor::SpriteInfo::DrawOnInspector()
 			sprite->GetOffset().y
 		};
 		ImGui::InputFloat2("Offset", offset);
+		ImGui::Checkbox("Is Visible", &sprite->is_visible);
 	}
 }
 
@@ -118,7 +124,6 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 	return &sprite;
 }
 
-
 void SpriteManager::Update(float dt)
 {
 	(void) dt;
@@ -132,7 +137,6 @@ void SpriteManager::Update(float dt)
 	}
 }
 
-
 void SpriteManager::DrawSprites(sf::RenderWindow &window)
 {
 
@@ -140,9 +144,9 @@ void SpriteManager::DrawSprites(sf::RenderWindow &window)
 	for (auto i = 0u; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
-			m_Components[i].Draw(window);
+			if(m_Components[i].is_visible)
+				m_Components[i].Draw(window);
 	}
-	
 }
 
 void SpriteManager::Reset()
@@ -150,8 +154,7 @@ void SpriteManager::Reset()
 }
 
 void SpriteManager::Collect()
-{
-	
+{	
 }
 
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)
@@ -177,6 +180,7 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 				texture = textureManager->GetTexture(textureId);
 				newSprite.SetTexture(texture);
 				newSpriteInfo.textureId = textureId;
+				newSpriteInfo.sprite = &newSprite;
 			}
 			else
 			{
@@ -200,7 +204,6 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 	{
 		newSprite.SetLayer(componentJson["layer"]);
 	}
-
 }
 
 void SpriteManager::DestroyComponent(Entity entity)

@@ -56,6 +56,18 @@ public:
 	 */
 	void SpawnDwarf(const Vec2f pos);
 
+	/**
+	 * \brief Destroy a dwarf using its entity
+	 * \param entity to destroy
+	 */
+	void DestroyDwarfByEntity(Entity entity);
+
+	/**
+	 * \brief Destroy a dwarf using its index inside the entites container
+	 * \param index to destroy
+	 */
+	void DestroyDwarfByIndex(unsigned int index);
+
 	//Dwelling 
 	/**
 	 * \brief Get the dwelling associated to a dwarf
@@ -83,21 +95,22 @@ public:
 	void BTAddPathFollower(unsigned int index);
 
 private:
+	void ResizeContainers();
+	int GetIndexForNewEntity();
+
 	Transform2dManager * m_Transform2DManager;
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
 	NavigationGraphManager* m_NavigationGraphManager;
 
 	//Dwarfs Holder
-	size_t m_IndexNewDwarf = 0;
-	const size_t m_ContainersExtender = 1000;
+	const size_t m_ContainersExtender = 100;
 	std::vector<Entity> m_DwarfsEntities;
-
-	void ResizeContainers(const size_t newSize);
-
+	
 	//State management
 	enum State
 	{
+		INVALID,
 		IDLE,
 		WALKING,
 		WAITING_NEW_PATH
@@ -124,7 +137,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 1000;
+	const size_t m_DwarfToSpawn = 10;
 #endif
 
 	//Dwarfs texture
