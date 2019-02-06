@@ -62,10 +62,8 @@ const sf::Texture* Sprite::GetTexture()
 void Sprite::SetTexture(sf::Texture* newTexture)
 {
 	sprite.setTexture(*newTexture);
-
 	sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width, sprite.getLocalBounds().height) / 2.0f);
 }
-
 
 void Sprite::Init()
 {
@@ -75,7 +73,7 @@ void Sprite::Init()
 void Sprite::Update(Transform2d* transform)
 {
 	auto pos = m_Offset;
-	
+
 	if(transform != nullptr)
 	{
 		pos += transform->Position;
@@ -126,7 +124,6 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 	return &sprite;
 }
 
-
 void SpriteManager::Update(float dt)
 {
 	(void) dt;
@@ -140,7 +137,6 @@ void SpriteManager::Update(float dt)
 	}
 }
 
-
 void SpriteManager::DrawSprites(sf::RenderWindow &window)
 {
 
@@ -151,7 +147,6 @@ void SpriteManager::DrawSprites(sf::RenderWindow &window)
 			if(m_Components[i].is_visible)
 				m_Components[i].Draw(window);
 	}
-	
 }
 
 void SpriteManager::Reset()
@@ -159,8 +154,7 @@ void SpriteManager::Reset()
 }
 
 void SpriteManager::Collect()
-{
-	
+{	
 }
 
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)
@@ -210,7 +204,6 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 	{
 		newSprite.SetLayer(componentJson["layer"]);
 	}
-
 }
 
 void SpriteManager::DestroyComponent(Entity entity)

@@ -56,7 +56,9 @@ enum class ComponentType : int
 	SOUND = 1 << 5,
 	PYCOMPONENT = 1 << 6,
 	ANIMATION2D = 1 << 7,
-	CAMERA = 1 << 8
+	TILEMAP = 1 << 8,
+	TILE = 1 << 9,
+	CAMERA = 1 << 10
 };
 
 class IComponentFactory

@@ -33,9 +33,6 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-//#define DEBUG_CHECK_PRODUCTION
-#define TEST_SYSTEM_DEBUG
-
 	/**
 	 * \author Robin Alves
 	 */
@@ -53,77 +50,108 @@ namespace sfge::ext
 		void Draw() override;
 
 		/**
-		 * \brief Spawn forge entity at the given position.
+		 * \brief Spawn a forge entity at the given position.
+		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f pos);
+		void AddNewBuilding(Vec2f position);
 
 		/**
-		 * \brief Destroy the forge at the given index. Return if the entity is not available.
+		 * \brief Destroy the forge at the given index.
+		 * \param forgeEntity : an entity that is a forge.
+		 * \return true if the Entity exist and is a forge.
 		 */
-		bool DestroyBuilding(Entity entity);
+		bool DestroyBuilding(Entity forgeEntity);
 
 		/**
-		 * \brief Add dwarf to the dwarf slot struct of the given entity. Return false if the entity do not exist.
+		 * \brief attribute a dwarf to the given forge entity.
+		 * \param forgeEntity : an entity that is a forge.
+		 * \return true if the entity exist and is a forge and if a dwarf has been added to the building.
 		 */
-		bool AddDwarfToBuilding(Entity mineEntity);
+		bool AddDwarfToBuilding(Entity forgeEntity);
 
 		/**
-		 * \brief Remove dwarf to the dwarf slot struct of the given entity. Return false if there is no dwarf attribute or if the entity do not exist.
+		 * \brief remove the attribution of a dwarf to the given forge entity.
+		 * \param forgeEntity : an entity that is a forge.
+		 * \return true if the entity exist and is a forge and if a dwarf has been added to the building.
 		 */
-		bool RemoveDwarfToBuilding(Entity mineEntity);
+		bool RemoveDwarfToBuilding(Entity forgeEntity);
 
 		/**
-		 * \brief Return a forge entity with a slot available for a dwarf. If not
+		 * \brief Increment the dwarf slot to tell that a dwarf go in.
+		 * \param forgeEntity : The Entity of the forge that the dwarf want to go in.
+		 */
+		void DwarfEnterBuilding(Entity forgeEntity);
+
+		/**
+		 * \brief decrement the dwarf slot to tell that a dwarf go out.
+		 * \param forgeEntity : The Entity of the forge that the dwarf want to go out.
+		 */
+		void DwarfExitBuilding(Entity forgeEntity);
+
+		/**
+		 * \brief Get a forge with a slot free for a dwarf.
+		 * \return An entity of a forge.
 		 */
 		Entity GetFreeSlotInBuilding();
 
 		/**
-		 * \brief Return the type of resources that the building produce.
+		 * \brief get a forge that have resources ready to be taken.
+		 * \return a forge entity with resources.
+		 */
+		Entity GetBuildingWithResources();
+
+		/**
+		 * \brief get the type of resources that a forge produce.
+		 * \return a resource type.
 		 */
 		ResourceType GetProducedResourceType();
 
 		/**
-		 * \brief Return a vector with all the type of resources that the building need to produce.
+		 * \brief Get all resources that the building need to do his work.
+		 * \return a vector with all the type of resources that the forge need.
 		 */
 		std::vector<ResourceType> GetNeededResourceType();
 
 		/**
-		 * \brief Return an amount of the produced resources of the given building entity.
+		 * \brief get a certain amount of resources that a forge have produce.
+		 * \param forgeEntity : an entity that is a forge.
+		 * \return an int of an amount of resources.
 		 */
-		int GetResourcesBack(Entity entity);
+		int GetResourcesBack(Entity forgeEntity);
 
 		/**
-		 * \brief Give resources to the the given building entity. Return the number of resources that the building could not recover or all if the building is full or if the resource type is not the good one.
+		 * \brief give resources that the forge need to produce.
+		 * \param forgeEntity : an entity that is a forge.
+		 * \param nmbResources : the number of resources that needed to be deposit.
+		 * \param resourceType : the type of resources that want to be deposit.
+		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
 		 */
-		float GiveResources(Entity entity, int nmbResources, ResourceType resourceType);
+		float GiveResources(Entity forgeEntity, int nmbResources, ResourceType resourceType);
 
 	private:
-		/**
-		 * \brief Resize all vector in one go to keep the synchronize all index.
-		 */
-		void ResizeContainer(const size_t newSize);
-
 		/**
 		 * \brief Consume iron to produce tool.
 		 */
 		void ProduceTools();
 
 		/**
-		 * \brief return true if a slot in the index is empty then take his place.
+		 * \brief Resize all vector in one go to keep the synchronize all index.
+		 * \param newSize : the size with the new number of building.
+		 */
+		void ResizeContainer(const size_t newSize);
+
+
+		/**
+		 * \brief check if a slot already setup is empty and fill it.
+		 * \param newEntity : the entity that is newly created.
+		 * \param transformPtr : the transform of the newly created.
+		 * \return true if a slot was empty and has been fill.
 		 */
 		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
-
-#ifdef TEST_SYSTEM_DEBUG
-		const size_t m_EntitiesNmb = 10000;
-		size_t m_EntitiesCount = 0;
-
-		const unsigned int m_FramesBeforeAdd = 0u;
-		unsigned int m_FrameInProgress = 0u;
-#endif
 
 		std::vector<Entity> m_EntityIndex;
 
@@ -132,7 +160,8 @@ namespace sfge::ext
 		std::vector<ReceiverInventory> m_IronsInventories;
 		std::vector<ProgressionProduction> m_ProgressionProdTool;
 
-		const int m_stackSize = 5;
+
+		const int m_StackSize = 5;
 
 		const int m_CoolDownFrames = 20;
 

@@ -22,36 +22,61 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/building_constructor.h>
+#ifndef BUILDING_MANAGER_H
+#define BUILDING_MANAGER_H
+
+#include <engine/system.h>
+#include <python/python_engine.h>
+
+#include <extensions/dwelling_manager.h>
+#include <extensions/forge_manager.h>
+#include <extensions/mine_manager.h>
+#include <extensions/excavation_post_manager.h>
+#include <extensions/mushroom_farm_manager.h>
+#include <extensions/warehouse_manager.h>
+
 
 namespace sfge::ext
 {
-	BuildingConstructor::BuildingConstructor(sfge::Engine& engine) : System(engine){}
-
-	void BuildingConstructor::Init()
+	/**
+	 * \author Robin Alves
+	 */
+	class BuildingManager : public System
 	{
-		m_DwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
-			"DwellingManager");
-		m_ForgeManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ForgeManager>(
-			"ForgeManager");
-		m_MineManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<MineManager>(
-			"MineManager");
+	public:
+		BuildingManager(Engine& engine);
+
+		void Init() override;
+
+		void Update(float dt) override;
+
+		void FixedUpdate() override;
+
+		void Draw() override;
 
 
-		
-	}
-
-	void BuildingConstructor::Update(float dt)
-	{
-	}
-
-	void BuildingConstructor::FixedUpdate()
-	{
-	}
-
-	void BuildingConstructor::Draw()
-	{
-	}
+		enum BuildingType
+		{
+			FORGE,
+			MINE,
+			EXCAVATION_POST,
+			MUSHROOM_FARM,
+			WAREHOUSE,
+			DWELLING, //Warning : Dwelling are not consider as working place
+			LENGTH
+		};
 
 
+		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
+
+	private:
+		DwellingManager* m_DwellingManager;
+		ForgeManager* m_ForgeManager;
+		MineManager* m_MineManager;
+		ExcavationPostManager* m_ExcavationPostManager;
+		MushroomFarmManager* m_MushroomFarmManager;
+		WarehouseManager* m_WarehouseManager;
+
+	};
 }
+#endif

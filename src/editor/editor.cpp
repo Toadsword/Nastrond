@@ -59,7 +59,7 @@ void Editor::Init()
 	m_Enable = m_Config == nullptr || m_Config->editor;
 	m_KeyboardManager = &m_Engine.GetInputManager()->GetKeyboardManager();
 	m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
-
+	m_TilemapSystem = m_Engine.GetTilemapSystem();
 	m_Window = m_GraphicsManager->GetWindow();
 	m_ToolWindow.Init();
 	Log::GetInstance()->Msg("Enabling Editor");
