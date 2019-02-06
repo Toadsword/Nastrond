@@ -32,7 +32,6 @@ namespace sfge::ext
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 
 		EntityManager* entityManager = m_Engine.GetEntityManager();
 
@@ -239,7 +238,7 @@ namespace sfge::ext
 			//Check if the inventory is full
 			if (!(m_StoneInventories[i].packNumber * m_StoneInventories[i].packSize >= m_StoneInventories[i].maxCapacity))
 			{
-				//Produce Iron by checking the number of dwarf in the building
+				//Produce Stone by checking the number of dwarf in the building
 				m_StoneInventories[i].inventory += m_ProductionRate * m_DwarfSlots[i].dwarfIn;
 
 				if (m_StoneInventories[i].inventory >= m_StoneInventories[i].packSize)

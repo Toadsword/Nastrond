@@ -69,6 +69,10 @@ namespace sfge::ext
 
 		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
 
+		bool DwarfEnterBuilding(BuildingType buildingType, Entity entity);
+
+		bool DwarfExitBuilding(BuildingType buildingType, Entity entity);
+
 	private:
 		DwellingManager* m_DwellingManager;
 		ForgeManager* m_ForgeManager;

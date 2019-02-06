@@ -80,7 +80,6 @@ namespace sfge::ext
 			m_ForgeManager->AddDwarfToBuilding(forgeEntity);
 			return forgeEntity;
 		}
-
 		case BuildingType::MINE: {
 			Entity mineEntity = INVALID_ENTITY;
 			mineEntity = m_MineManager->GetFreeSlotInBuilding();
@@ -91,16 +90,99 @@ namespace sfge::ext
 			m_MineManager->AddDwarfToBuilding(mineEntity);
 			return mineEntity;
 		}
+		case BuildingType::EXCAVATION_POST: {
+			Entity excavationPostEntity = INVALID_ENTITY;
+			excavationPostEntity = m_ExcavationPostManager->GetFreeSlotInBuilding();
 
-		case BuildingType::EXCAVATION_POST: 
-			break;
-		case BuildingType::MUSHROOM_FARM:
-			break;
+			if (excavationPostEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_ExcavationPostManager->AddDwarfToBuilding(excavationPostEntity);
+			return excavationPostEntity;
+			}
+		case BuildingType::MUSHROOM_FARM: {
+			Entity mushroomFarmEntity = INVALID_ENTITY;
+			mushroomFarmEntity = m_MushroomFarmManager->GetFreeSlotInBuilding();
+
+			if (mushroomFarmEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_MushroomFarmManager->AddDwarfToBuilding(mushroomFarmEntity);
+			return mushroomFarmEntity;
+			}
 		case BuildingType::WAREHOUSE:
+			Entity warehouseEntity = INVALID_ENTITY;
+			warehouseEntity = m_WarehouseManager->GetFreeSlotInBuilding();
+
+			if (warehouseEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_WarehouseManager->AddDwarfToBuilding(warehouseEntity);
+			return warehouseEntity;
 			break;
 		}
 		//}
 		return INVALID_ENTITY;
+	}
+
+	bool BuildingManager::DwarfEnterBuilding(BuildingType buildingType, Entity entity)
+	{
+		// TODO : Change DwarfEnterBuilding in all manager to make them return false if the building Doesn't Exist anymore
+
+		switch (buildingType)
+		{
+		case BuildingType::FORGE: {
+			m_ForgeManager->DwarfEnterBuilding(entity);
+			return true;
+		}
+		case BuildingType::MINE: {
+			m_MineManager->DwarfEnterBuilding(entity);
+			return true;
+		}
+		case BuildingType::EXCAVATION_POST: {
+			m_ExcavationPostManager->DwarfEnterBuilding(entity);
+			return true;
+		}
+		case BuildingType::MUSHROOM_FARM: {
+			m_MushroomFarmManager->DwarfEnterBuilding(entity);
+			return true;
+			}
+		case BuildingType::WAREHOUSE: {
+			m_WarehouseManager->DwarfEnterBuilding(entity);
+			return true;
+			}
+		}
+		return false;	
+	}
+
+	bool BuildingManager::DwarfExitBuilding(BuildingType buildingType, Entity entity)
+	{
+		// TODO : Change DwarfExitBuilding in all manager to make them return false if the building Doesn't Exist anymore
+
+		switch (buildingType)
+		{
+		case BuildingType::FORGE: {
+			m_ForgeManager->DwarfExitBuilding(entity);
+			return true;
+		}
+		case BuildingType::MINE: {
+			m_MineManager->DwarfExitBuilding(entity);
+			return true;
+		}
+		case BuildingType::EXCAVATION_POST: {
+			m_ExcavationPostManager->DwarfExitBuilding(entity);
+			return true;
+		}
+		case BuildingType::MUSHROOM_FARM: {
+			m_MushroomFarmManager->DwarfExitBuilding(entity);
+			return true;
+		}
+		case BuildingType::WAREHOUSE: {
+			m_WarehouseManager->DwarfExitBuilding(entity);
+			return true;
+		}
+		}
+		return false;
 	}
 
 

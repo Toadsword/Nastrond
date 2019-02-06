@@ -33,7 +33,6 @@ namespace sfge::ext
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 
 		//Load Texture
 		m_TexturePath = "data/sprites/building.png";

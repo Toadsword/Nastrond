@@ -151,7 +151,6 @@ namespace sfge::ext
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
-		SpriteManager* m_SpriteManager;
 
 		std::vector<Entity> m_EntityIndex;
 

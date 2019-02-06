@@ -229,7 +229,6 @@ namespace sfge::ext
 				{
 					m_FoodInventories[i].inventory = 0;
 					DecreaseHappiness();
-					continue;
 				}
 			}
 		}
