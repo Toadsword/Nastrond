@@ -62,7 +62,7 @@ void NavigationGraphManager::Init()
 		for (auto x = 0; x < width; x++) {
 			for (auto y = 0; y < height; y++) {
 				if (pos.x + x < size && pos.y + y < size) {
-					map[pos.x + x][pos.y + y] = 0;
+					map[pos.x + x][pos.y + y] = SOLID_COST;
 				}
 			}
 		}
@@ -155,8 +155,8 @@ void NavigationGraphManager::BuildGraphFromArray(std::vector<std::vector<int>>& 
 				continue;
 			}
 
-			for (size_t i = -1; i < 2; i++) {
-				for (size_t j = -1; j < 2; j++) {
+			for (auto i = -1; i < 2; i++) {
+				for (auto j = -1; j < 2; j++) {
 					if (i == 0 && j == 0) continue;
 
 					if (y + i < 0 || y + i >= map.size() || x + j < 0 || x + j >= map[y].size()) continue;
@@ -316,8 +316,6 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	}
 	path.push_back(m_Graph[originIndex]);
 	pathPos.push_back(m_Graph[originIndex].pos);
-	std::reverse(path.begin(), path.end());
-	std::reverse(pathPos.begin(), pathPos.end());
 
 	return pathPos;
 }

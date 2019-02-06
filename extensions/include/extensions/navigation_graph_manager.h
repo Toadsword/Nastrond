@@ -93,7 +93,7 @@ private:
 	//Constant for cost
 	const static short SOLID_COST = 0;
 	const static short ROAD_COST = 1;
-	const static short NORMAL_COST = 1;
+	const static short NORMAL_COST = 2;
 
 	const short m_MaxPathForOneUpdate = 16;
 	
