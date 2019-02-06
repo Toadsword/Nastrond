@@ -62,13 +62,11 @@ public:
     
     virtual void OnCollisionEnter(ColliderData* collider) {(void) collider;};
     virtual void OnTriggerEnter(ColliderData * collider) { (void) collider;};
-    virtual  void OnCollisionExit(ColliderData* collider) {(void) collider;};
+    virtual void OnCollisionExit(ColliderData* collider) {(void) collider;};
     virtual void OnTriggerExit(ColliderData * collider) {(void) collider;};
-    
     
     py::object GetComponent(ComponentType componentType) const;
 	py::object GetPyComponent(py::object type);
-
 
     Entity GetEntity();
     
@@ -136,7 +134,7 @@ public:
 	void InitPyComponents();
 protected:
 	int GetFreeComponentIndex() override;
-	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<py::object> m_PythonInstances = std::vector<py::object>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
 
 	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
 

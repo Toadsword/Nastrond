@@ -42,7 +42,7 @@ class Graphics2dManager;
 * \brief Sprite component used in the GameObject
 */
 class Sprite:
-	public LayerComponent, public TransformRequiredComponent, public Offsetable
+	public LayerComponent, public Offsetable
 {
 public:
 
@@ -50,13 +50,10 @@ public:
 	Sprite(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
-	void Update();
+	void Update(Transform2d* transform);
 	void Draw(sf::RenderWindow& window);
 	void SetTexture(sf::Texture* newTexture);
 
-
-
-	
 protected:
 	sf::Sprite sprite;
 };
@@ -97,9 +94,6 @@ protected:
 	Graphics2dManager* m_GraphicsManager = nullptr;
 	Transform2dManager* m_Transform2dManager = nullptr;
 };
-
-
-
 
 }
 #endif // !SFGE_SPRITE

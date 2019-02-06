@@ -76,16 +76,14 @@ public:
 	void Collect() override;
 
 
-
 private:
   	bool HasValidExtension(std::string filename);
 	void LoadTextures(std::string dataDirname);
 
-	std::vector<std::string> m_TexturePaths {INIT_ENTITY_NMB * 4};
-	std::vector<sf::Texture> m_Textures { INIT_ENTITY_NMB * 4 };
-	std::vector<size_t> m_TextureIdsRefCounts = std::vector<size_t>(INIT_ENTITY_NMB * 4, 0 );
+	std::vector<std::string> m_TexturePaths = std::vector<std::string>( INIT_ENTITY_NMB * 4 );
+	std::vector<sf::Texture> m_Textures = std::vector<sf::Texture>( INIT_ENTITY_NMB * 4 );
+	std::vector<size_t> m_TextureIdsRefCounts = std::vector<size_t>( INIT_ENTITY_NMB * 4, 0 );
 	TextureId m_IncrementId = 0U;
-
 };
 }
 

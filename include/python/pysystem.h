@@ -75,9 +75,9 @@ public:
 	}
 
 protected:
-	std::vector<PySystem*> m_PySystems{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
-	std::vector<std::string> m_PySystemNames {INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER};
-	std::vector<py::object> m_PythonInstances{ INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER };
+	std::vector<PySystem*> m_PySystems = std::vector<PySystem*>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	std::vector<std::string> m_PySystemNames = std::vector<std::string>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	std::vector<py::object> m_PythonInstances = std::vector<py::object>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
 	InstanceId m_IncrementalInstanceId = 1U;
 
 	PythonEngine* m_PythonEngine = nullptr;

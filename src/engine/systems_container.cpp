@@ -27,7 +27,9 @@
 namespace sfge
 {
 
-SystemsContainer::SystemsContainer(Engine &engine) : graphics2dManager(engine),
+SystemsContainer::SystemsContainer(Engine &engine) :
+	transformManager(engine),
+	graphics2dManager(engine),
 	audioManager(engine),
 	sceneManager(engine),
 	inputManager(engine),
@@ -35,7 +37,7 @@ SystemsContainer::SystemsContainer(Engine &engine) : graphics2dManager(engine),
 	physicsManager(engine),
 	editor(engine),
 	entityManager(engine),
-	transformManager(engine)
+	tilemapSystem(engine)
 {
 
 }

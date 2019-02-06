@@ -52,8 +52,7 @@ class Graphics2dManager;
 /**
 * \brief Animation component used in the GameObject
 */
-class Animation:
-	public LayerComponent, public TransformRequiredComponent, public Offsetable
+class Animation: public LayerComponent, public Offsetable
 {
 public:
 
@@ -61,7 +60,7 @@ public:
 	Animation(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
-	void Update(float dt);
+	void Update(float dt, Transform2d* transform);
 	void Draw(sf::RenderWindow& window);
 	void SetAnimation(std::vector<AnimationFrame> newFrameList, float newSpeed, bool newIsLooped);
 
@@ -69,7 +68,6 @@ protected:
 	std::vector<AnimationFrame> frameList;
 	sf::Sprite sprite;
 	short currentFrameKey = 0;
-	//std::vector<AnimationFrame>::iterator currentFrame = frameList.begin();
 	float timeSinceChangedFrame = 0;
 	float speed = 0.1f;
 	bool isLooped = false;
@@ -83,7 +81,7 @@ struct AnimationInfo : ComponentInfo
 	void DrawOnInspector() override;
 	Animation* animation = nullptr;
 	std::string name = "";
-	int speed = 100;
+	float speed = 0.1f;
 	bool isLooped = false;
 };
 }
@@ -106,13 +104,12 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
+	void OnResize(size_t newSize) override;
+
 protected:
 	Graphics2dManager* m_GraphicsManager;
 	Transform2dManager* m_Transform2dManager;
 };
-
-
-
 
 }
 #endif // !SFGE_ANIMATION

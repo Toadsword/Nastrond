@@ -38,8 +38,7 @@ Shape::Shape (): Shape (nullptr, sf::Vector2f())
 {
 
 }
-Shape::Shape(Transform2d * transform, const sf::Vector2f offset) : 
-	Offsetable(offset), TransformRequiredComponent(transform)
+Shape::Shape(Transform2d * transform, const sf::Vector2f offset) : Offsetable(offset)
 {
 	
 }
@@ -63,14 +62,14 @@ void Shape::SetFillColor(sf::Color color) const
 		m_Shape->setFillColor(color);
 }
 
-void Shape::Update(float dt) const
+void Shape::Update(float dt, Transform2d* transform) const
 {
 	(void) dt;
 	auto newPosition = m_Offset;
 
-	if(m_Transform != nullptr)
+	if(transform != nullptr)
 	{
-		newPosition += m_Transform->Position;
+		newPosition += transform->Position;
 	}
 
 	if(m_Shape != nullptr)
@@ -147,9 +146,9 @@ void ShapeManager::Update(const float dt)
 	rmt_ScopedCPUSample(ShapeUpdate,0)
 	for (auto i = 0u; i < m_Components.size(); i++)
 	{
-		if (m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
+		if (m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
 		{
-			m_Components[i].Update(dt);
+			m_Components[i].Update(dt, m_Transform2dManager->GetComponentPtr(i + 1));
 		}
 	}
 	
@@ -183,7 +182,6 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 	}
 
 	auto& shape = m_Components[entity-1];
-	shape.SetTransform(m_Transform2dManager->GetComponentPtr(entity));
 	shape.SetOffset(offset);
 
 	auto shapeInfo = editor::ShapeInfo();
@@ -207,7 +205,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			circleShape->setRadius (radius);
 			circleShape->setOrigin (radius, radius);
 			shape.SetShape (std::move(circleShape));
-			shape.Update (0.0f);
+			shape.Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
 		}
 			break;
 		case ShapeType::RECTANGLE:
@@ -226,7 +224,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			rect->setSize (size);
 			rect->setOrigin (size.x/2.0f, size.y/2.0f);
             shape.SetShape (std::move (rect));
-            shape.Update (0.0f);
+            shape.Update (0.0f, m_Transform2dManager->GetComponentPtr(entity));
 			
 		}
 			break;
@@ -254,6 +252,11 @@ void ShapeManager::OnResize(size_t new_size)
 {
 	m_Components.resize(new_size);
 	m_ComponentsInfo.resize(new_size);
+
+	for (size_t i = 0; i < new_size; ++i) {
+		m_ComponentsInfo[i].SetEntity(i + 1);
+		m_ComponentsInfo[i].shapePtr = &m_Components[i];
+	}
 }
 
 }
