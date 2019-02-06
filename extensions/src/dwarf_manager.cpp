@@ -88,7 +88,6 @@ void DwarfManager::Init()
 
 void DwarfManager::SpawnDwarf(const Vec2f pos) 
 {
-
 	auto* entityManager = m_Engine.GetEntityManager();
 	Configuration* configuration = m_Engine.GetConfig();
 
@@ -123,6 +122,30 @@ void DwarfManager::SpawnDwarf(const Vec2f pos)
 	m_VertexArray[4 * indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
 	m_VertexArray[4 * indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
 	m_VertexArray[4 * indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+}
+
+void DwarfManager::DestroyDwarfByIndex(unsigned int index) {
+	//Destroy entity
+	auto* entityManager = m_Engine.GetEntityManager();
+	entityManager->DestroyEntity(m_DwarfsEntities[index]);
+
+	//Clean all values
+	m_DwarfsEntities[index] = INVALID_ENTITY;
+	m_Paths[index] = std::vector<Vec2f>(0);
+	m_States[index] = State::INVALID;
+	m_AssociatedDwelling[index] = INVALID_ENTITY;
+	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
+
+	//Reset vertexArray
+	m_VertexArray[4 * index + 0].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
+
+	m_VertexArray[4 * index + 0].position = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
+	m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
 }
 
 void DwarfManager::DestroyDwarfByEntity(Entity entity) {
@@ -235,7 +258,7 @@ void DwarfManager::Update(float dt) {
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
 	//Random path
-	for (int i = 0; i < m_BT_pathDwarfToRandom.size(); i++) {
+	for (size_t i = 0; i < m_BT_pathDwarfToRandom.size(); i++) {
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[m_BT_pathDwarfToRandom[i]]);
 		m_NavigationGraphManager->AskForPath(&m_Paths[m_BT_pathDwarfToRandom[i]], transformPtr->Position,
 			Vec2f(std::rand() % static_cast<int>(screenSize.x),
@@ -245,11 +268,11 @@ void DwarfManager::Update(float dt) {
 	m_BT_pathDwarfToRandom.clear();
 
 	//Follow path
-	for (int i = 0; i < m_BT_followingPath.size(); i++) {
+	for (size_t i = 0; i < m_BT_followingPath.size(); i++) {
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[m_BT_followingPath[i]]);
 
 		auto dir = m_Paths[m_BT_followingPath[i]][m_Paths[m_BT_followingPath[i]].size() - 1] - transformPtr->Position;
-
+		
 		if (dir.GetMagnitude() < m_StoppingDistance && m_Paths[m_BT_followingPath[i]].size() > 1) {
 			m_Paths[m_BT_followingPath[i]].pop_back();
 		}

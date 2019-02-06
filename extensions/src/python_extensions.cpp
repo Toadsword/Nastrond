@@ -37,9 +37,7 @@ SOFTWARE.
 #include <extensions/dwelling_manager.h>
 
 #include <tools/tools_pch.h>
-#include "extensions/building_manager.h"
-#include "extensions/dwelling_manager.h"
-#include "extensions/building_constructor.h"
+#include <extensions/building_manager.h>
 #include "extensions/behaviour_tree_core.h"
 
 

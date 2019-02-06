@@ -31,7 +31,6 @@ SOFTWARE.
 
 #include <python/python_engine.h>
 
-#include <extensions/behaviour_tree_core.h>
 #include <extensions/python_extensions.h>
 #include <extensions/behaviour_tree_nodes.h>
 
@@ -62,67 +61,6 @@ TEST(AI, NavigationGraphManager)
 	};
 
 	sceneJson["systems"] = json::array({ systemJson });
-	auto* sceneManager = engine.GetSceneManager();
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
-TEST(AI,DwarfMovement)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-
-	const auto config = engine.GetConfig();
-
-	json sceneJson = {
-		{ "name", "Dwarf Movements" } };
-	json systemJsonNavigation = {
-		{ "systemClassName", "NavigationGraphManager" }
-	}; 
-	json systemJsonDwarf = {
-		{ "systemClassName", "DwarfManager" }
-	};
-
-	sceneJson["systems"] = json::array({ systemJsonNavigation, systemJsonDwarf });
-
-	auto* sceneManager = engine.GetSceneManager();
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
-TEST(AI, DwarfAndBuilding)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-
-	const auto config = engine.GetConfig();
-
-	json sceneJson = {
-		{ "name", "Dwarf And Building" } };
-	json systemJsonNavigation = {
-		{ "systemClassName", "NavigationGraphManager" }
-	};
-	json systemJsonDwarf = {
-		{ "systemClassName", "DwarfManager" }
-	};
-	json systemJsonDwelling = {
-		{ "systemClassName", "DwellingManager"}
-	};
-
-	sceneJson["systems"] = json::array({ systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
-
 	auto* sceneManager = engine.GetSceneManager();
 	sceneManager->LoadSceneFromJson(sceneJson);
 
