@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-
 #define DEBUG_DRAW_PATH
 #define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
@@ -38,7 +37,8 @@ namespace sfge::ext
 /**
  * \author Nicolas Schneider
  */
-class DwarfManager : public System {
+class DwarfManager : public System
+{
 public:
 	DwarfManager(Engine& engine);
 
@@ -98,7 +98,7 @@ private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
-	Transform2dManager * m_Transform2DManager;
+	Transform2dManager* m_Transform2DManager;
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
 	NavigationGraphManager* m_NavigationGraphManager;
@@ -106,7 +106,7 @@ private:
 	//Dwarfs Holder
 	const size_t m_ContainersExtender = 100;
 	std::vector<Entity> m_DwarfsEntities;
-	
+
 	//State management
 	enum State
 	{
@@ -115,6 +115,7 @@ private:
 		WALKING,
 		WAITING_NEW_PATH
 	};
+
 	std::vector<State> m_States;
 
 	//Path management
@@ -133,7 +134,8 @@ private:
 		sf::Color::Green,
 		sf::Color::Magenta,
 		sf::Color::Red,
-		sf::Color::Yellow };
+		sf::Color::Yellow
+	};
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
@@ -148,7 +150,7 @@ private:
 	//Buildings
 	std::vector<Entity> m_AssociatedDwelling;
 	std::vector<Entity> m_AssociatedWorkingPlace;
-		
+
 	//Vertex array
 	sf::VertexArray m_VertexArray;
 

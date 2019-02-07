@@ -37,7 +37,8 @@ namespace sfge::ext
 /**
  * \author Nicolas Schneider
  */
-struct GraphNode final {
+struct GraphNode final
+{
 	float cost;
 	std::vector<unsigned int> neighborsIndex;
 	Vec2f pos;
@@ -45,10 +46,12 @@ struct GraphNode final {
 
 //#define DEBUG_MOD
 #define DEBUG_MAP
+
 /**
  * \author Nicolas Schneider
  */
-class NavigationGraphManager final : public System {
+class NavigationGraphManager final : public System
+{
 public:
 	explicit NavigationGraphManager(Engine& engine);
 
@@ -79,11 +82,13 @@ private:
 	Graphics2dManager* m_Graphics2DManager;
 
 	//Queue for waiting path
-	struct WaitingPath final {
+	struct WaitingPath final
+	{
 		std::vector<Vec2f>* path;
 		Vec2f destination;
 		Vec2f origin;
 	};
+
 	std::queue<WaitingPath> m_WaitingPaths;
 
 	//Heuristic for pathfinding
@@ -96,7 +101,7 @@ private:
 	const static short NORMAL_COST = 2;
 
 	const short m_MaxPathForOneUpdate = 16;
-	
+
 	std::vector<GraphNode> m_Graph;
 	sf::VertexArray m_VertexArray;
 

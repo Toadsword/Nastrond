@@ -40,7 +40,8 @@ class BehaviourTree;
 /**
  * author Nicolas Schneider
  */
-class Node {
+class Node
+{
 public:
 	/**
 	 * \brief shared pointer of node
@@ -49,11 +50,12 @@ public:
 
 	explicit Node(BehaviourTree* bt, ptr parentNode);
 	virtual ~Node() = default;
-	
+
 	/**
 	 * \brief Status of nodes
 	 */
-	enum class Status {
+	enum class Status
+	{
 		SUCCESS,
 		FAIL,
 		RUNNING
@@ -74,7 +76,8 @@ protected:
 /**
  * author Nicolas Schneider
  */
-class BehaviourTree final : public System {
+class BehaviourTree final : public System
+{
 public:
 	explicit BehaviourTree(Engine& engine);
 
@@ -97,7 +100,7 @@ public:
 	 * \param vectorEntities 
 	 */
 	void SetEntities(std::vector<Entity>* vectorEntities);
-	
+
 	std::vector<Entity>* entities;
 
 	std::vector<Node::ptr> currentNode;
@@ -120,9 +123,10 @@ private:
 /**
 * author Nicolas Schneider
 */
-class CompositeNode : public Node {
+class CompositeNode : public Node
+{
 public:
-	explicit CompositeNode(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode){}
+	explicit CompositeNode(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
 
 	/**
 	 * \brief Add child to composite node
@@ -142,7 +146,8 @@ protected:
 /**
 * author Nicolas Schneider
 */
-class Sequence final : public CompositeNode {
+class Sequence final : public CompositeNode
+{
 public:
 	Sequence(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
@@ -152,7 +157,8 @@ public:
 /**
 * author Nicolas Schneider
 */
-class Selector final : public CompositeNode {
+class Selector final : public CompositeNode
+{
 public:
 	Selector(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
@@ -162,7 +168,8 @@ public:
 /**
 * author Nicolas Schneider
 */
-class Decorator : public Node {
+class Decorator : public Node
+{
 public:
 
 	explicit Decorator(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
@@ -190,7 +197,7 @@ class Repeater final : public Decorator
 {
 public:
 	Repeater(BehaviourTree* bt, const ptr& parentNode, int limit = 0);
-	
+
 	void Execute(unsigned int index) override;
 
 private:
@@ -222,9 +229,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class Leaf : public Node {
+class Leaf : public Node
+{
 public:
-	explicit Leaf(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode){}
+	explicit Leaf(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
 };
 }
 

@@ -35,7 +35,7 @@ namespace sfge::ext::behaviour_tree
 class HasDwelling final : public Leaf
 {
 public:
-	HasDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode){}
+	HasDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -54,9 +54,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class FindRandomPath final : public Leaf {
+class FindRandomPath final : public Leaf
+{
 public:
-	FindRandomPath(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode){}
+	FindRandomPath(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
