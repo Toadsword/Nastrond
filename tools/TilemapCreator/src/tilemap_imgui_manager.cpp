@@ -122,9 +122,12 @@ namespace sfge::tools
 		}
 		ImGui::Separator();
 
-		if (m_SelectedTilemap == INVALID_ENTITY)
-			return;
+		if (m_SelectedTilemap != INVALID_ENTITY)
+			DrawTilemapInformations();		
+	}
 
+	void TilemapImguiManager::DrawTilemapInformations()
+	{
 		Tilemap* tilemap = m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap);
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("TilemapInfo"))
@@ -165,8 +168,8 @@ namespace sfge::tools
 					}
 					m_TilemapCreator->GetTilemapManager()->InitializeMap(m_SelectedTilemap, newTileTypeIds);
 				}
-			}				
-			{					
+			}
+			{
 				Vec2f currentScale = tilemap->GetTileScale();
 				int aScale[2] = { currentScale.x , currentScale.y };
 				ImGui::InputInt2("Tile scale", aScale);
@@ -184,6 +187,5 @@ namespace sfge::tools
 					tilemap->SetLayer(aLayer);
 			}
 		}
-		
 	}
 }

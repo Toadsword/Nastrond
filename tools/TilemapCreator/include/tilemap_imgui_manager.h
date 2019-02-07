@@ -75,6 +75,7 @@ public:
 
 	void DisplayMenuWindow();
 	void DrawMainWindow();
+	void DrawTilemapInformations();
 
 private:
 	/**
