@@ -172,17 +172,17 @@ void DwarfManager::DestroyDwarfByEntity(Entity entity)
 	}
 }
 
-Entity DwarfManager::GetDwellingEntity(unsigned int index)
+Entity DwarfManager::GetDwellingEntity(const unsigned int index)
 {
 	return m_AssociatedDwelling[index];
 }
 
-void DwarfManager::AssignDwellingToDwarf(unsigned int index, Entity dwellingEntity)
+void DwarfManager::AssignDwellingToDwarf(const unsigned int index, Entity dwellingEntity)
 {
 	m_AssociatedDwelling[index] = dwellingEntity;
 }
 
-bool DwarfManager::IsDwarfAtDestination(unsigned int index)
+bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
 	if (!m_Paths[index].empty())
 	{
@@ -192,8 +192,17 @@ bool DwarfManager::IsDwarfAtDestination(unsigned int index)
 		if (dir.GetMagnitude() < m_StoppingDistance)
 		{
 			m_Paths[index].clear();
-
 			return true;
+		}
+
+		if (m_Paths[index].size() > 1) {
+
+			dir = m_Paths[index][m_Paths[index].size() - 1] - position;
+
+			if (dir.GetMagnitude() < m_StoppingDistance)
+			{
+				m_Paths[index].pop_back();
+			}
 		}
 
 		return false;
@@ -208,17 +217,20 @@ bool DwarfManager::HasPath(unsigned int index)
 
 void DwarfManager::AddFindPathToDwellingBT(unsigned int index)
 {
-	m_PathToDwellingBT.push_back(index);
+	m_PathToDwellingBT[m_IndexPathToDwellingBT] = index;
+	m_IndexPathToDwellingBT++;
 }
 
 void DwarfManager::AddFindRandomPathBT(unsigned int index)
 {
-	m_PathToRandomBT.push_back(index);
+	m_PathToRandomBT[m_IndexPathToRandomBT] = index;
+	m_IndexPathToRandomBT++;
 }
 
 void DwarfManager::AddPathFollowingBT(unsigned int index)
 {
-	m_PathFollowingBT.push_back(index);
+	m_PathFollowingBT[m_IndexPathFollowingBT] = index;
+	m_IndexPathFollowingBT++;
 }
 
 void DwarfManager::ResizeContainers()
@@ -229,6 +241,8 @@ void DwarfManager::ResizeContainers()
 	m_Paths.resize(newSize);
 	m_States.resize(newSize);
 
+	m_IndexesToDraw.resize(newSize);
+
 	//Associate behaviour tree
 	auto* behaviourTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behaviour_tree::BehaviourTree>(
 		"BehaviourTree");
@@ -237,7 +251,9 @@ void DwarfManager::ResizeContainers()
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
 
-	m_PathFollowingBT.reserve(newSize);
+	m_PathFollowingBT.resize(newSize);
+	m_PathToDwellingBT.resize(newSize);
+	m_PathToRandomBT.resize(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()
@@ -264,42 +280,58 @@ void DwarfManager::Update(float dt)
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
 	//Random path
-	for (int i : m_PathToRandomBT)
-	{
-		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
-		m_NavigationGraphManager->AskForPath(&m_Paths[i], transformPtr->Position,
-		                                     Vec2f(std::rand() % static_cast<int>(screenSize.x),
-		                                           std::rand() % static_cast<int>(screenSize.y
-		                                           )));
+	if (m_IndexPathToRandomBT != 0) {
+		for (size_t i = 0; i < m_IndexPathToRandomBT; ++i)
+		{
+			const auto indexDwarf = m_PathToRandomBT[i];
+
+			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
+			m_NavigationGraphManager->AskForPath(&m_Paths[indexDwarf], transformPtr->Position,
+				Vec2f(std::rand() % static_cast<int>(screenSize.x),
+					std::rand() % static_cast<int>(screenSize.y
+						)));
+		}
+		m_IndexPathToRandomBT = 0;
 	}
-	m_PathToRandomBT.clear();
 
 	//Follow path
-	for (int i : m_PathFollowingBT)
-	{
-		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
-
-		auto dir = m_Paths[i][m_Paths[i].size() - 1] - transformPtr->Position;
-
-		if (dir.GetMagnitude() < m_StoppingDistance && m_Paths[i].size() > 1)
+	if (m_IndexPathFollowingBT != 0) {
+		for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
 		{
-			m_Paths[i].pop_back();
-		}
-		else
-		{
+			const auto indexDwarf = m_PathFollowingBT[i];
+
+			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
+
+			auto dir = m_Paths[indexDwarf][m_Paths[indexDwarf].size() - 1] - transformPtr->Position;
+
 			transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
 
-			auto textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+			m_IndexesToDraw[m_IndexToDraw] = indexDwarf;
+			m_IndexToDraw++;
 
-			m_VertexArray[4 * i].position = transformPtr->Position - textureSize / 2.0f;
-			m_VertexArray[4 * i + 1].position = transformPtr->Position + sf::Vector2f(
+		}
+		m_IndexPathFollowingBT = 0;
+	}
+
+	if (m_IndexToDraw != 0) {
+		const auto textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+
+		for (size_t i = 0; i < m_IndexToDraw; i++)
+		{
+			const auto indexDwarf = m_PathFollowingBT[i];
+
+			const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position;
+
+			const auto indexVertex = 4 * i;
+			m_VertexArray[indexVertex].position = position - textureSize / 2.0f;
+			m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(
 				textureSize.x / 2.0f, -textureSize.y / 2.0f);
-			m_VertexArray[4 * i + 2].position = transformPtr->Position + textureSize / 2.0f;
-			m_VertexArray[4 * i + 3].position = transformPtr->Position + sf::Vector2f(
+			m_VertexArray[indexVertex + 2].position = position + textureSize / 2.0f;
+			m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(
 				-textureSize.x / 2.0f, textureSize.y / 2.0f);
 		}
+		m_IndexToDraw = 0;
 	}
-	m_PathFollowingBT.clear();
 }
 
 void DwarfManager::FixedUpdate() {}

@@ -121,11 +121,11 @@ private:
 
 	//Path management
 	std::vector<std::vector<Vec2f>> m_Paths;
-	const float m_StoppingDistance = 5;
+	const float m_StoppingDistance = 20;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
-	const float m_SpeedDwarf = 10;
+	const float m_SpeedDwarf = 20;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
@@ -140,7 +140,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 5;
+	const size_t m_DwarfToSpawn = 200;
 #endif
 
 	//Dwarfs texture
@@ -154,11 +154,18 @@ private:
 
 	//Vertex array
 	sf::VertexArray m_VertexArray;
+	std::vector<unsigned int> m_IndexesToDraw;
+	unsigned int m_IndexToDraw = 0;
 
 	//Data filed by the behaviourTree
 	std::vector<int> m_PathToDwellingBT;
+	unsigned int m_IndexPathToDwellingBT = 0;
+
 	std::vector<int> m_PathToRandomBT;
+	unsigned int m_IndexPathToRandomBT = 0;
+
 	std::vector<int> m_PathFollowingBT;
+	unsigned int m_IndexPathFollowingBT = 0;
 };
 }
 
