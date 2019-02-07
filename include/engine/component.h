@@ -55,7 +55,10 @@ enum class ComponentType : int
 	COLLIDER2D = 1 << 4,
 	SOUND = 1 << 5,
 	PYCOMPONENT = 1 << 6,
-	ANIMATION2D = 1 << 7
+	ANIMATION2D = 1 << 7,
+	TILEMAP = 1 << 8,
+	TILE = 1 << 9,
+	CAMERA = 1 << 10
 };
 
 class IComponentFactory
@@ -108,17 +111,17 @@ class ComponentManager:
 template<typename TInfo>
 class ComponentInfoManager : public editor::IDrawableManager
 {
-  static_assert(std::is_base_of<editor::ComponentInfo, TInfo>::value, "TInfo must be derived from ComponentInfo");
- public:
-  ComponentInfoManager(ComponentType componentType): m_ComponentType(componentType)
-  {
+static_assert(std::is_base_of<editor::ComponentInfo, TInfo>::value, "TInfo must be derived from ComponentInfo");
+public:
+	ComponentInfoManager(ComponentType componentType): m_ComponentType(componentType)
+	{
 
-  }
+	}
 
 
 protected:
-  std::vector<TInfo> m_ComponentsInfo;
-  ComponentType m_ComponentType;
+	std::vector<TInfo> m_ComponentsInfo;
+	ComponentType m_ComponentType;
 };
 
 
@@ -133,13 +136,13 @@ public:
     }
     virtual void DrawOnInspector(Entity entity) override
     {
-      for (auto &info : ComponentInfoManager<TInfo>::m_ComponentsInfo)
-      {
-        if (ComponentManager<T, componentType>::m_EntityManager->HasComponent(entity, componentType) && info.GetEntity() == entity)
-        {
-          info.DrawOnInspector();
-        }
-      }
+		for (auto &info : ComponentInfoManager<TInfo>::m_ComponentsInfo)
+		{
+			if (ComponentManager<T, componentType>::m_EntityManager->HasComponent(entity, componentType) && info.GetEntity() == entity)
+			{
+				info.DrawOnInspector();
+			}
+		}
     }
     virtual void Init() override
     {
@@ -175,6 +178,7 @@ public:
 		BasicComponentManager<T,TInfo, componentType>::m_EntityManager = System::m_Engine.GetEntityManager();
 		BasicComponentManager<T,TInfo, componentType>::m_EntityManager->AddResizeObserver(this);
 	}
+
 	virtual ~SingleComponentManager()
 	{
 	}
@@ -193,6 +197,7 @@ public:
 		if (entity == INVALID_ENTITY)
 		{
 			Log::GetInstance()->Error("Trying to get component from INVALID_ENTITY");
+			return nullptr;
 		}
 		return &BasicComponentManager<T,TInfo, componentType>::m_Components[entity - 1];
 	}
@@ -290,8 +295,9 @@ public:
 protected:
 	std::priority_queue<
 		LayerComponent*, 
-	std::deque<LayerComponent*>, 
-	std::function<bool(LayerComponent*, LayerComponent*)>> m_LayerComponents{LayerComponent::LayerCompare};
+		std::deque<LayerComponent*>, 
+		std::function<bool(LayerComponent*, LayerComponent*)>
+	> m_LayerComponents{LayerComponent::LayerCompare};
 };
 
 class Offsetable
@@ -304,7 +310,6 @@ public:
 protected:
 	Vec2f m_Offset;
 };
-
 
 }
 #endif

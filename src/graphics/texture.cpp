@@ -124,7 +124,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 			if (!texture.loadFromFile(filename))
 			{
 				std::ostringstream oss;
-				oss << "[ERROR] Could not load texture file: " << filename;
+				oss << "[ERROR] Could not load texture file: '" << filename << "' : File doesn't exist.";
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_TEXTURE;
 			}
@@ -140,7 +140,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 		if (!texture.loadFromFile(filename))
 		{
 			std::ostringstream oss;
-			oss << "[ERROR] Could not load texture file: " << filename;
+			oss << "[ERROR] Could not load texture file '" << filename << "' : Error while loading.";
 			Log::GetInstance()->Error(oss.str());
 			return INVALID_TEXTURE;
 		}
@@ -154,7 +154,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	else
 	{
 		std::ostringstream oss;
-		oss << "[ERROR] Could not load texture file: " << filename;
+		oss << "[ERROR] Could not load texture file: '" << filename << "' : File doesn't exist.";
 		Log::GetInstance()->Error(oss.str());
 	}
 	return INVALID_TEXTURE;
@@ -162,6 +162,8 @@ TextureId TextureManager::LoadTexture(std::string filename)
 
 sf::Texture* TextureManager::GetTexture(TextureId textureId)
 {
+	if (textureId == INVALID_TEXTURE)
+		return &m_Textures[textureId];
 	return &m_Textures[textureId-1];
 }
 

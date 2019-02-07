@@ -119,6 +119,10 @@ sf::Vector2i MouseManager::GetLocalPosition(sf::Window& window) const
 {
 	return sf::Mouse::getPosition(window);
 }
+sf::Vector2i MouseManager::GetWorldPosition() const
+{
+	return sf::Mouse::getPosition();
+}
 bool MouseManager::IsButtonHeld(sf::Mouse::Button button) const
 {
 	return buttonPressedStatusArray[(int)button].keyPressed;
