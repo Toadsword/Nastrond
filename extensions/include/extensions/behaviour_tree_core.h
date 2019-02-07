@@ -207,6 +207,17 @@ private:
 /**
 * author Nicolas Schneider
 */
+class RepeatUntilFail final : public Decorator
+{
+public:
+	RepeatUntilFail(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) { }
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
 class Inverter final : public Decorator
 {
 public:

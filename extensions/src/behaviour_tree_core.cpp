@@ -114,6 +114,28 @@ void Repeater::Execute(const unsigned int index)
 	m_BehaviourTree->previousStatus[index] = Status::RUNNING;
 }
 
+void RepeatUntilFail::Execute(const unsigned int index)
+{
+	if(m_BehaviourTree->doesFlowGoDown[index])
+	{
+		m_BehaviourTree->currentNode[index] = m_Child;
+
+		m_BehaviourTree->previousStatus[index] = Status::RUNNING;
+	}
+	else
+	{
+		if(m_BehaviourTree->previousStatus[index] == Status::FAIL)
+		{
+			m_BehaviourTree->currentNode[index] = m_ParentNode;
+			m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+		}else
+		{
+			m_BehaviourTree->currentNode[index] = m_Child;
+			m_BehaviourTree->previousStatus[index] = Status::RUNNING;
+		}
+	}
+}
+
 void Inverter::Execute(const unsigned int index)
 {
 	if (m_BehaviourTree->doesFlowGoDown[index])
