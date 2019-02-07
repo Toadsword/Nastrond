@@ -78,12 +78,12 @@ void BehaviourTree::SetEntities(std::vector<Entity>* vectorEntities)
 	entities = vectorEntities;
 }
 
-Repeater::Repeater(BehaviourTree* bt, const ptr& parentNode, const int limit) : Decorator(bt, parentNode)
+RepeaterDecorator::RepeaterDecorator(BehaviourTree* bt, const ptr& parentNode, const int limit) : Decorator(bt, parentNode)
 {
 	m_Limit = limit;
 }
 
-void Repeater::Execute(const unsigned int index)
+void RepeaterDecorator::Execute(const unsigned int index)
 {
 	//If flow goes down => start counter 
 	if (m_BehaviourTree->doesFlowGoDown[index])
@@ -114,7 +114,7 @@ void Repeater::Execute(const unsigned int index)
 	m_BehaviourTree->previousStatus[index] = Status::RUNNING;
 }
 
-void RepeatUntilFail::Execute(const unsigned int index)
+void RepeatUntilFailDecorator::Execute(const unsigned int index)
 {
 	if(m_BehaviourTree->doesFlowGoDown[index])
 	{
@@ -136,7 +136,7 @@ void RepeatUntilFail::Execute(const unsigned int index)
 	}
 }
 
-void Inverter::Execute(const unsigned int index)
+void InverterDecorator::Execute(const unsigned int index)
 {
 	if (m_BehaviourTree->doesFlowGoDown[index])
 	{
@@ -177,7 +177,7 @@ bool CompositeNode::HasChildren() const
 	return !m_Children.empty();
 }
 
-void Sequence::Execute(const unsigned int index)
+void SequenceComposite::Execute(const unsigned int index)
 {
 	//if last one returned fail => then it's a fail
 	if (m_BehaviourTree->previousStatus[index] == Status::FAIL)
@@ -224,7 +224,7 @@ void Sequence::Execute(const unsigned int index)
 	m_BehaviourTree->previousStatus[index] = Status::RUNNING;
 }
 
-void Selector::Execute(const unsigned int index)
+void SelectorComposite::Execute(const unsigned int index)
 {
 	//If last one is parent => first time entering the sequence
 	if (m_BehaviourTree->doesFlowGoDown[index])
@@ -282,7 +282,7 @@ bool Decorator::HasChild() const
 	return m_Child != nullptr;
 }
 
-void Succeeder::Execute(const unsigned int index)
+void SucceederDecorator::Execute(const unsigned int index)
 {
 	if (m_BehaviourTree->doesFlowGoDown[index])
 	{

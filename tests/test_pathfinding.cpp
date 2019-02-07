@@ -101,19 +101,19 @@ TEST(AI, BehaviourTreeRandomPath)
 	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
 	
 	//Repeater
-	auto repeater = std::make_shared<sfge::ext::behaviour_tree::Repeater>(behaviourTree, nullptr, 0);
+	auto repeater = std::make_shared<sfge::ext::behaviour_tree::RepeaterDecorator>(behaviourTree, nullptr, 0);
 	behaviourTree->SetRootNode(repeater);
 
 	//Sequence
-	auto sequence = std::make_shared<sfge::ext::behaviour_tree::Sequence>(behaviourTree, repeater);
+	auto sequence = std::make_shared<sfge::ext::behaviour_tree::SequenceComposite>(behaviourTree, repeater);
 	repeater->SetChild(sequence);
 	
 	//Find random path
-	auto findPath = std::make_shared<sfge::ext::behaviour_tree::FindRandomPath>(behaviourTree, sequence);
+	auto findPath = std::make_shared<sfge::ext::behaviour_tree::FindRandomPathLeaf>(behaviourTree, sequence);
 	sequence->AddChild(findPath);
 
 	//Has path
-	auto waitForPath = std::make_shared<sfge::ext::behaviour_tree::WaitForPath>(behaviourTree, sequence);
+	auto waitForPath = std::make_shared<sfge::ext::behaviour_tree::WaitForPathLeaf>(behaviourTree, sequence);
 	sequence->AddChild(waitForPath);
 
 	//Follow path

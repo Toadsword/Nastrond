@@ -26,7 +26,7 @@ SOFTWARE.
 
 namespace sfge::ext::behaviour_tree
 {
-void HasDwelling::Execute(const unsigned int index)
+void HasDwellingLeaf::Execute(const unsigned int index)
 {
 	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
 	m_BehaviourTree->currentNode[index] = m_ParentNode;
@@ -41,7 +41,7 @@ void HasDwelling::Execute(const unsigned int index)
 	}
 }
 
-void SetDwelling::Execute(const unsigned int index)
+void SetDwellingLeaf::Execute(const unsigned int index)
 {
 	auto const dwellingEntity = m_BehaviourTree->dwellingManager->GetFreeSlotInBuilding();
 
@@ -61,9 +61,9 @@ void SetDwelling::Execute(const unsigned int index)
 	}
 }
 
-void FindRandomPath::Execute(const unsigned int index)
+void FindRandomPathLeaf::Execute(const unsigned int index)
 {
-	m_BehaviourTree->dwarfManager->BtFindRandomPath(index);
+	m_BehaviourTree->dwarfManager->AddFindRandomPathBT(index);
 
 	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
 	m_BehaviourTree->currentNode[index] = m_ParentNode;
@@ -71,9 +71,9 @@ void FindRandomPath::Execute(const unsigned int index)
 	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
 }
 
-void FindPathToDwelling::Execute(const unsigned int index)
+void FindPathToDwellingLeaf::Execute(const unsigned int index)
 {
-	m_BehaviourTree->dwarfManager->BTAddPathToDwelling(index);
+	m_BehaviourTree->dwarfManager->AddFindPathToDwellingBT(index);
 
 	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
 	m_BehaviourTree->currentNode[index] = m_ParentNode;
@@ -92,12 +92,12 @@ void MoveToLeaf::Execute(const unsigned int index)
 		return;
 	}
 
-	m_BehaviourTree->dwarfManager->BTAddPathFollower(index);
+	m_BehaviourTree->dwarfManager->AddPathFollowingBT(index);
 
 	m_BehaviourTree->previousStatus[index] = Status::RUNNING;
 }
 
-void WaitForPath::Execute(const unsigned int index)
+void WaitForPathLeaf::Execute(const unsigned int index)
 {
 	if (m_BehaviourTree->dwarfManager->HasPath(index))
 	{

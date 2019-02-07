@@ -146,10 +146,10 @@ protected:
 /**
 * author Nicolas Schneider
 */
-class Sequence final : public CompositeNode
+class SequenceComposite final : public CompositeNode
 {
 public:
-	Sequence(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
+	SequenceComposite(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -157,10 +157,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class Selector final : public CompositeNode
+class SelectorComposite final : public CompositeNode
 {
 public:
-	Selector(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
+	SelectorComposite(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -193,10 +193,10 @@ protected:
 /**
 * author Nicolas Schneider
 */
-class Repeater final : public Decorator
+class RepeaterDecorator final : public Decorator
 {
 public:
-	Repeater(BehaviourTree* bt, const ptr& parentNode, int limit = 0);
+	RepeaterDecorator(BehaviourTree* bt, const ptr& parentNode, int limit = 0);
 
 	void Execute(unsigned int index) override;
 
@@ -207,10 +207,10 @@ private:
 /**
 * author Nicolas Schneider
 */
-class RepeatUntilFail final : public Decorator
+class RepeatUntilFailDecorator final : public Decorator
 {
 public:
-	RepeatUntilFail(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) { }
+	RepeatUntilFailDecorator(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) { }
 
 	void Execute(unsigned int index) override;
 };
@@ -218,10 +218,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class Inverter final : public Decorator
+class InverterDecorator final : public Decorator
 {
 public:
-	Inverter(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
+	InverterDecorator(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -229,10 +229,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class Succeeder final : public Decorator
+class SucceederDecorator final : public Decorator
 {
 public:
-	Succeeder(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
+	SucceederDecorator(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };

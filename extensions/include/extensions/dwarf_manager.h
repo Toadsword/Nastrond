@@ -88,16 +88,17 @@ public:
 	bool HasPath(unsigned int index);
 
 	//Behaviour tree communication function
-	void BTAddPathToDwelling(unsigned int index);
+	void AddFindPathToDwellingBT(unsigned int index);
 
-	void BtFindRandomPath(unsigned int index);
+	void AddFindRandomPathBT(unsigned int index);
 
-	void BTAddPathFollower(unsigned int index);
+	void AddPathFollowingBT(unsigned int index);
 
 private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
+	//System
 	Transform2dManager* m_Transform2DManager;
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
@@ -155,9 +156,9 @@ private:
 	sf::VertexArray m_VertexArray;
 
 	//Data filed by the behaviourTree
-	std::vector<int> m_PathDwarfToDwellingBT;
-	std::vector<int> m_PathDwarfToRandomBT;
-	std::vector<int> m_FollowingPathBT;
+	std::vector<int> m_PathToDwellingBT;
+	std::vector<int> m_PathToRandomBT;
+	std::vector<int> m_PathFollowingBT;
 };
 }
 

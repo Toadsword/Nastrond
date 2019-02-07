@@ -24,7 +24,6 @@ SOFTWARE.
 
 #include <extensions/dwarf_manager.h>
 #include <python/python_engine.h>
-#include <extensions/behaviour_tree_nodes.h>
 #include <extensions/behaviour_tree_core.h>
 
 namespace sfge::ext
@@ -59,7 +58,6 @@ void DwarfManager::Init()
 
 #ifdef DEBUG_SPAWN_DWARF
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
-	auto time1 = std::chrono::high_resolution_clock::now();
 	//Create dwarfs
 	for (auto i = 0u; i < m_DwarfToSpawn; i++)
 	{
@@ -67,11 +65,6 @@ void DwarfManager::Init()
 
 		SpawnDwarf(pos);
 	}
-
-	//Spawn dwarfs
-	auto time2 = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count();
-	std::cout << "Time: " << duration << "\n";
 #endif
 }
 
@@ -213,19 +206,19 @@ bool DwarfManager::HasPath(unsigned int index)
 	return !m_Paths[index].empty();
 }
 
-void DwarfManager::BTAddPathToDwelling(unsigned int index)
+void DwarfManager::AddFindPathToDwellingBT(unsigned int index)
 {
-	m_PathDwarfToDwellingBT.push_back(index);
+	m_PathToDwellingBT.push_back(index);
 }
 
-void DwarfManager::BtFindRandomPath(unsigned int index)
+void DwarfManager::AddFindRandomPathBT(unsigned int index)
 {
-	m_PathDwarfToRandomBT.push_back(index);
+	m_PathToRandomBT.push_back(index);
 }
 
-void DwarfManager::BTAddPathFollower(unsigned int index)
+void DwarfManager::AddPathFollowingBT(unsigned int index)
 {
-	m_FollowingPathBT.push_back(index);
+	m_PathFollowingBT.push_back(index);
 }
 
 void DwarfManager::ResizeContainers()
@@ -244,7 +237,7 @@ void DwarfManager::ResizeContainers()
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
 
-	m_FollowingPathBT.reserve(newSize);
+	m_PathFollowingBT.reserve(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()
@@ -271,7 +264,7 @@ void DwarfManager::Update(float dt)
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
 	//Random path
-	for (int i : m_PathDwarfToRandomBT)
+	for (int i : m_PathToRandomBT)
 	{
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
 		m_NavigationGraphManager->AskForPath(&m_Paths[i], transformPtr->Position,
@@ -279,10 +272,10 @@ void DwarfManager::Update(float dt)
 		                                           std::rand() % static_cast<int>(screenSize.y
 		                                           )));
 	}
-	m_PathDwarfToRandomBT.clear();
+	m_PathToRandomBT.clear();
 
 	//Follow path
-	for (int i : m_FollowingPathBT)
+	for (int i : m_PathFollowingBT)
 	{
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
 
@@ -306,7 +299,7 @@ void DwarfManager::Update(float dt)
 				-textureSize.x / 2.0f, textureSize.y / 2.0f);
 		}
 	}
-	m_FollowingPathBT.clear();
+	m_PathFollowingBT.clear();
 }
 
 void DwarfManager::FixedUpdate() {}

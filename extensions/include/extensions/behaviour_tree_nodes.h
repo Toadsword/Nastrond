@@ -32,10 +32,10 @@ namespace sfge::ext::behaviour_tree
 /**
  * author Nicolas Schneider
  */
-class HasDwelling final : public Leaf
+class HasDwellingLeaf final : public Leaf
 {
 public:
-	HasDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	HasDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -43,10 +43,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class SetDwelling final : public Leaf
+class SetDwellingLeaf final : public Leaf
 {
 public:
-	SetDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	SetDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -54,10 +54,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class FindRandomPath final : public Leaf
+class FindRandomPathLeaf final : public Leaf
 {
 public:
-	FindRandomPath(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindRandomPathLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -65,10 +65,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class FindPathToDwelling final : public Leaf
+class FindPathToDwellingLeaf final : public Leaf
 {
 public:
-	FindPathToDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -87,10 +87,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class WaitForPath final : public Leaf
+class WaitForPathLeaf final : public Leaf
 {
 public:
-	WaitForPath(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	WaitForPathLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
