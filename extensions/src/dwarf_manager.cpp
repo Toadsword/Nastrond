@@ -42,9 +42,9 @@ void DwarfManager::Init()
 		"NavigationGraphManager");
 
 	//Associate behaviour tree
-	auto* BT = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>(
+	auto* behaviourTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>(
 		"BehaviourTree");
-	BT->SetEntities(&m_DwarfsEntities);
+	behaviourTree->SetEntities(&m_DwarfsEntities);
 
 	//Read config
 	const auto config = m_Engine.GetConfig();
@@ -59,7 +59,7 @@ void DwarfManager::Init()
 
 #ifdef DEBUG_SPAWN_DWARF
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
-	auto t1 = std::chrono::high_resolution_clock::now();
+	auto time1 = std::chrono::high_resolution_clock::now();
 	//Create dwarfs
 	for (auto i = 0u; i < m_DwarfToSpawn; i++)
 	{
@@ -68,22 +68,9 @@ void DwarfManager::Init()
 		SpawnDwarf(pos);
 	}
 
-	//Destroy dwarf
-	for (auto i = 0u; i < 5; i++)
-	{
-		DestroyDwarfByIndex(i);
-	}
-
-	for (auto i = 0u; i < 20; i++)
-	{
-		const Vec2f pos(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
-
-		SpawnDwarf(pos);
-	}
-
 	//Spawn dwarfs
-	auto t2 = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	auto time2 = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count();
 	std::cout << "Time: " << duration << "\n";
 #endif
 }
@@ -103,7 +90,7 @@ void DwarfManager::SpawnDwarf(const Vec2f pos)
 
 	const int indexNewDwarf = GetIndexForNewEntity();
 
-	//Update std::vectors
+	//Update data for new dwarf in std::vectors
 	m_DwarfsEntities[indexNewDwarf] = newEntity;
 	m_States[indexNewDwarf] = State::IDLE;
 	m_Paths[indexNewDwarf] = std::vector<Vec2f>();
@@ -142,7 +129,7 @@ void DwarfManager::DestroyDwarfByIndex(unsigned int index)
 	m_AssociatedDwelling[index] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
 
-	//Reset vertexArray
+	//Reset vertexArray to non-visible
 	m_VertexArray[4 * index + 0].texCoords = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
@@ -228,17 +215,17 @@ bool DwarfManager::HasPath(unsigned int index)
 
 void DwarfManager::BTAddPathToDwelling(unsigned int index)
 {
-	m_BT_pathDwarfToDwelling.push_back(index);
+	m_PathDwarfToDwellingBT.push_back(index);
 }
 
 void DwarfManager::BtFindRandomPath(unsigned int index)
 {
-	m_BT_pathDwarfToRandom.push_back(index);
+	m_PathDwarfToRandomBT.push_back(index);
 }
 
 void DwarfManager::BTAddPathFollower(unsigned int index)
 {
-	m_BT_followingPath.push_back(index);
+	m_FollowingPathBT.push_back(index);
 }
 
 void DwarfManager::ResizeContainers()
@@ -250,12 +237,14 @@ void DwarfManager::ResizeContainers()
 	m_States.resize(newSize);
 
 	//Associate behaviour tree
-	auto* BT = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behaviour_tree::BehaviourTree>(
+	auto* behaviourTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behaviour_tree::BehaviourTree>(
 		"BehaviourTree");
-	BT->SetEntities(&m_DwarfsEntities);
+	behaviourTree->SetEntities(&m_DwarfsEntities);
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
+
+	m_FollowingPathBT.reserve(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()
@@ -282,7 +271,7 @@ void DwarfManager::Update(float dt)
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
 	//Random path
-	for (int i : m_BT_pathDwarfToRandom)
+	for (int i : m_PathDwarfToRandomBT)
 	{
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
 		m_NavigationGraphManager->AskForPath(&m_Paths[i], transformPtr->Position,
@@ -290,10 +279,10 @@ void DwarfManager::Update(float dt)
 		                                           std::rand() % static_cast<int>(screenSize.y
 		                                           )));
 	}
-	m_BT_pathDwarfToRandom.clear();
+	m_PathDwarfToRandomBT.clear();
 
 	//Follow path
-	for (int i : m_BT_followingPath)
+	for (int i : m_FollowingPathBT)
 	{
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i]);
 
@@ -317,7 +306,7 @@ void DwarfManager::Update(float dt)
 				-textureSize.x / 2.0f, textureSize.y / 2.0f);
 		}
 	}
-	m_BT_followingPath.clear();
+	m_FollowingPathBT.clear();
 }
 
 void DwarfManager::FixedUpdate() {}

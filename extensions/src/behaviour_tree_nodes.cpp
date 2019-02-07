@@ -41,7 +41,7 @@ void HasDwelling::Execute(const unsigned int index)
 	}
 }
 
-void AssignDwelling::Execute(const unsigned int index)
+void SetDwelling::Execute(const unsigned int index)
 {
 	auto const dwellingEntity = m_BehaviourTree->dwellingManager->GetFreeSlotInBuilding();
 
@@ -81,7 +81,7 @@ void FindPathToDwelling::Execute(const unsigned int index)
 	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
 }
 
-void MoveTo::Execute(const unsigned int index)
+void MoveToLeaf::Execute(const unsigned int index)
 {
 	if (m_BehaviourTree->dwarfManager->IsDwarfAtDestination(index))
 	{

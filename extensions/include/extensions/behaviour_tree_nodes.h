@@ -43,10 +43,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class AssignDwelling final : public Leaf
+class SetDwelling final : public Leaf
 {
 public:
-	AssignDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	SetDwelling(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -76,10 +76,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class MoveTo final : public Leaf
+class MoveToLeaf final : public Leaf
 {
 public:
-	MoveTo(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	MoveToLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };

@@ -117,7 +117,7 @@ TEST(AI, BehaviourTreeRandomPath)
 	sequence->AddChild(waitForPath);
 
 	//Follow path
-	auto followPath = std::make_shared<sfge::ext::behaviour_tree::MoveTo>(behaviourTree, sequence);
+	auto followPath = std::make_shared<sfge::ext::behaviour_tree::MoveToLeaf>(behaviourTree, sequence);
 	sequence->AddChild(followPath);
 	
 	engine.Start();

@@ -155,9 +155,9 @@ private:
 	sf::VertexArray m_VertexArray;
 
 	//Data filed by the behaviourTree
-	std::vector<int> m_BT_pathDwarfToDwelling;
-	std::vector<int> m_BT_pathDwarfToRandom;
-	std::vector<int> m_BT_followingPath;
+	std::vector<int> m_PathDwarfToDwellingBT;
+	std::vector<int> m_PathDwarfToRandomBT;
+	std::vector<int> m_FollowingPathBT;
 };
 }
 
