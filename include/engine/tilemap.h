@@ -77,6 +77,9 @@ public:
 
 	void SetIsometric(bool newIso);
 	bool GetIsometric();
+
+	void SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds);
+	std::vector<std::vector<TileTypeId>>& GetTileTypes();
 	
 	std::vector<std::vector<Entity>>& GetTiles();
 
@@ -102,9 +105,13 @@ public:
 
 protected:
 	/**
-	 * \brief Contains all the entites "tile" stored in the tilemap
+	 * \brief Contains all the entities "tile" stored in the tilemap
 	 */
 	std::vector<std::vector<Entity>> m_Tiles;
+	/**
+	 * \brief Contians all the tiletypeIds of the tilemap
+	 */
+	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
 	/**
 	 * \brief Scale of a tile in the tilemap
 	 */
@@ -151,9 +158,21 @@ public:
 	/**
 	 * \brief Create a tilemap with the json passed 
 	 * \param entity 
-	 * \param map Json tilemap data to construct the tilemap one
+	 * \param map Json tilemap data to construct the tilemap
 	 */
-	void InitializeMap(Entity entity, json& map);
+	void InitializeMap(Entity entity, json& map);	
+	/**
+	 * \brief Create a tilemap with the json passed
+	 * \param entity
+	 * \param tileTypeIds c++ data struct to construct the tilemap
+	 */
+	void InitializeMap(Entity entity, std::vector<std::vector<TileTypeId>> tileTypeIds);
+	
+	/**
+	 * \brief Set the position of all the tiles within the tilemap
+	 * \param entity containing a tilemap
+	 */
+	void SetupTilePosition(Entity entity);
 
 	/**
 	 * \brief Empty the map and destroys all the entity tiles attached to it.

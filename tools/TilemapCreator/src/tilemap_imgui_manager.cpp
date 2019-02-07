@@ -122,47 +122,68 @@ namespace sfge::tools
 		}
 		ImGui::Separator();
 
-		if(m_SelectedTilemap > INVALID_ENTITY)
+		if (m_SelectedTilemap == INVALID_ENTITY)
+			return;
+
+		Tilemap* tilemap = m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap);
+		ImGui::Spacing();
+		if (ImGui::CollapsingHeader("TilemapInfo"))
 		{
-			Tilemap* tilemap = m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap);
-			if(tilemap)
 			{
-				ImGui::Spacing();
-				if (ImGui::CollapsingHeader("TilemapInfo"))
+				bool isIso = tilemap->GetIsometric();
+				ImGui::Checkbox("Is Isometric", &isIso);
+
+				if (isIso != tilemap->GetIsometric())
 				{
-					{
-						bool isIso = tilemap->GetIsometric();
-						ImGui::Checkbox("Is Isometric", &isIso);
-
-						if (isIso != tilemap->GetIsometric())
-							tilemap->SetIsometric(isIso);
-					}
-					{
-						Vec2f currentSize = tilemap->GetSize();
-						int aSize[2] = { currentSize.x , currentSize.y };
-						ImGui::InputInt2("Tilemap Size", aSize);
-
-						if (aSize[0] != currentSize.x || aSize[1] != currentSize.y)
-							tilemap->ResizeTilemap(Vec2f(aSize[0], aSize[1]));
-					}				
-					{
-						
-						Vec2f currentScale = tilemap->GetTileScale();
-						int aScale[2] = { currentScale.x , currentScale.y };
-						ImGui::InputInt2("Tile scale", aScale);
-
-						if (aScale[0] != currentScale.x || aScale[1] != currentScale.y)
-							tilemap->SetTileScale(Vec2f(aScale[0], aScale[1]));
-					}
-					{
-						int aLayer = tilemap->GetLayer();
-						ImGui::InputInt("Layer", &aLayer);
-						if (aLayer != tilemap->GetLayer())
-							tilemap->SetLayer(aLayer);
-					}
-
+					tilemap->SetIsometric(isIso);
+					m_TilemapCreator->GetTilemapManager()->SetupTilePosition(m_SelectedTilemap);
 				}
 			}
+			{
+				Vec2f currentSize = tilemap->GetSize();
+				int aSize[2] = { currentSize.x , currentSize.y };
+				ImGui::InputInt2("Tilemap Size", aSize);
+
+				if ((aSize[0] != currentSize.x || aSize[1] != currentSize.y) && aSize[0] > 0 && aSize[1] > 0)
+				{
+					std::vector<std::vector<TileTypeId>> oldTileTypes = tilemap->GetTileTypes();
+					const Vec2f oldSize = tilemap->GetSize();
+
+					std::vector<std::vector<TileTypeId>> newTileTypeIds = std::vector<std::vector<TileTypeId>>{
+						static_cast<unsigned>(aSize[0]),
+						std::vector<TileTypeId>(static_cast<unsigned>(aSize[1]))
+					};
+					for (unsigned indexX = 0; indexX < aSize[0]; indexX++)
+					{
+						for (unsigned indexY = 0; indexY < aSize[1]; indexY++)
+						{
+							if (indexX < oldSize.x && indexY < oldSize.y)
+								newTileTypeIds[indexX][indexY] = oldTileTypes[indexX][indexY];
+							else
+								newTileTypeIds[indexX][indexY] = INVALID_TILE_TYPE;
+						}
+					}
+					m_TilemapCreator->GetTilemapManager()->InitializeMap(m_SelectedTilemap, newTileTypeIds);
+				}
+			}				
+			{					
+				Vec2f currentScale = tilemap->GetTileScale();
+				int aScale[2] = { currentScale.x , currentScale.y };
+				ImGui::InputInt2("Tile scale", aScale);
+
+				if (aScale[0] != currentScale.x || aScale[1] != currentScale.y)
+				{
+					tilemap->SetTileScale(Vec2f(aScale[0], aScale[1]));
+					m_TilemapCreator->GetTilemapManager()->SetupTilePosition(m_SelectedTilemap);
+				}
+			}
+			{
+				int aLayer = tilemap->GetLayer();
+				ImGui::InputInt("Layer", &aLayer);
+				if (aLayer != tilemap->GetLayer())
+					tilemap->SetLayer(aLayer);
+			}
 		}
+		
 	}
 }
