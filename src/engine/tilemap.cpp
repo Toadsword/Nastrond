@@ -318,7 +318,7 @@ namespace sfge
 
 		std::vector<std::vector<TileTypeId>> tiletypeIds = std::vector<std::vector<TileTypeId>>{
 			map.size(), 
-			std::vector<Entity>(map[0].size())
+			std::vector<TileTypeId>(map[0].size())
 		};
 
 		for (unsigned indexX = 0; indexX < tiletypeIds.size(); indexX++)

@@ -95,6 +95,10 @@ namespace sfge::tools
 				{
 					//m_OpenAddTexture = true;
 				}
+				if (ImGui::MenuItem("Add new Tilemap"))
+				{
+					m_FlagDisplayNewTilemap = !m_FlagDisplayNewTilemap;
+				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
 					//m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
@@ -108,6 +112,43 @@ namespace sfge::tools
 
 	void TilemapImguiManager::DrawMainWindow()
 	{
+
+		if(m_FlagDisplayNewTilemap)
+		{
+			//Bouton permettant d'ajouter une tilemap à la liste.
+			ImGui::Text("New Tilemap");
+
+			ImGui::InputInt2("Size : ", m_SizeNewTilemap);
+
+			if (m_SizeNewTilemap[0] < 0)
+				m_SizeNewTilemap[0] = 1;
+			if (m_SizeNewTilemap[1] < 0)
+				m_SizeNewTilemap[1] = 1;
+				
+			if(ImGui::Button("Add a tilemap"))
+			{
+				Entity newTilemapEntity = m_TilemapCreator->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
+				m_TilemapCreator->GetTilemapManager()->AddComponent(newTilemapEntity);
+
+				std::vector<std::vector<TileTypeId>> newTiletypeIds = std::vector<std::vector<TileTypeId>>{
+					static_cast<unsigned>(m_SizeNewTilemap[0]),
+					std::vector<TileTypeId>(static_cast<unsigned>(m_SizeNewTilemap[1]))
+				};
+
+				for (unsigned indexX = 0; indexX < newTiletypeIds.size(); indexX++)
+				{
+					for (unsigned indexY = 0; indexY < newTiletypeIds[indexX].size(); indexY++)
+					{
+						newTiletypeIds[indexX][indexY] = INVALID_TILE_TYPE;
+					}
+				}
+
+				m_TilemapCreator->GetTilemapManager()->InitializeMap(newTilemapEntity, newTiletypeIds);
+				m_FlagDisplayNewTilemap = false;
+			}
+			ImGui::Separator();
+		}
+
 		auto components = m_TilemapCreator->GetTilemapManager()->GetComponents();
 		ImGui::Text("List of Tilemap");
 		for (auto i = 0u; i < components.size(); i++)
@@ -123,7 +164,7 @@ namespace sfge::tools
 		ImGui::Separator();
 
 		if (m_SelectedTilemap != INVALID_ENTITY)
-			DrawTilemapInformations();		
+			DrawTilemapInformations();
 	}
 
 	void TilemapImguiManager::DrawTilemapInformations()

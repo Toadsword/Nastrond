@@ -83,7 +83,22 @@ private:
 	 */
 	bool m_IsInit = false;
 
+	/**
+	 * \brief Index of the selected Tilemap
+	 */
 	unsigned m_SelectedTilemap = 0;
+
+	/* ------------------------------------- New Tilemap ------------------------------- */
+
+	/**
+	 * \brief Flag where to display the "new tilemap" section.
+	 */
+	bool m_FlagDisplayNewTilemap = false;
+
+	/**
+	 * \brief Input size for a new tilemap.
+	 */
+	int m_SizeNewTilemap[2] = {1,1};
 
 	/* -------------------------------------- Others ----------------------------------- */
 	/**
