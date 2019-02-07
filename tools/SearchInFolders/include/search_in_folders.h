@@ -23,20 +23,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#include <tools/tools_pch.h>
-#include <engine/engine.h>
-#include <anim_creator.h>
-#include <search_in_folders.h>
-
+#ifndef SFGE_TOOLS_SEARCH_IN_FOLDERS_H
+#define SFGE_TOOLS_SEARCH_IN_FOLDERS_H
+#include <FilesLoop.h>
+#include <engine/system.h>
 namespace sfge::tools
 {
-void ExtendPythonTools(py::module& m)
+class SearchInFolders : public System
 {
-    py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-    animCreator
-		.def(py::init<Engine&>());
-    py::class_<SearchInFolders, System> searchInFolders(m, "SearchInFolders");
-    searchInFolders
-		.def(py::init<Engine&>());
+    using System::System;
+    /*
+    * \brief Called at scene init (a good place to link to other Systems
+    */
+    void Init() override;
+    /*
+    * \brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
+    */
+    void Update(float dt) override;
+     /*
+    * \brief Called every graphic frame after Update
+    */
+    void Draw() override; 
+	FilesLoop* GetFilesLoop();
+	
+protected:
+	/**
+	 * \brief Pointer to the FilesLoop of the Engine.
+	 */
+	FilesLoop m_FilesLoop;
+	
+	bool m_IsInit = false;
+};
 }
-}
+#endif

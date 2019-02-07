@@ -23,20 +23,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#include <tools/tools_pch.h>
-#include <engine/engine.h>
-#include <anim_creator.h>
-#include <search_in_folders.h>
 
+#include <search_in_folders.h>
+#include <utility/log.h>
 namespace sfge::tools
 {
-void ExtendPythonTools(py::module& m)
-{
-    py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-    animCreator
-		.def(py::init<Engine&>());
-    py::class_<SearchInFolders, System> searchInFolders(m, "SearchInFolders");
-    searchInFolders
-		.def(py::init<Engine&>());
+	void SearchInFolders::Init()
+	{
+	Log::GetInstance()->Msg("Init Anim Creator");
+	m_FilesLoop.Init(this);
+	m_IsInit = true;
 }
+void SearchInFolders::Update(float dt)
+{
+	if (!m_IsInit)
+		Init();
+
+	m_FilesLoop.Update(dt);
+}
+void SearchInFolders::Draw()
+{
+	if (!m_IsInit)
+		return;
+
+	m_FilesLoop.Draw();
+}
+FilesLoop* SearchInFolders::GetFilesLoop()
+{
+	return &m_FilesLoop;
+}
+
 }
