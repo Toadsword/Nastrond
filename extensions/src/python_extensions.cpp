@@ -35,6 +35,7 @@ SOFTWARE.
 #include <extensions/mine_manager.h>
 #include <extensions/forge_manager.h>
 #include <extensions/dwelling_manager.h>
+#include <extensions/building_noentity_manager.h>
 
 #include <tools/tools_pch.h>
 #include "extensions/building_manager.h"
@@ -85,6 +86,10 @@ void ExtendPython(py::module& m)
 
 	py::class_<BuildingManager, System> buildingManager(m, "BuildingManager");
 	buildingManager
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingNoEntityManager, System> buildingNoEntityManager(m, "BuildingNoEntityManager");
+	buildingNoEntityManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);

@@ -43,6 +43,11 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
+
+		for (int i = 0; i < 1000; i++)
+		{
+			AddNewBuilding(Vec2f((std::rand() % static_cast<int>(600)), (std::rand() % static_cast<int>(600))));
+		}
 	}
 
 	void DwellingManager::Update(float dt)

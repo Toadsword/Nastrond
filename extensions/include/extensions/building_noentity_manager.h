@@ -22,18 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef BUILDING_MANAGER_H
-#define BUILDING_MANAGER_H
+#ifndef BUILDING_NOENTITY_MANAGER_H
+#define BUILDING_NOENTITY_MANAGER_H
 
 #include <engine/system.h>
-#include <python/python_engine.h>
+#include <graphics/graphics2d.h>
 
-#include <extensions/dwelling_manager.h>
-#include <extensions/forge_manager.h>
-#include <extensions/mine_manager.h>
-#include <extensions/excavation_post_manager.h>
-#include <extensions/mushroom_farm_manager.h>
-#include <extensions/warehouse_manager.h>
+#include <extensions/building_utilities.h>
 
 
 namespace sfge::ext
@@ -41,10 +36,10 @@ namespace sfge::ext
 	/**
 	 * \author Robin Alves
 	 */
-	class BuildingManager : public System
+	class BuildingNoEntityManager : public System
 	{
 	public:
-		BuildingManager(Engine& engine);
+		BuildingNoEntityManager(Engine& engine);
 
 		void Init() override;
 
@@ -54,36 +49,51 @@ namespace sfge::ext
 
 		void Draw() override;
 
-
-		enum BuildingType
-		{
-			FORGE,
-			MINE,
-			EXCAVATION_POST,
-			MUSHROOM_FARM,
-			WAREHOUSE,
-			DWELLING, //Warning : Dwelling are not consider as working place
-			LENGTH
-		};
-
-		void SpawnBuilding(BuildingType buildingType, Vec2f position);
-
-		void DestroyBuilding(BuildingType buildingType, Entity entity);
-
-		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
-
-		void DwarfEnterBuilding(BuildingType buildingType, Entity entity);
-
-		void DwarfExitBuilding(BuildingType buildingType, Entity entity);
+		/**
+		 * \brief Spawn a dwelling entity at the given position.
+		 * \param position : the location of spawn wanted.
+		 */
+		void AddNewBuilding(Vec2f position);
 
 	private:
-		DwellingManager* m_DwellingManager;
-		ForgeManager* m_ForgeManager;
-		MineManager* m_MineManager;
-		ExcavationPostManager* m_ExcavationPostManager;
-		MushroomFarmManager* m_MushroomFarmManager;
-		WarehouseManager* m_WarehouseManager;
 
+		/**
+		 * \brief Consume Resources depending on the number of dwarf in.
+		 */
+		void Consume();
+
+		/**
+		 * \brief Resize all vector in one go to keep the synchronize all index.
+		 * \param newSize : the size with the new number of building.
+		 */
+		void ResizeContainer(const size_t newSize);
+
+		/**
+		 * \brief Decrease happiness when call.
+		 */
+		void DecreaseHappiness();
+
+		TextureManager* m_TextureManager;
+
+		std::vector<Entity> m_EntityIndex;
+
+
+		std::vector<DwarfSlots> m_DwarfSlots;
+		std::vector<ReceiverInventory> m_FoodInventories;
+		std::vector<unsigned int> m_CoolDownFramesProgression;
+
+		const ResourceType m_ResourceTypeNeeded = ResourceType::FOOD;
+		const unsigned int m_CoolDownFrames = 2000;
+
+		//Building texture
+		std::string m_TexturePath;
+		TextureId m_TextureId;
+		sf::Texture* m_Texture;
+
+		//Vertex array
+		sf::VertexArray m_VertexArray;
+
+		int coolDown = 0;
 	};
 }
 #endif

@@ -47,28 +47,53 @@ namespace sfge::ext
 
 	void BuildingManager::Draw(){}
 
+	void BuildingManager::SpawnBuilding(BuildingType buildingType, Vec2f position)
+	{
+		switch (buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->AddNewBuilding(position);
+			break;
+		case BuildingType::MINE:
+			m_MineManager->AddNewBuilding(position);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ExcavationPostManager->AddNewBuilding(position);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_MushroomFarmManager->AddNewBuilding(position);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->AddNewBuilding(position);
+			break;
+		}
+	}
+
+	void BuildingManager::DestroyBuilding(BuildingType buildingType, Entity entity)
+	{
+		switch (buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->DestroyBuilding(entity);
+			break;
+		case BuildingType::MINE:
+			m_MineManager->DestroyBuilding(entity);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ExcavationPostManager->DestroyBuilding(entity);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_MushroomFarmManager->DestroyBuilding(entity);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->DestroyBuilding(entity);
+			break;
+		}
+	}
+
 	Entity BuildingManager::AttributeDwarfToWorkingPlace(BuildingType buildingType)
 	{
-		//std::vector<BuildingType> buildingTypes;
-		//for (int i = 0; i < BuildingType::LENGTH - 1; i++)
-		//{
-		//	if (buildingType == static_cast<BuildingType>(i))
-		//	{
-		//		buildingTypes.push_back(static_cast<BuildingType>(i));
-		//	}
-		//}
-
-		//for (int i = 0; i < BuildingType::LENGTH - 1; i++)
-		//{
-		//	if (buildingType == static_cast<BuildingType>(i))
-		//		continue;
-
-		//	buildingTypes.push_back(static_cast<BuildingType>(i));
-		//}
-
-		//for (BuildingType type : buildingTypes)
-		//{
-		switch (/*type*/ buildingType)
+		switch (buildingType)
 		{
 		case BuildingType::FORGE: {
 			Entity forgeEntity = INVALID_ENTITY;
@@ -119,70 +144,52 @@ namespace sfge::ext
 
 			m_WarehouseManager->AddDwarfToBuilding(warehouseEntity);
 			return warehouseEntity;
-			break;
 		}
-		//}
 		return INVALID_ENTITY;
 	}
 
-	bool BuildingManager::DwarfEnterBuilding(BuildingType buildingType, Entity entity)
+	void BuildingManager::DwarfEnterBuilding(BuildingType buildingType, Entity entity)
 	{
-		// TODO : Change DwarfEnterBuilding in all manager to make them return false if the building Doesn't Exist anymore
-
 		switch (buildingType)
 		{
-		case BuildingType::FORGE: {
+		case BuildingType::FORGE:
 			m_ForgeManager->DwarfEnterBuilding(entity);
-			return true;
-		}
-		case BuildingType::MINE: {
+			break;
+		case BuildingType::MINE:
 			m_MineManager->DwarfEnterBuilding(entity);
-			return true;
-		}
-		case BuildingType::EXCAVATION_POST: {
+			break;
+		case BuildingType::EXCAVATION_POST:
 			m_ExcavationPostManager->DwarfEnterBuilding(entity);
-			return true;
-		}
-		case BuildingType::MUSHROOM_FARM: {
+			break;
+		case BuildingType::MUSHROOM_FARM:
 			m_MushroomFarmManager->DwarfEnterBuilding(entity);
-			return true;
-			}
-		case BuildingType::WAREHOUSE: {
+			break;
+		case BuildingType::WAREHOUSE:
 			m_WarehouseManager->DwarfEnterBuilding(entity);
-			return true;
-			}
+			break;
 		}
-		return false;	
 	}
 
-	bool BuildingManager::DwarfExitBuilding(BuildingType buildingType, Entity entity)
+	void BuildingManager::DwarfExitBuilding(BuildingType buildingType, Entity entity)
 	{
-		// TODO : Change DwarfExitBuilding in all manager to make them return false if the building Doesn't Exist anymore
-
 		switch (buildingType)
 		{
-		case BuildingType::FORGE: {
+		case BuildingType::FORGE:
 			m_ForgeManager->DwarfExitBuilding(entity);
-			return true;
-		}
-		case BuildingType::MINE: {
+			break;
+		case BuildingType::MINE:
 			m_MineManager->DwarfExitBuilding(entity);
-			return true;
-		}
-		case BuildingType::EXCAVATION_POST: {
+			break;
+		case BuildingType::EXCAVATION_POST:
 			m_ExcavationPostManager->DwarfExitBuilding(entity);
-			return true;
-		}
-		case BuildingType::MUSHROOM_FARM: {
+			break;
+		case BuildingType::MUSHROOM_FARM:
 			m_MushroomFarmManager->DwarfExitBuilding(entity);
-			return true;
-		}
-		case BuildingType::WAREHOUSE: {
+			break;
+		case BuildingType::WAREHOUSE:
 			m_WarehouseManager->DwarfExitBuilding(entity);
-			return true;
+			break;
 		}
-		}
-		return false;
 	}
 
 
