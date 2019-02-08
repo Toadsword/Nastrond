@@ -76,6 +76,7 @@ public:
 	void DisplayMenuWindow();
 	void DrawMainWindow();
 	void DrawTilemapInformations();
+	void DrawTileTypeInformations();
 
 private:
 	/**
@@ -86,15 +87,21 @@ private:
 	/**
 	 * \brief Index of the selected Tilemap
 	 */
-	unsigned m_SelectedTilemap = 0;
+	unsigned m_SelectedTilemap = INVALID_ENTITY;
+
+	/* ------------------------------------- New TileType ------------------------------- */
+	/**
+	 * \brief Flag where to display the "new tilemap" section.
+	 */
+	bool m_FlagDisplayNewTileType = false;
+	char m_filepathNewTileType[128] = "";
+	unsigned m_SelectedTileType = INVALID_ENTITY;
 
 	/* ------------------------------------- New Tilemap ------------------------------- */
-
 	/**
 	 * \brief Flag where to display the "new tilemap" section.
 	 */
 	bool m_FlagDisplayNewTilemap = false;
-
 	/**
 	 * \brief Input size for a new tilemap.
 	 */
