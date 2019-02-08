@@ -39,6 +39,8 @@ void DwarfManager::Init()
 	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 	m_NavigationGraphManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<NavigationGraphManager>(
 		"NavigationGraphManager");
+	m_BuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<BuildingManager>(
+		"BuildingManager");
 
 	//Associate behaviour tree
 	auto* behaviourTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>(
@@ -187,9 +189,21 @@ Vec2f DwarfManager::GetWorkingPlaceAssociatedPosition(const unsigned int index)
 	return m_Transform2DManager->GetComponentPtr(m_AssociatedWorkingPlace[index])->Position;
 }
 
-void DwarfManager::AssignDwellingToDwarf(const unsigned int index, Entity dwellingEntity)
+bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
 {
-	m_AssociatedDwelling[index] = dwellingEntity;
+	auto const dwellingEntity = m_BuildingManager->GetDwellingFreeSlots(); //TODO changer
+
+	if (dwellingEntity == INVALID_ENTITY)
+	{
+		return false;
+	}
+	else
+	{
+		m_AssociatedDwelling[index] = dwellingEntity;
+		m_BuildingManager->AddDwarfToBuilding(dwellingEntity);
+
+		return true;
+	}
 }
 
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
@@ -263,6 +277,16 @@ void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
 void DwarfManager::AddInventoryTaskBT(const unsigned int index, const InventoryTask inventoryTask)
 {
 	m_InventoryTaskBT[index] = inventoryTask;
+}
+
+void DwarfManager::DwarfEnterDwelling(const unsigned int index)
+{
+	m_BuildingManager->DwarfEnterBuilding(BuildingManager::BuildingType::DWELLING, GetDwellingEntity(index));
+}
+
+void DwarfManager::DwarfExitDwelling(const unsigned int index)
+{
+	m_BuildingManager->DwarfExitBuilding(BuildingManager::BuildingType::DWELLING, GetDwellingEntity(index));
 }
 
 void DwarfManager::ResizeContainers()

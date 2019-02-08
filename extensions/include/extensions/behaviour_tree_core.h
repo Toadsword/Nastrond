@@ -111,7 +111,6 @@ public:
 	std::vector<char> sequenceActiveChild;
 
 	DwarfManager* dwarfManager;
-	DwellingManager* dwellingManager;
 
 	const bool flowGoDown = true;
 	const bool flowGoUp = false;

@@ -87,7 +87,7 @@ public:
 	 * \param index of the dwarf
 	 * \param dwellingEntity to assign to the dwarf
 	 */
-	void AssignDwellingToDwarf(unsigned int index, Entity dwellingEntity);
+	bool AssignDwellingToDwarf(unsigned int index);
 
 	bool IsDwarfAtDestination(unsigned int index);
 
@@ -116,6 +116,10 @@ public:
 
 	void AddInventoryTaskBT(unsigned int index, InventoryTask inventoryTask);
 
+	void DwarfEnterDwelling(unsigned int index);
+
+	void DwarfExitDwelling(unsigned int index);
+
 private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
@@ -127,6 +131,7 @@ private:
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
 	NavigationGraphManager* m_NavigationGraphManager;
+	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
 	const size_t m_ContainersExtender = 100;

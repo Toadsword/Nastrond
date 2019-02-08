@@ -127,5 +127,27 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+
+/**
+* author Nicolas Schneider
+*/
+class EnterDwellingLeaf final : public Leaf
+{
+public:
+	EnterDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class ExitDwellingLeaf final : public Leaf
+{
+public:
+	ExitDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
 }
 #endif

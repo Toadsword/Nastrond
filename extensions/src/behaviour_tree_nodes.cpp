@@ -43,19 +43,15 @@ void HasDwellingLeaf::Execute(const unsigned int index)
 
 void SetDwellingLeaf::Execute(const unsigned int index)
 {
-	auto const dwellingEntity = m_BehaviourTree->dwellingManager->GetFreeSlotInBuilding();
-
 	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
 	m_BehaviourTree->currentNode[index] = m_ParentNode;
 
-	if (dwellingEntity == INVALID_ENTITY)
+	if (m_BehaviourTree->dwarfManager->AssignDwellingToDwarf(index))
 	{
 		m_BehaviourTree->previousStatus[index] = Status::FAIL;
 	}
 	else
 	{
-		m_BehaviourTree->dwarfManager->AssignDwellingToDwarf(index, dwellingEntity);
-		m_BehaviourTree->dwellingManager->AddDwarfToBuilding(dwellingEntity);
 
 		m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
 	}
@@ -134,6 +130,26 @@ void FindPathToGiverLeaf::Execute(const unsigned int index)
 void FindPathToReceiverLeaf::Execute(const unsigned int index)
 {
 	m_BehaviourTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
+
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+}
+
+void EnterDwellingLeaf::Execute(const unsigned int index)
+{
+	m_BehaviourTree->dwarfManager->DwarfEnterDwelling(index);
+
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+}
+
+void ExitDwellingLeaf::Execute(const unsigned int index)
+{
+	m_BehaviourTree->dwarfManager->DwarfExitDwelling(index);
 
 	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
 	m_BehaviourTree->currentNode[index] = m_ParentNode;

@@ -38,8 +38,6 @@ BehaviourTree::BehaviourTree(sfge::Engine& engine) : System(engine) { }
 void BehaviourTree::Init()
 {
 	dwarfManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwarfManager>("DwarfManager");
-	dwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
-		"DwellingManager");
 }
 
 void BehaviourTree::Update(float dt)
