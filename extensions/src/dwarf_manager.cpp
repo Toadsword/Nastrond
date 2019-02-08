@@ -289,6 +289,16 @@ void DwarfManager::DwarfExitDwelling(const unsigned int index)
 	m_BuildingManager->DwarfExitBuilding(BuildingManager::BuildingType::DWELLING, GetDwellingEntity(index));
 }
 
+void DwarfManager::DwarfEnterWorkingPlace(const unsigned int index)
+{
+	m_BuildingManager->DwarfEnterBuilding(m_AssociatedWorkingPlaceType[index], m_AssociatedWorkingPlace[index]);
+}
+
+void DwarfManager::DwarfExitWorkingPlace(const unsigned int index)
+{
+	m_BuildingManager->DwarfExitBuilding(m_AssociatedWorkingPlaceType[index], m_AssociatedWorkingPlace[index]);
+}
+
 void DwarfManager::ResizeContainers()
 {
 	const auto newSize = m_DwarfsEntities.size() + m_ContainersExtender;
@@ -305,6 +315,7 @@ void DwarfManager::ResizeContainers()
 	behaviourTree->SetEntities(&m_DwarfsEntities);
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
+	m_AssociatedWorkingPlaceType.resize(newSize);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
 
 	m_PathFollowingBT.resize(newSize);

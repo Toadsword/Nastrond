@@ -120,6 +120,10 @@ public:
 
 	void DwarfExitDwelling(unsigned int index);
 
+	void DwarfEnterWorkingPlace(unsigned int index);
+
+	void DwarfExitWorkingPlace(unsigned int index);
+
 private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
@@ -180,6 +184,7 @@ private:
 	//Buildings
 	std::vector<Entity> m_AssociatedDwelling;
 	std::vector<Entity> m_AssociatedWorkingPlace;
+	std::vector<BuildingManager::BuildingType> m_AssociatedWorkingPlaceType;
 
 	//Vertex array
 	sf::VertexArray m_VertexArray;

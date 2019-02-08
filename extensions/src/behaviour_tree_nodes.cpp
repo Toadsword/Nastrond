@@ -156,4 +156,24 @@ void ExitDwellingLeaf::Execute(const unsigned int index)
 
 	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
 }
+
+void EnterWorkingPlaceLeaf::Execute(unsigned int index)
+{
+	m_BehaviourTree->dwarfManager->DwarfEnterWorkingPlace(index);
+
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+}
+
+void ExitWorkingPlaceLeaf::Execute(unsigned int index)
+{
+	m_BehaviourTree->dwarfManager->DwarfExitWorkingPlace(index);
+
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+}
 }
