@@ -27,6 +27,8 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 #include <extensions/navigation_graph_manager.h>
+#include <extensions/building_utilities.h>
+#include <extensions/building_manager.h>
 
 namespace sfge::ext
 {
@@ -76,6 +78,10 @@ public:
 	 */
 	Entity GetDwellingEntity(unsigned int index);
 
+	Vec2f GetDwellingAssociatedPosition(unsigned int index);
+
+	Vec2f GetWorkingPlaceAssociatedPosition(unsigned int index);
+
 	/**
 	 * \brief Assign a dwelling to a dwarf
 	 * \param index of the dwarf
@@ -88,11 +94,27 @@ public:
 	bool HasPath(unsigned int index);
 
 	//Behaviour tree communication function
-	void AddFindPathToDwellingBT(unsigned int index);
+	void AddFindPathToDestinationBT(unsigned int index, Vec2f destination);
 
 	void AddFindRandomPathBT(unsigned int index);
 
 	void AddPathFollowingBT(unsigned int index);
+
+	void AddInventoryTaskPathToGiver(unsigned int index);
+
+	void AddInventoryTaskPathToReceiver(unsigned int index);
+
+	struct InventoryTask final
+	{
+		Entity giver = INVALID_ENTITY;
+		Entity receiver = INVALID_ENTITY;
+		BuildingManager::BuildingType giverType = BuildingManager::BuildingType::LENGTH;
+		BuildingManager::BuildingType receiverType = BuildingManager::BuildingType::LENGTH;
+		ResourceType resourceType = NONE;
+		char resourceQuantity = 0;
+	};
+
+	void AddInventoryTaskBT(unsigned int index, InventoryTask inventoryTask);
 
 private:
 	void ResizeContainers();
@@ -160,14 +182,18 @@ private:
 	unsigned int m_IndexToDraw = 0;
 
 	//Data filed by the behaviourTree
-	std::vector<int> m_PathToDwellingBT;
-	unsigned int m_IndexPathToDwellingBT = 0;
+	std::vector<int> m_PathToIndexDwarfBT;
+	std::vector<Vec2f> m_PathToDestinationBT;
+	unsigned int m_IndexPathToDestinationBT = 0;
 
 	std::vector<int> m_PathToRandomBT;
 	unsigned int m_IndexPathToRandomBT = 0;
 
 	std::vector<int> m_PathFollowingBT;
 	unsigned int m_IndexPathFollowingBT = 0;
+
+	//Inventory task
+	std::vector<InventoryTask> m_InventoryTaskBT;
 };
 }
 

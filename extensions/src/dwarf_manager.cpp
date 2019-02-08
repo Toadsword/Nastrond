@@ -177,6 +177,16 @@ Entity DwarfManager::GetDwellingEntity(const unsigned int index)
 	return m_AssociatedDwelling[index];
 }
 
+Vec2f DwarfManager::GetDwellingAssociatedPosition(const unsigned int index)
+{
+	return m_Transform2DManager->GetComponentPtr(m_AssociatedDwelling[index])->Position;
+}
+
+Vec2f DwarfManager::GetWorkingPlaceAssociatedPosition(const unsigned int index)
+{
+	return m_Transform2DManager->GetComponentPtr(m_AssociatedWorkingPlace[index])->Position;
+}
+
 void DwarfManager::AssignDwellingToDwarf(const unsigned int index, Entity dwellingEntity)
 {
 	m_AssociatedDwelling[index] = dwellingEntity;
@@ -215,10 +225,11 @@ bool DwarfManager::HasPath(unsigned int index)
 	return !m_Paths[index].empty();
 }
 
-void DwarfManager::AddFindPathToDwellingBT(unsigned int index)
+void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Vec2f destination)
 {
-	m_PathToDwellingBT[m_IndexPathToDwellingBT] = index;
-	m_IndexPathToDwellingBT++;
+	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
+	m_PathToDestinationBT[m_IndexPathToDestinationBT] = destination;
+	m_IndexPathToDestinationBT++;
 }
 
 void DwarfManager::AddFindRandomPathBT(unsigned int index)
@@ -231,6 +242,27 @@ void DwarfManager::AddPathFollowingBT(unsigned int index)
 {
 	m_PathFollowingBT[m_IndexPathFollowingBT] = index;
 	m_IndexPathFollowingBT++;
+}
+
+void DwarfManager::AddInventoryTaskPathToGiver(const unsigned int index)
+{
+	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
+	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
+	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].giver)->Position;
+	m_IndexPathToDestinationBT++;
+}
+
+void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
+{
+	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
+	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
+	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].receiver)->Position;
+	m_IndexPathToDestinationBT++;
+}
+
+void DwarfManager::AddInventoryTaskBT(const unsigned int index, const InventoryTask inventoryTask)
+{
+	m_InventoryTaskBT[index] = inventoryTask;
 }
 
 void DwarfManager::ResizeContainers()
@@ -252,8 +284,11 @@ void DwarfManager::ResizeContainers()
 	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
 
 	m_PathFollowingBT.resize(newSize);
-	m_PathToDwellingBT.resize(newSize);
+	m_PathToIndexDwarfBT.resize(newSize);
+	m_PathToDestinationBT.resize(newSize);
 	m_PathToRandomBT.resize(newSize);
+
+	m_InventoryTaskBT.resize(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()

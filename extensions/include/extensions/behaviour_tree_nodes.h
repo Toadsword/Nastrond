@@ -94,5 +94,38 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+
+/**
+* author Nicolas Schneider
+*/
+class FindPathToWorkingPlaceLeaf final : public Leaf
+{
+public:
+	FindPathToWorkingPlaceLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class FindPathToGiverLeaf final : public Leaf
+{
+public:
+	FindPathToGiverLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class FindPathToReceiverLeaf final : public Leaf
+{
+public:
+	FindPathToReceiverLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
 }
 #endif

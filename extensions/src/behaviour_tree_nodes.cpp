@@ -73,7 +73,7 @@ void FindRandomPathLeaf::Execute(const unsigned int index)
 
 void FindPathToDwellingLeaf::Execute(const unsigned int index)
 {
-	m_BehaviourTree->dwarfManager->AddFindPathToDwellingBT(index);
+	m_BehaviourTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviourTree->dwarfManager->GetDwellingAssociatedPosition(index));
 
 	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
 	m_BehaviourTree->currentNode[index] = m_ParentNode;
@@ -109,5 +109,35 @@ void WaitForPathLeaf::Execute(const unsigned int index)
 	}
 
 	m_BehaviourTree->previousStatus[index] = Status::RUNNING;
+}
+
+void FindPathToWorkingPlaceLeaf::Execute(const unsigned int index)
+{
+	m_BehaviourTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviourTree->dwarfManager->GetWorkingPlaceAssociatedPosition(index));
+
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+}
+
+void FindPathToGiverLeaf::Execute(const unsigned int index)
+{
+	m_BehaviourTree->dwarfManager->AddInventoryTaskPathToGiver(index);
+
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+}
+
+void FindPathToReceiverLeaf::Execute(const unsigned int index)
+{
+	m_BehaviourTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
+
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
 }
 }

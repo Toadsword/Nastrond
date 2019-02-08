@@ -82,6 +82,7 @@ void NavigationGraphManager::Init()
 
 void NavigationGraphManager::Update(float dt)
 {
+	//TODO ne pas passer par un nombre fix, mais plutôt alouer un temps maximum et faire un test à chaque fois pour savoir s'il reste suffisament de temps
 	for (size_t i = 0; i < m_MaxPathForOneUpdate; i++)
 	{
 		if (m_WaitingPaths.empty())
