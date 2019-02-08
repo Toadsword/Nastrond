@@ -57,6 +57,7 @@ namespace sfge::ext
 
 		enum BuildingType
 		{
+			NONE,
 			FORGE,
 			MINE,
 			EXCAVATION_POST,

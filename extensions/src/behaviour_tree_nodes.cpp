@@ -176,4 +176,51 @@ void ExitWorkingPlaceLeaf::Execute(unsigned int index)
 
 	m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
 }
+
+void HasJobLeaf::Execute(unsigned index)
+{
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	if (m_BehaviourTree->dwarfManager->HasJob(index))
+	{
+		m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+	}
+	else
+	{
+		m_BehaviourTree->previousStatus[index] = Status::FAIL;
+
+	}
+}
+
+void HasStaticJobLeaf::Execute(const unsigned int index)
+{
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	if(m_BehaviourTree->dwarfManager->HasJob(index))
+	{
+		m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+	}else
+	{
+		m_BehaviourTree->previousStatus[index] = Status::FAIL;
+		
+	}
+}
+
+void AssignJobLeaf::Execute(const unsigned int index)
+{
+	m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+	m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+	if (m_BehaviourTree->dwarfManager->AssignJob(index))
+	{
+		m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+	}
+	else
+	{
+		m_BehaviourTree->previousStatus[index] = Status::FAIL;
+
+	}
+}
 }

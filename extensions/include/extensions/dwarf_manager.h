@@ -124,6 +124,12 @@ public:
 
 	void DwarfExitWorkingPlace(unsigned int index);
 
+	bool HasJob(unsigned int index);
+
+	bool HasStaticJob(unsigned int index);
+
+	bool AssignJob(unsigned int index);
+
 private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
@@ -181,10 +187,13 @@ private:
 	TextureId m_TextureId;
 	sf::Texture* m_Texture;
 
-	//Buildings
+	//Dwelling
 	std::vector<Entity> m_AssociatedDwelling;
+
+	//Jobs
 	std::vector<Entity> m_AssociatedWorkingPlace;
 	std::vector<BuildingManager::BuildingType> m_AssociatedWorkingPlaceType;
+	std::queue<BuildingManager::BuildingType> m_JobBuildingType;
 
 	//Vertex array
 	sf::VertexArray m_VertexArray;

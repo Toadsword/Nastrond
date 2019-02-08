@@ -171,5 +171,38 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+
+/**
+* author Nicolas Schneider
+*/
+class HasJobLeaf final : public Leaf
+{
+public:
+	HasJobLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class HasStaticJobLeaf final : public Leaf
+{
+public:
+	HasStaticJobLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class AssignJobLeaf final : public Leaf
+{
+public:
+	AssignJobLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
 }
 #endif

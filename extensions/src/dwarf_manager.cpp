@@ -68,6 +68,15 @@ void DwarfManager::Init()
 		SpawnDwarf(pos);
 	}
 #endif
+
+	//Init job 
+	//TODO changer la manière dont je crée la liste des boulots, il serait plus intéressant de garder le % de chaque job actuellement attribué
+	m_JobBuildingType.push(BuildingManager::BuildingType::WAREHOUSE);
+	m_JobBuildingType.push(BuildingManager::BuildingType::EXCAVATION_POST);
+	m_JobBuildingType.push(BuildingManager::BuildingType::FORGE);
+	m_JobBuildingType.push(BuildingManager::BuildingType::MINE);
+	m_JobBuildingType.push(BuildingManager::BuildingType::WAREHOUSE);
+	m_JobBuildingType.push(BuildingManager::BuildingType::MUSHROOM_FARM);
 }
 
 void DwarfManager::SpawnDwarf(const Vec2f pos)
@@ -299,6 +308,42 @@ void DwarfManager::DwarfExitWorkingPlace(const unsigned int index)
 	m_BuildingManager->DwarfExitBuilding(m_AssociatedWorkingPlaceType[index], m_AssociatedWorkingPlace[index]);
 }
 
+bool DwarfManager::HasJob(const unsigned int index)
+{
+	return m_AssociatedWorkingPlaceType[index] != BuildingManager::BuildingType::NONE;
+}
+
+bool DwarfManager::HasStaticJob(const unsigned int index)
+{
+	return m_AssociatedWorkingPlaceType[index] != BuildingManager::BuildingType::WAREHOUSE;
+}
+
+bool DwarfManager::AssignJob(const unsigned int index)
+{
+	char nbJob = 0;
+
+	while (nbJob < m_JobBuildingType.size())
+	{
+		const auto buildingType = m_JobBuildingType.front();
+		m_JobBuildingType.pop();
+
+		const auto buildingEntity = m_BuildingManager->AttributeDwarfToWorkingPlace(buildingType);
+
+		m_JobBuildingType.push(buildingType);
+
+		if (buildingEntity != INVALID_ENTITY)
+		{
+			m_AssociatedWorkingPlace[index] = buildingEntity;
+			m_AssociatedWorkingPlaceType[index] = buildingType;
+			return true;
+		}
+
+		nbJob++;
+	}
+
+	return false;
+}
+
 void DwarfManager::ResizeContainers()
 {
 	const auto newSize = m_DwarfsEntities.size() + m_ContainersExtender;
@@ -315,7 +360,7 @@ void DwarfManager::ResizeContainers()
 	behaviourTree->SetEntities(&m_DwarfsEntities);
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
-	m_AssociatedWorkingPlaceType.resize(newSize);
+	m_AssociatedWorkingPlaceType.resize(newSize, BuildingManager::BuildingType::NONE);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
 
 	m_PathFollowingBT.resize(newSize);
