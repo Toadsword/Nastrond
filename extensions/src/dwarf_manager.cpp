@@ -273,6 +273,12 @@ int DwarfManager::GetIndexForNewEntity()
 	return index;
 }
 
+void DwarfManager::AddDwarfToDraw(const unsigned int index)
+{
+	m_IndexesToDraw[m_IndexToDraw] = index;
+	m_IndexToDraw++;
+}
+
 void DwarfManager::Update(float dt)
 {
 #ifdef DEBUG_RANDOM_PATH
@@ -290,6 +296,8 @@ void DwarfManager::Update(float dt)
 				Vec2f(std::rand() % static_cast<int>(screenSize.x),
 					std::rand() % static_cast<int>(screenSize.y
 						)));
+
+			AddDwarfToDraw(indexDwarf);
 		}
 		m_IndexPathToRandomBT = 0;
 	}
@@ -306,32 +314,12 @@ void DwarfManager::Update(float dt)
 
 			transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
 
-			m_IndexesToDraw[m_IndexToDraw] = indexDwarf;
-			m_IndexToDraw++;
+			AddDwarfToDraw(indexDwarf);
 
 		}
 		m_IndexPathFollowingBT = 0;
 	}
 
-	if (m_IndexToDraw != 0) {
-		const auto textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-		for (size_t i = 0; i < m_IndexToDraw; i++)
-		{
-			const auto indexDwarf = m_PathFollowingBT[i];
-
-			const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position;
-
-			const auto indexVertex = 4 * i;
-			m_VertexArray[indexVertex].position = position - textureSize / 2.0f;
-			m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(
-				textureSize.x / 2.0f, -textureSize.y / 2.0f);
-			m_VertexArray[indexVertex + 2].position = position + textureSize / 2.0f;
-			m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(
-				-textureSize.x / 2.0f, textureSize.y / 2.0f);
-		}
-		m_IndexToDraw = 0;
-	}
 }
 
 void DwarfManager::FixedUpdate() {}
@@ -356,6 +344,22 @@ void DwarfManager::Draw()
 	}
 #endif
 
+	//Draw dwarf
+	if (m_IndexToDraw != 0) {
+		const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
+		for (size_t i = 0; i < m_IndexToDraw; i++)
+		{
+			const auto indexDwarf = m_IndexesToDraw[i];
+			const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position;
+			const auto indexVertex = 4 * i;
+
+			m_VertexArray[indexVertex].position = position - halfTextureSize;
+			m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(halfTextureSize.x, -halfTextureSize.y);
+			m_VertexArray[indexVertex + 2].position = position + halfTextureSize;
+			m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(-halfTextureSize.x, halfTextureSize.y);
+		}
+		m_IndexToDraw = 0;
+	}
 	window->draw(m_VertexArray, m_Texture);
 }
 }

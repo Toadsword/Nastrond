@@ -98,6 +98,8 @@ private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
+	void AddDwarfToDraw(unsigned int index);
+
 	//System
 	Transform2dManager* m_Transform2DManager;
 	TextureManager* m_TextureManager;
@@ -140,7 +142,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 200;
+	const size_t m_DwarfToSpawn = 50;
 #endif
 
 	//Dwarfs texture
