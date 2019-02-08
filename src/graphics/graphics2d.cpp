@@ -64,6 +64,7 @@ void Graphics2dManager::Init()
 	m_ShapeManager.Init();
 	m_SpriteManager.Init();
 	m_AnimationManager.Init();
+	m_GizmoManager.Init();
 
 }
 
@@ -77,6 +78,7 @@ void Graphics2dManager::Update(float dt)
 		m_SpriteManager.Update(dt);
 		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
+		m_GizmoManager.Update(dt);
 	}
 }
 
@@ -87,6 +89,7 @@ void Graphics2dManager::Draw()
 		m_SpriteManager.DrawSprites(*m_Window);
 		m_AnimationManager.DrawAnimations(*m_Window);
 		m_ShapeManager.DrawShapes(*m_Window);
+		m_GizmoManager.DrawGizmo(*m_Window);
 	}
 }
 
@@ -136,6 +139,11 @@ ShapeManager* Graphics2dManager::GetShapeManager()
 	return &m_ShapeManager;
 }
 
+GizmoManager* Graphics2dManager::GetGizmoManager() 
+{
+	return &m_GizmoManager;
+}
+
 void Graphics2dManager::CheckVersion() const
 {
 	sf::ContextSettings settings = m_Window->getSettings();
@@ -164,6 +172,7 @@ void Graphics2dManager::Clear()
 {
 	m_TextureManager.Clear();
 	m_SpriteManager.Reset();
+	m_GizmoManager.Clear();
 }
 
 void Graphics2dManager::Collect()

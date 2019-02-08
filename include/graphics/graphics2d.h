@@ -30,6 +30,7 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
 #include <graphics/animation2d.h>
+#include <graphics/gizmo_manager.h>
 
 namespace sfge
 {
@@ -78,6 +79,7 @@ public:
 	ShapeManager* GetShapeManager();
 	SpriteManager* GetSpriteManager();
 	TextureManager* GetTextureManager();
+	GizmoManager* GetGizmoManager();
 
 protected:
 	bool m_Windowless = false;
@@ -89,6 +91,7 @@ protected:
 	SpriteManager m_SpriteManager{m_Engine};
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
+	GizmoManager m_GizmoManager{ m_Engine };
 	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 
