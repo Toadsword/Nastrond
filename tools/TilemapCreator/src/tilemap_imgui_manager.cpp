@@ -29,6 +29,7 @@ Project : TilemapCreator for SFGE
 #include <tilemap_imgui_manager.h>
 
 #include <engine/engine.h>
+#include <graphics/graphics2d.h>
 #include <tilemap_creator.h>
 
 #include <imgui.h>
@@ -54,9 +55,10 @@ namespace sfge::tools
 
 		//Keyboard
 		KeyboardManager& keyboardManager = inputManager->GetKeyboardManager();
-		
-		bool isControlHeld = keyboardManager.IsKeyHeld(sf::Keyboard::LControl) || keyboardManager.IsKeyHeld(sf::Keyboard::RControl);
-		if(isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::S))
+
+		bool isControlHeld = keyboardManager.IsKeyHeld(sf::Keyboard::LControl) || keyboardManager.IsKeyHeld(
+			sf::Keyboard::RControl);
+		if (isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::S))
 		{
 			//m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
 			//m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
@@ -69,7 +71,7 @@ namespace sfge::tools
 			return;
 
 		//ImGui::ShowDemoWindow();
-		
+
 		ImGui::SetNextWindowPos(ImVec2(100.0f, 100.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(TILEMAP_WINDOW_WIDTH, TILEMAP_WINDOW_HEIGHT), ImGuiCond_FirstUseEver);
 		if (ImGui::Begin(TILEMAP_WINDOW_NAME, NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar))
@@ -93,7 +95,7 @@ namespace sfge::tools
 				}
 				if (ImGui::MenuItem("Add new Tiletype"))
 				{
-					//m_OpenAddTexture = true;
+					m_FlagDisplayNewTileType = !m_FlagDisplayNewTileType;
 				}
 				if (ImGui::MenuItem("Add new Tilemap"))
 				{
@@ -112,8 +114,7 @@ namespace sfge::tools
 
 	void TilemapImguiManager::DrawMainWindow()
 	{
-
-		if(m_FlagDisplayNewTilemap)
+		if (m_FlagDisplayNewTilemap)
 		{
 			//Bouton permettant d'ajouter une tilemap à la liste.
 			ImGui::Text("New Tilemap");
@@ -124,10 +125,11 @@ namespace sfge::tools
 				m_SizeNewTilemap[0] = 1;
 			if (m_SizeNewTilemap[1] < 0)
 				m_SizeNewTilemap[1] = 1;
-				
-			if(ImGui::Button("Add a tilemap"))
+
+			if (ImGui::Button("Add a tilemap"))
 			{
-				Entity newTilemapEntity = m_TilemapCreator->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
+				Entity newTilemapEntity = m_TilemapCreator
+				                          ->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
 				m_TilemapCreator->GetTilemapManager()->AddComponent(newTilemapEntity);
 
 				std::vector<std::vector<TileTypeId>> newTiletypeIds = std::vector<std::vector<TileTypeId>>{
@@ -148,23 +150,62 @@ namespace sfge::tools
 			}
 			ImGui::Separator();
 		}
-
-		auto components = m_TilemapCreator->GetTilemapManager()->GetComponents();
-		ImGui::Text("List of Tilemap");
-		for (auto i = 0u; i < components.size(); i++)
+		if (m_FlagDisplayNewTileType)
 		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
+			//Bouton permettant d'ajouter une tilemap à la liste.
+			ImGui::Text("New TileType");
+
+			ImGui::InputText("Sprite Location : ", m_filepathNewTileType, sizeof(m_filepathNewTileType));
+			ImGui::Separator();
+
+			if (ImGui::Button("Add tiletype"))
 			{
-				bool selectedOne = m_SelectedTilemap == i + 1;
-				ImGui::Selectable(m_EntityManager->GetEntityInfo(i + 1).name.c_str(), &selectedOne);
-				if (selectedOne)
-					m_SelectedTilemap = i + 1;
+				m_TilemapCreator->GetTileTypeManager()->AddNewTileType(m_filepathNewTileType);
+				m_FlagDisplayNewTileType = false;
 			}
 		}
-		ImGui::Separator();
+
+		auto components = m_TilemapCreator->GetTilemapManager()->GetComponents();
+		if (ImGui::CollapsingHeader("List of Tilemap"))
+		{
+			for (auto i = 0u; i < components.size(); i++)
+			{
+				if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
+				{
+					bool selectedOne = m_SelectedTilemap == i + 1;
+					ImGui::Selectable(m_EntityManager->GetEntityInfo(i + 1).name.c_str(), &selectedOne);
+					if (selectedOne)
+						m_SelectedTilemap = i + 1;
+				}
+			}
+		}
 
 		if (m_SelectedTilemap != INVALID_ENTITY)
 			DrawTilemapInformations();
+
+		if (ImGui::CollapsingHeader("List of Tiletypes"))
+		{
+			std::vector<size_t> tileTypes = m_TilemapCreator->GetTileTypeManager()->GetAllTileTypeIds();
+			for (size_t index : tileTypes)
+			{
+				if (index != INVALID_TILE_TYPE)
+				{
+					bool selectedOne = m_SelectedTileType == index;
+					sf::Texture* texture = m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTextureManager()->GetTexture(
+	                       m_TilemapCreator->GetTileTypeManager()->GetTextureFromTileType(tileTypes[index - 1])
+						);
+					float h = ImGui::GetTextLineHeightWithSpacing() * 2;
+					float ratio = 1.0f * texture->getSize().x / texture->getSize().y;
+
+					ImGui::Dummy(ImVec2(0.0f, h / 2));
+					ImGui::Selectable(("Tile type " + std::to_string(index)).c_str(), &selectedOne);
+					ImGui::SameLine();
+					ImGui::Image(*texture, sf::Vector2f(h * ratio, h));
+					if (selectedOne)
+						m_SelectedTileType = index;
+				}
+			}
+		}
 	}
 
 	void TilemapImguiManager::DrawTilemapInformations()
@@ -185,7 +226,7 @@ namespace sfge::tools
 			}
 			{
 				Vec2f currentSize = tilemap->GetSize();
-				int aSize[2] = { currentSize.x , currentSize.y };
+				int aSize[2] = {currentSize.x, currentSize.y};
 				ImGui::InputInt2("Tilemap Size", aSize);
 
 				if ((aSize[0] != currentSize.x || aSize[1] != currentSize.y) && aSize[0] > 0 && aSize[1] > 0)
@@ -212,7 +253,7 @@ namespace sfge::tools
 			}
 			{
 				Vec2f currentScale = tilemap->GetTileScale();
-				int aScale[2] = { currentScale.x , currentScale.y };
+				int aScale[2] = {currentScale.x, currentScale.y};
 				ImGui::InputInt2("Tile scale", aScale);
 
 				if (aScale[0] != currentScale.x || aScale[1] != currentScale.y)
@@ -227,6 +268,14 @@ namespace sfge::tools
 				if (aLayer != tilemap->GetLayer())
 					tilemap->SetLayer(aLayer);
 			}
+		}
+	}
+
+	void TilemapImguiManager::DrawTileTypeInformations()
+	{
+		ImGui::Spacing();
+		if (ImGui::CollapsingHeader("TiletypeInfo"))
+		{
 		}
 	}
 }
