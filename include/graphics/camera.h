@@ -34,6 +34,7 @@ SOFTWARE.
 #include <editor/editor.h>
 #include <graphics/texture.h>
 #include <physics/physics2d.h>
+#include <graphics/quadtree.h>
 
 namespace sfge
 {
@@ -54,7 +55,7 @@ namespace sfge
 		 * \brief Constructor Camera
 		 * \param SpriteManager*, Transform2d*, sf::vector3f size
 		 */
-		Camera(SpriteManager* sprite_manager, Transform2d* transform, sf::Vector2f size);
+		Camera(Transform2d* transform, sf::Vector2f size);
 
 		/**
 		 * \brief Get camera Rotation
@@ -97,7 +98,6 @@ namespace sfge
 		sf::Vector2i Position;
 	protected:
 		sf::View m_View;
-		SpriteManager* m_SpriteManager;
 	};
 
 	namespace editor
@@ -143,10 +143,13 @@ namespace sfge
 		void DestroyComponent(Entity entity) override;
 	protected:
 		Graphics2dManager* m_GraphicsManager;
+		QuadtreeOcc* m_OcclusionManager;
 		Transform2dManager* m_Transform2dManager;
 		InputManager* m_InputManager;
 		std::vector<Camera> m_cameras;
 		short currentCamera = MAINCAMERA;
+
+		AABBOcc aabbCamera;
 	};
 }
 #endif

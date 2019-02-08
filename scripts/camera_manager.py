@@ -17,7 +17,7 @@ class CameraManager(Component):
         self.cam_component = self.get_component(Component.Camera)
         self.position = self.cam_component.get_position()
         self.size_display = graphics2d_manager.get_size_window()
-        self.velocity = 200
+        self.velocity = 400
         self.detection_size_percent = 5
         self.cam_component.on_resize(Vec2f(self.size_display.x, self.size_display.y))
 
@@ -55,10 +55,10 @@ class CameraManager(Component):
             dir.y = -0.5
 
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Left):
-            dir.x = 0.5
+            dir.x = -0.5
 
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Right):
-            dir.x = -0.5
+            dir.x = 0.5
 
         self.position += dir * self.velocity * dt
         

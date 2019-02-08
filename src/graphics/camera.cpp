@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include <imgui.h>
 #include <imgui-SFML.h>	
+#include "graphics/quadtree.h"
 
 namespace sfge
 {
@@ -39,9 +40,8 @@ namespace sfge
 	{
 	}
 
-	Camera::Camera(SpriteManager* sprite_manager, Transform2d* transform, sf::Vector2f size){
-		m_View.setSize(size);
-		m_SpriteManager = sprite_manager;
+	Camera::Camera(Transform2d* transform, sf::Vector2f size){
+		m_View.setSize(size+sf::Vector2f(5000,5000));
 	}
 
 	float Camera::GetRotation()
@@ -67,6 +67,14 @@ namespace sfge
 	void Camera::Update(float dt, sf::RenderWindow& window)
 	{
 		window.setView(m_View);
+
+		//sf::VertexArray triangle(sf::LineStrip, 5);
+		//triangle[0].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
+		//triangle[1].position = sf::Vector2f(m_View.getCenter().x + m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
+		//triangle[2].position = sf::Vector2f(m_View.getCenter().x + m_View.getSize().x / 4, m_View.getCenter().y + m_View.getSize().y / 4);
+		//triangle[3].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y + m_View.getSize().y / 4);
+		//triangle[4].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
+		//window.draw(triangle);
 	}
 
 	CameraManager::CameraManager(Engine& engine): SingleComponentManager(engine)
@@ -99,6 +107,7 @@ namespace sfge
 		m_GraphicsManager = m_Engine.GetGraphics2dManager();
 		m_Transform2dManager = m_Engine.GetTransform2dManager();
 		m_InputManager = m_Engine.GetInputManager();
+		m_OcclusionManager = m_Engine.GetGraphics2dManager()->GetSpriteManager()->GetQuadtreeManager();
 	}
 
 	void CameraManager::Update(float dt)
@@ -111,6 +120,15 @@ namespace sfge
 					if (i == currentCamera) 
 					{
 						m_Components[i].Update(dt, (*m_GraphicsManager->GetWindow()));
+						
+						sf::RenderWindow* win = m_GraphicsManager->GetWindow();
+						Vec2f position = m_Components[i].GetPosition();
+						Vec2f size = m_Components[i].GetView().getSize();
+						if (aabbCamera.centre.x != position.x || aabbCamera.centre.y != position.y) {
+							aabbCamera = AABBOcc(nullptr, PointOcc(position.x, position.y), PointOcc(size.x, size.y));
+							m_OcclusionManager->CheckCamera(aabbCamera);
+						}
+						//m_OcclusionManager->Draw(win);
 					}
 				}
 			}

@@ -34,74 +34,74 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <editor/editor.h>
 #include <graphics/texture.h>
+#include <graphics/quadtree.h>
 
 namespace sfge
 {
-class Graphics2dManager;
-/**
-* \brief Sprite component used in the GameObject
-*/
-class Sprite:
-	public LayerComponent, public Offsetable
-{
-public:
+	class Graphics2dManager;
+	class QuadtreeOcc;
+	/**
+	* \brief Sprite component used in the GameObject
+	*/
+	class Sprite : public LayerComponent, public Offsetable
+	{
+	public:
 
-	Sprite();
-	Sprite(Transform2d* transform, sf::Vector2f offset);
+		Sprite();
+		Sprite(Transform2d* transform, sf::Vector2f offset);
 
-	void Init();
-	void Update(Transform2d* transform);
-	void Draw(sf::RenderWindow& window);
-	const sf::Texture* GetTexture();
-	void SetTexture(sf::Texture* newTexture);
-
-
-	bool is_visible;
-
-	
-protected:
-	sf::Sprite sprite;
-};
-
-
-namespace editor
-{
-struct SpriteInfo : ComponentInfo
-{
-	void DrawOnInspector() override;
-	Sprite* sprite = nullptr;
-	std::string texturePath = "";
-	TextureId textureId = INVALID_TEXTURE;
-};
-}
-
-/**
-* \brief Sprite manager caching all the sprites and rendering them at the end of the frame
-*/
-class SpriteManager : public SingleComponentManager<Sprite, editor::SpriteInfo, ComponentType::SPRITE2D>,
-	public LayerComponentManager<Sprite>
-{
-public:
-	using SingleComponentManager::SingleComponentManager;
-
-	void Init() override;
-	void Update(float dt) override;
-	void DrawSprites(sf::RenderWindow &window);
-
-	void Reset();
-	void Collect() override;
-	Sprite* AddComponent(Entity entity) override;
-	void CreateComponent(json& componentJson, Entity entity) override;
-	void DestroyComponent(Entity entity) override;
-
-	void OnResize(size_t new_size) override;
-protected:
-	Graphics2dManager* m_GraphicsManager = nullptr;
-	Transform2dManager* m_Transform2dManager = nullptr;
-};
+		void Init();
+		void Update(Transform2d* transform, QuadtreeOcc* ManagerQuadtreeOcc);
+		void Draw(sf::RenderWindow& window);
+		const sf::Texture* GetTexture();
+		void SetTexture(sf::Texture* newTexture);
+		bool GetIsVisible();
+		void SetIsVisible(bool visible);
+		
+	protected:
+		bool is_visible;
+		sf::Sprite sprite;
+		AABBOcc aabb;
+	};
 
 
+	namespace editor
+	{
+		struct SpriteInfo : ComponentInfo
+		{
+			void DrawOnInspector() override;
+			Sprite* sprite = nullptr;
+			std::string texturePath = "";
+			TextureId textureId = INVALID_TEXTURE;
+		};
+	}
 
+	/**
+	* \brief Sprite manager caching all the sprites and rendering them at the end of the frame
+	*/
+	class SpriteManager : public SingleComponentManager<Sprite, editor::SpriteInfo, ComponentType::SPRITE2D>,
+		public LayerComponentManager<Sprite>
+	{
+	public:
+		using SingleComponentManager::SingleComponentManager;
 
+		void Init() override;
+		void Update(float dt) override;
+		void DrawSprites(sf::RenderWindow &window);
+		QuadtreeOcc* GetQuadtreeManager();
+
+		void Reset();
+		void Collect() override;
+		Sprite* AddComponent(Entity entity) override;
+		void CreateComponent(json& componentJson, Entity entity) override;
+		void DestroyComponent(Entity entity) override;
+
+		void OnResize(size_t new_size) override;
+	protected:
+		Graphics2dManager* m_GraphicsManager = nullptr;
+		Transform2dManager* m_Transform2dManager = nullptr;
+		//Todo Create a real Manager
+		std::unique_ptr<QuadtreeOcc> m_QuadtreeManager;
+	};
 }
 #endif // !SFGE_SPRITE

@@ -214,10 +214,55 @@ TEST(Graphics2d, TestPyCameraFullScreen)
 	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
 	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
 
-
 	sceneJson["entities"] = json::array({ entityJson2, entityJson });
 	sceneJson["name"] = "Test Camera";
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
+	engine.Start();
+}
+
+TEST(Graphics2d, TestQuadtree)
+{
+	sfge::Engine engine;
+	auto config = std::make_unique<sfge::Configuration>();
+	config->gravity = b2Vec2(0, 0);
+	engine.Init(std::move(config));
+	json sceneJson;
+
+	json entitiesArray = json::array();
+	json entityJson2;
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
+	entitiesArray.push_back(entityJson2);
+
+
+
+	for (int i = 0; i < 10000; i++) {
+		json entityJson;
+
+		json spriteJson;
+		spriteJson["path"] = "data/sprites/other_play_x50.png";
+		spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+		json transformJson =
+		{
+			{ "position", { std::rand() % static_cast<int>(10000 * 2)-10000,  std::rand() % static_cast<int>(10000 * 2)-10000 } },
+			{ "angle", 0.0f },
+			{ "squale", { 0.5f, 0.5f} },
+			{ "type", static_cast<int>(sfge::ComponentType::TRANSFORM2D) },
+		};
+		entityJson["components"] = json::array({ spriteJson, transformJson });
+
+		entitiesArray.push_back(entityJson);
+	}
+
+
+
+	sceneJson["entities"] = entitiesArray;
+	sceneJson["name"] = "Test Quadtree";
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 	engine.Start();
 }
