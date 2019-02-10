@@ -213,6 +213,18 @@ private:
 
 	//Inventory task
 	std::vector<InventoryTask> m_InventoryTaskBT;
+
+	//Time of Day
+	const float m_DayDuration = 10;
+	const float m_NightDuration = 5;
+	float m_CurrentTime = 0;
+
+	enum DayState
+	{
+		DAY,
+		NIGHT
+	};
+	DayState m_DayState = DAY;
 };
 }
 
