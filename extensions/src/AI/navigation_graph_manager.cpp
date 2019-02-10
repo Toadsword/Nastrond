@@ -25,7 +25,7 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <utility/priority_queue.h>
 
-#include <extensions/navigation_graph_manager.h>
+#include <extensions/AI/navigation_graph_manager.h>
 
 namespace sfge::ext
 {

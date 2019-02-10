@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
-#include <extensions/navigation_graph_manager.h>
+#include <extensions/AI/navigation_graph_manager.h>
 #include <extensions/building_utilities.h>
 #include <extensions/building_manager.h>
 

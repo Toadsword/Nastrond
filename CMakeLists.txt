@@ -181,8 +181,27 @@ include_directories(include/)
 include_directories(extensions/include/)
 
 file(GLOB_RECURSE SFGE_EXTENSIONS_SRC extensions/src/*.cpp extensions/include/*.h)
-source_group("Extensions"            FILES ${SFGE_EXTENSIONS_SRC})
+ 
+macro(GroupSources curdir)
+   file(GLOB children RELATIVE ${CMAKE_SOURCE_DIR}/${curdir} ${CMAKE_SOURCE_DIR}/${curdir}/*)
+   foreach(child ${children})
+          if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/${curdir}/${child})
+                  GroupSources(${curdir}/${child})
+          else()
+                  string(REPLACE "/" "\\" groupname ${curdir})
+          # I would like to call the src root folder in a different name, only in visual studio (not mandatory requirement)
+				string(REPLACE "include\\extensions" "" groupname ${groupname})
+				string(REPLACE "src" "" groupname ${groupname})
+            source_group(${groupname} FILES ${CMAKE_SOURCE_DIR}/${curdir}/${child})
+          endif()
+   endforeach()
+endmacro()
+   
+# Execute the macro
+GroupSources(extensions)
 add_library(SFGE_COMMON STATIC ${SFGE_SRC} ${SFGE_EXTENSIONS_SRC})
+
+
 message("SFGE LIBRARIES : ${SFGE_LIBRARIES}")
 target_link_libraries(SFGE_COMMON PUBLIC ${SFGE_LIBRARIES})
 set_property(TARGET SFGE_COMMON PROPERTY CXX_STANDARD 17)

@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <extensions/behavior_tree_core.h>
+#include <extensions/AI/behavior_tree_core.h>
 #include <python/python_engine.h>
 #include <utility>
 

@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include <extensions/python_extensions.h>
 #include <extensions/planet_system.h>
-#include <extensions/navigation_graph_manager.h>
+#include <extensions/AI/navigation_graph_manager.h>
 #include <extensions/dwarf_manager.h>
 #include <extensions/mine_manager.h>
 #include <extensions/forge_manager.h>
@@ -38,7 +38,7 @@ SOFTWARE.
 
 #include <tools/tools_pch.h>
 #include <extensions/building_manager.h>
-#include "extensions/behavior_tree_core.h"
+#include "extensions/AI/behavior_tree_core.h"
 
 
 namespace sfge::ext

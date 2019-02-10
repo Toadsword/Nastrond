@@ -25,7 +25,7 @@ SOFTWARE.
 #ifndef SFGE_EXT_BEHAVIOR_TREE_NODE_H
 #define SFGE_EXT_BEHAVIOR_TREE_NODE_H
 
-#include <extensions/behavior_tree_core.h>
+#include <extensions/AI/behavior_tree_core.h>
 
 namespace sfge::ext::behavior_tree
 {

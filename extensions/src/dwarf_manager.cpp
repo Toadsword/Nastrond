@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <extensions/dwarf_manager.h>
 #include <python/python_engine.h>
-#include <extensions/behavior_tree_core.h>
+#include <extensions/AI/behavior_tree_core.h>
 
 namespace sfge::ext
 {
@@ -43,7 +43,7 @@ void DwarfManager::Init()
 		"BuildingManager");
 
 	//Associate behaviour tree
-	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>(
+	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
 		"BehaviorTree");
 	behaviorTree->SetEntities(&m_DwarfsEntities);
 
