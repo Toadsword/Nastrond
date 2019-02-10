@@ -22,12 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_EXT_BEHAVIOUR_TREE_NODE_H
-#define SFGE_EXT_BEHAVIOUR_TREE_NODE_H
+#ifndef SFGE_EXT_BEHAVIOR_TREE_NODE_H
+#define SFGE_EXT_BEHAVIOR_TREE_NODE_H
 
-#include <extensions/behaviour_tree_core.h>
+#include <extensions/behavior_tree_core.h>
 
-namespace sfge::ext::behaviour_tree
+namespace sfge::ext::behavior_tree
 {
 /**
  * author Nicolas Schneider
@@ -35,7 +35,7 @@ namespace sfge::ext::behaviour_tree
 class HasDwellingLeaf final : public Leaf
 {
 public:
-	HasDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	HasDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -46,7 +46,7 @@ public:
 class SetDwellingLeaf final : public Leaf
 {
 public:
-	SetDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	SetDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -57,7 +57,7 @@ public:
 class FindRandomPathLeaf final : public Leaf
 {
 public:
-	FindRandomPathLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindRandomPathLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -68,7 +68,7 @@ public:
 class FindPathToDwellingLeaf final : public Leaf
 {
 public:
-	FindPathToDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -79,7 +79,7 @@ public:
 class MoveToLeaf final : public Leaf
 {
 public:
-	MoveToLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	MoveToLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -90,7 +90,7 @@ public:
 class WaitForPathLeaf final : public Leaf
 {
 public:
-	WaitForPathLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	WaitForPathLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -101,7 +101,7 @@ public:
 class FindPathToWorkingPlaceLeaf final : public Leaf
 {
 public:
-	FindPathToWorkingPlaceLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -112,7 +112,7 @@ public:
 class FindPathToGiverLeaf final : public Leaf
 {
 public:
-	FindPathToGiverLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToGiverLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -123,7 +123,7 @@ public:
 class FindPathToReceiverLeaf final : public Leaf
 {
 public:
-	FindPathToReceiverLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToReceiverLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -134,7 +134,7 @@ public:
 class EnterDwellingLeaf final : public Leaf
 {
 public:
-	EnterDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	EnterDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -145,7 +145,7 @@ public:
 class ExitDwellingLeaf final : public Leaf
 {
 public:
-	ExitDwellingLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	ExitDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -156,7 +156,7 @@ public:
 class EnterWorkingPlaceLeaf final : public Leaf
 {
 public:
-	EnterWorkingPlaceLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	EnterWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -167,7 +167,7 @@ public:
 class ExitWorkingPlaceLeaf final : public Leaf
 {
 public:
-	ExitWorkingPlaceLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	ExitWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -178,7 +178,7 @@ public:
 class HasJobLeaf final : public Leaf
 {
 public:
-	HasJobLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	HasJobLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -189,7 +189,7 @@ public:
 class HasStaticJobLeaf final : public Leaf
 {
 public:
-	HasStaticJobLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	HasStaticJobLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -200,7 +200,7 @@ public:
 class AssignJobLeaf final : public Leaf
 {
 public:
-	AssignJobLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	AssignJobLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -211,7 +211,7 @@ public:
 class IsDayTimeLeaf final : public Leaf
 {
 public:
-	IsDayTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	IsDayTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -222,7 +222,7 @@ public:
 class IsNightTimeLeaf final : public Leaf
 {
 public:
-	IsNightTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	IsNightTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -233,7 +233,7 @@ public:
 class WaitDayTimeLeaf final : public Leaf
 {
 public:
-	WaitDayTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	WaitDayTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -244,7 +244,7 @@ public:
 class WaitNightTimeLeaf final : public Leaf
 {
 public:
-	WaitNightTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	WaitNightTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };

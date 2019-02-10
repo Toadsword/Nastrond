@@ -38,7 +38,7 @@ SOFTWARE.
 
 #include <tools/tools_pch.h>
 #include <extensions/building_manager.h>
-#include "extensions/behaviour_tree_core.h"
+#include "extensions/behavior_tree_core.h"
 
 
 namespace sfge::ext
@@ -88,7 +88,7 @@ void ExtendPython(py::module& m)
 	buildingManager
 		.def(py::init<Engine&>());
 
-	py::class_<behaviour_tree::BehaviourTree, System> behaviourTree(m, "BehaviourTree");
+	py::class_<behavior_tree::BehaviorTree, System> behaviourTree(m, "BehaviorTree");
 	behaviourTree
 		.def(py::init<Engine&>());
 

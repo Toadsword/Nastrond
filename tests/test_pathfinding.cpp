@@ -32,7 +32,7 @@ SOFTWARE.
 #include <python/python_engine.h>
 
 #include <extensions/python_extensions.h>
-#include <extensions/behaviour_tree_nodes.h>
+#include <extensions/behavior_tree_nodes.h>
 
 TEST(AI, PriorityQueue)
 {
@@ -80,9 +80,9 @@ TEST(AI, BehaviourTreeRandomPath)
 	auto* sceneManager = engine.GetSceneManager();
 
 	json sceneJson = {
-		{ "name", "Behaviour tree" } };
+		{ "name", "Behavior tree" } };
 	json systemJsonBehaviourTree = {
-		{ "systemClassName", "BehaviourTree" }
+		{ "systemClassName", "BehaviorTree" }
 	};
 	json systemJsonNavigation = {
 		{ "systemClassName", "NavigationGraphManager" }
@@ -98,26 +98,26 @@ TEST(AI, BehaviourTreeRandomPath)
 
 	sceneManager->LoadSceneFromJson(sceneJson);
 
-	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>("BehaviourTree");
+	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>("BehaviorTree");
 	
 	//Repeater
-	auto repeater = std::make_shared<sfge::ext::behaviour_tree::RepeaterDecorator>(behaviourTree, nullptr, 0);
+	auto repeater = std::make_shared<sfge::ext::behavior_tree::RepeaterDecorator>(behaviourTree, nullptr, 0);
 	behaviourTree->SetRootNode(repeater);
 
 	//Sequence
-	auto sequence = std::make_shared<sfge::ext::behaviour_tree::SequenceComposite>(behaviourTree, repeater);
+	auto sequence = std::make_shared<sfge::ext::behavior_tree::SequenceComposite>(behaviourTree, repeater);
 	repeater->SetChild(sequence);
 	
 	//Find random path
-	auto findPath = std::make_shared<sfge::ext::behaviour_tree::FindRandomPathLeaf>(behaviourTree, sequence);
+	auto findPath = std::make_shared<sfge::ext::behavior_tree::FindRandomPathLeaf>(behaviourTree, sequence);
 	sequence->AddChild(findPath);
 
 	//Has path
-	auto waitForPath = std::make_shared<sfge::ext::behaviour_tree::WaitForPathLeaf>(behaviourTree, sequence);
+	auto waitForPath = std::make_shared<sfge::ext::behavior_tree::WaitForPathLeaf>(behaviourTree, sequence);
 	sequence->AddChild(waitForPath);
 
 	//Follow path
-	auto followPath = std::make_shared<sfge::ext::behaviour_tree::MoveToLeaf>(behaviourTree, sequence);
+	auto followPath = std::make_shared<sfge::ext::behavior_tree::MoveToLeaf>(behaviourTree, sequence);
 	sequence->AddChild(followPath);
 	
 	engine.Start();

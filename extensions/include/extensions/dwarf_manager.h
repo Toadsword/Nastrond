@@ -52,11 +52,12 @@ public:
 
 	void Draw() override;
 
+#pragma region Instantiation / destruction of dwarf
 	/**
 	 * \brief Spawn a new Dwarf at the given position
 	 * \param pos where the dwarf will spawn
 	 */
-	void SpawnDwarf(const Vec2f pos);
+	void InstantiateDwarf(const Vec2f pos);
 
 	/**
 	 * \brief Destroy a dwarf using its entity
@@ -69,8 +70,9 @@ public:
 	 * \param index to destroy
 	 */
 	void DestroyDwarfByIndex(unsigned int index);
+#pragma endregion 
 
-	//Dwelling 
+#pragma region Building associated
 	/**
 	 * \brief Get the dwelling associated to a dwarf
 	 * \param index of the dwarf
@@ -78,32 +80,78 @@ public:
 	 */
 	Entity GetDwellingEntity(unsigned int index);
 
+	/**
+	 * \brief Return the position of the dwelling associated to the given dwarf
+	 * \param index of the dwarf
+	 * \return position of the dwelling
+	 */
 	Vec2f GetDwellingAssociatedPosition(unsigned int index);
 
+	/**
+	 * \brief Return the position of the current working place of the given dwarf
+	 * \param index  of the dwarfs
+	 * \return position of the working place
+	 */
 	Vec2f GetWorkingPlaceAssociatedPosition(unsigned int index);
+
 	 /**
 	 * \brief Assign a dwelling to a dwarf
 	 * \param index of the dwarf
 	 * \param dwellingEntity to assign to the dwarf
 	 */
 	bool AssignDwellingToDwarf(unsigned int index);
+#pragma endregion 
 
-	//Path related function
+#pragma region Path
+	
+	/**
+	 * \brief test if dwarf is at destination
+	 * \param index of the dwarf
+	 * \return true if at destination
+	 */
 	bool IsDwarfAtDestination(unsigned int index);
 
+	/**
+	 * \brief test if dwarf has a assigned path
+	 * \param index of the dwarf
+	 * \return true if has a path
+	 */
 	bool HasPath(unsigned int index);
 
+	/**
+	 * \brief call from the behaviour tree to add a request for a new path
+	 * \param index of the dwarf
+	 * \param destination position of the destination
+	 */
 	void AddFindPathToDestinationBT(unsigned int index, Vec2f destination);
 
+	/**
+	 * \brief call from the behaviour tree to add a resquest for a new path to a random position
+	 * \param index of the dwarf
+	 */
 	void AddFindRandomPathBT(unsigned int index);
 
+	/**
+	 * \brief call from the behaviour tree ta add a dwarf that must folow its path
+	 * \param index of the dwarf
+	 */
 	void AddPathFollowingBT(unsigned int index);
 
-	//Inventory task related function
+	/**
+	 * \brief call from the behavior tree to get a path from the dwarf to the giver
+	 * \param index of the dwarf
+	 */
 	void AddInventoryTaskPathToGiver(unsigned int index);
 
+	/**
+	 * \brief call from the behavior tree to get a path from the dwarf to the receiver
+	 * \param index of the dwarf
+	 */
 	void AddInventoryTaskPathToReceiver(unsigned int index);
+#pragma endregion 
 
+#pragma region Inventory task
+	// TODO enlever dès qu'il y a le merge avec le système de robin
 	struct InventoryTask final
 	{
 		Entity giver = INVALID_ENTITY;
@@ -114,30 +162,76 @@ public:
 		char resourceQuantity = 0;
 	};
 
+	/**
+	 * \brief call from the behavior tree to add a new inventory task to a given dwarf
+	 * \param index of the dwarfs
+	 * \param inventoryTask
+	 */
 	void AddInventoryTaskBT(unsigned int index, InventoryTask inventoryTask);
-
-	//enter/exiting building
-
+#pragma endregion 
+	
+#pragma region Enter / Exit building
+	/**
+	 * \brief call from the behavior tree when a dwarf enter its dwelling
+	 * \param index of the dwarf
+	 */
 	void DwarfEnterDwelling(unsigned int index);
 
+	/**
+	 * \brief call from the behavior tree when a dwarf exit its dwelling
+	 * \param index of the dwarf
+	 */
 	void DwarfExitDwelling(unsigned int index);
 
+	/**
+	 * \brief call from the behavior tree when a dwarf enter its working place
+	 * \param index of the dwarf
+	 */
 	void DwarfEnterWorkingPlace(unsigned int index);
 
+	/**
+	 * \brief call from the behavior tree when a dwarf exit its working place
+	 * \param index of the dwarf
+	 */
 	void DwarfExitWorkingPlace(unsigned int index);
-
-	//job related function
-
+#pragma endregion 
+	
+#pragma region Job
+	/**
+	 * \brief Test if a given dwarf has a job
+	 * \param index of the dwarf
+	 * \return true if the dwarf has a job
+	 */
 	bool HasJob(unsigned int index);
 
+	/**
+	 * \brief Test if a given dwarf has a static job inside a building
+	 * \param index of the dwarf
+	 * \return true if has a static job
+	 */
 	bool HasStaticJob(unsigned int index);
 
+	/**
+	 * \brief Assign a job to a dwarf
+	 * \param index of the dwarf
+	 * \return true if has been able to assign a new job
+	 */
 	bool AssignJob(unsigned int index);
+#pragma endregion 
 
-	//time related function
+#pragma region Time of the day
+	/**
+	 * \brief Test if it's day time
+	 * \return true if it's day time
+	 */
 	bool IsDayTime() const;
 
+	/**
+	* \brief Test if it's night time
+	* \return true if it's night time
+	*/
 	bool IsNightTime() const;
+#pragma endregion 
 
 private:
 	void ResizeContainers();

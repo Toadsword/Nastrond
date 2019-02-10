@@ -21,8 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef SFGE_EXT_BEHAVIOUR_TREE_CORE_H
-#define SFGE_EXT_BEHAVIOUR_TREE_CORE_H
+#ifndef SFGE_EXT_BEHAVIOR_TREE_CORE_H
+#define SFGE_EXT_BEHAVIOR_TREE_CORE_H
 
 #include <vector>
 #include <memory>
@@ -31,11 +31,10 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
-#include <extensions/dwelling_manager.h>
 
-namespace sfge::ext::behaviour_tree
+namespace sfge::ext::behavior_tree
 {
-class BehaviourTree;
+class BehaviorTree;
 
 /**
  * author Nicolas Schneider
@@ -48,7 +47,7 @@ public:
 	 */
 	using ptr = std::shared_ptr<Node>;
 
-	explicit Node(BehaviourTree* bt, ptr parentNode);
+	explicit Node(BehaviorTree* bt, ptr parentNode);
 	virtual ~Node() = default;
 
 	/**
@@ -69,17 +68,17 @@ public:
 	virtual void Execute(unsigned int index) = 0;
 
 protected:
-	BehaviourTree* m_BehaviourTree;
+	BehaviorTree* m_BehaviorTree;
 	ptr m_ParentNode;
 };
 
 /**
  * author Nicolas Schneider
  */
-class BehaviourTree final : public System
+class BehaviorTree final : public System
 {
 public:
-	explicit BehaviourTree(Engine& engine);
+	explicit BehaviorTree(Engine& engine);
 
 	void Init() override;
 
@@ -103,6 +102,7 @@ public:
 
 	std::vector<Entity>* entities;
 
+	//TODO est-ce que ça ferait plus de sens d'avoir un tableau de struct
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
 	std::vector<Node::Status> previousStatus;
@@ -125,7 +125,7 @@ private:
 class CompositeNode : public Node
 {
 public:
-	explicit CompositeNode(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
+	explicit CompositeNode(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
 
 	/**
 	 * \brief Add child to composite node
@@ -148,7 +148,7 @@ protected:
 class SequenceComposite final : public CompositeNode
 {
 public:
-	SequenceComposite(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
+	SequenceComposite(BehaviorTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -159,7 +159,7 @@ public:
 class SelectorComposite final : public CompositeNode
 {
 public:
-	SelectorComposite(BehaviourTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
+	SelectorComposite(BehaviorTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -171,7 +171,7 @@ class Decorator : public Node
 {
 public:
 
-	explicit Decorator(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
+	explicit Decorator(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
 
 	/**
 	 * \brief Set the child of the decorator node
@@ -195,7 +195,7 @@ protected:
 class RepeaterDecorator final : public Decorator
 {
 public:
-	RepeaterDecorator(BehaviourTree* bt, const ptr& parentNode, int limit = 0);
+	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, int limit = 0);
 
 	void Execute(unsigned int index) override;
 
@@ -209,7 +209,7 @@ private:
 class RepeatUntilFailDecorator final : public Decorator
 {
 public:
-	RepeatUntilFailDecorator(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) { }
+	RepeatUntilFailDecorator(BehaviorTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) { }
 
 	void Execute(unsigned int index) override;
 };
@@ -220,7 +220,7 @@ public:
 class InverterDecorator final : public Decorator
 {
 public:
-	InverterDecorator(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
+	InverterDecorator(BehaviorTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -231,7 +231,7 @@ public:
 class SucceederDecorator final : public Decorator
 {
 public:
-	SucceederDecorator(BehaviourTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
+	SucceederDecorator(BehaviorTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -242,7 +242,7 @@ public:
 class Leaf : public Node
 {
 public:
-	explicit Leaf(BehaviourTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
+	explicit Leaf(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
 };
 }
 

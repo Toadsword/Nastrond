@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <extensions/dwarf_manager.h>
 #include <python/python_engine.h>
-#include <extensions/behaviour_tree_core.h>
+#include <extensions/behavior_tree_core.h>
 
 namespace sfge::ext
 {
@@ -43,9 +43,9 @@ void DwarfManager::Init()
 		"BuildingManager");
 
 	//Associate behaviour tree
-	auto* behaviourTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behaviour_tree::BehaviourTree>(
-		"BehaviourTree");
-	behaviourTree->SetEntities(&m_DwarfsEntities);
+	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>(
+		"BehaviorTree");
+	behaviorTree->SetEntities(&m_DwarfsEntities);
 
 	//Read config
 	const auto config = m_Engine.GetConfig();
@@ -65,7 +65,7 @@ void DwarfManager::Init()
 	{
 		const Vec2f pos(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
 
-		SpawnDwarf(pos);
+		InstantiateDwarf(pos);
 	}
 #endif
 
@@ -79,7 +79,7 @@ void DwarfManager::Init()
 	m_JobBuildingType.push(BuildingManager::BuildingType::MUSHROOM_FARM);
 }
 
-void DwarfManager::SpawnDwarf(const Vec2f pos)
+void DwarfManager::InstantiateDwarf(const Vec2f pos)
 {
 	auto* entityManager = m_Engine.GetEntityManager();
 	Configuration* configuration = m_Engine.GetConfig();
@@ -365,9 +365,9 @@ void DwarfManager::ResizeContainers()
 	m_IndexesToDraw.resize(newSize);
 
 	//Associate behaviour tree
-	auto* behaviourTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behaviour_tree::BehaviourTree>(
-		"BehaviourTree");
-	behaviourTree->SetEntities(&m_DwarfsEntities);
+	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
+		"BehaviorTree");
+	behaviorTree->SetEntities(&m_DwarfsEntities);
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlaceType.resize(newSize, BuildingManager::BuildingType::NONE);

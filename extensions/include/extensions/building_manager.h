@@ -67,13 +67,13 @@ namespace sfge::ext
 			LENGTH
 		};
 
-		void DwarfEnterBuilding(BuildingType buildingType, Entity entity);
+		void DwarfEnterBuilding(BuildingType buildingType, Entity entity) {};
 
-		void DwarfExitBuilding(BuildingType buildingType, Entity entity);
+		void DwarfExitBuilding(BuildingType buildingType, Entity entity) {};
 
-		Entity GetDwellingFreeSlots();
+		Entity GetDwellingFreeSlots() { return INVALID_ENTITY; };
 
-		void AddDwarfToBuilding(Entity dwellingEntity);
+		void AddDwarfToBuilding(Entity dwellingEntity) {};
 
 		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
 
