@@ -344,6 +344,16 @@ bool DwarfManager::AssignJob(const unsigned int index)
 	return false;
 }
 
+bool DwarfManager::IsDayTime() const
+{
+	return m_DayState == DAY;
+}
+
+bool DwarfManager::IsNightTime() const
+{
+	return m_DayState == NIGHT;
+}
+
 void DwarfManager::ResizeContainers()
 {
 	const auto newSize = m_DwarfsEntities.size() + m_ContainersExtender;
@@ -435,6 +445,26 @@ void DwarfManager::Update(float dt)
 		m_IndexPathFollowingBT = 0;
 	}
 
+	//Update current time
+	m_CurrentTime += dt;
+	switch (m_DayState)
+	{
+	case DAY: 
+		if(m_CurrentTime > m_DayDuration)
+		{
+			m_CurrentTime = 0;
+			m_DayState = DayState::NIGHT;
+		}
+		break;
+	case NIGHT:
+		if (m_CurrentTime > m_NightDuration)
+		{
+			m_CurrentTime = 0;
+			m_DayState = DayState::DAY;
+		}
+		break;
+	default: ;
+	}
 }
 
 void DwarfManager::FixedUpdate() {}

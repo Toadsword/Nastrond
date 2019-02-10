@@ -81,25 +81,25 @@ public:
 	Vec2f GetDwellingAssociatedPosition(unsigned int index);
 
 	Vec2f GetWorkingPlaceAssociatedPosition(unsigned int index);
-
-	/**
+	 /**
 	 * \brief Assign a dwelling to a dwarf
 	 * \param index of the dwarf
 	 * \param dwellingEntity to assign to the dwarf
 	 */
 	bool AssignDwellingToDwarf(unsigned int index);
 
+	//Path related function
 	bool IsDwarfAtDestination(unsigned int index);
 
 	bool HasPath(unsigned int index);
 
-	//Behaviour tree communication function
 	void AddFindPathToDestinationBT(unsigned int index, Vec2f destination);
 
 	void AddFindRandomPathBT(unsigned int index);
 
 	void AddPathFollowingBT(unsigned int index);
 
+	//Inventory task related function
 	void AddInventoryTaskPathToGiver(unsigned int index);
 
 	void AddInventoryTaskPathToReceiver(unsigned int index);
@@ -116,6 +116,8 @@ public:
 
 	void AddInventoryTaskBT(unsigned int index, InventoryTask inventoryTask);
 
+	//enter/exiting building
+
 	void DwarfEnterDwelling(unsigned int index);
 
 	void DwarfExitDwelling(unsigned int index);
@@ -124,11 +126,18 @@ public:
 
 	void DwarfExitWorkingPlace(unsigned int index);
 
+	//job related function
+
 	bool HasJob(unsigned int index);
 
 	bool HasStaticJob(unsigned int index);
 
 	bool AssignJob(unsigned int index);
+
+	//time related function
+	bool IsDayTime() const;
+
+	bool IsNightTime() const;
 
 private:
 	void ResizeContainers();

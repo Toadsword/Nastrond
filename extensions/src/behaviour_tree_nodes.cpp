@@ -220,7 +220,64 @@ void AssignJobLeaf::Execute(const unsigned int index)
 	else
 	{
 		m_BehaviourTree->previousStatus[index] = Status::FAIL;
-
 	}
 }
+
+	void IsDayTimeLeaf::Execute(const unsigned int index)
+	{
+		m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+		m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+		if(m_BehaviourTree->dwarfManager->IsDayTime())
+		{
+			m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+		}
+		else
+		{
+			m_BehaviourTree->previousStatus[index] = Status::FAIL;
+		}
+	}
+
+	void IsNightTimeLeaf::Execute(const unsigned int index)
+	{
+		m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+		m_BehaviourTree->currentNode[index] = m_ParentNode;
+
+		if (m_BehaviourTree->dwarfManager->IsNightTime())
+		{
+			m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+		}
+		else
+		{
+			m_BehaviourTree->previousStatus[index] = Status::FAIL;
+		}
+	}
+
+	void WaitDayTimeLeaf::Execute(const unsigned int index)
+	{
+		if (m_BehaviourTree->dwarfManager->IsDayTime())
+		{
+			m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+			m_BehaviourTree->currentNode[index] = m_ParentNode;
+			m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+		}
+		else
+		{
+			m_BehaviourTree->previousStatus[index] = Status::RUNNING;
+		}
+	}
+
+	void WaitNightTimeLeaf::Execute(const unsigned int index)
+	{
+		if (m_BehaviourTree->dwarfManager->IsNightTime())
+		{
+			m_BehaviourTree->doesFlowGoDown[index] = m_BehaviourTree->flowGoUp;
+			m_BehaviourTree->currentNode[index] = m_ParentNode;
+			m_BehaviourTree->previousStatus[index] = Status::SUCCESS;
+		}
+		else
+		{
+			m_BehaviourTree->previousStatus[index] = Status::RUNNING;
+		}
+	}
 }

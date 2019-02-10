@@ -204,5 +204,49 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+
+/**
+* author Nicolas Schneider
+*/
+class IsDayTimeLeaf final : public Leaf
+{
+public:
+	IsDayTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class IsNightTimeLeaf final : public Leaf
+{
+public:
+	IsNightTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class WaitDayTimeLeaf final : public Leaf
+{
+public:
+	WaitDayTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+
+/**
+* author Nicolas Schneider
+*/
+class WaitNightTimeLeaf final : public Leaf
+{
+public:
+	WaitNightTimeLeaf(BehaviourTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
 }
 #endif
