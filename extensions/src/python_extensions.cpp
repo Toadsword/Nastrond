@@ -38,7 +38,7 @@ SOFTWARE.
 
 #include <tools/tools_pch.h>
 #include <extensions/building_manager.h>
-#include "extensions/AI/behavior_tree_core.h"
+#include <extensions/AI/behavior_tree.h>
 
 
 namespace sfge::ext

@@ -21,9 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <extensions/AI/behavior_tree_core.h>
 #include <python/python_engine.h>
 #include <utility>
+
+#include <extensions/AI/behavior_tree_nodes_core.h>
+#include <extensions/AI/behavior_tree.h>
 
 namespace sfge::ext::behavior_tree
 {
@@ -31,72 +33,6 @@ Node::Node(BehaviorTree* bt, ptr parentNode)
 {
 	m_BehaviorTree = bt;
 	m_ParentNode = std::move(parentNode);
-}
-
-BehaviorTree::BehaviorTree(sfge::Engine& engine) : System(engine) { }
-
-void BehaviorTree::Init()
-{
-	dwarfManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwarfManager>("DwarfManager");
-}
-
-void BehaviorTree::Update(float dt)
-{
-	if (currentNode.size() < entities->size())
-	{
-		currentNode.resize(entities->size(), m_RootNode);
-		doesFlowGoDown.resize(entities->size());
-		previousStatus.resize(entities->size());
-		repeaterCounter.resize(entities->size(), 0);
-		sequenceActiveChild.resize(entities->size(), 0);
-	}
-
-	for (size_t i = 0; i < entities->size(); i++)
-	{
-		if (entities->at(i) == INVALID_ENTITY)
-		{
-			continue;
-		}
-
-		currentNode[i]->Execute(i);
-	}
-}
-
-void BehaviorTree::FixedUpdate() { }
-
-void BehaviorTree::Draw() { }
-
-void BehaviorTree::LoadNodesFromJson(json& behaviorTreeJson)
-{
-	if (CheckJsonParameter(behaviorTreeJson, "rootNode", json::value_t::array))
-	{
-		if (CheckJsonExists(behaviorTreeJson, "type"))
-		{
-			const NodeType nodeType = behaviorTreeJson["type"];
-
-			switch (nodeType) { 
-			case NodeType::NONE: {
-				std::ostringstream oss;
-				oss << "[Error] No type specified for root node : " << behaviorTreeJson;
-				Log::GetInstance()->Error(oss.str());
-			}
-				break;
-			case NodeType::LEAF: break;
-			case NodeType::COMPOSITE: break;
-			case NodeType::DECORATOR: break;
-			default: ; }
-		}
-	}
-}
-
-void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
-{
-	m_RootNode = rootNode;
-}
-
-void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
-{
-	entities = vectorEntities;
 }
 
 RepeaterDecorator::RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, const int limit) : DecoratorNode(bt, parentNode)

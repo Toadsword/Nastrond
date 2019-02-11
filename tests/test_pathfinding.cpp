@@ -32,7 +32,8 @@ SOFTWARE.
 #include <python/python_engine.h>
 
 #include <extensions/python_extensions.h>
-#include <extensions/AI/behavior_tree_nodes.h>
+#include <extensions/AI/behavior_tree.h>
+#include <extensions/AI/behavior_tree_nodes_extension.h>
 
 TEST(AI, PriorityQueue)
 {
@@ -121,4 +122,8 @@ TEST(AI, BehaviourTreeRandomPath)
 	sequence->AddChild(followPath);
 	
 	engine.Start();
+}
+
+TEST(AI, BehaviourTreeLoadRandomPathFromJson)
+{
 }

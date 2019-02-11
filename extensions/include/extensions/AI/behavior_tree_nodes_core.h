@@ -21,16 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef SFGE_EXT_BEHAVIOR_TREE_CORE_H
-#define SFGE_EXT_BEHAVIOR_TREE_CORE_H
+#ifndef SFGE_EXT_BEHAVIOR_TREE_NODES_CORE_H
+#define SFGE_EXT_BEHAVIOR_TREE_NODES_CORE_H
 
 #include <vector>
 #include <memory>
-
-#include <engine/system.h>
-#include <engine/globals.h>
-
-#include <extensions/dwarf_manager.h>
 
 namespace sfge::ext::behavior_tree
 {
@@ -65,58 +60,19 @@ public:
 	 * \param index of the dwarf
 	 * \return 
 	 */
-	virtual void Execute(unsigned int index) = 0;
+	virtual void Execute(unsigned int index) {}; //TODO trouver un moyen de la remettre en virtual pure
 
 protected:
 	BehaviorTree* m_BehaviorTree;
 	ptr m_ParentNode;
 };
 
-/**
- * author Nicolas Schneider
- */
-class BehaviorTree final : public System
+enum class NodeType : char
 {
-public:
-	explicit BehaviorTree(Engine& engine);
-
-	void Init() override;
-
-	void Update(float dt) override;
-
-	void FixedUpdate() override;
-
-	void Draw() override;
-
-	/**
-	 * \brief Set root node of the behaviour tree
-	 * \param rootNode 
-	 */
-	void SetRootNode(const Node::ptr& rootNode);
-
-	/**
-	 * \brief Set array of entity that use the behaviour tree
-	 * \param vectorEntities 
-	 */
-	void SetEntities(std::vector<Entity>* vectorEntities);
-
-	std::vector<Entity>* entities;
-
-	//TODO est-ce que ça ferait plus de sens d'avoir un tableau de struct
-	std::vector<Node::ptr> currentNode;
-	std::vector<bool> doesFlowGoDown;
-	std::vector<Node::Status> previousStatus;
-
-	std::vector<char> repeaterCounter;
-	std::vector<char> sequenceActiveChild;
-
-	DwarfManager* dwarfManager;
-
-	const bool flowGoDown = true;
-	const bool flowGoUp = false;
-
-private:
-	Node::ptr m_RootNode = nullptr;
+	NONE = 0,
+	LEAF = 1 << 0,
+	COMPOSITE = 1 << 1,
+	DECORATOR = 1 << 2,
 };
 
 /**
@@ -167,11 +123,11 @@ public:
 /**
 * author Nicolas Schneider
 */
-class Decorator : public Node
+class DecoratorNode : public Node
 {
 public:
 
-	explicit Decorator(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
+	explicit DecoratorNode(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
 
 	/**
 	 * \brief Set the child of the decorator node
@@ -192,7 +148,7 @@ protected:
 /**
 * author Nicolas Schneider
 */
-class RepeaterDecorator final : public Decorator
+class RepeaterDecorator final : public DecoratorNode
 {
 public:
 	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, int limit = 0);
@@ -206,10 +162,10 @@ private:
 /**
 * author Nicolas Schneider
 */
-class RepeatUntilFailDecorator final : public Decorator
+class RepeatUntilFailDecorator final : public DecoratorNode
 {
 public:
-	RepeatUntilFailDecorator(BehaviorTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) { }
+	RepeatUntilFailDecorator(BehaviorTree* bt, const ptr& parentNode) : DecoratorNode(bt, parentNode) { }
 
 	void Execute(unsigned int index) override;
 };
@@ -217,10 +173,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class InverterDecorator final : public Decorator
+class InverterDecorator final : public DecoratorNode
 {
 public:
-	InverterDecorator(BehaviorTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
+	InverterDecorator(BehaviorTree* bt, const ptr& parentNode) : DecoratorNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -228,10 +184,10 @@ public:
 /**
 * author Nicolas Schneider
 */
-class SucceederDecorator final : public Decorator
+class SucceederDecorator final : public DecoratorNode
 {
 public:
-	SucceederDecorator(BehaviorTree* bt, const ptr& parentNode) : Decorator(bt, parentNode) {}
+	SucceederDecorator(BehaviorTree* bt, const ptr& parentNode) : DecoratorNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };

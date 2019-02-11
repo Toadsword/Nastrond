@@ -1,0 +1,29 @@
+{
+	"rootNode": [{
+			"name": "RepeaterDecorator",
+			"type" : 4,
+			"limit": 0,
+			"childs": [{
+					"nodes": [{
+							"name": "SequenceComposite",
+							"type" : 2,
+							"childs": {
+								"nodes": [{
+										"name": "FindRandomPathLeaf",
+										"type" : 1
+									}, {
+										"name": "WaitForPathLeaf",
+										"type" : 1
+									}, {
+										"name": "MoveToLeaf",
+										"type" : 1
+									}
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/AI/behavior_tree_nodes.h>
+#include <extensions/AI/behavior_tree_nodes_extension.h>
+#include <extensions/AI/behavior_tree.h>
 
 namespace sfge::ext::behavior_tree
 {

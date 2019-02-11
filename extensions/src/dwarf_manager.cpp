@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <extensions/dwarf_manager.h>
 #include <python/python_engine.h>
-#include <extensions/AI/behavior_tree_core.h>
+#include <extensions/AI/behavior_tree.h>
 
 namespace sfge::ext
 {

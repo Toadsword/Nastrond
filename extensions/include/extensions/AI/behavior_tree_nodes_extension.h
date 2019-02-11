@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_EXT_BEHAVIOR_TREE_NODE_H
-#define SFGE_EXT_BEHAVIOR_TREE_NODE_H
+#ifndef SFGE_EXT_BEHAVIOR_TREE_NODE_EXTENSION_H
+#define SFGE_EXT_BEHAVIOR_TREE_NODE_EXTENSION_H
 
-#include <extensions/AI/behavior_tree_core.h>
+#include <extensions/AI/behavior_tree_nodes_core.h>
 
 namespace sfge::ext::behavior_tree
 {
