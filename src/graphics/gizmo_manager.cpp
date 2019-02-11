@@ -52,16 +52,31 @@ void Gizmo::Draw(sf::RenderWindow& window) const
 {
 	if (m_Gizmo != nullptr)
 	{
-		window.draw(*m_Gizmo);
+		//window.draw(*m_Gizmo);
+		sf::VertexArray quad(sf::Quads, 4);
+
+		// on le définit comme un rectangle, placé en (10, 10) et de taille 100x100
+		quad[0].position = sf::Vector2f(40, 40);
+		quad[1].position = sf::Vector2f(140, 40);
+		quad[2].position = sf::Vector2f(140, 140);
+		quad[3].position = sf::Vector2f(40, 140);
+
+		quad[0].color = sf::Color::Green;
+		quad[0].color = sf::Color::Green;
+		quad[0].color = sf::Color::Green;
+		quad[0].color = sf::Color::Green;
+
+		window.draw(quad);
 	}
 }
 
-void Gizmo::SetFillColor(sf::Color color) const
-{
-	if (m_Gizmo)
-		m_Gizmo->setFillColor(color);
-}
 
+/*
+for circle, use : You approximate a circle with a polygon of many points. The points have the following positions:
+center.x + radius * cos(angle)
+center.y + radius * sin(angle)
+angle is increased stepwise, so it's uniformly distributed in [0, 2*pi[.
+*/
 void Gizmo::Update(float dt, Transform2d* transform) const
 {
 	(void) dt;
@@ -77,48 +92,6 @@ void Gizmo::Update(float dt, Transform2d* transform) const
 		m_Gizmo->setPosition(newPosition);
 	}
 }
-void Gizmo::SetGizmo(std::unique_ptr<sf::Gizmo> gizmo)
-{
-	m_Gizmo = std::move(gizmo);
-}
-sf::Gizmo *Gizmo::GetGizmo()
-{
-	return m_Gizmo.get ();
-}
-
-void editor::GizmoInfo::DrawOnInspector ()
-{
-	if(gizmoPtr != nullptr && gizmoPtr->GetGizmo() != nullptr)
-	{
-		ImGui::Separator();
-		ImGui::Text("Gizmo");
-
-		float offset[2] =
-		{
-			gizmoPtr->GetOffset().x,
-			gizmoPtr->GetOffset().y
-		};
-
-		ImGui::InputFloat2("Offset", offset);
-		auto circleGizmo = dynamic_cast<sf::CircleGizmo*>(gizmoPtr->GetGizmo());
-		if(circleGizmo != nullptr)
-		{
-			float radius = circleGizmo->getRadius ();
-			ImGui::InputFloat ("Radius", &radius);
-		}
-
-		auto rectGizmo = dynamic_cast<sf::RectangleGizmo*>(gizmoPtr->GetGizmo());
-		if(rectGizmo != nullptr)
-		{
-			float size[2] =
-			{
-				rectGizmo->getSize ().x,
-				rectGizmo->getSize ().y
-			};
-			ImGui::InputFloat2("Size", size);
-		}
-	}
-}
 
 void GizmoManager::Init()
 {
@@ -126,7 +99,7 @@ void GizmoManager::Init()
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
 }
 
-
+/*
 void GizmoManager::DrawGizmo(sf::RenderWindow &window)
 {
 
@@ -139,7 +112,9 @@ void GizmoManager::DrawGizmo(sf::RenderWindow &window)
 		}
 	}
 }
+*/
 
+/*
 void GizmoManager::Update(const float dt)
 {
 
@@ -153,7 +128,7 @@ void GizmoManager::Update(const float dt)
 	}
 	
 }
-
+*/
 void GizmoManager::Clear()
 {
 	m_Components.clear ();
@@ -162,7 +137,7 @@ void GizmoManager::Clear()
 }
 
 
-
+/*
 Gizmo *GizmoManager::AddComponent (Entity entity)
 {
 	auto GizmoPtr = GetComponentPtr (entity);
@@ -171,7 +146,9 @@ Gizmo *GizmoManager::AddComponent (Entity entity)
 	m_ComponentsInfo[entity - 1].SetEntity(entity);
 	return GizmoPtr;
 }
+*/
 
+/*
 void GizmoManager::CreateComponent(json& componentJson, Entity entity)
 {
 	//Log::GetInstance()->Msg("Create component Gizmo");
@@ -242,7 +219,7 @@ void GizmoManager::CreateComponent(json& componentJson, Entity entity)
 	
 	
 }
-
+*/
 void GizmoManager::DestroyComponent(Entity entity)
 {
 	(void) entity;

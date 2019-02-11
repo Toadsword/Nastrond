@@ -54,10 +54,8 @@ public:
   	Gizmo ( const Gizmo & ) = delete; //delete copy constructor
   	virtual ~Gizmo();
 	void Draw(sf::RenderWindow& window) const;
-	void SetFillColor(sf::Color color) const;
 	void Update(float dt, Transform2d* transform) const;
-	void SetGizmo(std::unique_ptr<sf::Gizmo> gizmo);
-	sf::Gizmo* GetGizmo();
+
 protected:
 	std::unique_ptr<sf::Gizmo> m_Gizmo = nullptr;
 };
@@ -67,8 +65,6 @@ namespace editor
 
 struct GizmoInfo : ComponentInfo
 {
-
-	void DrawOnInspector() override;
 	Gizmo* gizmoPtr;
 };
 
@@ -83,12 +79,12 @@ public:
 	GizmoManager(GizmoManager&& gizmoManager) = default;
 
 	void Init() override;
-	void DrawGizmo(sf::RenderWindow &window);
-	void Update(float dt) override;
+	//void DrawGizmo(sf::RenderWindow &window);
+	//void Update(float dt) override;
 	void Clear() override;
 
-	Gizmo* AddComponent(Entity entity) override;
-	void CreateComponent(json& componentJson, Entity entity) override;
+	//Gizmo* AddComponent(Entity entity) override;
+	//void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
 	void OnResize(size_t new_size) override;
