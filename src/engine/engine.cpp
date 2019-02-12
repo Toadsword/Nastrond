@@ -215,7 +215,6 @@ void Engine::Clear()
 
 void Engine::Collect() 
 {
-
 	m_SystemsContainer->entityManager.Collect();
 	m_SystemsContainer->graphics2dManager.Collect();
 	m_SystemsContainer->audioManager.Collect();
@@ -224,6 +223,18 @@ void Engine::Collect()
 	m_SystemsContainer->pythonEngine.Collect();
 	m_SystemsContainer->editor.Collect();
 	m_SystemsContainer->physicsManager.Collect();
+}
+
+void Engine::Save()
+{
+	//Loop sur toutes les entitées
+
+	for (int i = 0; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
+	{
+		//Lancer le save sur chaque manager, si le bitmask contient celui du manager
+		//Pour chaque manager, récup les données passées par ceux-ci
+
+	}
 }
 
 

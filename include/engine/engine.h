@@ -89,6 +89,8 @@ public:
 	*/
 	void Collect();
 
+	void Save();
+
 	~Engine();
 	/**
 	* \brief A getter of the Configuration
