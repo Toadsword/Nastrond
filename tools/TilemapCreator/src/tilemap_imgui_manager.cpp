@@ -223,6 +223,9 @@ namespace sfge::tools
 			{
 				Transform2dManager* transform2dManager = m_TilemapCreator->GetEngine().GetTransform2dManager();
 				transform2dManager->GetComponentPtr(m_TileEditorId)->Position = transform2dManager->GetComponentPtr(tilePosEntity)->Position;
+				
+				/*** Displays the coordinates of the cursor and which tile it points.
+
 				ImGui::Separator();
 				ImGui::Text(m_EntityManager->GetEntityInfo(tilePosEntity).name.c_str());
 				int pos[2] = { transform2dManager->GetComponentPtr(tilePosEntity)->Position.x, transform2dManager->GetComponentPtr(tilePosEntity)->Position.y };
@@ -230,6 +233,12 @@ namespace sfge::tools
 
 				int posMouse[2] = { m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().x, m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().y};
 				ImGui::InputInt2("pos mouse :", posMouse);
+				*/
+
+				if(m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().IsButtonDown(sf::Mouse::Left))
+				{
+					m_TilemapCreator->GetTileTypeManager()->SetTileTexture(tilePosEntity, m_SelectedTileType);
+				}
 			}
 		}
 	}
