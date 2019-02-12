@@ -187,7 +187,6 @@ CameraManager* Graphics2dManager::GetCameraManager()
 	return &m_CameraManager;
 }
 
-
 void Graphics2dManager::CheckVersion() const
 {
 	sf::ContextSettings settings = m_Window->getSettings();
@@ -201,7 +200,6 @@ void checkVersion()
 {
 
 }
-
 
 void Graphics2dManager::Destroy()
 {

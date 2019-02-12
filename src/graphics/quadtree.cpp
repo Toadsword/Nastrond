@@ -25,18 +25,19 @@ namespace sfge {
 				color = sf::Color::Red;
 			}
 
-			sf::VertexArray vertices(sf::LineStrip, 5);
-			vertices[0].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
-			vertices[0].color = color;
-			vertices[1].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
-			vertices[0].color = color;
-			vertices[2].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
-			vertices[0].color = color;
-			vertices[3].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
-			vertices[0].color = color;
-			vertices[4].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
-			vertices[4].color = color;
-			window->draw(vertices);
+			//sf::VertexArray vertices(sf::LineStrip, 5);
+			//vertices[0].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
+			//vertices[0].color = color;
+			//vertices[1].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
+			//vertices[0].color = color;
+			//vertices[2].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
+			//vertices[0].color = color;
+			//vertices[3].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
+			//vertices[0].color = color;
+			//vertices[4].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
+			//vertices[4].color = color;
+			//window->draw(vertices);
+			
 			if (ne != nullptr)
 			{
 				ne->Draw(window);
@@ -93,6 +94,36 @@ namespace sfge {
 
 			qCentre = PointOcc(boundary.centre.x + qSize.x, boundary.centre.y + qSize.y);
 			se = new QuadtreeOcc(AABBOcc(nullptr, qCentre, qSize));
+
+			std::vector<AABBOcc>::iterator it = objects.begin();
+
+			std::vector<AABBOcc> tmp_vector = objects;
+			for(auto element : objects)
+			{	
+				bool move = false;
+				if (nw->insert(element))
+				{
+					move = true;
+				}
+				if (ne->insert(element))
+				{
+					move = true;
+				}
+				if (sw->insert(element))
+				{
+					move = true;
+				}
+				if (se->insert(element))
+				{
+					move = true;
+				}
+
+				if(!move)
+				{
+					tmp_vector.push_back(element);
+				}
+			}
+			objects = tmp_vector;
 		}
 		void QuadtreeOcc::CheckCamera(AABBOcc camera)
 		{
@@ -122,12 +153,15 @@ namespace sfge {
 
 		bool QuadtreeOcc::insert(AABBOcc d)
 		{
-			if (!boundary.contains(d.centre))
+			if(!boundary.intersects(d))
 			{
 				return false;
 			}
 
-			queryRange(d);
+			if (!boundary.contains(d.centre))
+			{
+				return false;
+			}
 
 			if (objects.size() < CAPACITY)
 			{
@@ -135,10 +169,12 @@ namespace sfge {
 				return true;
 			}
 
+
 			if (nw == NULL)
 			{
 				subdivide();
 			}
+
 
 			if (nw->insert(d))
 			{
@@ -156,7 +192,8 @@ namespace sfge {
 			{
 				return true;
 			}
-
+			
+			objects.push_back(d);
 			return false;
 		}
 
