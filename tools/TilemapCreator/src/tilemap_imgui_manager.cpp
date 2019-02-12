@@ -44,6 +44,10 @@ namespace sfge::tools
 		m_TilemapCreator = engine;
 		m_EntityManager = engine->GetEngine().GetEntityManager();
 		m_IsInit = true;
+
+		m_TileEditorId = m_EntityManager->CreateEntity(INVALID_ENTITY);
+		m_EntityManager->GetEntityInfo(m_TileEditorId).name = "EditorTile";
+		m_TileEditor = m_TilemapCreator->GetEngine().GetTilemapSystem()->GetTileManager()->AddComponent(m_TileEditorId);
 	}
 
 	void TilemapImguiManager::Update(float dt)
@@ -183,6 +187,8 @@ namespace sfge::tools
 		if (m_SelectedTilemap != INVALID_ENTITY)
 			DrawTilemapInformations();
 
+		ImGui::Separator();
+
 		if (ImGui::CollapsingHeader("List of Tiletypes"))
 		{
 			std::vector<size_t> tileTypes = m_TilemapCreator->GetTileTypeManager()->GetAllTileTypeIds();
@@ -204,6 +210,26 @@ namespace sfge::tools
 					if (selectedOne)
 						m_SelectedTileType = index;
 				}
+			}
+		}
+
+		/* Displays the tileEditor on the right position on screen */
+		if(m_SelectedTileType != INVALID_TILE_TYPE && m_SelectedTilemap != INVALID_TILE_TYPE)
+		{
+			m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_TileEditorId, m_SelectedTileType);
+			
+			Entity tilePosEntity = m_TilemapCreator->GetTilemapManager()->GetTileEntityFromMouse(m_SelectedTilemap);
+			if(tilePosEntity != INVALID_ENTITY)
+			{
+				Transform2dManager* transform2dManager = m_TilemapCreator->GetEngine().GetTransform2dManager();
+				transform2dManager->GetComponentPtr(m_TileEditorId)->Position = transform2dManager->GetComponentPtr(tilePosEntity)->Position;
+				ImGui::Separator();
+				ImGui::Text(m_EntityManager->GetEntityInfo(tilePosEntity).name.c_str());
+				int pos[2] = { transform2dManager->GetComponentPtr(tilePosEntity)->Position.x, transform2dManager->GetComponentPtr(tilePosEntity)->Position.y };
+				ImGui::InputInt2("pos tile :", pos);
+
+				int posMouse[2] = { m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().x, m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().y};
+				ImGui::InputInt2("pos mouse :", posMouse);
 			}
 		}
 	}

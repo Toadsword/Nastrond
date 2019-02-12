@@ -33,7 +33,7 @@
 #include <graphics/texture.h>
 #include <engine/engine.h>
 #include <engine/tile_asset.h>
-
+#include <input/input.h>
 
 namespace sfge
 {
@@ -72,7 +72,8 @@ namespace sfge
 
 	void Tilemap::SetTileScale(Vec2f newScale)
 	{
-		m_TileScale = newScale;
+		if(newScale.x > 0 && newScale.x > 0)
+			m_TileScale = newScale;
 	}
 
 	Vec2f Tilemap::GetTileScale()
@@ -124,7 +125,10 @@ namespace sfge
 
 	Entity Tilemap::GetTileAt(Vec2f pos)
 	{
-		return m_Tiles[pos.x][pos.y];
+		Vec2f size = GetSize();
+		if(pos.x >= 0 && pos.y >= 0 && size.x > pos.x && size.y > pos.y)
+			return m_Tiles[pos.x][pos.y];
+		return INVALID_ENTITY;
 	}
 
 	void Tilemap::ResizeTilemap(Vec2f newSize)
@@ -417,6 +421,40 @@ namespace sfge
 				}
 			}
 		}
+	}
+
+	Vec2f TilemapManager::GetTilePositionFromMouse(Entity entity)
+	{
+		auto & tilemap = m_Components[entity - 1];
+		const sf::Vector2i worldPosSf = m_Engine.GetInputManager()->GetMouseManager().GetWorldPosition();
+		Vec2f worldPos = Vec2f(worldPosSf.x, worldPosSf.y);
+
+		Vec2f tilemapPos = m_Transform2dManager->GetComponentPtr(entity)->Position;
+		const Vec2f mapSize = tilemap.GetSize();
+
+		const Vec2f tileScale = tilemap.GetTileScale();
+		Vec2f xPos, yPos;
+		Vec2f deltaPos = worldPos - tilemapPos;
+		Vec2f indexToFind = Vec2f(0, 0);
+
+		if (tilemap.GetIsometric())
+		{
+			indexToFind.x = (deltaPos.x / tileScale.x + deltaPos.y / tileScale.y ) - 1.0f;
+			indexToFind.y = (deltaPos.y / tileScale.y - deltaPos.x / tileScale.x) + 0.4f;
+		}
+		else
+		{
+			indexToFind.x = deltaPos.x / tileScale.x;
+			indexToFind.y = deltaPos.y / tileScale.y;
+		}
+		return indexToFind;
+	}
+
+	Entity TilemapManager::GetTileEntityFromMouse(Entity entity)
+	{
+		auto & tilemap = m_Components[entity - 1];
+		Vec2f pos = GetTilePositionFromMouse(entity);
+		return tilemap.GetTileAt(pos);
 	}
 
 	void TilemapSystem::Init()

@@ -180,6 +180,8 @@ public:
 	 */
 	void EmptyMap(Entity entity);
 
+	Vec2f GetTilePositionFromMouse(Entity entity);
+	Entity GetTileEntityFromMouse(Entity entity);
 protected:
 	Transform2dManager* m_Transform2dManager = nullptr;
 	TilemapSystem* m_TilemapSystem = nullptr;

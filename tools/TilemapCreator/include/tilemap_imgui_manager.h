@@ -29,7 +29,8 @@ Project : TilemapCreator for SFGE
 
 #ifndef TILEMAP_IMGUI_MANAGER_H
 #define TILEMAP_IMGUI_MANAGER_H
-#include "engine/entity.h"
+#include <engine/entity.h>
+#include <engine/tile.h>
 
 namespace sfge::tools
 {
@@ -106,6 +107,11 @@ private:
 	 * \brief Input size for a new tilemap.
 	 */
 	int m_SizeNewTilemap[2] = {1,1};
+
+	/* ------------------------------------- Tilemap editor ------------------------------- */
+	Entity m_TileEditorId = INVALID_ENTITY;
+
+	Tile* m_TileEditor;
 
 	/* -------------------------------------- Others ----------------------------------- */
 	/**
