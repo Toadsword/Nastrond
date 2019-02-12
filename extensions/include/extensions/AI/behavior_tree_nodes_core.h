@@ -25,11 +25,52 @@ SOFTWARE.
 #define SFGE_EXT_BEHAVIOR_TREE_NODES_CORE_H
 
 #include <vector>
-#include <memory>
+#include <string>
+#include <map>
+#include <iostream>
 
 namespace sfge::ext::behavior_tree
 {
+class Node;
 class BehaviorTree;
+
+/**
+ * \brief Factory to build any node
+ * \author Nicolas Schneider
+ */
+class NodeFactory
+{
+public:
+	virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode) = 0;
+
+	static void RegisterType(const std::string& name, NodeFactory* factory) {
+		if (m_Factories.find(name) == m_Factories.end()) {
+			std::cout << "Register : " << name << "\n";
+			m_Factories[name] = factory;
+		}
+	}
+
+	static NodeFactory* GetFactory(const std::string& name)
+	{
+		return m_Factories[name];
+	}
+
+private:
+	inline static std::map<std::string, NodeFactory*> m_Factories;
+};
+
+#define REGISTER_NODE_TYPE(klass) \
+    class klass##Factory : public NodeFactory { \
+    public: \
+        klass##Factory() \
+        { \
+            RegisterType(#klass, this); \
+        } \
+        virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode) { \
+            return std::make_shared<klass>(bt, parentNode); \
+        } \
+    }; \
+    static klass##Factory global_##klass##Factory;
 
 /**
  * author Nicolas Schneider
@@ -60,7 +101,7 @@ public:
 	 * \param index of the dwarf
 	 * \return 
 	 */
-	virtual void Execute(unsigned int index) {}; //TODO trouver un moyen de la remettre en virtual pure
+	virtual void Execute(unsigned int index) = 0; //TODO trouver un moyen de la remettre en virtual pure
 
 protected:
 	BehaviorTree* m_BehaviorTree;
@@ -108,6 +149,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(SequenceComposite)
 
 /**
 * author Nicolas Schneider
@@ -119,6 +161,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(SelectorComposite)
 
 /**
 * author Nicolas Schneider
@@ -158,6 +201,7 @@ public:
 private:
 	int m_Limit;
 };
+REGISTER_NODE_TYPE(RepeaterDecorator)
 
 /**
 * author Nicolas Schneider
@@ -169,6 +213,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(RepeatUntilFailDecorator)
 
 /**
 * author Nicolas Schneider
@@ -180,6 +225,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(InverterDecorator)
 
 /**
 * author Nicolas Schneider
@@ -191,6 +237,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(SucceederDecorator)
 
 /**
 * author Nicolas Schneider
@@ -200,6 +247,7 @@ class Leaf : public Node
 public:
 	explicit Leaf(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
 };
+
 }
 
 #endif

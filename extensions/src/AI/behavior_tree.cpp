@@ -22,13 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <python/python_engine.h>
-#include <utility>
 
 #include <extensions/AI/behavior_tree.h>
 
 namespace sfge::ext::behavior_tree
 {
-BehaviorTree::BehaviorTree(sfge::Engine& engine) : System(engine) { }
+BehaviorTree::BehaviorTree(sfge::Engine& engine) : System(engine)
+{
+}
 
 void BehaviorTree::Init()
 {
@@ -102,6 +103,7 @@ void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 
 std::shared_ptr<Node> BehaviorTree::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
 {
+
 	return nullptr;
 }
 

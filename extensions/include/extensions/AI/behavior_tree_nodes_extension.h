@@ -29,6 +29,7 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
+
 /**
  * author Nicolas Schneider
  */
@@ -39,6 +40,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(HasDwellingLeaf)
 
 /**
 * author Nicolas Schneider
@@ -50,6 +52,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(SetDwellingLeaf)
 
 /**
 * author Nicolas Schneider
@@ -61,6 +64,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(FindRandomPathLeaf)
 
 /**
 * author Nicolas Schneider
@@ -72,6 +76,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(FindPathToDwellingLeaf)
 
 /**
 * author Nicolas Schneider
@@ -83,6 +88,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(MoveToLeaf)
 
 /**
 * author Nicolas Schneider
@@ -94,6 +100,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(WaitForPathLeaf)
 
 /**
 * author Nicolas Schneider
@@ -105,6 +112,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(FindPathToWorkingPlaceLeaf)
 
 /**
 * author Nicolas Schneider
@@ -116,6 +124,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(FindPathToGiverLeaf)
 
 /**
 * author Nicolas Schneider
@@ -127,6 +136,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(FindPathToReceiverLeaf)
 
 /**
 * author Nicolas Schneider
@@ -138,6 +148,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(EnterDwellingLeaf)
 
 /**
 * author Nicolas Schneider
@@ -149,6 +160,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(ExitDwellingLeaf)
 
 /**
 * author Nicolas Schneider
@@ -160,6 +172,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(EnterWorkingPlaceLeaf)
 
 /**
 * author Nicolas Schneider
@@ -171,6 +184,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(ExitWorkingPlaceLeaf)
 
 /**
 * author Nicolas Schneider
@@ -182,6 +196,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(HasJobLeaf)
 
 /**
 * author Nicolas Schneider
@@ -193,6 +208,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(HasStaticJobLeaf)
 
 /**
 * author Nicolas Schneider
@@ -204,6 +220,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(AssignJobLeaf)
 
 /**
 * author Nicolas Schneider
@@ -215,6 +232,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(IsDayTimeLeaf)
 
 /**
 * author Nicolas Schneider
@@ -226,6 +244,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(IsNightTimeLeaf)
 
 /**
 * author Nicolas Schneider
@@ -237,6 +256,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(WaitDayTimeLeaf)
 
 /**
 * author Nicolas Schneider
@@ -248,5 +268,7 @@ public:
 
 	void Execute(unsigned int index) override;
 };
+REGISTER_NODE_TYPE(WaitNightTimeLeaf)
+
 }
 #endif

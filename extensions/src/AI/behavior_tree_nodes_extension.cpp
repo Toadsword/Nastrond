@@ -178,7 +178,7 @@ void ExitWorkingPlaceLeaf::Execute(unsigned int index)
 	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
 }
 
-void HasJobLeaf::Execute(unsigned index)
+void HasJobLeaf::Execute(unsigned int index)
 {
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;

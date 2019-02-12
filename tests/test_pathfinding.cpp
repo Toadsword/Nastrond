@@ -124,6 +124,58 @@ TEST(AI, BehaviourTreeRandomPath)
 	engine.Start();
 }
 
-TEST(AI, BehaviourTreeLoadRandomPathFromJson)
+TEST(AI, BehaviourTreeLoadRandomPathWithFactory)
 {
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	auto* sceneManager = engine.GetSceneManager();
+
+	json sceneJson = {
+		{ "name", "Behavior tree" } };
+	json systemJsonBehaviourTree = {
+		{ "systemClassName", "BehaviorTree" }
+	};
+	json systemJsonNavigation = {
+		{ "systemClassName", "NavigationGraphManager" }
+	};
+	json systemJsonDwarf = {
+		{ "systemClassName", "DwarfManager" }
+	};
+	json systemJsonDwelling = {
+		{ "systemClassName", "DwellingManager"}
+	};
+
+	sceneJson["systems"] = json::array({ systemJsonBehaviourTree,  systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>("BehaviorTree");
+
+	//Repeater
+	auto repeater = sfge::ext::behavior_tree::NodeFactory::GetFactory("RepeaterDecorator")->Create(behaviourTree, nullptr);
+	behaviourTree->SetRootNode(repeater);
+
+	//Sequence
+	auto sequence = sfge::ext::behavior_tree::NodeFactory::GetFactory("SequenceComposite")->Create(behaviourTree, repeater);
+	dynamic_cast<sfge::ext::behavior_tree::DecoratorNode*>(repeater.get())->SetChild(sequence);
+
+	//Find random path
+	auto findPath = sfge::ext::behavior_tree::NodeFactory::GetFactory("FindRandomPathLeaf")->Create(behaviourTree, sequence);
+	dynamic_cast<sfge::ext::behavior_tree::CompositeNode*>(sequence.get())->AddChild(findPath);
+
+	//Has path
+	auto waitForPath = sfge::ext::behavior_tree::NodeFactory::GetFactory("WaitForPathLeaf")->Create(behaviourTree, sequence);
+	dynamic_cast<sfge::ext::behavior_tree::CompositeNode*>(sequence.get())->AddChild(waitForPath);
+
+	//Follow path
+	auto followPath = sfge::ext::behavior_tree::NodeFactory::GetFactory("MoveToLeaf")->Create(behaviourTree, sequence);
+	dynamic_cast<sfge::ext::behavior_tree::CompositeNode*>(sequence.get())->AddChild(followPath);
+
+	engine.Start();
 }
