@@ -179,3 +179,43 @@ TEST(AI, BehaviourTreeLoadRandomPathWithFactory)
 
 	engine.Start();
 }
+
+TEST(AI, BehaviourTreeLoadRandomPathFromJson)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	auto* sceneManager = engine.GetSceneManager();
+
+	json sceneJson = {
+		{ "name", "Behavior tree" } };
+	json systemJsonBehaviourTree = {
+		{ "systemClassName", "BehaviorTree" }
+	};
+	json systemJsonNavigation = {
+		{ "systemClassName", "NavigationGraphManager" }
+	};
+	json systemJsonDwarf = {
+		{ "systemClassName", "DwarfManager" }
+	};
+	json systemJsonDwelling = {
+		{ "systemClassName", "DwellingManager"}
+	};
+
+	sceneJson["systems"] = json::array({ systemJsonBehaviourTree,  systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>("BehaviorTree");
+
+	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
+
+	behaviourTree->LoadNodesFromJson(*sceneJsonPtr);
+
+	engine.Start();
+}
