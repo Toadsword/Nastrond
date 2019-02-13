@@ -151,35 +151,31 @@ public:
 #pragma endregion 
 
 #pragma region Inventory task
-	// TODO enlever dès qu'il y a le merge avec le système de robin
-	struct InventoryTask final
-	{
-		Entity giver = INVALID_ENTITY;
-		Entity receiver = INVALID_ENTITY;
-		BuildingManager::BuildingType giverType = BuildingManager::BuildingType::LENGTH;
-		BuildingManager::BuildingType receiverType = BuildingManager::BuildingType::LENGTH;
-		ResourceType resourceType = NONE;
-		char resourceQuantity = 0;
-	};
-
 	/**
 	 * \brief call from the behavior tree to add a new inventory task to a given dwarf
 	 * \param index of the dwarfs
 	 * \return true if a inventoryTask has been assigned
 	 */
 	bool AddInventoryTaskBT(unsigned int index) { 
-		//TODO remplir dès le merge de Robin
+		BuildingManager::InventoryTask inventoryTask = m_BuildingManager->ConveyorLookForTask();
+
+		if(inventoryTask == m_BuildingManager->INVALID_INVENTORY_TASK)
+		{
+			return false;
+		}
+
+		m_InventoryTaskBT[index] = inventoryTask;
 		return true; 
 	}
 
 	void TakeResources(unsigned int index)
 	{
-		//TODO remplir dès le merge de Robin
+		m_BuildingManager->DwarfTakesResources(m_InventoryTaskBT[index].giverType, m_InventoryTaskBT[index].giver, m_InventoryTaskBT[index].resourceType);
 	}
 
 	void PutResources(unsigned int index)
 	{
-		//TODO remplir dès le merge de Robin
+		m_BuildingManager->DwarfPutsResources(m_InventoryTaskBT[index].receiverType, m_InventoryTaskBT[index].receiver, m_InventoryTaskBT[index].resourceType, m_InventoryTaskBT[index].resourceQuantity);
 	}
 #pragma endregion 
 	
@@ -308,8 +304,8 @@ private:
 
 	//Jobs
 	std::vector<Entity> m_AssociatedWorkingPlace;
-	std::vector<BuildingManager::BuildingType> m_AssociatedWorkingPlaceType;
-	std::queue<BuildingManager::BuildingType> m_JobBuildingType;
+	std::vector<BuildingType> m_AssociatedWorkingPlaceType;
+	std::queue<BuildingType> m_JobBuildingType;
 
 	//Vertex array
 	sf::VertexArray m_VertexArray;
@@ -328,7 +324,7 @@ private:
 	unsigned int m_IndexPathFollowingBT = 0;
 
 	//Inventory task
-	std::vector<InventoryTask> m_InventoryTaskBT;
+	std::vector<BuildingManager::InventoryTask> m_InventoryTaskBT;
 
 	//Time of Day
 	const float m_DayDuration = 10;

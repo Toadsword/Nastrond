@@ -71,12 +71,12 @@ void DwarfManager::Init()
 
 	//Init job 
 	//TODO changer la manière dont je crée la liste des boulots, il serait plus intéressant de garder le % de chaque job actuellement attribué
-	m_JobBuildingType.push(BuildingManager::BuildingType::WAREHOUSE);
-	m_JobBuildingType.push(BuildingManager::BuildingType::EXCAVATION_POST);
-	m_JobBuildingType.push(BuildingManager::BuildingType::FORGE);
-	m_JobBuildingType.push(BuildingManager::BuildingType::MINE);
-	m_JobBuildingType.push(BuildingManager::BuildingType::WAREHOUSE);
-	m_JobBuildingType.push(BuildingManager::BuildingType::MUSHROOM_FARM);
+	m_JobBuildingType.push(WAREHOUSE);
+	m_JobBuildingType.push(EXCAVATION_POST);
+	m_JobBuildingType.push(FORGE);
+	m_JobBuildingType.push(MINE);
+	m_JobBuildingType.push(WAREHOUSE);
+	m_JobBuildingType.push(MUSHROOM_FARM);
 }
 
 void DwarfManager::InstantiateDwarf(const Vec2f pos)
@@ -200,7 +200,7 @@ Vec2f DwarfManager::GetWorkingPlaceAssociatedPosition(const unsigned int index)
 
 bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
 {
-	auto const dwellingEntity = m_BuildingManager->GetDwellingFreeSlots(); //TODO changer
+	auto const dwellingEntity = m_BuildingManager->AttributeDwarfToDwelling();
 
 	if (dwellingEntity == INVALID_ENTITY)
 	{
@@ -209,7 +209,6 @@ bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
 	else
 	{
 		m_AssociatedDwelling[index] = dwellingEntity;
-		m_BuildingManager->AddDwarfToBuilding(dwellingEntity);
 
 		return true;
 	}
@@ -285,12 +284,12 @@ void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
 
 void DwarfManager::DwarfEnterDwelling(const unsigned int index)
 {
-	m_BuildingManager->DwarfEnterBuilding(BuildingManager::BuildingType::DWELLING, GetDwellingEntity(index));
+	m_BuildingManager->DwarfEnterBuilding(DWELLING, GetDwellingEntity(index));
 }
 
 void DwarfManager::DwarfExitDwelling(const unsigned int index)
 {
-	m_BuildingManager->DwarfExitBuilding(BuildingManager::BuildingType::DWELLING, GetDwellingEntity(index));
+	m_BuildingManager->DwarfExitBuilding(DWELLING, GetDwellingEntity(index));
 }
 
 void DwarfManager::DwarfEnterWorkingPlace(const unsigned int index)
@@ -305,12 +304,12 @@ void DwarfManager::DwarfExitWorkingPlace(const unsigned int index)
 
 bool DwarfManager::HasJob(const unsigned int index)
 {
-	return m_AssociatedWorkingPlaceType[index] != BuildingManager::BuildingType::NONE;
+	return m_AssociatedWorkingPlaceType[index] != NO_BUILDING_TYPE;
 }
 
 bool DwarfManager::HasStaticJob(const unsigned int index)
 {
-	return m_AssociatedWorkingPlaceType[index] != BuildingManager::BuildingType::WAREHOUSE;
+	return m_AssociatedWorkingPlaceType[index] != WAREHOUSE;
 }
 
 bool DwarfManager::AssignJob(const unsigned int index)
@@ -365,7 +364,7 @@ void DwarfManager::ResizeContainers()
 	behaviorTree->SetEntities(&m_DwarfsEntities);
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
-	m_AssociatedWorkingPlaceType.resize(newSize, BuildingManager::BuildingType::NONE);
+	m_AssociatedWorkingPlaceType.resize(newSize, NO_BUILDING_TYPE);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() + 4 * m_ContainersExtender);
 
 	m_PathFollowingBT.resize(newSize);
