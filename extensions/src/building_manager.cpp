@@ -201,11 +201,11 @@ namespace sfge::ext
 		}
 	}
 
-	void BuildingManager::DwarfTakesResources(BuildingType buildingType, Entity entity)
+	void BuildingManager::DwarfTakesResources(BuildingType buildingType, Entity entity, ResourceType resourceType)
 	{
 	}
 
-	void BuildingManager::DwarfPutsResources(BuildingType buildingType, Entity entity, unsigned int resourceQuantity)
+	void BuildingManager::DwarfPutsResources(BuildingType buildingType, Entity entity, ResourceType resourceType, unsigned int resourceQuantity)
 	{
 
 	}
