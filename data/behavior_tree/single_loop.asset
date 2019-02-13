@@ -1,0 +1,13 @@
+{
+	"rootNode": [{
+			"name": "RepeaterDecorator",
+			"type" : 4,
+			"limit": 0,
+			"childs": [{
+				"name": "MoveToLeaf",
+				"type" : 1
+				}
+			]
+		}
+	]
+}

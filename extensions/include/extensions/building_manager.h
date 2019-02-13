@@ -60,9 +60,19 @@ namespace sfge::ext
 			BuildingType receiverType = BuildingType::NO_BUILDING_TYPE;
 			ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
 			char resourceQuantity = 0;
+
+			bool operator==(const InventoryTask& rhs) const
+			{
+				return receiver == rhs.receiver && 
+					   giver == rhs.receiver && 
+					   giverType == rhs.giverType && 
+					   receiverType == rhs.receiverType && 
+					   resourceQuantity == rhs.resourceQuantity && 
+					   resourceType == rhs.resourceType;
+			}
 		};
 
-		const InventoryTask INVALID_INVENTORY_TASK;
+		InventoryTask INVALID_INVENTORY_TASK = InventoryTask();
 
 		void SpawnBuilding(BuildingType buildingType, Vec2f position);
 
@@ -76,17 +86,17 @@ namespace sfge::ext
 
 		void DwarfExitBuilding(BuildingType buildingType, Entity entity);
 
-		void DwarfTakesResources(BuildingType buildingType, Entity entity);
+		void DwarfTakesResources(BuildingType buildingType, Entity entity, ResourceType resourceType);
 
-		void DwarfPutsResources(BuildingType buildingType, Entity entity, unsigned int resourceQuantity);
+		void DwarfPutsResources(BuildingType buildingType, Entity entity, ResourceType resourceType, unsigned int resourceQuantity);
 
 		InventoryTask ConveyorLookForTask();
 
 
 		//for dwellings
-		Entity AttributeDwarfToDwelling();
+		Entity AttributeDwarfToDwelling() { return INVALID_ENTITY; };
 
-		void DeallocateDwarfToDwelling(Entity entity);
+		void DeallocateDwarfToDwelling(Entity entity) {};
 
 
 	private:
