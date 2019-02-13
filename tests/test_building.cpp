@@ -142,7 +142,7 @@ TEST(Building, BuildingManager)
 		{ "systemClassName", "WarehouseManager" } };
 
 
-	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonBuildingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehousegManager, systemJsonBuildingManager });
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehousegManager, systemJsonBuildingManager });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 

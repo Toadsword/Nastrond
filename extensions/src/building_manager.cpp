@@ -32,13 +32,17 @@ namespace sfge::ext
 
 	void BuildingManager::Init()
 	{
-
 		m_DwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
 			"DwellingManager");
+
 		m_ForgeManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ForgeManager>(
 			"ForgeManager");
+
 		m_ProductionBuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ProductionBuildingManager>(
 			"ProductionBuildingManager");
+
+		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
+			"WarehouseManager");
 	}
 
 	void BuildingManager::Update(float dt) {}

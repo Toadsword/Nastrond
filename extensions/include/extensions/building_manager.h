@@ -94,7 +94,6 @@ namespace sfge::ext
 		ForgeManager* m_ForgeManager;
 		ProductionBuildingManager* m_ProductionBuildingManager;
 		WarehouseManager* m_WarehouseManager;
-		bool blep = true;
 	};
 }
 #endif

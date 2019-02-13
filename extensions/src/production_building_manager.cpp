@@ -56,6 +56,8 @@ namespace sfge::ext
 		m_MineVertexArray = sf::VertexArray(sf::Quads, 0);
 		m_ExcavationPostVertexArray = sf::VertexArray(sf::Quads, 0);
 		m_MushroomFarmVertexArray = sf::VertexArray(sf::Quads, 0);
+		std::cout << "production building Manager \n";
+
 		m_Init = true;
 	}
 

@@ -43,6 +43,8 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
+
+		std::cout << "Dwelling Manager \n";
 	}
 
 	void DwellingManager::Update(float dt)

@@ -30,6 +30,8 @@ namespace sfge::ext
 
 	void WarehouseManager::Init()
 	{
+		std::cout << "Warehouse Manager \n";
+
 	}
 
 	void WarehouseManager::Update(float dt)

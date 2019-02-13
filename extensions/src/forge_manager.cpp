@@ -40,6 +40,8 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
+		std::cout << "Forge Manager \n";
+
 	}
 
 	void ForgeManager::Update(float dt)
