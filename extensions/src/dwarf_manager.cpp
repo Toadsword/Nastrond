@@ -283,11 +283,6 @@ void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
 	m_IndexPathToDestinationBT++;
 }
 
-void DwarfManager::AddInventoryTaskBT(const unsigned int index, const InventoryTask inventoryTask)
-{
-	m_InventoryTaskBT[index] = inventoryTask;
-}
-
 void DwarfManager::DwarfEnterDwelling(const unsigned int index)
 {
 	m_BuildingManager->DwarfEnterBuilding(BuildingManager::BuildingType::DWELLING, GetDwellingEntity(index));

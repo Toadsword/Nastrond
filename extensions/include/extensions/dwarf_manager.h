@@ -165,9 +165,22 @@ public:
 	/**
 	 * \brief call from the behavior tree to add a new inventory task to a given dwarf
 	 * \param index of the dwarfs
-	 * \param inventoryTask
+	 * \return true if a inventoryTask has been assigned
 	 */
-	void AddInventoryTaskBT(unsigned int index, InventoryTask inventoryTask);
+	bool AddInventoryTaskBT(unsigned int index) { 
+		//TODO remplir dès le merge de Robin
+		return true; 
+	}
+
+	void TakeResources(unsigned int index)
+	{
+		//TODO remplir dès le merge de Robin
+	}
+
+	void PutResources(unsigned int index)
+	{
+		//TODO remplir dès le merge de Robin
+	}
 #pragma endregion 
 	
 #pragma region Enter / Exit building

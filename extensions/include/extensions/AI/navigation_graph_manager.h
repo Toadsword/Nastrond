@@ -100,7 +100,7 @@ private:
 	const static short ROAD_COST = 1;
 	const static short NORMAL_COST = 2;
 
-	const short m_MaxPathForOneUpdate = 16;
+	const short m_MaxPathForOneUpdate = 1;
 
 	std::vector<GraphNode> m_Graph;
 	sf::VertexArray m_VertexArray;

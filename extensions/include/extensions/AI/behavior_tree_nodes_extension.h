@@ -271,5 +271,40 @@ public:
 };
 REGISTER_NODE_TYPE(WaitNightTimeLeaf)
 
+/**
+* author Nicolas Schneider
+*/
+class AskInventoryTaskLeaf final : public Leaf
+{
+public:
+	AskInventoryTaskLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(AskInventoryTaskLeaf)
+
+/**
+* author Nicolas Schneider
+*/
+class TakeResourcesLeaf final : public Leaf
+{
+public:
+	TakeResourcesLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(TakeResourcesLeaf)
+
+/**
+* author Nicolas Schneider
+*/
+class PutResourcesLeaf final : public Leaf
+{
+public:
+	PutResourcesLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
+
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(PutResourcesLeaf)
 }
 #endif

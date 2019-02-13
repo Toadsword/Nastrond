@@ -37,13 +37,13 @@ void BehaviorTree::Init()
 void BehaviorTree::Update(float dt)
 {
 #ifdef BT_SOA
-	if (currentNode.size() < entities->size())
+	if (currentNode.size() < m_Entities->size())
 		{
-		currentNode.resize(entities->size(), m_RootNode);
-		doesFlowGoDown.resize(entities->size());
-		previousStatus.resize(entities->size());
-		repeaterCounter.resize(entities->size(), 0);
-		sequenceActiveChild.resize(entities->size(), 0);
+		currentNode.resize(m_Entities->size(), m_RootNode);
+		doesFlowGoDown.resize(m_Entities->size());
+		previousStatus.resize(m_Entities->size());
+		repeaterCounter.resize(m_Entities->size(), 0);
+		sequenceActiveChild.resize(m_Entities->size(), 0);
 #endif
 
 #ifdef BT_AOS
