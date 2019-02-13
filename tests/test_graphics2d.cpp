@@ -123,6 +123,8 @@ TEST(Graphics2d, TestTexture)
 		sfge::Log::GetInstance()->Error(oss.str());
 	}
 
+
+
 	// create the window
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Test Sprite");
 
@@ -149,3 +151,73 @@ TEST(Graphics2d, TestTexture)
 	engine.Destroy();
 }
 
+
+
+TEST(Graphics2d, TestPyCamera)
+{
+	sfge::Engine engine;
+	auto config = std::make_unique<sfge::Configuration>();
+	config->gravity = b2Vec2(0,0);
+	engine.Init(std::move(config));
+
+	json sceneJson;
+	json entityJson;
+
+	json spriteJson;
+	spriteJson["path"] = "data/sprites/other_play.png";
+	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	json transformJson =
+	{
+		{ "position", { 0, 0 } },
+		{ "angle", 0.0f },
+		{ "type", static_cast<int>(sfge::ComponentType::TRANSFORM2D) },
+	};
+	entityJson["components"] = json::array({ spriteJson, transformJson });
+
+	json entityJson2;
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
+
+
+	sceneJson["entities"] = json::array({ entityJson2, entityJson });
+	sceneJson["name"] = "Test Camera";
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+
+}
+
+TEST(Graphics2d, TestPyCameraFullScreen)
+{
+	sfge::Engine engine;
+	auto config = std::make_unique<sfge::Configuration>();
+	config->styleWindow = sf::Style::Fullscreen;
+	engine.Init(std::move(config));
+
+	json sceneJson;
+	json entityJson;
+
+	json spriteJson;
+	spriteJson["path"] = "data/sprites/other_play.png";
+	spriteJson["type"] = static_cast<int>(sfge::ComponentType::SPRITE2D);
+	entityJson["components"] = json::array({ spriteJson });
+
+	json entityJson2;
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
+
+
+	sceneJson["entities"] = json::array({ entityJson2, entityJson });
+	sceneJson["name"] = "Test Camera";
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}

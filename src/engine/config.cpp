@@ -58,6 +58,7 @@ std::unique_ptr<Configuration> Configuration::LoadConfig(json& configJson)
 	newConfig->screenResolution = sf::Vector2i(
 		configJson["screenResolution"]["x"],
 		configJson["screenResolution"]["y"]);
+	newConfig->styleWindow = int(configJson["styleWindow"]);
 	if (CheckJsonExists(configJson, "gravity"))
 	{
 		newConfig->gravity = b2Vec2(

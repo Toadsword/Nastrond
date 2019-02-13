@@ -30,6 +30,8 @@ namespace sfge::ext
 
 	void WarehouseManager::Init()
 	{
+		std::cout << "Warehouse Manager \n";
+
 	}
 
 	void WarehouseManager::Update(float dt)
@@ -68,6 +70,16 @@ namespace sfge::ext
 	}
 
 	Entity WarehouseManager::GetFreeSlotInBuilding()
+	{
+		return Entity();
+	}
+
+	Entity WarehouseManager::GetWarehouseWithResources(ResourceType resourceType)
+	{
+		return Entity();
+	}
+
+	Entity WarehouseManager::GetWarehouseWithFreeSpaceAvailable(ResourceType resourceType)
 	{
 		return Entity();
 	}

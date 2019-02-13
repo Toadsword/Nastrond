@@ -88,10 +88,18 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("load_scene", &SceneManager::LoadSceneFromName)
 		.def("get_scenes", &SceneManager::GetAllScenes);
 
+	py::class_<CameraManager> cameraManager(m, "CameraManager");
+	cameraManager
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
+		.def("add_component", &CameraManager::AddComponent, py::return_value_policy::reference)
+		.def("get_component", &CameraManager::GetComponentRef, py::return_value_policy::reference);
+
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager
-			.def(py::init<Engine&>(), py::return_value_policy::reference)
-		.def_property_readonly("keyboard", &InputManager::GetKeyboardManager, py::return_value_policy::reference);
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
+		.def_property_readonly("keyboard", &InputManager::GetKeyboardManager, py::return_value_policy::reference)
+		.def_property_readonly("mouse", &InputManager::GetMouseManager, py::return_value_policy::reference);
+
 	py::class_<KeyboardManager> keyboardManager(m, "KeyboardManager");
 	keyboardManager
 		.def("is_key_held", &KeyboardManager::IsKeyHeld)
@@ -105,6 +113,22 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Left", sf::Keyboard::Left)
 		.value("Right", sf::Keyboard::Right)
 		.export_values();
+
+	py::class_<MouseManager> mouseManager(m, "MouseManager");
+	mouseManager
+		.def("is_button_down", &MouseManager::IsButtonDown)
+		.def("is_button_held", &MouseManager::IsButtonHeld)
+		.def("is_button_up", &MouseManager::IsButtonUp)
+		.def("get_local_position", &MouseManager::GetLocalPosition)
+		.def("get_world_position", &MouseManager::GetWorldPosition);
+
+	//Todo Fix
+	//py::enum_<sf::Mouse::Button>(mouseManager, "Button")
+	//.value("Middle", sf::Mouse::Middle)
+	//.value("Left", sf::Mouse::Left)
+	//.value("Right", sf::Mouse::Button::Right)
+	//.export_values();
+
 
 	py::class_<Transform2dManager> transform2dManager(m , "Transform2dManager");
 	transform2dManager
@@ -137,10 +161,12 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 
 	py::class_<Graphics2dManager> graphics2dManager(m, "Graphics2dManager");
 	graphics2dManager
-	    .def(py::init<Engine&>(), py::return_value_policy::reference)
+		.def(py::init<Engine&>(), py::return_value_policy::reference)
 		.def_property_readonly("sprite_manager", &Graphics2dManager::GetSpriteManager, py::return_value_policy::reference)
 		.def_property_readonly("texture_manager", &Graphics2dManager::GetTextureManager, py::return_value_policy::reference)
-		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference);
+		.def_property_readonly("shape_manager", &Graphics2dManager::GetShapeManager, py::return_value_policy::reference)
+		.def("get_size_window", &Graphics2dManager::GetSizeWindow, py::return_value_policy::reference)
+		.def("get_position_window", &Graphics2dManager::GetPositionWindow, py::return_value_policy::reference);
 
 	py::class_<TextureManager> textureManager(m, "texture_manager");
 	textureManager
@@ -199,8 +225,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("on_trigger_enter", &Behavior::OnTriggerEnter)
 		.def("on_collision_enter", &Behavior::OnCollisionEnter)
 		.def("on_trigger_exit", &Behavior::OnTriggerExit)
-		.def("on_collision_exit", &Behavior::OnCollisionExit)
-	;
+		.def("on_collision_exit", &Behavior::OnCollisionExit);
 
 	py::enum_<ComponentType>(component, "ComponentType")
 		.value("PyComponent", ComponentType::PYCOMPONENT)
@@ -209,6 +234,7 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Sprite", ComponentType::SPRITE2D)
 		.value("Sound", ComponentType::SOUND)
 		.value("Transform2d", ComponentType::TRANSFORM2D)
+		.value("Camera", ComponentType::CAMERA)
 		.export_values();
 
 	py::class_<Transform2d> transform(m, "Transform2d");
@@ -246,7 +272,13 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	sound
 		.def("play", &Sound::Play)
 		.def("stop", &Sound::Stop);
-	
+
+	py::class_<Camera> camera(m, "Camera");
+	camera
+		.def("get_position", &Camera::GetPosition, py::return_value_policy::reference)
+		.def("set_position", &Camera::SetPosition, py::return_value_policy::reference)
+		.def("on_resize", &Camera::OnResize, py::return_value_policy::reference);
+
 	py::class_<Shape> shape(m, "Shape");
 	shape
 	.def(py::init(), py::return_value_policy::reference)
@@ -318,46 +350,67 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
           return oss.str();
         });
 
-	py::class_<sf::Vector2f> vector2f(m, "Vector2f");
-	vector2f
-		.def(py::init<float, float>())
+	py::class_<sf::Vector2i> vector2i(m, "Vector2i");
+	vector2i
+		.def(py::init<int, int>())
 		.def(py::init<>())
 		.def(py::self + py::self)
 		.def(py::self += py::self)
 		.def(py::self - py::self)
 		.def(py::self -= py::self)
-		.def(py::self * float())
-		.def(py::self / float())
-		.def_property_readonly("magnitude", [](const sf::Vector2f & vec)
+		.def_property_readonly_static("down", [](py::object){ return sf::Vector2i(0,1);})
+		.def_property_readonly_static("up", [](py::object){ return sf::Vector2i(0,-1);})
+		.def_property_readonly_static("right", [](py::object){ return sf::Vector2i(1,0);})
+		.def_property_readonly_static("left", [](py::object){ return sf::Vector2i(-1,0);})
+		.def_readwrite("x", &sf::Vector2i::x)
+		.def_readwrite("y", &sf::Vector2i::y)
+		.def("__repr__", [](const sf::Vector2i &vec)
+		{
+			std::ostringstream oss;
+			oss << "sf::Vector2i(" << vec.x << ", " << vec.y << ")";
+			return oss.str();
+		});
+
+		py::class_<sf::Vector2f> vector2f(m, "Vector2f");
+		vector2f
+			.def(py::init<float, float>())
+			.def(py::init<>())
+			.def(py::self + py::self)
+			.def(py::self += py::self)
+			.def(py::self - py::self)
+			.def(py::self -= py::self)
+			.def(py::self * float())
+			.def(py::self / float())
+			.def_property_readonly("magnitude", [](const sf::Vector2f & vec)
 		{
 			return sqrtf(vec.x*vec.x + vec.y*vec.y);
 		})
-		.def_static("dot", [](const sf::Vector2f& v1, const sf::Vector2f& v2)
+			.def_static("dot", [](const sf::Vector2f& v1, const sf::Vector2f& v2)
 		{
-		    return v1.x*v2.x+v1.y*v2.y;
+			return v1.x*v2.x + v1.y*v2.y;
 		})
-		.def_static("angle_between", [](const sf::Vector2f& v1, const sf::Vector2f& v2)
+			.def_static("angle_between", [](const sf::Vector2f& v1, const sf::Vector2f& v2)
 		{
-		    float dot = v1.x*v2.x+v1.y*v2.y;
-		    float angle = acosf(dot)/M_PI*180.0f;
-		    return angle;
+			float dot = v1.x*v2.x + v1.y*v2.y;
+			float angle = acosf(dot) / M_PI * 180.0f;
+			return angle;
 
 		})
-		.def_static("lerp", [](const sf::Vector2f&v1, const sf::Vector2f&v2, float t)
-        {
-		    return v1+(v2-v1)*t;
-        })
-		.def("rotate", [](sf::Vector2f& v1, float angle){
-		    float radianAngle = angle/180.0f*M_PI;
-		    v1 = sf::Vector2f(cos(radianAngle)*v1.x-sin(radianAngle)*v1.y,sin(radianAngle)*v1.x+cos(radianAngle)*v1.y);
+			.def_static("lerp", [](const sf::Vector2f&v1, const sf::Vector2f&v2, float t)
+		{
+			return v1 + (v2 - v1)*t;
 		})
-		.def_property_readonly_static("down", [](py::object){ return sf::Vector2f(0.0f,1.0f);})
-		.def_property_readonly_static("up", [](py::object){ return sf::Vector2f(0.0f,-1.0f);})
-		.def_property_readonly_static("right", [](py::object){ return sf::Vector2f(1.0f,0.0f);})
-		.def_property_readonly_static("left", [](py::object){ return sf::Vector2f(-1.0f,0.0f);})
-		.def_readwrite("x", &sf::Vector2f::x)
-		.def_readwrite("y", &sf::Vector2f::y)
-		.def("__repr__", [](const sf::Vector2f &vec)
+			.def("rotate", [](sf::Vector2f& v1, float angle) {
+			float radianAngle = angle / 180.0f*M_PI;
+			v1 = sf::Vector2f(cos(radianAngle)*v1.x - sin(radianAngle)*v1.y, sin(radianAngle)*v1.x + cos(radianAngle)*v1.y);
+		})
+			.def_property_readonly_static("down", [](py::object) { return sf::Vector2f(0.0f, 1.0f); })
+			.def_property_readonly_static("up", [](py::object) { return sf::Vector2f(0.0f, -1.0f); })
+			.def_property_readonly_static("right", [](py::object) { return sf::Vector2f(1.0f, 0.0f); })
+			.def_property_readonly_static("left", [](py::object) { return sf::Vector2f(-1.0f, 0.0f); })
+			.def_readwrite("x", &sf::Vector2f::x)
+			.def_readwrite("y", &sf::Vector2f::y)
+			.def("__repr__", [](const sf::Vector2f &vec)
 		{
 			std::ostringstream oss;
 			oss << "sf::Vector2f(" << vec.x << ", " << vec.y << ")";
@@ -515,7 +568,7 @@ ModuleId PythonEngine::LoadPyModule(std::string moduleFilename)
 				std::stringstream oss;
 				oss << "[PYTHON ERROR] on script file: " << moduleFilename << "\n" << e.what();
 				Log::GetInstance()->Error(oss.str());
-				return INVALID_MODULE;
+					return INVALID_MODULE;
 			}
 			SpreadClasses();
 			m_IncrementalModuleId++;

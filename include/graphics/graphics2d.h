@@ -30,10 +30,15 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
 #include <graphics/animation2d.h>
+#include <graphics/camera.h>
 
 namespace sfge
 {
+	const int WINDOW_TOP_HEIGTH_PIXEL = 38;
+	const int WINDOW_SIDES_WIDTH_PIXEL = 8;
 
+	const int WINDOW_DEFAULT_HEIGTH = 720;
+	const int WINDOW_DEFAULT_WITDH = 1080;
 /**
 * \brief The Graphics Manager
 */
@@ -73,11 +78,16 @@ public:
 	* \return The SFML window
 	*/
 	sf::RenderWindow* GetWindow();
+	sf::Vector2f GetSizeWindow();
+	sf::Vector2f GetPositionWindow();
+
+	void OnChangeScreenMode();
 
 	AnimationManager* GetAnimationManager();
 	ShapeManager* GetShapeManager();
 	SpriteManager* GetSpriteManager();
 	TextureManager* GetTextureManager();
+	CameraManager* GetCameraManager();
 
 protected:
 	bool m_Windowless = false;
@@ -89,6 +99,7 @@ protected:
 	SpriteManager m_SpriteManager{m_Engine};
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
+	CameraManager m_CameraManager{ m_Engine };
 	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 
