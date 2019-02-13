@@ -26,6 +26,7 @@ SOFTWARE.
 #define SFGE_EXT_BEHAVIOR_TREE_NODE_EXTENSION_H
 
 #include <extensions/AI/behavior_tree_nodes_core.h>
+#include <utility/json_utility.h>
 
 namespace sfge::ext::behavior_tree
 {
@@ -36,7 +37,7 @@ namespace sfge::ext::behavior_tree
 class HasDwellingLeaf final : public Leaf
 {
 public:
-	HasDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	HasDwellingLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -48,7 +49,7 @@ REGISTER_NODE_TYPE(HasDwellingLeaf)
 class SetDwellingLeaf final : public Leaf
 {
 public:
-	SetDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	SetDwellingLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -60,7 +61,7 @@ REGISTER_NODE_TYPE(SetDwellingLeaf)
 class FindRandomPathLeaf final : public Leaf
 {
 public:
-	FindRandomPathLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindRandomPathLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -72,7 +73,7 @@ REGISTER_NODE_TYPE(FindRandomPathLeaf)
 class FindPathToDwellingLeaf final : public Leaf
 {
 public:
-	FindPathToDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToDwellingLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -84,7 +85,7 @@ REGISTER_NODE_TYPE(FindPathToDwellingLeaf)
 class MoveToLeaf final : public Leaf
 {
 public:
-	MoveToLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	MoveToLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -96,7 +97,7 @@ REGISTER_NODE_TYPE(MoveToLeaf)
 class WaitForPathLeaf final : public Leaf
 {
 public:
-	WaitForPathLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	WaitForPathLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -108,7 +109,7 @@ REGISTER_NODE_TYPE(WaitForPathLeaf)
 class FindPathToWorkingPlaceLeaf final : public Leaf
 {
 public:
-	FindPathToWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -120,7 +121,7 @@ REGISTER_NODE_TYPE(FindPathToWorkingPlaceLeaf)
 class FindPathToGiverLeaf final : public Leaf
 {
 public:
-	FindPathToGiverLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToGiverLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -132,7 +133,7 @@ REGISTER_NODE_TYPE(FindPathToGiverLeaf)
 class FindPathToReceiverLeaf final : public Leaf
 {
 public:
-	FindPathToReceiverLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	FindPathToReceiverLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -144,7 +145,7 @@ REGISTER_NODE_TYPE(FindPathToReceiverLeaf)
 class EnterDwellingLeaf final : public Leaf
 {
 public:
-	EnterDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	EnterDwellingLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -156,7 +157,7 @@ REGISTER_NODE_TYPE(EnterDwellingLeaf)
 class ExitDwellingLeaf final : public Leaf
 {
 public:
-	ExitDwellingLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	ExitDwellingLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -168,7 +169,7 @@ REGISTER_NODE_TYPE(ExitDwellingLeaf)
 class EnterWorkingPlaceLeaf final : public Leaf
 {
 public:
-	EnterWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	EnterWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -180,7 +181,7 @@ REGISTER_NODE_TYPE(EnterWorkingPlaceLeaf)
 class ExitWorkingPlaceLeaf final : public Leaf
 {
 public:
-	ExitWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	ExitWorkingPlaceLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -192,7 +193,7 @@ REGISTER_NODE_TYPE(ExitWorkingPlaceLeaf)
 class HasJobLeaf final : public Leaf
 {
 public:
-	HasJobLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	HasJobLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -204,7 +205,7 @@ REGISTER_NODE_TYPE(HasJobLeaf)
 class HasStaticJobLeaf final : public Leaf
 {
 public:
-	HasStaticJobLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	HasStaticJobLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -216,7 +217,7 @@ REGISTER_NODE_TYPE(HasStaticJobLeaf)
 class AssignJobLeaf final : public Leaf
 {
 public:
-	AssignJobLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	AssignJobLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -228,7 +229,7 @@ REGISTER_NODE_TYPE(AssignJobLeaf)
 class IsDayTimeLeaf final : public Leaf
 {
 public:
-	IsDayTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	IsDayTimeLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -240,7 +241,7 @@ REGISTER_NODE_TYPE(IsDayTimeLeaf)
 class IsNightTimeLeaf final : public Leaf
 {
 public:
-	IsNightTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	IsNightTimeLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -252,7 +253,7 @@ REGISTER_NODE_TYPE(IsNightTimeLeaf)
 class WaitDayTimeLeaf final : public Leaf
 {
 public:
-	WaitDayTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	WaitDayTimeLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -264,7 +265,7 @@ REGISTER_NODE_TYPE(WaitDayTimeLeaf)
 class WaitNightTimeLeaf final : public Leaf
 {
 public:
-	WaitNightTimeLeaf(BehaviorTree* bt, const ptr& parentNode) : Leaf(bt, parentNode) {}
+	WaitNightTimeLeaf(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : Leaf(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };

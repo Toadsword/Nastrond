@@ -29,6 +29,8 @@ SOFTWARE.
 #include <map>
 #include <iostream>
 
+#include <utility/json_utility.h>
+
 namespace sfge::ext::behavior_tree
 {
 class Node;
@@ -41,7 +43,7 @@ class BehaviorTree;
 class NodeFactory
 {
 public:
-	virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode) = 0;
+	virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode, json& nodeJson) = 0;
 
 	static void RegisterType(const std::string& name, NodeFactory* factory) {
 		if (m_Factories.find(name) == m_Factories.end()) {
@@ -66,8 +68,8 @@ private:
         { \
             RegisterType(#klass, this); \
         } \
-        virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode) { \
-            return std::make_shared<klass>(bt, parentNode); \
+        virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode, json& nodeJson) { \
+            return std::make_shared<klass>(bt, parentNode, nodeJson); \
         } \
     }; \
     static klass##Factory global_##klass##Factory;
@@ -145,7 +147,7 @@ protected:
 class SequenceComposite final : public CompositeNode
 {
 public:
-	SequenceComposite(BehaviorTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
+	SequenceComposite(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : CompositeNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -157,7 +159,7 @@ REGISTER_NODE_TYPE(SequenceComposite)
 class SelectorComposite final : public CompositeNode
 {
 public:
-	SelectorComposite(BehaviorTree* bt, const ptr& parentNode) : CompositeNode(bt, parentNode) {}
+	SelectorComposite(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : CompositeNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -194,6 +196,14 @@ protected:
 class RepeaterDecorator final : public DecoratorNode
 {
 public:
+	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode)
+	{
+		if(CheckJsonExists(nodeJson, "limit"))
+		{
+			m_Limit = nodeJson["limit"];
+			std::cout << "limit = " << m_Limit << "\n";
+		}
+	}
 	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, int limit = 0);
 
 	void Execute(unsigned int index) override;
@@ -209,7 +219,7 @@ REGISTER_NODE_TYPE(RepeaterDecorator)
 class RepeatUntilFailDecorator final : public DecoratorNode
 {
 public:
-	RepeatUntilFailDecorator(BehaviorTree* bt, const ptr& parentNode) : DecoratorNode(bt, parentNode) { }
+	RepeatUntilFailDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) { }
 
 	void Execute(unsigned int index) override;
 };
@@ -221,7 +231,7 @@ REGISTER_NODE_TYPE(RepeatUntilFailDecorator)
 class InverterDecorator final : public DecoratorNode
 {
 public:
-	InverterDecorator(BehaviorTree* bt, const ptr& parentNode) : DecoratorNode(bt, parentNode) {}
+	InverterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };
@@ -233,7 +243,7 @@ REGISTER_NODE_TYPE(InverterDecorator)
 class SucceederDecorator final : public DecoratorNode
 {
 public:
-	SucceederDecorator(BehaviorTree* bt, const ptr& parentNode) : DecoratorNode(bt, parentNode) {}
+	SucceederDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) {}
 
 	void Execute(unsigned int index) override;
 };

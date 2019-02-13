@@ -62,7 +62,6 @@ void BehaviorTree::Draw() { }
 
 void BehaviorTree::LoadNodesFromJson(json& behaviorTreeJson)
 {
-	std::cout << "LOAD\n";
 	if (CheckJsonParameter(behaviorTreeJson, "rootNode", json::value_t::array))
 	{
 		auto rootNodeJson = behaviorTreeJson["rootNode"];
@@ -93,7 +92,6 @@ void BehaviorTree::LoadNodesFromJson(json& behaviorTreeJson)
 		}
 		else
 		{
-			std::cout << "ici\n";
 			std::ostringstream oss;
 			oss << "[Error] the type for the rootNode is missing : " << rootNodeJson[0];
 			Log::GetInstance()->Error(oss.str());
@@ -119,14 +117,14 @@ void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 
 std::shared_ptr<Node> BehaviorTree::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
 {
-	auto leaf = NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode);
+	auto leaf = NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode, behaviorTreeJson);
 	return leaf;
 }
 
 std::shared_ptr<Node> BehaviorTree::AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
 {
 	auto composite = std::dynamic_pointer_cast<CompositeNode>(
-		NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode));
+		NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode, behaviorTreeJson));
 
 	if (CheckJsonExists(behaviorTreeJson, "childs"))
 	{
@@ -166,7 +164,7 @@ std::shared_ptr<Node> BehaviorTree::AddCompositeNodeFromJson(json& behaviorTreeJ
 std::shared_ptr<Node> BehaviorTree::AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
 {
 	auto decorator = std::dynamic_pointer_cast<DecoratorNode>(
-		NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode));
+		NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode, behaviorTreeJson));
 
 	if (CheckJsonExists(behaviorTreeJson, "childs"))
 	{
