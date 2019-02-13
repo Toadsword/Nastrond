@@ -36,6 +36,7 @@ SOFTWARE.
 
 #include <editor/profiler.h>
 #include <Remotery.h>
+
 namespace sf
 {
 class RenderWindow;
@@ -58,6 +59,7 @@ class EntityManager;
 class Transform2dManager;
 class RectTransformManager;
 class Editor;
+class TilemapSystem;
 struct SystemsContainer;
 
 /**
@@ -105,6 +107,7 @@ public:
 	Transform2dManager* GetTransform2dManager();
 	RectTransformManager* GetRectTransformManager();
 	Editor* GetEditor();
+	TilemapSystem* GetTilemapSystem();
 
 	ctpl::thread_pool& GetThreadPool();
 	ProfilerFrameData& GetProfilerFrameData();

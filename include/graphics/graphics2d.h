@@ -30,13 +30,18 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
 #include <graphics/animation2d.h>
+#include <graphics/camera.h>
 #include <graphics/button.h>
 #include <graphics/text.h>
 #include <graphics/image.h>
 
 namespace sfge
 {
+	const int WINDOW_TOP_HEIGTH_PIXEL = 38;
+	const int WINDOW_SIDES_WIDTH_PIXEL = 8;
 
+	const int WINDOW_DEFAULT_HEIGTH = 720;
+	const int WINDOW_DEFAULT_WITDH = 1080;
 /**
 * \brief The Graphics Manager
 */
@@ -76,11 +81,16 @@ public:
 	* \return The SFML window
 	*/
 	sf::RenderWindow* GetWindow();
+	sf::Vector2f GetSizeWindow();
+	sf::Vector2f GetPositionWindow();
+
+	void OnChangeScreenMode();
 
 	AnimationManager* GetAnimationManager();
 	ShapeManager* GetShapeManager();
 	SpriteManager* GetSpriteManager();
 	TextureManager* GetTextureManager();
+	CameraManager* GetCameraManager();
 	ButtonManager* GetButtonManager();
 	TextManager* GetTextManager();
 	ImageManager* GetImageManager();
@@ -95,6 +105,7 @@ protected:
 	SpriteManager m_SpriteManager{m_Engine};
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
+	CameraManager m_CameraManager{ m_Engine };
 	ButtonManager m_ButtonManager{ m_Engine };
 	TextManager m_TextManager{ m_Engine };
 	ImageManager m_ImageManager{ m_Engine };

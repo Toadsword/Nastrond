@@ -39,7 +39,8 @@ Vec2f::Vec2f(float x, float y): x(x), y(y)
 }
 Vec2f::Vec2f()
 {
-
+	x = 0;
+	y = 0;
 }
 
 float Vec2f::GetMagnitude()

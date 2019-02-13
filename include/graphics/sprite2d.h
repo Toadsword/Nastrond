@@ -52,9 +52,11 @@ public:
 	void Init();
 	void Update(Transform2d* transform);
 	void Draw(sf::RenderWindow& window);
+	const sf::Texture* GetTexture();
 	void SetTexture(sf::Texture* newTexture);
 
 
+	bool is_visible;
 
 	
 protected:
@@ -97,9 +99,6 @@ protected:
 	Graphics2dManager* m_GraphicsManager = nullptr;
 	Transform2dManager* m_Transform2dManager = nullptr;
 };
-
-
-
 
 }
 #endif // !SFGE_SPRITE

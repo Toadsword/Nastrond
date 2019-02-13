@@ -97,5 +97,9 @@ namespace sfge::ext
 		int dwarfAttributed = 0;
 		int dwarfIn = 0;
 	};
+
+
+	const unsigned int EMPTY_INVENTORY = 0U;
+	const unsigned short CONTAINER_EXTENDER = 2000;
 }
 #endif

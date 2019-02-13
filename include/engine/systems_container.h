@@ -35,6 +35,7 @@
 #include <engine/transform2d.h>
 #include <engine/rect_transform.h>
 #include <editor/editor.h>
+#include <engine/tilemap.h>
 
 namespace sfge
 {
@@ -53,6 +54,7 @@ struct SystemsContainer
   Editor editor;
   EntityManager entityManager;
   Transform2dManager transformManager;
+  TilemapSystem tilemapSystem;
   RectTransformManager rectTransformManager;
 
 };

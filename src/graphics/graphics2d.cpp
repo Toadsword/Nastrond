@@ -37,7 +37,6 @@ SOFTWARE.
 
 namespace sfge
 {
-
 void Graphics2dManager::Init()
 {
 	if (const auto configPtr = m_Engine.GetConfig())
@@ -45,9 +44,13 @@ void Graphics2dManager::Init()
 		m_Windowless = configPtr->windowLess;
 		if (!m_Windowless)
 		{
+			if(configPtr->styleWindow == sf::Style::Fullscreen)
+			{
+				configPtr->screenResolution = sf::Vector2i(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().width);
+			}
 			m_Window = std::make_unique<sf::RenderWindow>(
 				sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
-				"SFGE 0.1");
+				"SFGE 0.1", configPtr->styleWindow);
 			if (configPtr->maxFramerate)
 			{
 				m_Window->setFramerateLimit(configPtr->maxFramerate);
@@ -58,11 +61,12 @@ void Graphics2dManager::Init()
 	else
 	{
 		Log::GetInstance()->Error("[Error] Config is null from Graphics Manager");
-		
 	}
 	m_TextureManager.Init();
 	m_ShapeManager.Init();
 	m_SpriteManager.Init();
+ 	m_AnimationManager.Init();
+	m_CameraManager.Init();
 	m_AnimationManager.Init();
 	m_ButtonManager.Init();
 	m_TextManager.Init();
@@ -82,6 +86,9 @@ void Graphics2dManager::Update(float dt)
 		m_ButtonManager.Update(dt);
 		m_TextManager.Update(dt);
 		m_ImageManager.Update(dt);
+
+		//Refresh View Window
+		m_CameraManager.Update(dt);
 	}
 }
 
@@ -124,6 +131,47 @@ sf::RenderWindow* Graphics2dManager::GetWindow()
 	return m_Window.get();
 }
 
+sf::Vector2f Graphics2dManager::GetSizeWindow()
+{
+	return sf::Vector2f(m_Window.get()->getSize());
+}
+
+sf::Vector2f Graphics2dManager::GetPositionWindow()
+{
+	if(m_Engine.GetConfig()->styleWindow == sf::Style::Fullscreen)
+	{
+		return sf::Vector2f(m_Window.get()->getPosition());
+	}
+	if (m_Engine.GetConfig()->styleWindow == sf::Style::Default)
+	{
+		return sf::Vector2f(m_Window.get()->getPosition()) + sf::Vector2f(WINDOW_SIDES_WIDTH_PIXEL, WINDOW_TOP_HEIGTH_PIXEL);
+	}
+}
+
+void Graphics2dManager::OnChangeScreenMode()
+{
+	if (const auto configPtr = m_Engine.GetConfig())
+	{
+		switch (configPtr->styleWindow) {
+		case sf::Style::Fullscreen:
+			configPtr->screenResolution = sf::Vector2i(WINDOW_DEFAULT_WITDH, WINDOW_DEFAULT_HEIGTH);
+			configPtr->styleWindow = sf::Style::None;
+			break;
+		case sf::Style::None:
+			configPtr->styleWindow = sf::Style::Default;
+			break;
+		case sf::Style::Default:
+			configPtr->styleWindow = sf::Style::Fullscreen;
+			configPtr->screenResolution = sf::Vector2i(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
+			break;
+		}
+
+		m_Window->close();
+		m_Window->create(sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
+			"SFGE 0.1", configPtr->styleWindow);
+	}
+}
+
 SpriteManager* Graphics2dManager::GetSpriteManager()
 {
 	return &m_SpriteManager;
@@ -159,6 +207,12 @@ ImageManager* Graphics2dManager::GetImageManager()
 	return &m_ImageManager;
 }
 
+CameraManager* Graphics2dManager::GetCameraManager()
+{
+	return &m_CameraManager;
+}
+
+
 void Graphics2dManager::CheckVersion() const
 {
 	sf::ContextSettings settings = m_Window->getSettings();
@@ -191,7 +245,6 @@ void Graphics2dManager::Clear()
 
 void Graphics2dManager::Collect()
 {
-
 	m_TextureManager.Collect();
 	m_SpriteManager.Collect();
 }
