@@ -35,6 +35,15 @@ Node::Node(BehaviorTree* bt, ptr parentNode)
 	m_ParentNode = std::move(parentNode);
 }
 
+RepeaterDecorator::RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson): DecoratorNode(
+	bt, parentNode)
+{
+	if (CheckJsonExists(nodeJson, "limit"))
+	{
+		m_Limit = nodeJson["limit"];
+	}
+}
+
 RepeaterDecorator::RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, const int limit) : DecoratorNode(bt, parentNode)
 {
 	m_Limit = limit;

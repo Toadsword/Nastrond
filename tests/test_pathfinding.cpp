@@ -101,8 +101,8 @@ TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 
 	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>("BehaviorTree");
 
-	//const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
-	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/single_loop.asset");
+	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
+	//const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/single_loop.asset");
 
 	behaviourTree->LoadNodesFromJson(*sceneJsonPtr);
 

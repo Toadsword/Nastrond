@@ -47,10 +47,10 @@ void BehaviorTree::Update(float dt)
 #endif
 
 #ifdef BT_AOS
-	if (dataBehaviorTree.size() < entities->size())
+	if (dataBehaviorTree.size() < m_Entities->size())
 		{
 		int previousSize = dataBehaviorTree.size();
-		dataBehaviorTree.resize(entities->size());
+		dataBehaviorTree.resize(m_Entities->size());
 
 		for(auto i = previousSize; i < dataBehaviorTree.size(); i++)
 		{
@@ -60,11 +60,9 @@ void BehaviorTree::Update(float dt)
 
 	}
 
-	auto t1 = std::chrono::high_resolution_clock::now();
-	
-	for (size_t i = 0; i < entities->size(); i++)
+	for (size_t i = 0; i < m_Entities->size(); i++)
 	{
-		if (entities->at(i) == INVALID_ENTITY)
+		if (m_Entities->at(i) == INVALID_ENTITY)
 		{
 			continue;
 		}
@@ -77,11 +75,6 @@ void BehaviorTree::Update(float dt)
 #endif
 
 	}
-
-	auto t2 = std::chrono::high_resolution_clock::now();
-
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-	std::cout << "Time: " << duration << "\n";
 }
 
 void BehaviorTree::FixedUpdate() { }
@@ -140,7 +133,7 @@ void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
 
 void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 {
-	entities = vectorEntities;
+	m_Entities = vectorEntities;
 }
 
 std::shared_ptr<Node> BehaviorTree::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)

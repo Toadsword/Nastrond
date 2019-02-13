@@ -128,7 +128,7 @@ void DwarfManager::DestroyDwarfByIndex(unsigned int index)
 
 	//Clean all values
 	m_DwarfsEntities[index] = INVALID_ENTITY;
-	m_Paths[index] = std::vector<Vec2f>(0);
+	m_Paths[index].clear();
 	m_States[index] = State::INVALID;
 	m_AssociatedDwelling[index] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;

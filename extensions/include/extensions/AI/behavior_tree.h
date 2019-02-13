@@ -54,6 +54,10 @@ public:
 
 	void Draw() override;
 
+	/**
+	 * \brief Load complete behavior tree from json fil
+	 * \param behaviorTreeJson 
+	 */
 	void LoadNodesFromJson(json& behaviorTreeJson);
 
 	/**
@@ -67,8 +71,6 @@ public:
 	* \param vectorEntities
 	*/
 	void SetEntities(std::vector<Entity>* vectorEntities);
-
-	std::vector<Entity>* entities;
 
 #ifdef BT_AOS
 	struct dataBehaviorTree
@@ -107,6 +109,8 @@ private:
 	std::shared_ptr<Node> AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
 
 	Node::ptr m_RootNode = nullptr;
+
+	std::vector<Entity>* m_Entities;
 };
 }
 

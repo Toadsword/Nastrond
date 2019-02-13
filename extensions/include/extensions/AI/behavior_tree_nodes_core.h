@@ -43,14 +43,31 @@ class BehaviorTree;
 class NodeFactory
 {
 public:
+	/**
+	 * \brief Create a new Node
+	 * \param bt 
+	 * \param parentNode 
+	 * \param nodeJson 
+	 * \return 
+	 */
 	virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode, json& nodeJson) = 0;
 
+	/**
+	 * \brief Use to register a node's factory
+	 * \param name string of the node class name
+	 * \param factory 
+	 */
 	static void RegisterType(const std::string& name, NodeFactory* factory) {
 		if (m_Factories.find(name) == m_Factories.end()) {
 			m_Factories[name] = factory;
 		}
 	}
 
+	/**
+	 * \brief Get the factory by string
+	 * \param name 
+	 * \return 
+	 */
 	static NodeFactory* GetFactory(const std::string& name)
 	{
 		return m_Factories[name];
@@ -195,14 +212,7 @@ protected:
 class RepeaterDecorator final : public DecoratorNode
 {
 public:
-	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode)
-	{
-		if(CheckJsonExists(nodeJson, "limit"))
-		{
-			m_Limit = nodeJson["limit"];
-			std::cout << "limit = " << m_Limit << "\n";
-		}
-	}
+	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson);
 	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, int limit = 0);
 
 	void Execute(unsigned int index) override;
