@@ -172,6 +172,12 @@ void PyBehavior::Update(float dt)
 				auto* sound = soundManager->GetComponentPtr(m_Entity);
 				return py::cast(sound, py::return_value_policy::reference);
 			}
+		case ComponentType::CAMERA:
+			{
+				auto* cameraManager = m_Engine.GetGraphics2dManager()->GetCameraManager();
+				auto* camera = cameraManager->GetComponentPtr(m_Entity);
+				return py::cast(camera, py::return_value_policy::reference);
+			}
 		default:
 			return py::none();
 		}

@@ -52,8 +52,13 @@ public:
 	void Init();
 	void Update(Transform2d* transform);
 	void Draw(sf::RenderWindow& window);
+	const sf::Texture* GetTexture();
 	void SetTexture(sf::Texture* newTexture);
 
+
+	bool is_visible;
+
+	
 protected:
 	sf::Sprite sprite;
 };

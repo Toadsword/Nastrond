@@ -58,6 +58,7 @@ void Editor::Init()
 	m_Config = m_Engine.GetConfig();
 	m_Enable = m_Config == nullptr || m_Config->editor;
 	m_KeyboardManager = &m_Engine.GetInputManager()->GetKeyboardManager();
+	m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
 	m_TilemapSystem = m_Engine.GetTilemapSystem();
 	m_Window = m_GraphicsManager->GetWindow();
 	m_ToolWindow.Init();
@@ -79,6 +80,12 @@ void Editor::Update(float dt)
 		m_Enable = !m_Enable;
 		m_Config->editor = m_Enable;
 	}
+
+	if (m_KeyboardManager->IsKeyDown(sf::Keyboard::Key::F1))
+	{
+		m_GraphicsManager->OnChangeScreenMode();
+	}
+
 	if (m_Enable)
 	{
 		const auto configPtr = m_Engine.GetConfig();
@@ -127,8 +134,6 @@ void Editor::Update(float dt)
 		}
 		
 	}
-
-
 }
 /**
 * \brief Update the SceneManager, mostly updating the GameObjects of the current Scene and doing the transition when needed
@@ -152,8 +157,6 @@ void Editor::Draw()
 		}
 	}
 }
-
-
 
 /**
 * \brief Finalize and delete everything created in the SceneManager
@@ -183,7 +186,6 @@ void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
 		oss << "SFGE " << SFGE_VERSION << " - " << m_CurrentScene->name;
 		m_Window->setTitle(oss.str());
 	}
-
 }
 void Editor::AddDrawableObserver(editor::IDrawableManager *observer)
 {

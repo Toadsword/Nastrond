@@ -3,6 +3,7 @@
 		"x": 1280,
 		"y": 720
 	},
+	"styleWindow" : 7,
 	"gravity": {
 		"x": 0,
 		"y": 9.81

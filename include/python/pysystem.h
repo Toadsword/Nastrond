@@ -29,7 +29,6 @@
 
 #include <engine/system.h>
 #include <engine/component.h>
-#include "extensions/navigation_graph_manager.h"
 
 namespace sfge
 {
