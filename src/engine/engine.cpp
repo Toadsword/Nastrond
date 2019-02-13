@@ -229,6 +229,9 @@ void Engine::Collect()
 
 void Engine::Save()
 {
+	json j;
+	j["name"] = m_SystemsContainer->editor.GetCurrentSceneName();
+	j["entities"] = nlohmann::detail::value_t::array;
 	//Récupérer les données (json?) de chaque manager concernées par le save
 	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
 
