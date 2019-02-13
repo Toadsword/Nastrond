@@ -30,7 +30,7 @@ SOFTWARE.
 #include <iostream>
 
 
-TEST(Building, MineProduction)
+TEST(Building, ProductionBuilding)
 {
 	sfge::Engine engine;
 
@@ -43,10 +43,10 @@ TEST(Building, MineProduction)
 	const auto config = engine.GetConfig();
 
 	json sceneJson = {
-		{ "name", "Spawn mine and produce" } };
+		{ "name", "Spawn production building and produce" } };
 
 	json systemJsonMineManager = {
-		{ "systemClassName", "MineManager" } };
+		{ "systemClassName", "ProductionBuildingManager" } };
 
 	sceneJson["systems"] = json::array({ systemJsonMineManager });
 
@@ -129,7 +129,20 @@ TEST(Building, BuildingManager)
 	json systemJsonBuildingManager = {
 		{ "systemClassName", "BuildingManager" } };
 
-	sceneJson["systems"] = json::array({ systemJsonBuildingManager });
+	json systemJsonDwellingManager = {
+	{ "systemClassName", "DwellingManager" } };
+
+	json systemJsonProductionBuildingManager = {
+	{ "systemClassName", "ProductionBuildingManager" } };
+
+	json systemJsonForgeManager = {
+	{ "systemClassName", "ForgeManager" } };
+
+	json systemJsonWarehousegManager = {
+	{ "systemClassName", "WarehouseManager" } };
+
+
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonBuildingManager, systemJsonForgeManager, systemJsonWarehousegManager, systemJsonBuildingManager });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 

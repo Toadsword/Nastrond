@@ -30,9 +30,7 @@ SOFTWARE.
 
 #include <extensions/dwelling_manager.h>
 #include <extensions/forge_manager.h>
-#include <extensions/mine_manager.h>
-#include <extensions/excavation_post_manager.h>
-#include <extensions/mushroom_farm_manager.h>
+#include <extensions/production_building_manager.h>
 #include <extensions/warehouse_manager.h>
 
 
@@ -54,17 +52,17 @@ namespace sfge::ext
 
 		void Draw() override;
 
-
-		enum BuildingType
+		struct InventoryTask
 		{
-			FORGE,
-			MINE,
-			EXCAVATION_POST,
-			MUSHROOM_FARM,
-			WAREHOUSE,
-			DWELLING, //Warning : Dwelling are not consider as working place
-			LENGTH
+			Entity giver = INVALID_ENTITY;
+			Entity receiver = INVALID_ENTITY;
+			BuildingType giverType = BuildingType::NO_BUILDING_TYPE;
+			BuildingType receiverType = BuildingType::NO_BUILDING_TYPE;
+			ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
+			char resourceQuantity = 0;
 		};
+
+		const InventoryTask INVALID_INVENTORY_TASK;
 
 		void SpawnBuilding(BuildingType buildingType, Vec2f position);
 
@@ -72,18 +70,31 @@ namespace sfge::ext
 
 		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
 
+		void DeallocateDwarfToWorkingPlace(BuildingType buildingType, Entity entity);
+
 		void DwarfEnterBuilding(BuildingType buildingType, Entity entity);
 
 		void DwarfExitBuilding(BuildingType buildingType, Entity entity);
 
+		void DwarfTakesResources(BuildingType buildingType, Entity entity);
+
+		void DwarfPutsResources(BuildingType buildingType, Entity entity, unsigned int resourceQuantity);
+
+		InventoryTask ConveyorLookForTask();
+
+
+		//for dwellings
+		Entity AttributeDwarfToDwelling();
+
+		void DeallocateDwarfToDwelling(Entity entity);
+
+
 	private:
 		DwellingManager* m_DwellingManager;
 		ForgeManager* m_ForgeManager;
-		MineManager* m_MineManager;
-		ExcavationPostManager* m_ExcavationPostManager;
-		MushroomFarmManager* m_MushroomFarmManager;
+		ProductionBuildingManager* m_ProductionBuildingManager;
 		WarehouseManager* m_WarehouseManager;
-
+		bool blep = true;
 	};
 }
 #endif

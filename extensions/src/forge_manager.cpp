@@ -76,7 +76,6 @@ namespace sfge::ext
 		{
 			size_t newForge = m_EntityIndex.size();
 
-
 			ResizeContainer(newForge + CONTAINER_EXTENDER);
 
 			m_IronsInventories[newForge].resourceType = ResourceType::IRON;
@@ -209,11 +208,19 @@ namespace sfge::ext
 		return m_ResourceTypeProduced;
 	}
 
-	std::vector<ResourceType> ForgeManager::GetNeededResourceType()
+	ResourceType ForgeManager::GetNeededResourceType()
 	{
-		std::vector<ResourceType> resourceTypes;
-		resourceTypes.push_back(m_ResourceTypeNeeded);
-		return resourceTypes;
+		return m_ResourceTypeNeeded;
+	}
+
+	unsigned char ForgeManager::GetAmountOfResources()
+	{
+		return m_StackSize;
+	}
+
+	Entity ForgeManager::GetBuildingWithNeed()
+	{
+		return Entity();
 	}
 
 	int ForgeManager::GetResourcesBack(Entity entity)

@@ -40,7 +40,7 @@ namespace sfge::ext
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 
-		for (int i = 0; i < 1000; i++)
+		for (int i = 0; i < 1000000; i++)
 		{
 			AddNewBuilding(Vec2f((std::rand() % static_cast<int>(600)), (std::rand() % static_cast<int>(600))));
 		}
@@ -66,12 +66,10 @@ namespace sfge::ext
 
 	void BuildingNoEntityManager::AddNewBuilding(Vec2f pos)
 	{
-
+		sf::Vector2f position = sf::Vector2f(pos.x, pos.y);
 			const size_t newDwelling = m_EntityIndex.size();
 
-			ResizeContainer(newDwelling + CONTAINER_EXTENDER);
-			m_FoodInventories[newDwelling].resourceType = ResourceType::FOOD;
-			m_CoolDownFramesProgression[newDwelling] = 0u;
+			ResizeContainer(newDwelling + 1);
 
 			m_EntityIndex[newDwelling] = newDwelling + 1;
 
@@ -82,51 +80,19 @@ namespace sfge::ext
 			m_VertexArray[4 * newDwelling + 2].texCoords = textureSize;
 			m_VertexArray[4 * newDwelling + 3].texCoords = sf::Vector2f(0, textureSize.y);
 
-			m_VertexArray[4 * newDwelling].position = pos - textureSize / 2.0f;
-			m_VertexArray[4 * newDwelling + 1].position = pos + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-			m_VertexArray[4 * newDwelling + 2].position = pos + textureSize / 2.0f;
-			m_VertexArray[4 * newDwelling + 3].position = pos + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+			m_VertexArray[4 * newDwelling].position = position - textureSize / 2.0f;
+			m_VertexArray[4 * newDwelling + 1].position = position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
+			m_VertexArray[4 * newDwelling + 2].position = position + textureSize / 2.0f;
+			m_VertexArray[4 * newDwelling + 3].position = position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
 	}
 
 	void BuildingNoEntityManager::Consume()
 	{
-		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
-		{
-			if (m_EntityIndex[i] == INVALID_ENTITY)
-			{
-				continue;
-			}
-
-			if (m_FoodInventories[i].inventory <= 0)
-			{
-				DecreaseHappiness();
-				continue;
-			}
-			else if (m_DwarfSlots[i].dwarfIn <= 0)
-			{
-				continue;
-			}
-
-			m_CoolDownFramesProgression[i]++;
-
-			if (m_CoolDownFramesProgression[i] >= m_CoolDownFrames)
-			{
-				m_FoodInventories[i].inventory -= m_DwarfSlots[i].dwarfIn;
-				if (m_FoodInventories[i].inventory < 0)
-				{
-					m_FoodInventories[i].inventory = 0;
-					DecreaseHappiness();
-				}
-			}
-		}
 	}
 
 	void BuildingNoEntityManager::ResizeContainer(const size_t newSize)
 	{
 		m_EntityIndex.resize(newSize, INVALID_ENTITY);
-		m_DwarfSlots.resize(newSize);
-		m_FoodInventories.resize(newSize);
-		m_CoolDownFramesProgression.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
 	}
 

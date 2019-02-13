@@ -72,6 +72,16 @@ namespace sfge::ext
 		return Entity();
 	}
 
+	Entity WarehouseManager::GetWarehouseWithResources(ResourceType resourceType)
+	{
+		return Entity();
+	}
+
+	Entity WarehouseManager::GetWarehouseWithFreeSpaceAvailable(ResourceType resourceType)
+	{
+		return Entity();
+	}
+
 
 
 }

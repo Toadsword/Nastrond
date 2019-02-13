@@ -43,11 +43,6 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
-
-		for (int i = 0; i < 1000; i++)
-		{
-			AddNewBuilding(Vec2f((std::rand() % static_cast<int>(600)), (std::rand() % static_cast<int>(600))));
-		}
 	}
 
 	void DwellingManager::Update(float dt)
@@ -246,7 +241,6 @@ namespace sfge::ext
 		m_FoodInventories.resize(newSize);
 		m_CoolDownFramesProgression.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
-
 	}
 
 	bool DwellingManager::CheckEmptySlot(Entity newEntity, Transform2d* transformPtr)

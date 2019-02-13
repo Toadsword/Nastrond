@@ -77,14 +77,6 @@ namespace sfge::ext
 
 		std::vector<Entity> m_EntityIndex;
 
-
-		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<ReceiverInventory> m_FoodInventories;
-		std::vector<unsigned int> m_CoolDownFramesProgression;
-
-		const ResourceType m_ResourceTypeNeeded = ResourceType::FOOD;
-		const unsigned int m_CoolDownFrames = 2000;
-
 		//Building texture
 		std::string m_TexturePath;
 		TextureId m_TextureId;
@@ -92,8 +84,6 @@ namespace sfge::ext
 
 		//Vertex array
 		sf::VertexArray m_VertexArray;
-
-		int coolDown = 0;
 	};
 }
 #endif

@@ -110,7 +110,13 @@ namespace sfge::ext
 		 * \brief Get all resources that the building need to do his work.
 		 * \return a vector with all the type of resources that the forge need.
 		 */
-		std::vector<ResourceType> GetNeededResourceType();
+		ResourceType GetNeededResourceType();
+
+		unsigned char GetAmountOfResources();
+
+		Entity GetBuildingWithNeed();
+
+		Entity GetBuildingWithProduction();
 
 		/**
 		 * \brief get a certain amount of resources that a forge have produce.
