@@ -45,10 +45,10 @@ TEST(Building, ProductionBuilding)
 	json sceneJson = {
 		{ "name", "Spawn production building and produce" } };
 
-	json systemJsonMineManager = {
+	json systemJsonProductionBuildingManager = {
 		{ "systemClassName", "ProductionBuildingManager" } };
 
-	sceneJson["systems"] = json::array({ systemJsonMineManager });
+	sceneJson["systems"] = json::array({ systemJsonProductionBuildingManager });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
@@ -130,19 +130,19 @@ TEST(Building, BuildingManager)
 		{ "systemClassName", "BuildingManager" } };
 
 	json systemJsonDwellingManager = {
-	{ "systemClassName", "DwellingManager" } };
-
+		{ "systemClassName", "DwellingManager" } };
+		
 	json systemJsonProductionBuildingManager = {
-	{ "systemClassName", "ProductionBuildingManager" } };
+		{ "systemClassName", "ProductionBuildingManager" } };
 
 	json systemJsonForgeManager = {
-	{ "systemClassName", "ForgeManager" } };
+		{ "systemClassName", "ForgeManager" } };
 
 	json systemJsonWarehousegManager = {
-	{ "systemClassName", "WarehouseManager" } };
+		{ "systemClassName", "WarehouseManager" } };
 
 
-	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonBuildingManager, systemJsonForgeManager, systemJsonWarehousegManager, systemJsonBuildingManager });
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonBuildingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehousegManager, systemJsonBuildingManager });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 

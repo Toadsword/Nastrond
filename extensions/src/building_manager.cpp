@@ -45,13 +45,6 @@ namespace sfge::ext
 
 	void BuildingManager::FixedUpdate()
 	{
-		if (blep)
-		{
-			//SpawnBuilding(BuildingType::MINE, Vec2f(100, 200));
-			//SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(300, 200));
-			//SpawnBuilding(BuildingType::DWELLING, Vec2f(300, 400));
-			blep = false;
-		}
 	}
 
 	void BuildingManager::Draw() {}
@@ -75,6 +68,9 @@ namespace sfge::ext
 		case BuildingType::WAREHOUSE:
 			m_WarehouseManager->AddNewBuilding(position);
 			break;
+		case BuildingType::DWELLING:
+			m_DwellingManager->AddNewBuilding(position);
+		break;
 		}
 	}
 
