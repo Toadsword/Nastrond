@@ -56,6 +56,7 @@ class PythonEngine;
 class Physics2dManager;
 class EntityManager;
 class Transform2dManager;
+class RectTransformManager;
 class Editor;
 struct SystemsContainer;
 
@@ -102,6 +103,7 @@ public:
 	Physics2dManager* GetPhysicsManager();
 	EntityManager* GetEntityManager();
 	Transform2dManager* GetTransform2dManager();
+	RectTransformManager* GetRectTransformManager();
 	Editor* GetEditor();
 
 	ctpl::thread_pool& GetThreadPool();

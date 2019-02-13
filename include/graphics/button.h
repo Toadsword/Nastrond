@@ -22,10 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifndef SFGE_BUTTON_H
+#define SFGE_BUTTON_H
+
 #include <SFML/Graphics.hpp>
 #include <editor/editor_info.h>
 #include <utility/json_utility.h>
 #include <engine/component.h>
+#include <Input/input.h>
+#include <engine/rect_transform.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge
 {
@@ -37,19 +43,34 @@ namespace sfge
 	};
 
 	struct Button {
-		sf::Sprite sprite;
-		sf::Sprite spriteHovered;
-		sf::Sprite spriteClicked;
-		sf::Texture texture;
-		sf::Texture textureHovered;
-		sf::Texture textureClicked;
-		sf::Color color;
-		sf::Color colorHovered;
-		sf::Color colorClicked;
-		void* action = nullptr;
-		void* data = nullptr;
+	public:
+		void Init();
+		void Update(RectTransform* rectTransform);
+		void Draw(sf::RenderWindow& window) const;
+
+		void SetSpriteNone(const std::string& spritePath);
+		void SetSpriteHovered(const std::string& spritePath);
+		void SetSpriteClicked(const std::string& spritePath);
+		void SetColorNone(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColorNone(sf::Color color);
+		void SetColorHovered(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColorHovered(sf::Color color);
+		void SetColorClicked(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColorClicked(sf::Color color);
+
+		std::string spriteNonePath;
+		std::string spriteHoveredPath;
+		std::string spriteClickedPath;
+		sf::Uint8 colorNone[4] = {0, 0, 0, 255};
+		sf::Uint8 colorHovered[4] = { 0, 0, 0, 255 };
+		sf::Uint8 colorClicked[4] = { 0, 0, 0, 255 };
 
 		ButtonState state = ButtonState::NONE;
+		TextureId spriteNone;
+		TextureId spriteHovered;
+		TextureId spriteClicked;
+		sf::Sprite sprite;
+		sf::Color color;
 	};
 
 	struct ButtonInfo : editor::ComponentInfo
@@ -59,17 +80,23 @@ namespace sfge
 	};
 
 	class ButtonManager : public SingleComponentManager<Button, ButtonInfo, ComponentType::BUTTON> {
+	public:
 		using SingleComponentManager::SingleComponentManager;
 		void CreateComponent(json& componentJson, Entity entity) override;
 		Button* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;
 
-		void SetSprite(Entity entity, const std::string& newSpritePath);
-		void SetSpriteHovered(Entity entity, const std::string& newSpritePath);
-		void SetSpriteClicked(Entity entity, const std::string& newSpritePath);
-		void SetAction(Entity entity, const void* function, const void* data);
+		void Init() override;
+		void Update(float dt) override;
+		void DrawButtons(sf::RenderWindow& window);
 
-		void CheckMouseOnButton(Entity entity, Vec2f& mousePosition);
-		void OnClick(Entity entity, void* (function)(void *), void* data);
+		void LoadSprites();
+		void SetSprite(Button* button) const;
+	protected:
+		Vec2f mousePosition;
+		RectTransformManager* m_RectTransformManager;
+		MouseManager* m_MouseManager;
+		TextureManager* m_TextureManager;
 	};
 }
+#endif

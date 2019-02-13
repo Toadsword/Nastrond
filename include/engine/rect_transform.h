@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifndef SFGE_RECT_TRANSFORM_H
+#define SFGE_RECT_TRANSFORM_H
+
 #include <editor/editor_info.h>
 #include <utility/json_utility.h>
 #include <engine/component.h>
@@ -41,10 +44,14 @@ namespace sfge
 	};
 
 	class RectTransformManager : public SingleComponentManager<RectTransform, RectTransformInfo, ComponentType::RECTTRANSFORM> {
+	public:
 		using SingleComponentManager::SingleComponentManager;
 		void CreateComponent(json& componentJson, Entity entity) override;
 		RectTransform* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;
+
+		void Init();
+		void Update(float dt) override;
 
 		void SetPosition(Entity entity, const Vec2f& newPosition);
 		void SetScale(Entity entity, const Vec2f& newScale);
@@ -57,3 +64,4 @@ namespace sfge
 		Vec2f GetSize(Entity entity);
 	};
 }
+#endif

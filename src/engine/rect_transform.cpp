@@ -58,6 +58,16 @@ namespace sfge
 		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::RECTTRANSFORM);
 	}
 
+	void RectTransformManager::Init()
+	{
+		
+	}
+	
+	void RectTransformManager::Update(float dt)
+	{
+
+	}
+
 	void RectTransformManager::SetPosition(Entity entity, const Vec2f& newPosition)
 	{
 		GetComponentPtr(entity)->Position = newPosition;

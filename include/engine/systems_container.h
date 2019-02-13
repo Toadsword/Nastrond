@@ -33,7 +33,7 @@
 #include <physics/physics2d.h>
 #include <engine/entity.h>
 #include <engine/transform2d.h>
-#include <engine/ui.h>
+#include <engine/rect_transform.h>
 #include <editor/editor.h>
 
 namespace sfge
@@ -53,7 +53,7 @@ struct SystemsContainer
   Editor editor;
   EntityManager entityManager;
   Transform2dManager transformManager;
-  UIManager uiManager;
+  RectTransformManager rectTransformManager;
 
 };
 }

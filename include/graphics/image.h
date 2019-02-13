@@ -22,17 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifndef SFGE_IMAGE_H
+#define SFGE_IMAGE_H
+
 #include <SFML/Graphics.hpp>
 #include <editor/editor_info.h>
 #include <utility/json_utility.h>
 #include <engine/component.h>
+#include <engine/rect_transform.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge
 {
 	struct Image {
+	public:
+		void Init();
+		void Update(RectTransform* rectTransform);
+		void Draw(sf::RenderWindow& window);
+
+		void SetSprite(std::string spritePath);
+		void SetColor(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColor(sf::Color color);
+
+		std::string spritePath;
+		sf::Uint8 color[4] = {0, 0, 0, 255};
+		TextureId textureId;
 		sf::Sprite sprite;
-		sf::Texture texture;
-		sf::Color color;
 	};
 
 	struct ImageInfo : editor::ComponentInfo
@@ -42,13 +57,21 @@ namespace sfge
 	};
 
 	class ImageManager : public SingleComponentManager<Image, ImageInfo, ComponentType::IMAGE> {
+	public:
 		using SingleComponentManager::SingleComponentManager;
 		void CreateComponent(json& componentJson, Entity entity) override;
 		Image* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;
 
-		void Draw() override;
+		void Init() override;
+		void Update(float dt) override;
+		void DrawImages(sf::RenderWindow& window);
 
-		void SetSprite(Entity entity, const std::string& newSpritePath);
+		void LoadSprites();
+		void SetSprite(Image* image) const;
+	protected:
+		RectTransformManager* m_RectTransformManager;
+		TextureManager* m_TextureManager;
 	};
 }
+#endif

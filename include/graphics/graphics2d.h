@@ -30,6 +30,9 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
 #include <graphics/animation2d.h>
+#include <graphics/button.h>
+#include <graphics/text.h>
+#include <graphics/image.h>
 
 namespace sfge
 {
@@ -78,6 +81,9 @@ public:
 	ShapeManager* GetShapeManager();
 	SpriteManager* GetSpriteManager();
 	TextureManager* GetTextureManager();
+	ButtonManager* GetButtonManager();
+	TextManager* GetTextManager();
+	ImageManager* GetImageManager();
 
 protected:
 	bool m_Windowless = false;
@@ -89,6 +95,9 @@ protected:
 	SpriteManager m_SpriteManager{m_Engine};
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
+	ButtonManager m_ButtonManager{ m_Engine };
+	TextManager m_TextManager{ m_Engine };
+	ImageManager m_ImageManager{ m_Engine };
 	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 

@@ -26,6 +26,42 @@ SOFTWARE.
 
 namespace sfge
 {
+	void Image::Init()
+	{
+		
+	}
+
+	void Image::Update(RectTransform* rectTransform)
+	{
+		sprite.setPosition(rectTransform->Position.x, rectTransform->Position.y);
+	}
+
+	void Image::Draw(sf::RenderWindow& window)
+	{
+		window.draw(sprite);
+	}
+
+	void Image::SetSprite(std::string spritePath)
+	{
+		this->spritePath = spritePath;
+	}
+
+	void Image::SetColor(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a)
+	{
+		color[0] = r;
+		color[1] = g;
+		color[2] = b;
+		color[3] = a;
+	}
+
+	void Image::SetColor(sf::Color color)
+	{
+		this->color[0] = color.r;
+		this->color[1] = color.g;
+		this->color[2] = color.b;
+		this->color[3] = color.a;
+	}
+
 	void ImageInfo::DrawOnInspector()
 	{
 		
@@ -33,32 +69,12 @@ namespace sfge
 
 	void ImageManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		auto* image = AddComponent(entity);
-
-		sf::Color sampleColor = sampleColor.Black;
-
-		if (CheckJsonExists(componentJson, "sprite"))
+		if (CheckJsonExists(componentJson, "spritePath"))
 		{
-			if (image->texture.loadFromFile(componentJson["sprite"]))
-				image->sprite.setTexture(image->texture);
+			m_Components[entity].SetSprite(componentJson["spritePath"]);
 
 			if (CheckJsonExists(componentJson, "color"))
-			{
-				/*
-				* Color is an array in the json :
-				* "color": [r,g,b,a]
-				*/
-				image->color.r = componentJson["color"][0];
-				image->color.g = componentJson["color"][1];
-				image->color.b = componentJson["color"][2];
-				image->color.a = componentJson["color"][3];
-
-				image->sprite.setColor(image->color);
-			}
-			else
-			{
-				image->sprite.setColor(sampleColor);
-			}
+				m_Components[entity].SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
 		}
 	}
 
@@ -76,15 +92,55 @@ namespace sfge
 		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::IMAGE);
 	}
 
-	void ImageManager::Draw()
+	void ImageManager::Init()
 	{
-
+		SingleComponentManager::Init();
 	}
 
-	void ImageManager::SetSprite(Entity entity, const std::string& newSpritePath)
+	void ImageManager::Update(float dt)
 	{
-		auto component = GetComponentPtr(entity);
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
+			{
+				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1));
+			}
+		}
+	}
 
-		component->sprite.setTexture(component->texture);
+	void ImageManager::DrawImages(sf::RenderWindow& window)
+	{
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE))
+			{
+				m_Components[i].Draw(window);
+			}
+		}
+	}
+
+	void ImageManager::LoadSprites()
+	{
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON))
+			{
+				m_Components[i].textureId = m_TextureManager->LoadTexture(m_Components[i].spritePath);
+			}
+		}
+	}
+
+	void ImageManager::SetSprite(Image* image) const
+	{
+		image->sprite.setTexture(*m_TextureManager->GetTexture(image->textureId));
+
+		sf::Color color;
+
+		color.r = image->color[0];
+		color.g = image->color[1];
+		color.b = image->color[2];
+		color.a = image->color[3];
+
+		image->sprite.setColor(color);
 	}
 }

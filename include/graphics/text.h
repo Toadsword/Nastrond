@@ -22,14 +22,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifndef SFGE_TEXT_H
+#define SFGE_TEXT_H
+
 #include <SFML/Graphics.hpp>
 #include <editor/editor_info.h>
 #include <utility/json_utility.h>
 #include <engine/component.h>
+#include <engine/rect_transform.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge
 {
 	struct Text {
+	public:
+		void Init();
+		void Update(RectTransform* rectTransform);
+		void Draw(sf::RenderWindow& window) const;
+
+		void SetString(const std::string& newText);
+		void SetFont(const std::string& newFontPath);
+		void SetSize(const unsigned newSize);
+		void SetColor(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColor(sf::Color newColor);
+
+		std::string GetString() const;
+		std::string GetFont() const;
+		unsigned GetSize() const;
+	protected:
 		sf::Text text;
 		sf::Font font;
 		sf::Color color;
@@ -42,17 +62,17 @@ namespace sfge
 	};
 
 	class TextManager : public SingleComponentManager<Text, TextInfo, ComponentType::TEXT> {
+	public:
 		using SingleComponentManager::SingleComponentManager;
 		void CreateComponent(json& componentJson, Entity entity) override;
 		Text* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;
 
-		void SetString(Entity entity, const std::string& newText);
-		void SetFont(Entity entity, const std::string& newFontPath);
-		void SetSize(Entity entity, const unsigned newSize);
-
-		std::string GetString(Entity entity);
-		std::string GetFont(Entity entity);
-		unsigned GetSize(Entity entity);
+		void Init() override;
+		void Update(float dt) override;
+		void DrawTexts(sf::RenderWindow& window);
+	protected:
+		RectTransformManager* m_RectTransformManager;
 	};
 }
+#endif
