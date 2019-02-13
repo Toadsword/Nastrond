@@ -60,10 +60,10 @@ namespace sfge::tools
 		//Keyboard
 		KeyboardManager& keyboardManager = inputManager->GetKeyboardManager();
 
-		bool isControlHeld = keyboardManager.IsKeyHeld(sf::Keyboard::LControl) || keyboardManager.IsKeyHeld(
-			sf::Keyboard::RControl);
+		const bool isControlHeld = keyboardManager.IsKeyHeld(sf::Keyboard::LControl) || keyboardManager.IsKeyHeld(sf::Keyboard::RControl);
 		if (isControlHeld && keyboardManager.IsKeyDown(sf::Keyboard::S))
 		{
+			m_TilemapCreator->GetEngine().Save();
 			//m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
 			//m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
 		}
@@ -237,6 +237,7 @@ namespace sfge::tools
 
 				if(m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().IsButtonDown(sf::Mouse::Left))
 				{
+					m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->SetTileAt(tilePosEntity, m_SelectedTileType);
 					m_TilemapCreator->GetTileTypeManager()->SetTileTexture(tilePosEntity, m_SelectedTileType);
 				}
 			}

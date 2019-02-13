@@ -62,6 +62,8 @@ public:
 	 * \brief Update the tilemap and all the tiles within.
 	 */
 	void Update();
+
+	json Save();
 	
 	/**
 	 * \brief Calculate the size of the tilemap and returns it.
@@ -96,6 +98,16 @@ public:
 	 * \return Entity wanted
 	 */
 	Entity GetTileAt(Vec2f pos);
+	Vec2f GetTileAt(Entity tileEntity);
+
+	/**
+	 * \brief Set a new tiletype at the specified position
+	 * \param pos Position of the tile.
+	 * \param newTileType
+	 * \return Entity wanted
+	 */
+	void SetTileAt(Vec2f pos, TileTypeId newTileType);
+	void SetTileAt(Entity entity, TileTypeId newTileType);
 
 	/**
 	 * \brief Resize the limit size of the tilemap
@@ -149,6 +161,9 @@ public:
 
 	void Clear();
 	void Collect() override;
+
+	json Save();
+
 	Tilemap* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void UpdateTile(Entity tilemapEntity, Vec2f pos, TileTypeId tileTypeId);
@@ -211,6 +226,8 @@ public:
 	void Clear() override;
 
 	void Collect() override;
+
+	json Save();
 
 	TilemapManager* GetTilemapManager();
 	TileManager* GetTileManager();

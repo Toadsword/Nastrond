@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include <memory>
 
+
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
@@ -33,6 +34,7 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <utility/log.h>
+#include <utility/file_utility.h>
 #include <engine/systems_container.h>
 
 
@@ -227,14 +229,24 @@ void Engine::Collect()
 
 void Engine::Save()
 {
-	//Loop sur toutes les entitées
+	//Récupérer les données (json?) de chaque manager concernées par le save
+	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
 
+	//Loop sur toutes les entitées
 	for (int i = 0; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
 	{
-		//Lancer le save sur chaque manager, si le bitmask contient celui du manager
-		//Pour chaque manager, récup les données passées par ceux-ci
+		// Si dans le tableau recu, il existe qqch à l'index de l'entité, on met ajoute les données dans le json global.
 
+
+		//Voir quand on enregistre le transform. (Pas toujours on le fera)
 	}
+
+	// File write
+	std::ofstream myfile;
+	myfile.open("./data/scenes/testSave/coucou.json");
+	myfile.flush();
+	myfile << std::setw(4) << tilemapSave << std::endl;
+	myfile.close();
 }
 
 

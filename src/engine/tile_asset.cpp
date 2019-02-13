@@ -159,4 +159,20 @@ namespace sfge
 	{
 
 	}
+
+	json TileTypeManager::Save()
+	{
+		json j;
+
+		for(int i = 0; i < m_TileTypeId.size(); i++)
+		{
+			if(m_TileTypeId[i] != INVALID_TILE_TYPE)
+			{
+				j[i]["id"] = m_TileTypeId[i];
+				j[i]["texturePath"] = m_TextureManager->GetTexturePath(m_TexturesId[i]);
+			}
+		}
+
+		return j;
+	}
 }

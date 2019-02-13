@@ -63,6 +63,32 @@ namespace sfge
 		}
 	}
 
+	json Tilemap::Save()
+	{
+		json j;
+		j["size"] = nlohmann::detail::value_t::array;
+		Vec2f mapSize = GetSize();
+		j["size"][0] = mapSize.x;
+		j["size"][1] = mapSize.y;
+
+		j["is_isometric"] = GetIsometric();
+		j["tile_scale"][0] = GetTileScale().x;
+		j["tile_scale"][1] = GetTileScale().y;
+
+		j["layer"] = GetLayer();
+
+		j["map"] = nlohmann::detail::value_t::array;
+		for(int indexX = 0; indexX < mapSize.x; indexX++)
+		{
+			j["map"][indexX] = nlohmann::detail::value_t::array;
+			for (int indexY = 0; indexY < mapSize.y; indexY++)
+			{
+				j["map"][indexX][indexY] = m_TileTypeIds[indexX][indexY];
+			}
+		}
+		return j;
+	}
+
 	Vec2f Tilemap::GetSize()
 	{
 		if (m_Tiles.empty())
@@ -129,6 +155,29 @@ namespace sfge
 		if(pos.x >= 0 && pos.y >= 0 && size.x > pos.x && size.y > pos.y)
 			return m_Tiles[pos.x][pos.y];
 		return INVALID_ENTITY;
+	}
+
+	Vec2f Tilemap::GetTileAt(Entity tileEntity)
+	{
+		for (unsigned indexX = 0; indexX < GetSize().x; indexX++)
+		{
+			for (unsigned indexY = 0; indexY < GetSize().y; indexY++)
+			{
+				if (m_Tiles[indexX][indexY] == tileEntity)
+					return Vec2f(indexX, indexY);
+			}
+		}
+		return Vec2f(0, 0);
+	}
+
+	void Tilemap::SetTileAt(Vec2f pos, TileTypeId newTileType)
+	{
+		m_TileTypeIds[pos.x][pos.y] = newTileType;
+	}
+
+	void Tilemap::SetTileAt(Entity entity, TileTypeId newTileType)
+	{
+		SetTileAt(GetTileAt(entity), newTileType);
 	}
 
 	void Tilemap::ResizeTilemap(Vec2f newSize)
@@ -211,6 +260,19 @@ namespace sfge
 
 	void TilemapManager::Collect()
 	{
+	}
+
+	json TilemapManager::Save()
+	{
+		json j;
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
+			{
+				j[i] = m_Components[i].Save();
+			}
+		}
+		return j;
 	}
 
 	Tilemap * TilemapManager::AddComponent(Entity entity)
@@ -439,7 +501,9 @@ namespace sfge
 
 		if (tilemap.GetIsometric())
 		{
-			indexToFind.x = (deltaPos.x / tileScale.x + deltaPos.y / tileScale.y ) - 1.0f;
+			// -1 car l'index commence dans tous les cas à 1, alors que nous on veut à 0
+			// 0.4 parce que la magie
+			indexToFind.x = (deltaPos.x / tileScale.x + deltaPos.y / tileScale.y) - 1.0f;  
 			indexToFind.y = (deltaPos.y / tileScale.y - deltaPos.x / tileScale.x) + 0.4f;
 		}
 		else
@@ -493,6 +557,17 @@ namespace sfge
 		m_TileTypeManager.Collect();
 		m_TilemapManager.Collect();
 		m_TileManager.Collect();
+	}
+
+	json TilemapSystem::Save()
+	{
+		json j;
+		
+		j["tiletype"] = m_TileTypeManager.Save();
+		j["tilemap"] = m_TilemapManager.Save();
+		//m_TileManager.Save();
+		
+		return j;
 	}
 
 	TilemapManager * TilemapSystem::GetTilemapManager()
