@@ -33,7 +33,6 @@ namespace sfge::ext
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 
 		//Load Texture
 		m_TexturePath = "data/sprites/building.png";
@@ -41,6 +40,8 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
+		std::cout << "Forge Manager \n";
+
 	}
 
 	void ForgeManager::Update(float dt)
@@ -76,7 +77,6 @@ namespace sfge::ext
 		if (!CheckEmptySlot(newEntity, transformPtr))
 		{
 			size_t newForge = m_EntityIndex.size();
-
 
 			ResizeContainer(newForge + CONTAINER_EXTENDER);
 
@@ -210,11 +210,19 @@ namespace sfge::ext
 		return m_ResourceTypeProduced;
 	}
 
-	std::vector<ResourceType> ForgeManager::GetNeededResourceType()
+	ResourceType ForgeManager::GetNeededResourceType()
 	{
-		std::vector<ResourceType> resourceTypes;
-		resourceTypes.push_back(m_ResourceTypeNeeded);
-		return resourceTypes;
+		return m_ResourceTypeNeeded;
+	}
+
+	unsigned char ForgeManager::GetAmountOfResources()
+	{
+		return m_StackSize;
+	}
+
+	Entity ForgeManager::GetBuildingWithNeed()
+	{
+		return Entity();
 	}
 
 	int ForgeManager::GetResourcesBack(Entity entity)
