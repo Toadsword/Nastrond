@@ -43,6 +43,8 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
+
+		std::cout << "Dwelling Manager \n";
 	}
 
 	void DwellingManager::Update(float dt)
@@ -229,7 +231,6 @@ namespace sfge::ext
 				{
 					m_FoodInventories[i].inventory = 0;
 					DecreaseHappiness();
-					continue;
 				}
 			}
 		}
@@ -242,7 +243,6 @@ namespace sfge::ext
 		m_FoodInventories.resize(newSize);
 		m_CoolDownFramesProgression.resize(newSize);
 		m_VertexArray.resize(newSize * 4);
-
 	}
 
 	bool DwellingManager::CheckEmptySlot(Entity newEntity, Transform2d* transformPtr)

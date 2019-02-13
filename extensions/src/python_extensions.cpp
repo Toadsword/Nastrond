@@ -32,9 +32,10 @@ SOFTWARE.
 #include <extensions/planet_system.h>
 #include <extensions/navigation_graph_manager.h>
 #include <extensions/dwarf_manager.h>
-#include <extensions/mine_manager.h>
 #include <extensions/forge_manager.h>
 #include <extensions/dwelling_manager.h>
+#include <extensions/building_noentity_manager.h>
+#include <extensions/production_building_manager.h>
 
 #include <tools/tools_pch.h>
 #include "extensions/building_manager.h"
@@ -59,8 +60,8 @@ void ExtendPython(py::module& m)
 	navigationGraphManager
 		.def(py::init<Engine&>());
 
-	py::class_<MineManager, System> mineManager(m, "MineManager");
-	mineManager
+	py::class_<ProductionBuildingManager, System> productionBuildingManager(m, "ProductionBuildingManager");
+	productionBuildingManager
 		.def(py::init<Engine&>());
 
 	py::class_<ForgeManager, System> forgeManager(m, "ForgeManager");
@@ -71,20 +72,16 @@ void ExtendPython(py::module& m)
 	dwellingManager
 		.def(py::init<Engine&>());
 
-	py::class_<ExcavationPostManager, System> excavationPostManager(m, "ExcavationPostManager");
-	excavationPostManager
-		.def(py::init<Engine&>());
-
-	py::class_<MushroomFarmManager, System> mushroomFarmManager(m, "MushroomFarmManager");
-	mushroomFarmManager
-		.def(py::init<Engine&>());
-
 	py::class_<WarehouseManager, System> warehouseManager(m, "WarehouseManager");
 	warehouseManager
 		.def(py::init<Engine&>());
 
 	py::class_<BuildingManager, System> buildingManager(m, "BuildingManager");
 	buildingManager
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingNoEntityManager, System> buildingNoEntityManager(m, "BuildingNoEntityManager");
+	buildingNoEntityManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);

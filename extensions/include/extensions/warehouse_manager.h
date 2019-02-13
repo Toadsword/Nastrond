@@ -91,6 +91,10 @@ namespace sfge::ext
 		 */
 		Entity GetFreeSlotInBuilding();
 
+		Entity GetWarehouseWithResources(ResourceType resourceType);
+
+		Entity GetWarehouseWithFreeSpaceAvailable(ResourceType resourceType);
+
 	private:
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
