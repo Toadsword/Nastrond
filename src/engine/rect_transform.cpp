@@ -26,6 +26,11 @@ SOFTWARE.
 
 namespace sfge
 {
+	void RectTransform::Update(Camera* camera)
+	{
+		Position = basePosition + camera->GetPosition();
+	}
+
 	void RectTransformInfo::DrawOnInspector()
 	{
 
@@ -40,8 +45,11 @@ namespace sfge
 			rectTransform->Scale = GetVectorFromJson(componentJson, "scale");
 		if (CheckJsonExists(componentJson, "angle") && CheckJsonNumber(componentJson, "angle"))
 			rectTransform->EulerAngle = componentJson["angle"];
-		if (CheckJsonExists(componentJson, "size"))
-			rectTransform->size = GetVectorFromJson(componentJson, "size");
+		if (CheckJsonExists(componentJson, "basePosition"))
+		{
+			rectTransform->basePosition.x = componentJson["basePosition"][0];
+			rectTransform->basePosition.y = componentJson["basePosition"][1];
+		}
 	}
 
 	RectTransform* RectTransformManager::AddComponent(Entity entity)
@@ -60,46 +68,18 @@ namespace sfge
 
 	void RectTransformManager::Init()
 	{
-		
+		SingleComponentManager::Init();
+		m_CameraManager = m_Engine.GetGraphics2dManager()->GetCameraManager();
 	}
 	
 	void RectTransformManager::Update(float dt)
 	{
-
-	}
-
-	void RectTransformManager::SetPosition(Entity entity, const Vec2f& newPosition)
-	{
-		GetComponentPtr(entity)->Position = newPosition;
-	}
-
-	void RectTransformManager::SetScale(Entity entity, const Vec2f& newScale)
-	{
-		GetComponentPtr(entity)->Scale = newScale;
-	}
-
-	void RectTransformManager::SetAngle(Entity entity, const float& newAngle)
-	{
-		GetComponentPtr(entity)->EulerAngle = newAngle;
-	}
-
-	void RectTransformManager::SetSize(Entity entity, const Vec2f& newSize)
-	{
-		GetComponentPtr(entity)->size = newSize;
-	}
-
-	Vec2f RectTransformManager::GetPosition(Entity entity)
-	{
-		return GetComponentPtr(entity)->Position;
-	}
-
-	Vec2f RectTransformManager::GetScale(Entity entity)
-	{
-		return GetComponentPtr(entity)->Scale;
-	}
-
-	float RectTransformManager::GetAngle(Entity entity)
-	{
-		return GetComponentPtr(entity)->EulerAngle;
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
+			{
+				m_Components[i].Update(m_CameraManager->GetMainCamera());
+			}
+		}
 	}
 }

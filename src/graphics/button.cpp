@@ -175,18 +175,10 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1));
-
-				// Determine the size of the button
-				const Vec2f buttonPosition = m_RectTransformManager->GetComponentPtr(i + 1)->Position;
-				const Vec2f buttonSize = m_RectTransformManager->GetComponentPtr(i + 1)->halfSize;
-
 				// Temporary value of the button state
 				const ButtonState tmpState = m_Components[i].state;
 
-				// Check if the cursor is on the button
-				if (buttonPosition.x - buttonSize.x < mousePosition.x && buttonPosition.x + buttonSize.x > mousePosition.x
-					&& buttonPosition.y - buttonSize.y < mousePosition.y && buttonPosition.y + buttonSize.y > mousePosition.y)
+				if(m_Components[i].sprite.getLocalBounds().contains(mousePosition.x, mousePosition.y))
 				{
 					m_Components[i].state = ButtonState::HOVERED;
 
@@ -209,6 +201,8 @@ namespace sfge
 				// Change the sprite of the button if his state has changed
 				if (tmpState != m_Components[i].state)
 					SetSprite(&m_Components[i]);
+
+				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1));
 			}
 		}
 	}

@@ -35,7 +35,6 @@ SOFTWARE.
 namespace sfge
 {
 	struct Text {
-	public:
 		void Init();
 		void Update(RectTransform* rectTransform);
 		void Draw(sf::RenderWindow& window) const;
@@ -49,7 +48,7 @@ namespace sfge
 		std::string GetString() const;
 		std::string GetFont() const;
 		unsigned GetSize() const;
-	protected:
+
 		sf::Text text;
 		sf::Font font;
 		sf::Color color;

@@ -29,12 +29,14 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <engine/component.h>
 #include <engine/transform2d.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge
 {
 	struct RectTransform : Transform2d {
-		Vec2f size;
-		Vec2f halfSize;
+		void Update(Camera* camera);
+
+		Vec2f basePosition = {0, 0};
 	};
 
 	struct RectTransformInfo : editor::ComponentInfo
@@ -53,15 +55,8 @@ namespace sfge
 		void Init();
 		void Update(float dt) override;
 
-		void SetPosition(Entity entity, const Vec2f& newPosition);
-		void SetScale(Entity entity, const Vec2f& newScale);
-		void SetAngle(Entity entity, const float& newAngle);
-		void SetSize(Entity entity, const Vec2f& newSize);
-
-		Vec2f GetPosition(Entity entity);
-		Vec2f GetScale(Entity entity);
-		float GetAngle(Entity entity);
-		Vec2f GetSize(Entity entity);
+	protected:
+		CameraManager* m_CameraManager;
 	};
 }
 #endif
