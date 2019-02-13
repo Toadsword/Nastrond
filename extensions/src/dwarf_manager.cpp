@@ -371,7 +371,7 @@ void DwarfManager::ResizeContainers()
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlaceType.resize(newSize, BuildingManager::BuildingType::NONE);
-	m_VertexArray.resize(m_VertexArray.getVertexCount() * 4 + 4 * m_ContainersExtender);
+	m_VertexArray.resize(m_VertexArray.getVertexCount() + 4 * m_ContainersExtender);
 
 	m_PathFollowingBT.resize(newSize);
 	m_PathToIndexDwarfBT.resize(newSize);

@@ -282,7 +282,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 50;
+	const size_t m_DwarfToSpawn = 10000;
 #endif
 
 	//Dwarfs texture

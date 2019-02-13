@@ -36,24 +36,52 @@ void BehaviorTree::Init()
 
 void BehaviorTree::Update(float dt)
 {
+#ifdef BT_SOA
 	if (currentNode.size() < entities->size())
-	{
+		{
 		currentNode.resize(entities->size(), m_RootNode);
 		doesFlowGoDown.resize(entities->size());
 		previousStatus.resize(entities->size());
 		repeaterCounter.resize(entities->size(), 0);
 		sequenceActiveChild.resize(entities->size(), 0);
+#endif
+
+#ifdef BT_AOS
+	if (dataBehaviorTree.size() < entities->size())
+		{
+		int previousSize = dataBehaviorTree.size();
+		dataBehaviorTree.resize(entities->size());
+
+		for(auto i = previousSize; i < dataBehaviorTree.size(); i++)
+		{
+			dataBehaviorTree[i].currentNode = m_RootNode;
+		}
+#endif
+
 	}
 
+	auto t1 = std::chrono::high_resolution_clock::now();
+	
 	for (size_t i = 0; i < entities->size(); i++)
 	{
 		if (entities->at(i) == INVALID_ENTITY)
 		{
 			continue;
 		}
-
+#ifdef BT_SOA
 		currentNode[i]->Execute(i);
+#endif
+
+#ifdef BT_AOS
+		dataBehaviorTree[i].currentNode->Execute(i);
+#endif
+
 	}
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	std::cout << "Time: " << duration << "\n";
 }
 
 void BehaviorTree::FixedUpdate() { }

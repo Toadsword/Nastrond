@@ -47,7 +47,6 @@ public:
 
 	static void RegisterType(const std::string& name, NodeFactory* factory) {
 		if (m_Factories.find(name) == m_Factories.end()) {
-			std::cout << "Register : " << name << "\n";
 			m_Factories[name] = factory;
 		}
 	}
@@ -91,7 +90,7 @@ public:
 	/**
 	 * \brief Status of nodes
 	 */
-	enum class Status
+	enum class Status : unsigned char
 	{
 		SUCCESS,
 		FAIL,

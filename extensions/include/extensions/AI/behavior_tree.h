@@ -36,7 +36,8 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-
+//#define BT_SOA
+#define BT_AOS
 /**
 * author Nicolas Schneider
 */
@@ -69,6 +70,21 @@ public:
 
 	std::vector<Entity>* entities;
 
+#ifdef BT_AOS
+	struct dataBehaviorTree
+	{
+		Node::ptr currentNode; //4
+
+		Node::Status previousStatus; //1
+		bool doesFlowGoDown; // 1
+		unsigned char repeaterCounter; // 1
+		unsigned char sequenceActiveChild; // 1
+	};
+
+	std::vector<dataBehaviorTree> dataBehaviorTree;
+#endif
+
+//#ifdef BT_SOA
 	//TODO est-ce que ça ferait plus de sens d'avoir un tableau de struct
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
@@ -76,6 +92,7 @@ public:
 
 	std::vector<char> repeaterCounter;
 	std::vector<char> sequenceActiveChild;
+//#endif
 
 	DwarfManager* dwarfManager;
 

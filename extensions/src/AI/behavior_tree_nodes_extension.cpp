@@ -60,12 +60,23 @@ void SetDwellingLeaf::Execute(const unsigned int index)
 
 void FindRandomPathLeaf::Execute(const unsigned int index)
 {
+#ifdef BT_AOS
+	m_BehaviorTree->dwarfManager->AddFindRandomPathBT(index);
+
+	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
+
+	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
+#endif
+
+#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->AddFindRandomPathBT(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
+#endif
 }
 
 void FindPathToDwellingLeaf::Execute(const unsigned int index)
@@ -80,6 +91,22 @@ void FindPathToDwellingLeaf::Execute(const unsigned int index)
 
 void MoveToLeaf::Execute(const unsigned int index)
 {
+#ifdef BT_AOS
+	if (m_BehaviorTree->dwarfManager->IsDwarfAtDestination(index))
+	{
+		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
+		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
+
+		m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
+		return;
+	}
+
+	m_BehaviorTree->dwarfManager->AddPathFollowingBT(index);
+
+	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::RUNNING;
+#endif
+
+#ifdef BT_SOA
 	if (m_BehaviorTree->dwarfManager->IsDwarfAtDestination(index))
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -92,10 +119,25 @@ void MoveToLeaf::Execute(const unsigned int index)
 	m_BehaviorTree->dwarfManager->AddPathFollowingBT(index);
 
 	m_BehaviorTree->previousStatus[index] = Status::RUNNING;
+#endif
 }
 
 void WaitForPathLeaf::Execute(const unsigned int index)
 {
+#ifdef BT_AOS
+	if (m_BehaviorTree->dwarfManager->HasPath(index))
+	{
+		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
+		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
+
+		m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
+		return;
+	}
+
+	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::RUNNING;
+#endif
+
+#ifdef BT_SOA
 	if (m_BehaviorTree->dwarfManager->HasPath(index))
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -106,6 +148,7 @@ void WaitForPathLeaf::Execute(const unsigned int index)
 	}
 
 	m_BehaviorTree->previousStatus[index] = Status::RUNNING;
+#endif
 }
 
 void FindPathToWorkingPlaceLeaf::Execute(const unsigned int index)
@@ -158,7 +201,7 @@ void ExitDwellingLeaf::Execute(const unsigned int index)
 	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
 }
 
-void EnterWorkingPlaceLeaf::Execute(unsigned int index)
+void EnterWorkingPlaceLeaf::Execute(const unsigned int index)
 {
 	m_BehaviorTree->dwarfManager->DwarfEnterWorkingPlace(index);
 
@@ -168,7 +211,7 @@ void EnterWorkingPlaceLeaf::Execute(unsigned int index)
 	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
 }
 
-void ExitWorkingPlaceLeaf::Execute(unsigned int index)
+void ExitWorkingPlaceLeaf::Execute(const unsigned int index)
 {
 	m_BehaviorTree->dwarfManager->DwarfExitWorkingPlace(index);
 
@@ -178,7 +221,7 @@ void ExitWorkingPlaceLeaf::Execute(unsigned int index)
 	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
 }
 
-void HasJobLeaf::Execute(unsigned int index)
+void HasJobLeaf::Execute(const unsigned int index)
 {
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
@@ -224,61 +267,61 @@ void AssignJobLeaf::Execute(const unsigned int index)
 	}
 }
 
-	void IsDayTimeLeaf::Execute(const unsigned int index)
-	{
-		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->currentNode[index] = m_ParentNode;
+void IsDayTimeLeaf::Execute(const unsigned int index)
+{
+m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+m_BehaviorTree->currentNode[index] = m_ParentNode;
 
-		if(m_BehaviorTree->dwarfManager->IsDayTime())
-		{
-			m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-		}
-		else
-		{
-			m_BehaviorTree->previousStatus[index] = Status::FAIL;
-		}
-	}
+if(m_BehaviorTree->dwarfManager->IsDayTime())
+{
+	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
+}
+else
+{
+	m_BehaviorTree->previousStatus[index] = Status::FAIL;
+}
+}
 
-	void IsNightTimeLeaf::Execute(const unsigned int index)
-	{
-		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->currentNode[index] = m_ParentNode;
+void IsNightTimeLeaf::Execute(const unsigned int index)
+{
+m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+m_BehaviorTree->currentNode[index] = m_ParentNode;
 
-		if (m_BehaviorTree->dwarfManager->IsNightTime())
-		{
-			m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-		}
-		else
-		{
-			m_BehaviorTree->previousStatus[index] = Status::FAIL;
-		}
-	}
+if (m_BehaviorTree->dwarfManager->IsNightTime())
+{
+	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
+}
+else
+{
+	m_BehaviorTree->previousStatus[index] = Status::FAIL;
+}
+}
 
-	void WaitDayTimeLeaf::Execute(const unsigned int index)
-	{
-		if (m_BehaviorTree->dwarfManager->IsDayTime())
-		{
-			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-			m_BehaviorTree->currentNode[index] = m_ParentNode;
-			m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-		}
-		else
-		{
-			m_BehaviorTree->previousStatus[index] = Status::RUNNING;
-		}
-	}
+void WaitDayTimeLeaf::Execute(const unsigned int index)
+{
+if (m_BehaviorTree->dwarfManager->IsDayTime())
+{
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
+	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
+}
+else
+{
+	m_BehaviorTree->previousStatus[index] = Status::RUNNING;
+}
+}
 
-	void WaitNightTimeLeaf::Execute(const unsigned int index)
-	{
-		if (m_BehaviorTree->dwarfManager->IsNightTime())
-		{
-			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-			m_BehaviorTree->currentNode[index] = m_ParentNode;
-			m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-		}
-		else
-		{
-			m_BehaviorTree->previousStatus[index] = Status::RUNNING;
-		}
-	}
+void WaitNightTimeLeaf::Execute(const unsigned int index)
+{
+if (m_BehaviorTree->dwarfManager->IsNightTime())
+{
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
+	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
+}
+else
+{
+	m_BehaviorTree->previousStatus[index] = Status::RUNNING;
+}
+}
 }
