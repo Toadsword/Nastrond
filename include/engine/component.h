@@ -58,12 +58,11 @@ enum class ComponentType : int
 	ANIMATION2D = 1 << 7,
 	TILEMAP = 1 << 8,
 	TILE = 1 << 9,
-	CAMERA = 1 << 10
-	ANIMATION2D = 1 << 7,
-	RECTTRANSFORM = 1 << 8,
-	IMAGE = 1 << 9,
-	TEXT = 1 << 10,
-	BUTTON = 1 << 11,
+	CAMERA = 1 << 10,
+	RECTTRANSFORM = 1 << 11,
+	IMAGE = 1 << 12,
+	TEXT = 1 << 13,
+	BUTTON = 1 << 14,
 };
 
 class IComponentFactory

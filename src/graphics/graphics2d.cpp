@@ -67,7 +67,6 @@ void Graphics2dManager::Init()
 	m_SpriteManager.Init();
  	m_AnimationManager.Init();
 	m_CameraManager.Init();
-	m_AnimationManager.Init();
 	m_ButtonManager.Init();
 	m_TextManager.Init();
 	m_ImageManager.Init();
