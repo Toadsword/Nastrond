@@ -67,10 +67,10 @@ namespace sfge
 	{
 		json j;
 		j["type"] = static_cast<int>(ComponentType::TILEMAP);
-		j["size"] = nlohmann::detail::value_t::array;
+		j["map_size"] = nlohmann::detail::value_t::array;
 		Vec2f mapSize = GetSize();
-		j["size"][0] = mapSize.x;
-		j["size"][1] = mapSize.y;
+		j["map_size"][0] = mapSize.x;
+		j["map_size"][1] = mapSize.y;
 
 		j["is_isometric"] = GetIsometric();
 		j["tile_scale"][0] = GetTileScale().x;

@@ -233,25 +233,56 @@ void Engine::Save()
 	json j;
 	j["name"] = m_SystemsContainer->editor.GetCurrentSceneName();
 	j["entities"] = nlohmann::detail::value_t::array;
-	//Récupérer les données (json?) de chaque manager concernées par le save
+
+	//Gathering datas from the managers
 	json transformSave = m_SystemsContainer->transformManager.Save();
 	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
 
-	//Loop sur toutes les entitées
 	bool hasAtLeastOneComponent = false;
 	unsigned entityIndex = 1;
 	unsigned componentIndex = 0;
 
+	std::string referencePath = TILEMAP_FOLDER + "coucou.asset";
+	//Save of the tileAsset file
+	if(CheckJsonExists(tilemapSave, "tiletype"))
+	{
+		// Copy all the sprites needed for the tiletypes into the data folder
+		for(int i = 0; i < tilemapSave["tiletype"].size(); i++)
+		{
+			std::string filepath = tilemapSave["tiletype"][i]["texturePath"].get<std::string>();
+
+			char slash = '/';
+			if (!(filepath.find(slash) < filepath.length()))
+				slash = '\\';
+			
+			std::string newPath = SPRITE_FOLDER + filepath.substr(filepath.find_last_of(slash) + 1);
+			if(!FileExists(filepath))
+				CopyFile(filepath, newPath);
+			
+			tilemapSave["tiletype"][i]["texturePath"] = newPath;
+		}
+
+		// File write
+		std::ofstream myfile;
+		myfile.open(referencePath);
+		myfile.flush();
+		myfile << std::setw(4) << tilemapSave["tiletype"] << std::endl;
+		myfile.close();
+	}
+
+
+
+	//Save of the scene file
+	//Loop on all the entities
 	for (int i = 1; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
 	{
-
+		// If a tile is found, we don't want to save it
 		if(m_SystemsContainer->entityManager.HasComponent(entityIndex, ComponentType::TILE))
 			continue;
 
 		hasAtLeastOneComponent = false;
 		componentIndex = 0;
 		
-		// Si dans le tableau recu, il existe qqch à l'index de l'entité, on met ajoute les données dans le json global.
 		if (CheckJsonExists(transformSave[entityIndex - 1], "position"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = transformSave[i - 1];
@@ -261,10 +292,12 @@ void Engine::Save()
 		if (CheckJsonExists(tilemapSave["tilemap"][entityIndex - 1], "map"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
+			j["entities"][entityIndex - 1]["components"][componentIndex]["reference_path"] = referencePath;
 			hasAtLeastOneComponent = true;
 			componentIndex++;
 		}
 
+		//If we stored something, we can add the name of the entity.
 		if (hasAtLeastOneComponent)
 		{
 			j["entities"][entityIndex - 1]["name"] = m_SystemsContainer->entityManager.GetEntityInfo(i).name;
@@ -274,7 +307,7 @@ void Engine::Save()
 
 	// File write
 	std::ofstream myfile;
-	myfile.open("./data/scenes/testSave/coucou.json");
+	myfile.open("./data/scenes/testSave/coucou.scene");
 	myfile.flush();
 	myfile << std::setw(4) << j << std::endl;
 	myfile.close();

@@ -61,6 +61,12 @@ class Editor;
 class TilemapSystem;
 struct SystemsContainer;
 
+/* Paths to the folders used for save */
+const std::string DATA_FOLDER = "./data/";
+const std::string SCENE_FOLDER = "./data/scenes/";
+const std::string SPRITE_FOLDER = "./data/sprites/";
+const std::string TILEMAP_FOLDER = "./data/tilemap/";
+
 /**
 * \brief The main Engine class to centralize the frame process and the references
 */
