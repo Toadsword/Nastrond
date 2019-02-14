@@ -236,6 +236,7 @@ void Engine::Save()
 
 	//Gathering datas from the managers
 	json transformSave = m_SystemsContainer->transformManager.Save();
+	json spriteSave = m_SystemsContainer->graphics2dManager.GetSpriteManager()->Save();
 	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
 
 	bool hasAtLeastOneComponent = false;
@@ -282,13 +283,24 @@ void Engine::Save()
 
 		hasAtLeastOneComponent = false;
 		componentIndex = 0;
-		
+
+		//Transform2d
 		if (CheckJsonExists(transformSave[entityIndex - 1], "position"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = transformSave[i - 1];
 			hasAtLeastOneComponent = true;
 			componentIndex++;
 		}
+
+		//Sprite
+		if (CheckJsonExists(spriteSave[entityIndex - 1], "path"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = spriteSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+		
+		//Tilemap
 		if (CheckJsonExists(tilemapSave["tilemap"][entityIndex - 1], "map"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
