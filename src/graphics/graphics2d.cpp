@@ -172,7 +172,7 @@ void Graphics2dManager::Clear()
 {
 	m_TextureManager.Clear();
 	m_SpriteManager.Reset();
-	m_GizmoManager.Clear();
+	//m_GizmoManager.Clear();
 }
 
 void Graphics2dManager::Collect()
