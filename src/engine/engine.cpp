@@ -317,9 +317,17 @@ void Engine::Save()
 		}
 	}
 
+	int indexMakeUnique = 1;
+	std::string sceneFilename = SCENE_FOLDER + "savedScene.scene";
+	while(FileExists(sceneFilename))
+	{
+		sceneFilename = SCENE_FOLDER + "savedScene" + std::to_string(indexMakeUnique) + ".scene";
+		indexMakeUnique++;
+	}
+
 	// File write
 	std::ofstream myfile;
-	myfile.open("./data/scenes/testSave/coucou.scene");
+	myfile.open(sceneFilename);
 	myfile.flush();
 	myfile << std::setw(4) << j << std::endl;
 	myfile.close();

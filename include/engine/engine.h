@@ -95,6 +95,10 @@ public:
 	*/
 	void Collect();
 
+	/**
+	 * \brief Save all the scene and register it into a Json.
+	 * \author Duncan Bourquard
+	 */
 	void Save();
 
 	~Engine();
