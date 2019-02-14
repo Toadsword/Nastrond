@@ -66,6 +66,7 @@ namespace sfge
 	json Tilemap::Save()
 	{
 		json j;
+		j["type"] = static_cast<int>(ComponentType::TILEMAP);
 		j["size"] = nlohmann::detail::value_t::array;
 		Vec2f mapSize = GetSize();
 		j["size"][0] = mapSize.x;

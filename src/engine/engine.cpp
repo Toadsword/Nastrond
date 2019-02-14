@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <memory>
+#include <iostream>
 
 
 #include <SFML/System/Time.hpp>
@@ -233,22 +234,49 @@ void Engine::Save()
 	j["name"] = m_SystemsContainer->editor.GetCurrentSceneName();
 	j["entities"] = nlohmann::detail::value_t::array;
 	//Récupérer les données (json?) de chaque manager concernées par le save
+	json transformSave = m_SystemsContainer->transformManager.Save();
 	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
 
 	//Loop sur toutes les entitées
-	for (int i = 0; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
+	bool hasAtLeastOneComponent = false;
+	unsigned entityIndex = 1;
+	unsigned componentIndex = 0;
+
+	for (int i = 1; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
 	{
+
+		if(m_SystemsContainer->entityManager.HasComponent(entityIndex, ComponentType::TILE))
+			continue;
+
+		hasAtLeastOneComponent = false;
+		componentIndex = 0;
+		
 		// Si dans le tableau recu, il existe qqch à l'index de l'entité, on met ajoute les données dans le json global.
+		if (CheckJsonExists(transformSave[entityIndex - 1], "position"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = transformSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+		if (CheckJsonExists(tilemapSave["tilemap"][entityIndex - 1], "map"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
 
-
-		//Voir quand on enregistre le transform. (Pas toujours on le fera)
+		if (hasAtLeastOneComponent)
+		{
+			j["entities"][entityIndex - 1]["name"] = m_SystemsContainer->entityManager.GetEntityInfo(i).name;
+			entityIndex++;
+		}
 	}
 
 	// File write
 	std::ofstream myfile;
 	myfile.open("./data/scenes/testSave/coucou.json");
 	myfile.flush();
-	myfile << std::setw(4) << tilemapSave << std::endl;
+	myfile << std::setw(4) << j << std::endl;
 	myfile.close();
 }
 
