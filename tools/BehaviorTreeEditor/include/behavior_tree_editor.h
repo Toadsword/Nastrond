@@ -23,20 +23,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#include <tools/tools_pch.h>
-#include <engine/engine.h>
-#include <anim_creator.h>
-#include <behavior_tree_editor.h>
+#ifndef SFGE_TOOLS_BEHAVIOR_TREE_EDITOR_H
+#define SFGE_TOOLS_BEHAVIOR_TREE_EDITOR_H
 
+#include <engine/system.h>
 namespace sfge::tools
 {
-void ExtendPythonTools(py::module& m)
+class BehaviorTreeEditor : public System
 {
-    py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-    animCreator
-		.def(py::init<Engine&>());
-    py::class_<BehaviorTreeEditor, System> behaviorTreeEditor(m, "BehaviorTreeEditor");
-    behaviorTreeEditor
-		.def(py::init<Engine&>());
+public:
+    using System::System;
+    /**
+     * \brief Called at scene init (a good place to link to other Systems
+     */
+    void Init() override;
+    /**
+     * \brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
+     */
+    void Update(float dt) override;
+    /**
+     * \brief Called every graphic frame after Update
+     */
+    void Draw() override;
+};
 }
-}
+#endif

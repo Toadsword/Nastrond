@@ -23,20 +23,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#include <tools/tools_pch.h>
-#include <engine/engine.h>
-#include <anim_creator.h>
+
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include <behavior_tree_editor.h>
+#include <file_selector.h>
+#include <string>
 
 namespace sfge::tools
 {
-void ExtendPythonTools(py::module& m)
+void BehaviorTreeEditor::Init()
 {
-    py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-    animCreator
-		.def(py::init<Engine&>());
-    py::class_<BehaviorTreeEditor, System> behaviorTreeEditor(m, "BehaviorTreeEditor");
-    behaviorTreeEditor
-		.def(py::init<Engine&>());
+}
+
+void BehaviorTreeEditor::Update(float dt)
+{
+	//ImGui::ShowDemoWindow();
+}
+
+static FileBrowserModal fileBrowser("Import");
+
+void BehaviorTreeEditor::Draw()
+{
+	ImGui::SetNextWindowPos(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("Behavior Tree", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar))
+	{
+		bool isImportClicked = false;
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("Import")) {
+					isImportClicked = true;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		std::string path;
+		if (fileBrowser.Render(isImportClicked, path)) {
+			// The "path" string will hold a valid file path here.
+		}
+	}
+	ImGui::End();
 }
 }
