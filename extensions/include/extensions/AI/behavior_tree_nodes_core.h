@@ -114,12 +114,83 @@ public:
 		RUNNING
 	};
 
+	enum class NodeType : unsigned char
+	{
+		SEQUENCE_COMPOSITE,
+		SELECTOR_COMPOSITE,
+		REPEATER_DECORATOR,
+		REPEAT_UNTIL_FAIL_DECORATOR,
+		INVERTER_DECORATOR,
+		WAIT_FOR_PATH_LEAF,
+		MOVE_TO_LEAF,
+		FIND_RANDOM_PATH_LEAF
+	};
+
+	NodeType nodeType;
+
+	struct Data
+	{
+	};
+
+	struct CompositeData : Data
+	{
+		std::vector<ptr> m_Children;
+	};
+
+	struct RepeaterData : Data
+	{
+		int m_Limit;
+		ptr m_Child;
+	};
+
 	/**
 	 * \brief execute the node
 	 * \param index of the dwarf
 	 * \return 
 	 */
-	virtual void Execute(unsigned int index) = 0; //TODO trouver un moyen de la remettre en virtual pure
+	virtual void Execute(unsigned int index)
+	{
+		std::cout << "ici!\n";
+		std::cout << (int)nodeType << "\n";
+	
+		switch (nodeType) { 
+		case NodeType::SEQUENCE_COMPOSITE: 
+			SequenceComposite(index); 
+			break;
+		case NodeType::SELECTOR_COMPOSITE: 
+			SelectorComposite(index);
+			break;
+		case NodeType::REPEATER_DECORATOR: 
+			RepeaterDecorator(index);
+			break;
+		case NodeType::REPEAT_UNTIL_FAIL_DECORATOR: break;
+		case NodeType::INVERTER_DECORATOR: break;
+		case NodeType::WAIT_FOR_PATH_LEAF: 
+			WaitForPath(index);
+			break;
+		case NodeType::MOVE_TO_LEAF: 
+			MoveToLeaf(index);
+			break;
+		case NodeType::FIND_RANDOM_PATH_LEAF: 
+			FindRandomPathLeaf(index);
+			break;
+		default: 
+			std::cout << "Houra!\n"; }
+	};
+
+	void SequenceComposite(unsigned int index);
+
+	void SelectorComposite(unsigned int index);
+
+	void RepeaterDecorator(unsigned int index);
+
+	void WaitForPath(unsigned int index);
+
+	void MoveToLeaf(unsigned int index);
+
+	void FindRandomPathLeaf(unsigned int index);
+
+	std::unique_ptr<Data> m_Datas;
 
 protected:
 	BehaviorTree* m_BehaviorTree;
