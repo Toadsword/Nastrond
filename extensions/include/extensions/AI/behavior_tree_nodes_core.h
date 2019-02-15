@@ -26,318 +26,167 @@ SOFTWARE.
 
 #include <vector>
 #include <string>
-#include <map>
-#include <iostream>
-
-#include <utility/json_utility.h>
 
 namespace sfge::ext::behavior_tree
 {
-class Node;
-class BehaviorTree;
-
-/**
- * \brief Factory to build any node
- * \author Nicolas Schneider
- */
-class NodeFactory
-{
-public:
-	/**
-	 * \brief Create a new Node
-	 * \param bt 
-	 * \param parentNode 
-	 * \param nodeJson 
-	 * \return 
-	 */
-	virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode, json& nodeJson) = 0;
+	class BehaviorTree;
 
 	/**
-	 * \brief Use to register a node's factory
-	 * \param name string of the node class name
-	 * \param factory 
+	 * author Nicolas Schneider
 	 */
-	static void RegisterType(const std::string& name, NodeFactory* factory) {
-		if (m_Factories.find(name) == m_Factories.end()) {
-			m_Factories[name] = factory;
-		}
-	}
-
-	/**
-	 * \brief Get the factory by string
-	 * \param name 
-	 * \return 
-	 */
-	static NodeFactory* GetFactory(const std::string& name)
+	class Node
 	{
-		return m_Factories[name];
-	}
+	public:
+		/**
+		 * \brief shared pointer of node
+		 */
+		using ptr = std::shared_ptr<Node>;
 
-private:
-	inline static std::map<std::string, NodeFactory*> m_Factories;
-};
+		explicit Node(BehaviorTree* bt, ptr parentNode);
+		virtual ~Node() = default;
 
-#define REGISTER_NODE_TYPE(klass) \
-    class klass##Factory : public NodeFactory { \
-    public: \
-        klass##Factory() \
-        { \
-            RegisterType(#klass, this); \
-        } \
-        virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode, json& nodeJson) { \
-            return std::make_shared<klass>(bt, parentNode, nodeJson); \
-        } \
-    }; \
-    static klass##Factory global_##klass##Factory;
+		/**
+		 * \brief Status of nodes
+		 */
+		enum class Status : unsigned char
+		{
+			SUCCESS,
+			FAIL,
+			RUNNING
+		};
 
-/**
- * author Nicolas Schneider
- */
-class Node
-{
-public:
-	/**
-	 * \brief shared pointer of node
-	 */
-	using ptr = std::shared_ptr<Node>;
+		enum class NodeType : unsigned char
+		{
+			SEQUENCE_COMPOSITE,
+			SELECTOR_COMPOSITE,
+			REPEATER_DECORATOR,
+			REPEAT_UNTIL_FAIL_DECORATOR,
+			SUCCEEDER_DECORATOR,
+			INVERTER_DECORATOR,
+			WAIT_FOR_PATH_LEAF,
+			MOVE_TO_LEAF,
+			FIND_RANDOM_PATH_LEAF,
+			HAS_DWELLING_LEAF,
+			SET_DWELLING_LEAF,
+			FIND_PATH_TO_DWELLING_LEAF,
+			FIND_PATH_TO_WORKING_PLACE_LEAF,
+			FIND_PATH_TO_GIVER_LEAF,
+			FIND_PATH_TO_RECEIVER_LEAF,
+			ENTER_DWELLING_LEAF,
+			EXIT_DWELLING_LEAF,
+			ENTER_WORKING_PLACE_LEAF,
+			EXIT_WORKING_PLACE_LEAF,
+			HAS_JOB_LEAF,
+			HAS_STATIC_JOB_LEAF,
+			ASSIGN_JOB_LEAF,
+			IS_DAY_TIME_LEAF,
+			IS_NIGHT_TIME_LEAF,
+			WAIT_DAY_TIME_LEAF,
+			WAIT_NIGHT_TIME_LEAF,
+			ASK_INVENTORY_TASK_LEAF,
+			TAKE_RESOURCE_LEAF
+		};
 
-	explicit Node(BehaviorTree* bt, ptr parentNode);
-	virtual ~Node() = default;
+		NodeType nodeType;
 
-	/**
-	 * \brief Status of nodes
-	 */
-	enum class Status : unsigned char
-	{
-		SUCCESS,
-		FAIL,
-		RUNNING
+		struct Data
+		{
+		};
+
+		struct CompositeData : Data
+		{
+			std::vector<ptr> m_Children;
+		};
+
+		struct DecoratorData : Data
+		{
+			ptr m_Child;
+		};
+
+		struct RepeaterData : DecoratorData
+		{
+			int m_Limit;
+		};
+
+		/**
+		 * \brief execute the node
+		 * \param index of the dwarf
+		 * \return
+		 */
+		virtual void Execute(unsigned int index);;
+
+		std::unique_ptr<Data> m_Datas;
+
+	protected:
+		void SequenceComposite(unsigned int index);
+
+		void SelectorComposite(unsigned int index);
+
+		void RepeaterDecorator(unsigned int index);
+
+		void RepeatUntilFailDecorator(unsigned int index);
+
+		void InverterDecorator(unsigned int index);
+
+		void SucceederDecorator(unsigned int index);
+
+		void WaitForPath(unsigned int index);
+
+		void MoveToLeaf(unsigned int index);
+
+		void FindRandomPathLeaf(unsigned int index);
+
+		void HasDwellingLeaf(unsigned int index);
+
+		void SetDwellingLeaf(unsigned int index);
+
+		void FindPathToDwellingLeaf(unsigned int index);
+
+		void FindPathToWorkingPlaceLeaf(unsigned int index);
+
+		void FindPathToGiverLeaf(unsigned int index);
+
+		void FindPathToReceiverLeaf(unsigned int index);
+
+		void EnterDwellingLeaf(unsigned int index);
+
+		void ExitDwellingLeaf(unsigned int index);
+
+		void EnterWorkingPlaceLeaf(unsigned int index);
+
+		void ExitWorkingPlaceLeaf(unsigned int index);
+
+		void HasJobLeaf(unsigned int index);
+
+		void HasStaticJobLeaf(unsigned int index);
+
+		void AssignJobLeaf(unsigned int index);
+
+		void IsDayTimeLeaf(unsigned int index);
+
+		void IsNightTimeLeaf(unsigned int index);
+
+		void WaitDayTimeLeaf(unsigned int index);
+
+		void WaitNightTimeLeaf(unsigned int index);
+
+		void AskInventoryTaskLeaf(unsigned int index);
+
+		void TakeResourcesLeaf(unsigned int index);
+
+		void PutResourcesLeaf(unsigned int index);
+
+		BehaviorTree* m_BehaviorTree;
+		ptr m_ParentNode;
 	};
 
-	enum class NodeType : unsigned char
+	enum class NodeType : char
 	{
-		SEQUENCE_COMPOSITE,
-		SELECTOR_COMPOSITE,
-		REPEATER_DECORATOR,
-		REPEAT_UNTIL_FAIL_DECORATOR,
-		INVERTER_DECORATOR,
-		WAIT_FOR_PATH_LEAF,
-		MOVE_TO_LEAF,
-		FIND_RANDOM_PATH_LEAF
+		NONE = 0,
+		LEAF = 1 << 0,
+		COMPOSITE = 1 << 1,
+		DECORATOR = 1 << 2,
 	};
-
-	NodeType nodeType;
-
-	struct Data
-	{
-	};
-
-	struct CompositeData : Data
-	{
-		std::vector<ptr> m_Children;
-	};
-
-	struct RepeaterData : Data
-	{
-		int m_Limit;
-		ptr m_Child;
-	};
-
-	/**
-	 * \brief execute the node
-	 * \param index of the dwarf
-	 * \return 
-	 */
-	virtual void Execute(unsigned int index)
-	{
-		std::cout << "ici!\n";
-		std::cout << (int)nodeType << "\n";
-	
-		switch (nodeType) { 
-		case NodeType::SEQUENCE_COMPOSITE: 
-			SequenceComposite(index); 
-			break;
-		case NodeType::SELECTOR_COMPOSITE: 
-			SelectorComposite(index);
-			break;
-		case NodeType::REPEATER_DECORATOR: 
-			RepeaterDecorator(index);
-			break;
-		case NodeType::REPEAT_UNTIL_FAIL_DECORATOR: break;
-		case NodeType::INVERTER_DECORATOR: break;
-		case NodeType::WAIT_FOR_PATH_LEAF: 
-			WaitForPath(index);
-			break;
-		case NodeType::MOVE_TO_LEAF: 
-			MoveToLeaf(index);
-			break;
-		case NodeType::FIND_RANDOM_PATH_LEAF: 
-			FindRandomPathLeaf(index);
-			break;
-		default: 
-			std::cout << "Houra!\n"; }
-	};
-
-	void SequenceComposite(unsigned int index);
-
-	void SelectorComposite(unsigned int index);
-
-	void RepeaterDecorator(unsigned int index);
-
-	void WaitForPath(unsigned int index);
-
-	void MoveToLeaf(unsigned int index);
-
-	void FindRandomPathLeaf(unsigned int index);
-
-	std::unique_ptr<Data> m_Datas;
-
-protected:
-	BehaviorTree* m_BehaviorTree;
-	ptr m_ParentNode;
-};
-
-enum class NodeType : char
-{
-	NONE = 0,
-	LEAF = 1 << 0,
-	COMPOSITE = 1 << 1,
-	DECORATOR = 1 << 2,
-};
-
-/**
-* author Nicolas Schneider
-*/
-class CompositeNode : public Node
-{
-public:
-	explicit CompositeNode(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
-
-	/**
-	 * \brief Add child to composite node
-	 * \param child 
-	 */
-	void AddChild(const ptr& child);
-
-	/**
-	 * \brief check if the node as the child
-	 * \return 
-	 */
-	bool HasChildren() const;
-protected:
-	std::vector<ptr> m_Children;
-};
-
-/**
-* author Nicolas Schneider
-*/
-class SequenceComposite final : public CompositeNode
-{
-public:
-	SequenceComposite(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : CompositeNode(bt, parentNode) {}
-
-	void Execute(unsigned int index) override;
-};
-REGISTER_NODE_TYPE(SequenceComposite)
-
-/**
-* author Nicolas Schneider
-*/
-class SelectorComposite final : public CompositeNode
-{
-public:
-	SelectorComposite(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : CompositeNode(bt, parentNode) {}
-
-	void Execute(unsigned int index) override;
-};
-REGISTER_NODE_TYPE(SelectorComposite)
-
-/**
-* author Nicolas Schneider
-*/
-class DecoratorNode : public Node
-{
-public:
-
-	explicit DecoratorNode(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
-
-	/**
-	 * \brief Set the child of the decorator node
-	 * \param node 
-	 */
-	void SetChild(const Node::ptr& node);
-
-	/**
-	 * \brief Check if has child
-	 * \return 
-	 */
-	bool HasChild() const;
-
-protected:
-	ptr m_Child = nullptr;
-};
-
-/**
-* author Nicolas Schneider
-*/
-class RepeaterDecorator final : public DecoratorNode
-{
-public:
-	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson);
-	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, int limit = 0);
-
-	void Execute(unsigned int index) override;
-
-private:
-	int m_Limit;
-};
-REGISTER_NODE_TYPE(RepeaterDecorator)
-
-/**
-* author Nicolas Schneider
-*/
-class RepeatUntilFailDecorator final : public DecoratorNode
-{
-public:
-	RepeatUntilFailDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) { }
-
-	void Execute(unsigned int index) override;
-};
-REGISTER_NODE_TYPE(RepeatUntilFailDecorator)
-
-/**
-* author Nicolas Schneider
-*/
-class InverterDecorator final : public DecoratorNode
-{
-public:
-	InverterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) {}
-
-	void Execute(unsigned int index) override;
-};
-REGISTER_NODE_TYPE(InverterDecorator)
-
-/**
-* author Nicolas Schneider
-*/
-class SucceederDecorator final : public DecoratorNode
-{
-public:
-	SucceederDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) {}
-
-	void Execute(unsigned int index) override;
-};
-REGISTER_NODE_TYPE(SucceederDecorator)
-
-/**
-* author Nicolas Schneider
-*/
-class Leaf : public Node
-{
-public:
-	explicit Leaf(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
-};
-
 }
 
 #endif
