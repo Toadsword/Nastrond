@@ -239,6 +239,7 @@ void Engine::Save()
 	json spriteSave = m_SystemsContainer->graphics2dManager.GetSpriteManager()->Save();
 	json pyComponentSave = m_SystemsContainer->pythonEngine.GetPyComponentManager().Save();
 	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
+	json cameraSave = m_SystemsContainer->graphics2dManager.GetCameraManager()->Save();
 
 	bool hasAtLeastOneComponent = false;
 	unsigned entityIndex = 1;
@@ -276,7 +277,7 @@ void Engine::Save()
 
 	//Save of the scene file
 	//Loop on all the entities
-	for (int i = 1; i < INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER; i++)
+	for (int i = 1; i <= INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER * 2; i++)
 	{
 		// If a tile is found, we don't want to save it
 		if(m_SystemsContainer->entityManager.HasComponent(entityIndex, ComponentType::TILE))
@@ -311,6 +312,15 @@ void Engine::Save()
 
 		//Tilemap
 		if (CheckJsonExists(tilemapSave["tilemap"][i - 1], "map"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
+			j["entities"][entityIndex - 1]["components"][componentIndex]["reference_path"] = referencePath;
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//Camera
+		if (CheckJsonExists(cameraSave[i - 1], "type"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
 			j["entities"][entityIndex - 1]["components"][componentIndex]["reference_path"] = referencePath;
