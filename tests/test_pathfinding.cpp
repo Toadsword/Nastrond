@@ -81,7 +81,8 @@ TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 	auto* sceneManager = engine.GetSceneManager();
 
 	json sceneJson = {
-		{ "name", "Behavior tree" } };
+		{ "name", "Behavior tree" } 
+	};
 	json systemJsonBehaviourTree = {
 		{ "systemClassName", "BehaviorTree" }
 	};

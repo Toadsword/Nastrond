@@ -27,6 +27,8 @@ SOFTWARE.
 #define SFGE_TOOLS_BEHAVIOR_TREE_EDITOR_H
 
 #include <engine/system.h>
+
+#include <file_selector.h>
 namespace sfge::tools
 {
 class BehaviorTreeEditor : public System
@@ -45,6 +47,12 @@ public:
      * \brief Called every graphic frame after Update
      */
     void Draw() override;
+
+private:
+
+	void LoadBehaviourTree(std::string& path);
+
+	FileBrowserModal m_FileBrowser;
 };
 }
 #endif

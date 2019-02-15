@@ -64,6 +64,14 @@ namespace sfge::tools {
 		return true;
 	}
 
+	FileBrowserModal::FileBrowserModal():
+		m_Title("File Browser"),
+		m_OldVisibility(false),
+		m_Selection(0),
+		m_CurrentPath(fs::current_path()),
+		m_CurrentPathIsDir(true) {
+	}
+
 	FileBrowserModal::FileBrowserModal(const char* title) :
 		m_Title(title),
 		m_OldVisibility(false),

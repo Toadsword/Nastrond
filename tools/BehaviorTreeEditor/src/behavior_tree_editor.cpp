@@ -27,22 +27,24 @@ SOFTWARE.
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#include <behavior_tree_editor.h>
-#include <file_selector.h>
 #include <string>
+#include <iostream>
+
+#include <behavior_tree_editor.h>
+#include <utility/json_utility.h>
+#include "utility/log.h"
 
 namespace sfge::tools
 {
 void BehaviorTreeEditor::Init()
 {
+	std::cout << "ici\n";
 }
 
 void BehaviorTreeEditor::Update(float dt)
 {
-	//ImGui::ShowDemoWindow();
+	ImGui::ShowDemoWindow();
 }
-
-static FileBrowserModal fileBrowser("Import");
 
 void BehaviorTreeEditor::Draw()
 {
@@ -62,10 +64,18 @@ void BehaviorTreeEditor::Draw()
 		}
 
 		std::string path;
-		if (fileBrowser.Render(isImportClicked, path)) {
-			// The "path" string will hold a valid file path here.
+		if (m_FileBrowser.Render(isImportClicked, path)) {
+			//Clear previous behaviorTree
+			LoadBehaviourTree(path);
 		}
 	}
 	ImGui::End();
+}
+
+void BehaviorTreeEditor::LoadBehaviourTree(std::string& path)
+{
+	const auto behaviorTreeJson = LoadJson(path);
+
+	
 }
 }

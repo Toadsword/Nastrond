@@ -44,6 +44,7 @@ namespace sfge::tools {
 
 	class FileBrowserModal final {
 	public:
+		FileBrowserModal();
 		FileBrowserModal(const char* title);
 
 		bool Render(bool isVisible, std::string& outPath);
