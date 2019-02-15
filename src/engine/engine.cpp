@@ -237,6 +237,7 @@ void Engine::Save()
 	//Gathering datas from the managers
 	json transformSave = m_SystemsContainer->transformManager.Save();
 	json spriteSave = m_SystemsContainer->graphics2dManager.GetSpriteManager()->Save();
+	json pyComponentSave = m_SystemsContainer->pythonEngine.GetPyComponentManager().Save();
 	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
 
 	bool hasAtLeastOneComponent = false;
@@ -285,7 +286,7 @@ void Engine::Save()
 		componentIndex = 0;
 
 		//Transform2d
-		if (CheckJsonExists(transformSave[entityIndex - 1], "position"))
+		if (CheckJsonExists(transformSave[i - 1], "position"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = transformSave[i - 1];
 			hasAtLeastOneComponent = true;
@@ -293,15 +294,23 @@ void Engine::Save()
 		}
 
 		//Sprite
-		if (CheckJsonExists(spriteSave[entityIndex - 1], "path"))
+		if (CheckJsonExists(spriteSave[i - 1], "path"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = spriteSave[i - 1];
 			hasAtLeastOneComponent = true;
 			componentIndex++;
 		}
-		
+
+		//Pycomponent
+		if (CheckJsonExists(pyComponentSave[i - 1], "script_path"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = pyComponentSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
 		//Tilemap
-		if (CheckJsonExists(tilemapSave["tilemap"][entityIndex - 1], "map"))
+		if (CheckJsonExists(tilemapSave["tilemap"][i - 1], "map"))
 		{
 			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
 			j["entities"][entityIndex - 1]["components"][componentIndex]["reference_path"] = referencePath;
@@ -318,10 +327,10 @@ void Engine::Save()
 	}
 
 	int indexMakeUnique = 1;
-	std::string sceneFilename = SCENE_FOLDER + "savedScene.scene";
+	std::string sceneFilename = SCENE_FOLDER + "saved_scene.scene";
 	while(FileExists(sceneFilename))
 	{
-		sceneFilename = SCENE_FOLDER + "savedScene" + std::to_string(indexMakeUnique) + ".scene";
+		sceneFilename = SCENE_FOLDER + "saved_scene" + std::to_string(indexMakeUnique) + ".scene";
 		indexMakeUnique++;
 	}
 

@@ -33,9 +33,10 @@ TEST(Tilemap, TestLoadTilemap)
 	sfge::Engine engine;
 	engine.Init();
 
-	/*json sceneJson;
+	json sceneJson;
 	json entityJson;
 	json tilemapJson;
+
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
 	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
 	tilemapJson["is_isometric"] = true;
@@ -60,9 +61,9 @@ TEST(Tilemap, TestLoadTilemap)
 	sceneJson["entities"] = json::array({ entityJson });
 	sceneJson["name"] = "Test Tilemap";
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
-	*/
+	
 
-	engine.GetSceneManager()->LoadSceneFromPath("data/scenes/testSave/coucou.scene");
+	//engine.GetSceneManager()->LoadSceneFromPath("data/scenes/testSave/coucou.scene");
 
     engine.Start();
 }

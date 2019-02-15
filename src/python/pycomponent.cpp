@@ -530,6 +530,21 @@ void PyComponentManager::Destroy()
 	m_ComponentsInfo.clear();
 	m_PythonInstances.clear();
 }
+
+json PyComponentManager::Save()
+{
+	json j;
+	for (auto& pyComponent : m_Components)
+	{
+		if (pyComponent != nullptr and pyComponent->GetEntity() != INVALID_ENTITY)
+		{
+			j[pyComponent->GetEntity()]["type"] = static_cast<int>(ComponentType::PYCOMPONENT);
+			j[pyComponent->GetEntity()]["script_path"] = m_ComponentsInfo[pyComponent->GetEntity()].path;
+		}
+	}
+	return j;
+}
+
 void PyComponentManager::FixedUpdate()
 {
 	System::FixedUpdate();
