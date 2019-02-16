@@ -30,6 +30,53 @@ SOFTWARE.
 namespace sfge::ext::behavior_tree
 {
 	class BehaviorTree;
+	class Node;
+
+	/**
+	 * \brief Used by FindPathNode
+	 */
+	enum class NodeDestination : unsigned char
+	{
+		RANDOM,
+		DWELLING,
+		WORKING_PLACE,
+		INVENTORY_TASK_GIVER,
+		INVENTORY_TASK_RECEIVER
+	};
+
+	/**
+	 * \brief Status of nodes
+	 */
+	enum class NodeStatus : unsigned char
+	{
+		SUCCESS,
+		FAIL,
+		RUNNING
+	};
+
+#pragma region nodeDatas
+	struct NodeData {};
+
+	struct CompositeData : NodeData
+	{
+		std::vector<std::shared_ptr<Node>> m_Children;
+	};
+
+	struct DecoratorData : NodeData
+	{
+		std::shared_ptr<Node> m_Child;
+	};
+
+	struct RepeaterData : DecoratorData
+	{
+		int m_Limit = 0;
+	};
+
+	struct FindPathToData : NodeData
+	{
+		NodeDestination m_Destination;
+	};
+#pragma endregion
 
 	/**
 	 * \author Nicolas Schneider
@@ -42,30 +89,16 @@ namespace sfge::ext::behavior_tree
 		 */
 		using ptr = std::shared_ptr<Node>;
 
+		/**
+		 * \brief Constructor
+		 * \param bt behavior tree. Used to store data
+		 * \param parentNode, if null => is root node
+		 */
 		explicit Node(BehaviorTree* bt, ptr parentNode);
 
 		/**
-		 * \brief Status of nodes
+		 * \brief Store all type of nodes
 		 */
-		enum class Status : unsigned char
-		{
-			SUCCESS,
-			FAIL,
-			RUNNING
-		};
-
-		/**
-		 * \brief used by FindPathNode
-		 */
-		enum class Destination : unsigned char 
-		{
-			RANDOM,
-			DWELLING,
-			WORKING_PLACE,
-			INVENTORY_TASK_GIVER,
-			INVENTORY_TASK_RECEIVER
-		};
-
 		enum class NodeType : unsigned char
 		{
 			SEQUENCE_COMPOSITE,
@@ -97,39 +130,16 @@ namespace sfge::ext::behavior_tree
 
 		NodeType nodeType;
 
-		struct Data
-		{
-		};
-
-		struct CompositeData : Data
-		{
-			std::vector<ptr> m_Children;
-		};
-
-		struct DecoratorData : Data
-		{
-			ptr m_Child;
-		};
-
-		struct RepeaterData : DecoratorData
-		{
-			int m_Limit = 0;
-		};
-
-		struct FindPathToData : Data
-		{
-			Destination m_Destination;
-		};
-
 		/**
 		 * \brief execute the node
 		 * \param index of the dwarf
 		 */
 		void Execute(unsigned int index);
 
-		std::unique_ptr<Data> m_Datas;
+		std::unique_ptr<NodeData> m_Datas;
 
 	protected:
+#pragma region Core nodes
 		void SequenceComposite(unsigned int index);
 
 		void SelectorComposite(unsigned int index);
@@ -141,7 +151,9 @@ namespace sfge::ext::behavior_tree
 		void InverterDecorator(unsigned int index);
 
 		void SucceederDecorator(unsigned int index);
+#pragma endregion 
 
+#pragma region Extensions nodes
 		void WaitForPath(unsigned int index);
 
 		void MoveToLeaf(unsigned int index);
@@ -181,9 +193,12 @@ namespace sfge::ext::behavior_tree
 		void PutResourcesLeaf(unsigned int index);
 
 		void FindPathToLeaf(unsigned int index);
+#pragma endregion 
 
+#pragma region Datas
 		BehaviorTree* m_BehaviorTree;
 		ptr m_ParentNode;
+#pragma endregion 
 	};
 
 	enum class NodeType : char

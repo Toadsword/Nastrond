@@ -27,7 +27,7 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-BehaviorTree::BehaviorTree(sfge::Engine& engine) : System(engine) {}
+BehaviorTree::BehaviorTree(Engine& engine) : System(engine) {}
 
 void BehaviorTree::Init()
 {
@@ -167,15 +167,15 @@ std::shared_ptr<Node> BehaviorTree::AddLeafNodeFromJson(json& behaviorTreeJson, 
 		std::cout << "   -> Find path to leaf\n";
 		leaf->nodeType = Node::NodeType::FIND_PATH_TO_LEAF;
 
-		Node::FindPathToData findPathToData;
+		FindPathToData findPathToData;
 		if (CheckJsonExists(behaviorTreeJson, "destination")) {
-			findPathToData.m_Destination = static_cast<Node::Destination>(behaviorTreeJson["destination"]);
+			findPathToData.m_Destination = static_cast<NodeDestination>(behaviorTreeJson["destination"]);
 		}else
 		{
-			
+			findPathToData.m_Destination = NodeDestination::RANDOM;
 		}
 		
-		leaf->m_Datas = std::make_unique<Node::FindPathToData>(findPathToData);
+		leaf->m_Datas = std::make_unique<FindPathToData>(findPathToData);
 	}
 
 	return leaf;
@@ -185,7 +185,7 @@ std::shared_ptr<Node> BehaviorTree::AddCompositeNodeFromJson(json& behaviorTreeJ
 {
 	std::cout << "Add Composite\n";
 	auto composite = std::make_shared<Node>(this, parentNode);
-	Node::CompositeData compositeData;
+	CompositeData compositeData;
 	if (CheckJsonExists(behaviorTreeJson, "childs"))
 	{
 		for (auto& childJson : behaviorTreeJson["childs"])
@@ -227,7 +227,7 @@ std::shared_ptr<Node> BehaviorTree::AddCompositeNodeFromJson(json& behaviorTreeJ
 		composite->nodeType = Node::NodeType::SELECTOR_COMPOSITE;
 	}
 
-	composite->m_Datas = std::make_unique<Node::CompositeData>(compositeData);
+	composite->m_Datas = std::make_unique<CompositeData>(compositeData);
 	return composite;
 }
 
@@ -237,7 +237,7 @@ std::shared_ptr<Node> BehaviorTree::AddDecoratorNodeFromJson(json& behaviorTreeJ
 	auto decorator = std::make_shared<Node>(this, parentNode);
 	if(CheckJsonExists(behaviorTreeJson, "limit"))
 	{
-		Node::RepeaterData repeaterData;
+		RepeaterData repeaterData;
 		if (CheckJsonExists(behaviorTreeJson, "childs"))
 		{
 			decorator->nodeType = Node::NodeType::REPEATER_DECORATOR;
@@ -271,7 +271,7 @@ std::shared_ptr<Node> BehaviorTree::AddDecoratorNodeFromJson(json& behaviorTreeJ
 				}
 			}
 		}
-		decorator->m_Datas = std::make_unique<Node::RepeaterData>(repeaterData);
+		decorator->m_Datas = std::make_unique<RepeaterData>(repeaterData);
 	}
 	else
 	{
