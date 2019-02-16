@@ -60,6 +60,7 @@ void BehaviorTree::Update(float dt)
 
 	}
 
+	auto t1 = std::chrono::high_resolution_clock::now();
 	for (size_t i = 0; i < m_Entities->size(); i++)
 	{
 		if (m_Entities->at(i) == INVALID_ENTITY)
@@ -75,6 +76,11 @@ void BehaviorTree::Update(float dt)
 #endif
 
 	}
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	std::cout << "Time: " << duration << "\n";
 }
 
 void BehaviorTree::FixedUpdate() { }
@@ -155,6 +161,21 @@ std::shared_ptr<Node> BehaviorTree::AddLeafNodeFromJson(json& behaviorTreeJson, 
 	{
 		std::cout << "   -> Move to leaf\n";
 		leaf->nodeType = Node::NodeType::MOVE_TO_LEAF;
+	}
+	else if(behaviorTreeJson["name"] == "FindPathToLeaf")
+	{
+		std::cout << "   -> Find path to leaf\n";
+		leaf->nodeType = Node::NodeType::FIND_PATH_TO_LEAF;
+
+		Node::FindPathToData findPathToData;
+		if (CheckJsonExists(behaviorTreeJson, "destination")) {
+			findPathToData.m_Destination = static_cast<Node::Destination>(behaviorTreeJson["destination"]);
+		}else
+		{
+			
+		}
+		
+		leaf->m_Datas = std::make_unique<Node::FindPathToData>(findPathToData);
 	}
 
 	return leaf;
@@ -251,7 +272,8 @@ std::shared_ptr<Node> BehaviorTree::AddDecoratorNodeFromJson(json& behaviorTreeJ
 			}
 		}
 		decorator->m_Datas = std::make_unique<Node::RepeaterData>(repeaterData);
-	}else
+	}
+	else
 	{
 		/*if (CheckJsonExists(behaviorTreeJson, "childs"))
 		{

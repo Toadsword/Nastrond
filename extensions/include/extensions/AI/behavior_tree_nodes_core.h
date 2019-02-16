@@ -32,9 +32,9 @@ namespace sfge::ext::behavior_tree
 	class BehaviorTree;
 
 	/**
-	 * author Nicolas Schneider
+	 * \author Nicolas Schneider
 	 */
-	class Node
+	class Node final
 	{
 	public:
 		/**
@@ -43,7 +43,6 @@ namespace sfge::ext::behavior_tree
 		using ptr = std::shared_ptr<Node>;
 
 		explicit Node(BehaviorTree* bt, ptr parentNode);
-		virtual ~Node() = default;
 
 		/**
 		 * \brief Status of nodes
@@ -53,6 +52,18 @@ namespace sfge::ext::behavior_tree
 			SUCCESS,
 			FAIL,
 			RUNNING
+		};
+
+		/**
+		 * \brief used by FindPathNode
+		 */
+		enum class Destination : unsigned char 
+		{
+			RANDOM,
+			DWELLING,
+			WORKING_PLACE,
+			INVENTORY_TASK_GIVER,
+			INVENTORY_TASK_RECEIVER
 		};
 
 		enum class NodeType : unsigned char
@@ -68,10 +79,6 @@ namespace sfge::ext::behavior_tree
 			FIND_RANDOM_PATH_LEAF,
 			HAS_DWELLING_LEAF,
 			SET_DWELLING_LEAF,
-			FIND_PATH_TO_DWELLING_LEAF,
-			FIND_PATH_TO_WORKING_PLACE_LEAF,
-			FIND_PATH_TO_GIVER_LEAF,
-			FIND_PATH_TO_RECEIVER_LEAF,
 			ENTER_DWELLING_LEAF,
 			EXIT_DWELLING_LEAF,
 			ENTER_WORKING_PLACE_LEAF,
@@ -84,7 +91,8 @@ namespace sfge::ext::behavior_tree
 			WAIT_DAY_TIME_LEAF,
 			WAIT_NIGHT_TIME_LEAF,
 			ASK_INVENTORY_TASK_LEAF,
-			TAKE_RESOURCE_LEAF
+			TAKE_RESOURCE_LEAF,
+			FIND_PATH_TO_LEAF
 		};
 
 		NodeType nodeType;
@@ -105,15 +113,19 @@ namespace sfge::ext::behavior_tree
 
 		struct RepeaterData : DecoratorData
 		{
-			int m_Limit;
+			int m_Limit = 0;
+		};
+
+		struct FindPathToData : Data
+		{
+			Destination m_Destination;
 		};
 
 		/**
 		 * \brief execute the node
 		 * \param index of the dwarf
-		 * \return
 		 */
-		virtual void Execute(unsigned int index);;
+		void Execute(unsigned int index);
 
 		std::unique_ptr<Data> m_Datas;
 
@@ -139,14 +151,6 @@ namespace sfge::ext::behavior_tree
 		void HasDwellingLeaf(unsigned int index);
 
 		void SetDwellingLeaf(unsigned int index);
-
-		void FindPathToDwellingLeaf(unsigned int index);
-
-		void FindPathToWorkingPlaceLeaf(unsigned int index);
-
-		void FindPathToGiverLeaf(unsigned int index);
-
-		void FindPathToReceiverLeaf(unsigned int index);
 
 		void EnterDwellingLeaf(unsigned int index);
 
@@ -175,6 +179,8 @@ namespace sfge::ext::behavior_tree
 		void TakeResourcesLeaf(unsigned int index);
 
 		void PutResourcesLeaf(unsigned int index);
+
+		void FindPathToLeaf(unsigned int index);
 
 		BehaviorTree* m_BehaviorTree;
 		ptr m_ParentNode;

@@ -72,18 +72,6 @@ void Node::Execute(const unsigned int index)
 	case NodeType::SET_DWELLING_LEAF:
 		SetDwellingLeaf(index);
 		break;
-	case NodeType::FIND_PATH_TO_DWELLING_LEAF:
-		FindRandomPathLeaf(index);
-		break;
-	case NodeType::FIND_PATH_TO_WORKING_PLACE_LEAF:
-		FindPathToWorkingPlaceLeaf(index);
-		break;
-	case NodeType::FIND_PATH_TO_GIVER_LEAF:
-		FindPathToGiverLeaf(index);
-		break;
-	case NodeType::FIND_PATH_TO_RECEIVER_LEAF:
-		FindPathToReceiverLeaf(index);
-		break;
 	case NodeType::ENTER_DWELLING_LEAF:
 		EnterDwellingLeaf(index);
 		break;
@@ -123,7 +111,12 @@ void Node::Execute(const unsigned int index)
 	case NodeType::TAKE_RESOURCE_LEAF:
 		TakeResourcesLeaf(index);
 		break;
-	default: break;
+	case NodeType::FIND_PATH_TO_LEAF:
+		FindPathToLeaf(index);
+		break;
+	default: 
+		std::cout << "Node not implemented\n";
+		break;
 	}
 }
 
@@ -673,89 +666,6 @@ void Node::SetDwellingLeaf(const unsigned int index)
 #endif
 }
 
-void Node::FindPathToDwellingLeaf(const unsigned int index)
-{
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetDwellingAssociatedPosition(index));
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
-#endif
-
-#ifdef BT_SOA
-	m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetDwellingAssociatedPosition(index));
-
-	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-#endif
-}
-
-void Node::FindPathToWorkingPlaceLeaf(const unsigned int index) {
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetWorkingPlaceAssociatedPosition(index));
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
-#endif
-
-#ifdef BT_SOA
-	m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetDwellingAssociatedPosition(index));
-
-	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-#endif}
-}
-
-void Node::FindPathToGiverLeaf(const unsigned int index)
-{
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
-#endif
-
-#ifdef BT_SOA
-	m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
-
-	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-#endif
-}
-
-void Node::FindPathToReceiverLeaf(const unsigned int index)
-{
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
-#endif
-
-#ifdef BT_SOA
-	m_BehaviorTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
-
-	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
-#endif
-}
-
 void Node::EnterDwellingLeaf(const unsigned int index)
 {
 #ifdef BT_AOS
@@ -1129,6 +1039,43 @@ void Node::PutResourcesLeaf(const unsigned int index)
 #ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->PutResources(index);
 
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
+#endif
+}
+
+void Node::FindPathToLeaf(const unsigned int index)
+{
+	switch (static_cast<FindPathToData*>(m_Datas.get())->m_Destination)
+	{
+	case Destination::RANDOM:
+		m_BehaviorTree->dwarfManager->AddFindRandomPathBT(index);
+		break;
+	case Destination::DWELLING:
+		m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetDwellingAssociatedPosition(index));
+		break;
+	case Destination::WORKING_PLACE:
+		m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetWorkingPlaceAssociatedPosition(index));
+		break;
+	case Destination::INVENTORY_TASK_GIVER:
+		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
+		break;
+	case Destination::INVENTORY_TASK_RECEIVER:
+		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
+		break;
+	default: ;
+	}
+
+#ifdef BT_AOS
+	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
+
+	m_BehaviorTree->dataBehaviorTree[index].previousStatus = Status::SUCCESS;
+#endif
+
+#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 

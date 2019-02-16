@@ -32,7 +32,7 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
-#include <extensions/AI/behavior_tree_nodes_extension.h>
+#include <extensions/AI/behavior_tree_nodes_core.h>
 
 namespace sfge::ext::behavior_tree
 {
