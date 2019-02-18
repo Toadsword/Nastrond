@@ -43,7 +43,7 @@ namespace sfge::tools
 
 	void BehaviorTreeEditor::Update(float dt)
 	{
-		/*ImGui::ShowDemoWindow();*/
+		//ImGui::ShowDemoWindow();
 	}
 
 	void BehaviorTreeEditor::Draw()
@@ -72,43 +72,77 @@ namespace sfge::tools
 
 			//Tree displayed
 			if (m_RootNode != nullptr) {
-				indexButton = 0;
+				m_IndexButton = 0;
 				DisplayNode(m_RootNode);
 			}
 		}
 		ImGui::End();
 
-		if(nodeToAddChild != nullptr)
+		if(m_NodeToAddChild != nullptr)
 		{
 			if (ImGui::Begin("Add node to behavior tree", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
-				bool selection[9] = { false, false, false, false, false, false, false, false, false };
 
 				if (ImGui::TreeNode("Composite : "))
 				{
-					ImGui::Selectable("Sequence", selection[0], ImGuiSelectableFlags_AllowDoubleClick);
-					ImGui::Selectable("Selector", selection[1], ImGuiSelectableFlags_AllowDoubleClick);
+					if(ImGui::Selectable("Sequence", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SEQUENCE_COMPOSITE))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SEQUENCE_COMPOSITE);
+						std::cout << "Sequence\n";
+					}
+					if (ImGui::Selectable("Selector", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SELECTOR_COMPOSITE))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SELECTOR_COMPOSITE);
+						std::cout << "Selector\n";
+					}
 
 					ImGui::TreePop();
 				}
 
 				if (ImGui::TreeNode("Decorator : "))
 				{
-					ImGui::Selectable("Repeater", selection[2], ImGuiSelectableFlags_AllowDoubleClick);
-					ImGui::Selectable("Repeat until fail", selection[3], ImGuiSelectableFlags_AllowDoubleClick);
-					ImGui::Selectable("Inverter", selection[4], ImGuiSelectableFlags_AllowDoubleClick);
-					ImGui::Selectable("Succeeder", selection[5], ImGuiSelectableFlags_AllowDoubleClick);
+					if (ImGui::Selectable("Repeater", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::REPEATER_DECORATOR))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEATER_DECORATOR);
+						std::cout << "Repeater\n";
+					}
+					if (ImGui::Selectable("Repeat until fail", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
+						std::cout << "Repeat until fail\n";
+					}
+					if (ImGui::Selectable("Inverter", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::INVERTER_DECORATOR))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::INVERTER_DECORATOR);
+						std::cout << "Inverter\n";
+					}
+					if (ImGui::Selectable("Succeeder", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR);
+						std::cout << "Succeeder\n";
+					}
 
 					ImGui::TreePop();
 				}
 
 				if (ImGui::TreeNode("Leaf : "))
 				{
-					ImGui::Selectable("Move to", selection[2], ImGuiSelectableFlags_AllowDoubleClick);
-					ImGui::Selectable("Wait for path", selection[3], ImGuiSelectableFlags_AllowDoubleClick);
-					ImGui::Selectable("Find path to", selection[4], ImGuiSelectableFlags_AllowDoubleClick);
+					if (ImGui::Selectable("Move to", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::MOVE_TO_LEAF))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::MOVE_TO_LEAF);
+						std::cout << "Move to\n";
+					}
+					if (ImGui::Selectable("Wait for path", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::WAIT_FOR_PATH_LEAF))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::WAIT_FOR_PATH_LEAF);
+						std::cout << "Wait for path\n";
+					}
+					if (ImGui::Selectable("Find path to", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::FIND_PATH_TO_LEAF))) {
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::FIND_PATH_TO_LEAF);
+						std::cout << "Find path to\n";
+					}
 
 					ImGui::TreePop();
+				}
+			}
+
+			if(ImGui::Button("Add"))
+			{
+				if (m_SelectedNodeToAdd != -1) {
+					std::cout << "coucou\n"; //TODO continuer à partir d'ici, il faut ajouter le node en enfant 
+					m_NodeToAddChild = nullptr;
 				}
 			}
 			ImGui::End();
@@ -490,7 +524,7 @@ namespace sfge::tools
 	void BehaviorTreeEditor::DisplayDeleteButton(const Node::ptr& node)
 	{
 		std::string buttonName = "-##";
-		buttonName += indexButton;
+		buttonName += m_IndexButton;
 
 		ImGui::SameLine(300);
 		if (ImGui::SmallButton(buttonName.c_str()))
@@ -503,19 +537,19 @@ namespace sfge::tools
 				node->Destroy();
 			}
 		}
-		indexButton++;
+		m_IndexButton++;
 	}
 
 	void BehaviorTreeEditor::DisplayAddButton(const Node::ptr& node)
 	{
 		std::string buttonName = "+##";
-		buttonName += indexButton;
+		buttonName += m_IndexButton;
 
 		ImGui::SameLine(325);
 		if (ImGui::SmallButton(buttonName.c_str()))
 		{
-			nodeToAddChild = node;
+			m_NodeToAddChild = node;
 		}
-		indexButton++;
+		m_IndexButton++;
 	}
 }

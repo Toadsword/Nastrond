@@ -74,9 +74,11 @@ private:
 
     Node::ptr m_RootNode = nullptr;
 
-	int indexButton = 0;
+	int m_IndexButton = 0;
 
-	Node::ptr nodeToAddChild = nullptr;
+	Node::ptr m_NodeToAddChild = nullptr;
+
+	int m_SelectedNodeToAdd = -1;
 };
 }
 #endif
