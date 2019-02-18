@@ -67,9 +67,13 @@ private:
 
 	void DisplayNode(Node::ptr node);
 
+	void DisplayDeleteButton(const Node::ptr& node);
+
 	FileBrowserModal m_FileBrowser;
 
     Node::ptr m_RootNode = nullptr;
+
+	int indexButton = 0;
 };
 }
 #endif

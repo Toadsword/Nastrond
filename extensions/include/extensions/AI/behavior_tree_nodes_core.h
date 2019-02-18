@@ -94,7 +94,10 @@ namespace sfge::ext::behavior_tree
 		 * \param bt behavior tree. Used to store data
 		 * \param parentNode, if null => is root node
 		 */
-		explicit Node(BehaviorTree* bt, ptr parentNode);
+		Node(BehaviorTree* bt, ptr parentNode);
+		~Node();
+
+		void Destroy();
 
 		/**
 		 * \brief Store all type of nodes
@@ -139,6 +142,8 @@ namespace sfge::ext::behavior_tree
 		std::unique_ptr<NodeData> m_Datas;
 
 	protected:
+		void DestroyChild(Node* childNode);
+
 #pragma region Core nodes
 		void SequenceComposite(unsigned int index);
 

@@ -72,6 +72,7 @@ namespace sfge::tools
 
 			//Tree displayed
 			if (m_RootNode != nullptr) {
+				indexButton = 0;
 				DisplayNode(m_RootNode);
 			}
 		}
@@ -323,19 +324,11 @@ namespace sfge::tools
 
 	void BehaviorTreeEditor::DisplayNode(Node::ptr node)
 	{
-		/*if (ImGui::TreeNode("Trees"))
+		if(node == nullptr)
 		{
-			for (int i = 0; i < 5; i++) {
-				if (ImGui::TreeNode((void*)(intptr_t)i, "Child %d", i))
-				{
-					ImGui::Text("blah blah");
-					ImGui::SameLine();
-					if (ImGui::SmallButton("button")) {};
-					ImGui::TreePop();
-				}
-			}
-			ImGui::TreePop();
-		}*/
+			return;
+		}
+
 		std::string nodeName = "";
 		switch(node->nodeType)
 		{
@@ -344,13 +337,20 @@ namespace sfge::tools
 
 			if (ImGui::TreeNode(nodeName.c_str()))
 			{
+				DisplayDeleteButton(node);
+
 				for (const auto& child : static_cast<ext::behavior_tree::CompositeData*>(node->m_Datas.get())->m_Children)
 				{
 					DisplayNode(child);
 				}
 				ImGui::TreePop();
+
+			}else
+			{
+				DisplayDeleteButton(node);
 			}
 			break;
+
 		case Node::NodeType::SELECTOR_COMPOSITE: 
 			break;
 		case Node::NodeType::REPEATER_DECORATOR:
@@ -360,8 +360,14 @@ namespace sfge::tools
 
 			if (ImGui::TreeNode(nodeName.c_str()))
 			{
+				DisplayDeleteButton(node);
+
 				DisplayNode(static_cast<ext::behavior_tree::RepeaterData*>(node->m_Datas.get())->m_Child);
 				ImGui::TreePop();
+
+			}else
+			{
+				DisplayDeleteButton(node);
 			}
 			break;
 		case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR: 
@@ -372,9 +378,13 @@ namespace sfge::tools
 			break;
 		case Node::NodeType::WAIT_FOR_PATH_LEAF:
 			ImGui::Text("Wait for path leaf");
+
+			DisplayDeleteButton(node);
 			break;
 		case Node::NodeType::MOVE_TO_LEAF:
 			ImGui::Text("Move to leaf");
+
+			DisplayDeleteButton(node);
 			break;
 		case Node::NodeType::HAS_DWELLING_LEAF: 
 			break;
@@ -430,8 +440,29 @@ namespace sfge::tools
 			nodeName += ")";
 
 			ImGui::Text(nodeName.c_str());
+
+			DisplayDeleteButton(node);
 			break;
 		default: ;
 		}
+	}
+
+	void BehaviorTreeEditor::DisplayDeleteButton(const Node::ptr& node)
+	{
+		std::string buttonName = "-##";
+		buttonName += indexButton;
+
+		ImGui::SameLine();
+		if (ImGui::SmallButton(buttonName.c_str()))
+		{
+			if (node == m_RootNode)
+			{
+				m_RootNode = nullptr;
+			}else
+			{
+				node->Destroy();
+			}
+		}
+		indexButton++;
 	}
 }

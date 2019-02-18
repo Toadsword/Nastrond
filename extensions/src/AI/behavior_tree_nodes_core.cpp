@@ -35,6 +35,53 @@ Node::Node(BehaviorTree* bt, ptr parentNode)
 	m_ParentNode = std::move(parentNode);
 }
 
+Node::~Node()
+{
+	m_ParentNode->DestroyChild(this);
+}
+
+void Node::DestroyChild(Node* childNode)
+{
+	switch (nodeType) { 
+	case NodeType::SEQUENCE_COMPOSITE:
+	case NodeType::SELECTOR_COMPOSITE:
+	{
+		std::vector<ptr> newChildren;
+		for (auto child : static_cast<CompositeData*>(m_Datas.get())->m_Children)
+		{
+			if (child.get() != childNode)
+			{
+				newChildren.push_back(child);
+			}
+		}
+
+		static_cast<CompositeData*>(m_Datas.get())->m_Children = newChildren;
+	}
+		break;
+	case NodeType::REPEATER_DECORATOR:
+	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+	case NodeType::SUCCEEDER_DECORATOR: 
+	case NodeType::INVERTER_DECORATOR:
+		static_cast<DecoratorData*>(m_Datas.get())->m_Child = nullptr;
+		break;
+	
+	default: 
+		std::ostringstream oss;
+		oss << "[Error] A child is destroy from a non implemented node : " << std::to_string(static_cast<int>(nodeType));
+		Log::GetInstance()->Error(oss.str());
+	}
+}
+
+void Node::Destroy()
+{
+	if(m_ParentNode == nullptr)
+	{
+		return;
+	}
+
+	m_ParentNode->DestroyChild(this);
+}
+
 void Node::Execute(const unsigned int index)
 {
 	switch (nodeType)
