@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include <limits>
 #include <imgui.h>
-#include <iostream>
 
 
 namespace sfge::tools {

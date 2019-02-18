@@ -43,7 +43,7 @@ namespace sfge::tools
 
 	void BehaviorTreeEditor::Update(float dt)
 	{
-		//ImGui::ShowDemoWindow();
+		/*ImGui::ShowDemoWindow();*/
 	}
 
 	void BehaviorTreeEditor::Draw()
@@ -77,6 +77,42 @@ namespace sfge::tools
 			}
 		}
 		ImGui::End();
+
+		if(nodeToAddChild != nullptr)
+		{
+			if (ImGui::Begin("Add node to behavior tree", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				bool selection[9] = { false, false, false, false, false, false, false, false, false };
+
+				if (ImGui::TreeNode("Composite : "))
+				{
+					ImGui::Selectable("Sequence", selection[0], ImGuiSelectableFlags_AllowDoubleClick);
+					ImGui::Selectable("Selector", selection[1], ImGuiSelectableFlags_AllowDoubleClick);
+
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("Decorator : "))
+				{
+					ImGui::Selectable("Repeater", selection[2], ImGuiSelectableFlags_AllowDoubleClick);
+					ImGui::Selectable("Repeat until fail", selection[3], ImGuiSelectableFlags_AllowDoubleClick);
+					ImGui::Selectable("Inverter", selection[4], ImGuiSelectableFlags_AllowDoubleClick);
+					ImGui::Selectable("Succeeder", selection[5], ImGuiSelectableFlags_AllowDoubleClick);
+
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("Leaf : "))
+				{
+					ImGui::Selectable("Move to", selection[2], ImGuiSelectableFlags_AllowDoubleClick);
+					ImGui::Selectable("Wait for path", selection[3], ImGuiSelectableFlags_AllowDoubleClick);
+					ImGui::Selectable("Find path to", selection[4], ImGuiSelectableFlags_AllowDoubleClick);
+
+					ImGui::TreePop();
+				}
+			}
+			ImGui::End();
+		}
 	}
 
 	void BehaviorTreeEditor::LoadBehaviourTree(std::string& path)
@@ -322,7 +358,7 @@ namespace sfge::tools
 		return decorator;
 	}
 
-	void BehaviorTreeEditor::DisplayNode(Node::ptr node)
+	void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 	{
 		if(node == nullptr)
 		{
@@ -338,6 +374,7 @@ namespace sfge::tools
 			if (ImGui::TreeNode(nodeName.c_str()))
 			{
 				DisplayDeleteButton(node);
+				DisplayAddButton(node);
 
 				for (const auto& child : static_cast<ext::behavior_tree::CompositeData*>(node->m_Datas.get())->m_Children)
 				{
@@ -348,6 +385,7 @@ namespace sfge::tools
 			}else
 			{
 				DisplayDeleteButton(node);
+				DisplayAddButton(node);
 			}
 			break;
 
@@ -361,6 +399,7 @@ namespace sfge::tools
 			if (ImGui::TreeNode(nodeName.c_str()))
 			{
 				DisplayDeleteButton(node);
+				DisplayAddButton(node);
 
 				DisplayNode(static_cast<ext::behavior_tree::RepeaterData*>(node->m_Datas.get())->m_Child);
 				ImGui::TreePop();
@@ -368,6 +407,7 @@ namespace sfge::tools
 			}else
 			{
 				DisplayDeleteButton(node);
+				DisplayAddButton(node);
 			}
 			break;
 		case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR: 
@@ -452,7 +492,7 @@ namespace sfge::tools
 		std::string buttonName = "-##";
 		buttonName += indexButton;
 
-		ImGui::SameLine();
+		ImGui::SameLine(300);
 		if (ImGui::SmallButton(buttonName.c_str()))
 		{
 			if (node == m_RootNode)
@@ -462,6 +502,19 @@ namespace sfge::tools
 			{
 				node->Destroy();
 			}
+		}
+		indexButton++;
+	}
+
+	void BehaviorTreeEditor::DisplayAddButton(const Node::ptr& node)
+	{
+		std::string buttonName = "+##";
+		buttonName += indexButton;
+
+		ImGui::SameLine(325);
+		if (ImGui::SmallButton(buttonName.c_str()))
+		{
+			nodeToAddChild = node;
 		}
 		indexButton++;
 	}

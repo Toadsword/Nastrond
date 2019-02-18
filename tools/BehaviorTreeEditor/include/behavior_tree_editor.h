@@ -65,15 +65,18 @@ private:
 
 	std::shared_ptr<Node> AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
 
-	void DisplayNode(Node::ptr node);
+	void DisplayNode(const Node::ptr& node);
 
 	void DisplayDeleteButton(const Node::ptr& node);
+	void DisplayAddButton(const Node::ptr& node);
 
 	FileBrowserModal m_FileBrowser;
 
     Node::ptr m_RootNode = nullptr;
 
 	int indexButton = 0;
+
+	Node::ptr nodeToAddChild = nullptr;
 };
 }
 #endif
