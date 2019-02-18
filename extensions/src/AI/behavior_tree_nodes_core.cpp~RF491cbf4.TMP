@@ -1050,19 +1050,19 @@ void Node::FindPathToLeaf(const unsigned int index)
 {
 	switch (static_cast<FindPathToData*>(m_Datas.get())->m_Destination)
 	{
-	case NodeDestination::RANDOM:
+	case Destination::RANDOM:
 		m_BehaviorTree->dwarfManager->AddFindRandomPathBT(index);
 		break;
-	case NodeDestination::DWELLING:
+	case Destination::DWELLING:
 		m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetDwellingAssociatedPosition(index));
 		break;
-	case NodeDestination::WORKING_PLACE:
+	case Destination::WORKING_PLACE:
 		m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetWorkingPlaceAssociatedPosition(index));
 		break;
-	case NodeDestination::INVENTORY_TASK_GIVER:
+	case Destination::INVENTORY_TASK_GIVER:
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
 		break;
-	case NodeDestination::INVENTORY_TASK_RECEIVER:
+	case Destination::INVENTORY_TASK_RECEIVER:
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
 		break;
 	default: ;
