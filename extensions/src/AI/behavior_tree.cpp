@@ -60,7 +60,6 @@ void BehaviorTree::Update(float dt)
 
 	}
 
-	auto t1 = std::chrono::high_resolution_clock::now();
 	for (size_t i = 0; i < m_Entities->size(); i++)
 	{
 		if (m_Entities->at(i) == INVALID_ENTITY)
@@ -76,11 +75,6 @@ void BehaviorTree::Update(float dt)
 #endif
 
 	}
-
-	auto t2 = std::chrono::high_resolution_clock::now();
-
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-	std::cout << "Time: " << duration << "\n";
 }
 
 void BehaviorTree::FixedUpdate() { }
@@ -151,11 +145,6 @@ std::shared_ptr<Node> BehaviorTree::AddLeafNodeFromJson(json& behaviorTreeJson, 
 	{
 		std::cout << "   -> Wait for path leaf\n";
 		leaf->nodeType = Node::NodeType::WAIT_FOR_PATH_LEAF;
-	}
-	else if (behaviorTreeJson["name"] == "FindRandomPathLeaf")
-	{
-		std::cout << "   -> find random path leaf\n";
-		leaf->nodeType = Node::NodeType::FIND_RANDOM_PATH_LEAF;
 	}
 	else if(behaviorTreeJson["name"] == "MoveToLeaf")
 	{

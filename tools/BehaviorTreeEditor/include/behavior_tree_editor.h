@@ -29,8 +29,15 @@ SOFTWARE.
 #include <engine/system.h>
 
 #include <file_selector.h>
+#include <extensions/AI/behavior_tree_nodes_core.h>
+#include <utility/json_utility.h>
+
 namespace sfge::tools
 {
+
+	using ext::behavior_tree::Node;
+	using ext::behavior_tree::NodeType;
+
 class BehaviorTreeEditor : public System
 {
 public:
@@ -52,7 +59,17 @@ private:
 
 	void LoadBehaviourTree(std::string& path);
 
+	std::shared_ptr<Node> AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
+
+	std::shared_ptr<Node> AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
+
+	std::shared_ptr<Node> AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
+
+	void DisplayNode(Node::ptr node);
+
 	FileBrowserModal m_FileBrowser;
+
+    Node::ptr m_RootNode = nullptr;
 };
 }
 #endif

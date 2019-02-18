@@ -63,9 +63,6 @@ void Node::Execute(const unsigned int index)
 	case NodeType::MOVE_TO_LEAF:
 		MoveToLeaf(index);
 		break;
-	case NodeType::FIND_RANDOM_PATH_LEAF:
-		FindRandomPathLeaf(index);
-		break;
 	case NodeType::HAS_DWELLING_LEAF:
 		HasDwellingLeaf(index);
 		break;
@@ -577,27 +574,6 @@ void Node::MoveToLeaf(const unsigned int index)
 	m_BehaviorTree->dwarfManager->AddPathFollowingBT(index);
 
 	m_BehaviorTree->previousStatus[index] = Status::RUNNING;
-#endif
-}
-
-void Node::FindRandomPathLeaf(const unsigned int index)
-{
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->AddFindRandomPathBT(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
-	m_BehaviorTree->dwarfManager->AddFindRandomPathBT(index);
-
-	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-	m_BehaviorTree->previousStatus[index] = Status::SUCCESS;
 #endif
 }
 

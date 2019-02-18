@@ -8,7 +8,7 @@
 				"type" : 2,
 				"childs": [
 						{ 
-							"name": "FindRandomPathLeaf",
+							"name": "FindPathToLeaf",
 							"type" : 1
 						}, {
 							"name": "WaitForPathLeaf",

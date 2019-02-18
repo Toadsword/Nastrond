@@ -158,8 +158,6 @@ namespace sfge::ext::behavior_tree
 
 		void MoveToLeaf(unsigned int index);
 
-		void FindRandomPathLeaf(unsigned int index);
-
 		void HasDwellingLeaf(unsigned int index);
 
 		void SetDwellingLeaf(unsigned int index);
