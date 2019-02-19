@@ -44,9 +44,6 @@ namespace sfge::ext
 	public:
 		ForgeManager(Engine& engine);
 
-		~ForgeManager();
-
-
 		void Init() override;
 
 		void Update(float dt) override;
@@ -117,14 +114,14 @@ namespace sfge::ext
 		 * \param forgeEntity : an entity that is a forge.
 		 * \return an int of an amount of resources.
 		 */
-		void DwarfTakeResources(Entity forgeEntity);
+		void DwarfTakesResources(Entity forgeEntity);
 
 		/**
 		 * \brief give resources that the forge need to produce.
 		 * \param forgeEntity : an entity that is a forge.
 		 * \param resourceType : the type of resources that want to be deposit.
 		 */
-		void DwarfPutResources(Entity forgeEntity);
+		void DwarfPutsResources(Entity forgeEntity);
 
 	private:
 		/**
@@ -154,6 +151,7 @@ namespace sfge::ext
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		BuildingManager* m_BuildingManager;
+		sf::RenderWindow* m_Window;
 
 		unsigned short m_CoolDown = 100;
 		unsigned short m_ConsumptionGoal = 20;
@@ -177,8 +175,8 @@ namespace sfge::ext
 		std::vector<unsigned char> m_ReservedExportStackNumber;
 		std::vector<unsigned char> m_ReservedImportStackNumber;
 
-		ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
-		ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
+		const ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
+		const ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
 
 		//Building texture
 		std::string m_TexturePath;

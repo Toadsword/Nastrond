@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <extensions/Building/production_building_manager.h>
-#include "extensions/Building/building_manager.h"
+#include <extensions/Building/building_manager.h>
 
 
 namespace sfge::ext
@@ -31,19 +31,14 @@ namespace sfge::ext
 
 	ProductionBuildingManager::ProductionBuildingManager(Engine& engine) : System(engine) {}
 
-	ProductionBuildingManager::~ProductionBuildingManager()
-	{
-		std::cout << "Production Building Manager \n";
-	}
-
 	void ProductionBuildingManager::Init()
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_BuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<BuildingManager>(
+			"BuildingManager");
 
-		window = m_Engine.GetGraphics2dManager()->GetWindow();
-
-		EntityManager* entityManager = m_Engine.GetEntityManager();
+		m_Window = m_Engine.GetGraphics2dManager()->GetWindow();
 
 		//Load Texture for mine
 		m_MineTexturePath = "data/sprites/mine.png";
@@ -66,11 +61,6 @@ namespace sfge::ext
 		std::cout << "production building Manager \n";
 
 		m_Init = true;
-
-		for (int i = 0; i < 100; i++)
-		{
-			AddNewBuilding(Vec2f(0, 0), BuildingType::EXCAVATION_POST);
-		}
 	}
 
 	void ProductionBuildingManager::Update(float dt)
@@ -88,9 +78,9 @@ namespace sfge::ext
 
 	void ProductionBuildingManager::Draw()
 	{
-		window->draw(m_MineVertexArray, m_MineTexture);
-		window->draw(m_ExcavationPostVertexArray, m_ExcavationPostTexture);
-		window->draw(m_MushroomFarmVertexArray, m_MushroomFarmTexture);
+		m_Window->draw(m_MineVertexArray, m_MineTexture);
+		m_Window->draw(m_ExcavationPostVertexArray, m_ExcavationPostTexture);
+		m_Window->draw(m_MushroomFarmVertexArray, m_MushroomFarmTexture);
 	}
 
 
@@ -112,14 +102,17 @@ namespace sfge::ext
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
 
+		if (CheckEmptySlot(newEntity, buildingType, transformPtr))
+		{
+			return;
+		}
+
+		m_BuildingIndexCount++;
+
 		if (m_BuildingIndexCount >= m_EntityIndex.size())
 		{
 			ResizeContainer(m_BuildingIndexCount + CONTAINER_EXTENDER);
 		}
-
-		if (!CheckEmptySlot(newEntity, buildingType, transformPtr))
-		{
-			m_BuildingIndexCount++;
 
 			const size_t newBuilding = m_BuildingIndexCount - 1;
 
@@ -146,7 +139,6 @@ namespace sfge::ext
 			}
 
 			AttributionVertxArray(newBuilding, buildingType, transformPtr);
-		}
 	}
 
 	bool ProductionBuildingManager::DestroyBuilding(Entity entity, BuildingType buildingType)
@@ -254,18 +246,6 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	Entity ProductionBuildingManager::GetBuildingWithResources(BuildingType buildingType)
-	{
-		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
-		{
-			if (m_ResourcesInventories[i] >= m_StackSize && m_BuildingTypes[i] == buildingType)
-			{
-				return m_EntityIndex[i];
-			}
-		}
-		return INVALID_ENTITY;
-	}
-
 	ResourceType ProductionBuildingManager::GetProducedResourceType(BuildingType buildingType)
 	{
 		switch (buildingType)
@@ -291,8 +271,9 @@ namespace sfge::ext
 		{
 			if (m_EntityIndex[i] == entity && m_BuildingTypes[i] == buildingType)
 			{
-				m_ResourcesInventories[i] -= m_StackSize;
-				return m_StackSize;
+				m_ResourcesInventories[i] -= GetStackSizeByResourceType(m_ResourceTypes[i]);
+				m_ReservedExportStackNumber[i]--;
+				return GetStackSizeByResourceType(m_ResourceTypes[i]);
 			}
 		}
 		return EMPTY_INVENTORY;
@@ -312,10 +293,10 @@ namespace sfge::ext
 				m_ProgressionCoolDowns[i] = 0;
 				m_ResourcesInventories[i]++;
 
-				if(m_ResourcesInventories[i] >= m_ReservedInventoriesResources[i] + m_StackSize)
+				if(m_ResourcesInventories[i] >= m_ReservedExportStackNumber[i] * GetStackSizeByResourceType(m_ResourceTypes[i]) + GetStackSizeByResourceType(m_ResourceTypes[i]))
 				{
-					m_ReservedInventoriesResources[i]++;
-					
+					m_ReservedExportStackNumber[i]++;
+					m_BuildingManager->RegistrationBuildingToBeEmptied(m_EntityIndex[i], m_BuildingTypes[i], m_ResourceTypes[i], 0);
 				}
 
 				if (m_ResourcesInventories[i] > m_MaxCapacity)
@@ -332,7 +313,7 @@ namespace sfge::ext
 		m_DwarfSlots.resize(newSize);
 		m_BuildingTypes.resize(newSize);
 		m_ResourcesInventories.resize(newSize);
-		m_ReservedInventoriesResources.resize(newSize);
+		m_ReservedExportStackNumber.resize(newSize);
 		m_ProgressionCoolDowns.resize(newSize);
 		m_ResourceTypes.resize(newSize);
 		m_GeneralVertexIndex.resize(newSize);

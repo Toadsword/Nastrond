@@ -33,6 +33,8 @@ SOFTWARE.
 
 namespace sfge::ext
 {
+	class BuildingManager;
+
 	/**
 	 * \author Robin Alves
 	 */
@@ -40,8 +42,6 @@ namespace sfge::ext
 	{
 	public:
 		ProductionBuildingManager(Engine& engine);
-
-		~ProductionBuildingManager();
 
 		void Init() override;
 
@@ -95,12 +95,6 @@ namespace sfge::ext
 		 * \return An entity of a mine.
 		 */
 		Entity GetFreeSlotInBuilding(BuildingType buildingType);
-
-		/**
-		 * \brief get a building that have resources ready to be taken.
-		 * \return a mine entity with resources.
-		 */
-		Entity GetBuildingWithResources(BuildingType buildingType);
 
 		/**
 		 * \brief get the type of resources that a building produce.
@@ -167,11 +161,11 @@ namespace sfge::ext
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
+		BuildingManager* m_BuildingManager;
 
-		sf::RenderWindow* window;
+		sf::RenderWindow* m_Window;
 
 		const unsigned short m_MaxCapacity = 200;
-		const unsigned short m_StackSize = 10;
 		const unsigned short m_CoolDown = 600;
 
 		unsigned int m_BuildingIndexCount = 0;
@@ -180,7 +174,7 @@ namespace sfge::ext
 		std::vector<DwarfSlots> m_DwarfSlots;
 
 		std::vector<unsigned short> m_ResourcesInventories;
-		std::vector<unsigned short> m_ReservedInventoriesResources;
+		std::vector<unsigned char> m_ReservedExportStackNumber;
 
 		std::vector<ResourceType> m_ResourceTypes;
 		std::vector<BuildingType> m_BuildingTypes;

@@ -30,11 +30,6 @@ namespace sfge::ext
 {
 	ForgeManager::ForgeManager(Engine& engine) : System(engine) {}
 
-	ForgeManager::~ForgeManager()
-	{
-		std::cout << "Forge Manager end \n";
-	}
-
 	void ForgeManager::Init()
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
@@ -42,14 +37,15 @@ namespace sfge::ext
 		m_BuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<BuildingManager>(
 			"BuildingManager");
 
+		m_Window = m_Engine.GetGraphics2dManager()->GetWindow();
+
+
 		//Load Texture
 		m_TexturePath = "data/sprites/forge.png";
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_VertexArray = sf::VertexArray(sf::Quads, 0);
-		std::cout << "Forge Manager \n";
-
 	}
 
 	void ForgeManager::Update(float dt)
@@ -64,9 +60,7 @@ namespace sfge::ext
 
 	void ForgeManager::Draw()
 	{
-		auto window = m_Engine.GetGraphics2dManager()->GetWindow();
-
-		window->draw(m_VertexArray, m_Texture);
+		m_Window->draw(m_VertexArray, m_Texture);
 	}
 
 	void ForgeManager::AddNewBuilding(Vec2f pos)
@@ -87,21 +81,25 @@ namespace sfge::ext
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(pos.x, pos.y);
 
+		if(CheckEmptySlot(newEntity, transformPtr))
+		{
+			return;
+		}
+
+		m_BuildingIndexCount++;
+
+
 		if (m_BuildingIndexCount >= m_EntityIndex.size())
 		{
 			ResizeContainer(m_BuildingIndexCount + CONTAINER_EXTENDER);
 		}
 
-		if (!CheckEmptySlot(newEntity, transformPtr))
-		{
-			m_BuildingIndexCount++;
 
 			size_t newForge = m_BuildingIndexCount - 1;
 
 			m_EntityIndex[newForge] = newEntity;
 
 			SetupVertexArray(newForge, transformPtr);
-		}
 	}
 
 	bool ForgeManager::DestroyBuilding(Entity entity)
@@ -202,7 +200,7 @@ namespace sfge::ext
 		return m_ResourceTypeNeeded;
 	}
 
-	void ForgeManager::DwarfTakeResources(Entity entity)
+	void ForgeManager::DwarfTakesResources(Entity entity)
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -214,7 +212,7 @@ namespace sfge::ext
 		}
 	}
 
-	void ForgeManager::DwarfPutResources(Entity entity)
+	void ForgeManager::DwarfPutsResources(Entity entity)
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -258,7 +256,7 @@ namespace sfge::ext
 				m_ProgressionCoolDown[i] = 0;
 				m_ResourcesInventoriesReceiver[i]--;
 
-				if(m_ResourcesInventoriesReceiver[i] <= m_ReservedImportStackNumber[i] * GetStackSizeByResourceType(ResourceType::IRON) + GetStackSizeByResourceType(ResourceType::IRON))
+				if(m_ResourcesInventoriesReceiver[i] <= m_MaxCapacityReceiver - (m_ReservedImportStackNumber[i] * GetStackSizeByResourceType(ResourceType::IRON) + GetStackSizeByResourceType(ResourceType::IRON)))
 				{
 					// TODO : ADAPT WITHOUT THE RESOURCE QUANTITY
 					m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeNeeded, 0);
@@ -333,6 +331,5 @@ namespace sfge::ext
 		m_VertexArray[4 * forgeIndex + 1].position = resetSize;
 		m_VertexArray[4 * forgeIndex + 2].position = resetSize;
 		m_VertexArray[4 * forgeIndex + 3].position = resetSize;
-
 	}
 }

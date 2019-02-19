@@ -33,6 +33,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
+	class BuildingManager;
 
 	/**
 	 * \author Robin Alves
@@ -99,16 +100,13 @@ namespace sfge::ext
 		 * \brief Get all resources that the building need to do his work.
 		 * \return a vector with all the type of resources that the dwelling need.
 		 */
-		std::vector<ResourceType> GetNeededResourceType();
+		ResourceType GetNeededResourceType();
 
 		/**
 		 * \brief give resources that the dwelling need.
 		 * \param dwellingEntity : an entity that is a dwelling.
-		 * \param nmbResources : the number of resources that needed to be deposit.
-		 * \param resourceType : the type of resources that want to be deposit.
-		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
 		 */
-		float DwarfPutResources(Entity dwellingEntity, int nmbResources, ResourceType resourceType);
+		void DwarfPutResources(Entity dwellingEntity);
 
 	private:
 
@@ -128,6 +126,10 @@ namespace sfge::ext
 		 */
 		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
 
+		void SetupVertexArray(unsigned int forgeIndex, Transform2d* transformPtr);
+
+		void ResetVertexArray(int forgeIndex);
+
 		/**
 		 * \brief Decrease happiness when call.
 		 */
@@ -135,17 +137,24 @@ namespace sfge::ext
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
-		SpriteManager* m_SpriteManager;
+		BuildingManager* m_BuildingManager;
+
+		sf::RenderWindow* m_Window;
+
+		const unsigned short m_MaxCapacity = 200;
+		const unsigned short m_CoolDown = 600;
+
+		unsigned int m_BuildingIndexCount;
 
 		std::vector<Entity> m_EntityIndex;
-
-
 		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<ReceiverInventory> m_FoodInventories;
-		std::vector<unsigned int> m_CoolDownFramesProgression;
+
+		std::vector<unsigned short> m_ResourcesInventories;
+		std::vector<unsigned char> m_ReservedImportStackNumber;
+
+		std::vector<unsigned short> m_ProgressionCoolDown;
 
 		const ResourceType m_ResourceTypeNeeded = ResourceType::FOOD;
-		const unsigned int m_CoolDownFrames = 2000;
 
 		//Building texture
 		std::string m_TexturePath;

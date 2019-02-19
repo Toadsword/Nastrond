@@ -237,7 +237,7 @@ namespace sfge::ext
 		switch(buildingType)
 		{
 		case BuildingType::FORGE:
-			m_ForgeManager->DwarfTakeResources(entity);
+			m_ForgeManager->DwarfTakesResources(entity);
 			break;
 		case BuildingType::MINE:
 			m_ProductionBuildingManager->DwarfTakeResources(entity, buildingType);
@@ -259,7 +259,7 @@ namespace sfge::ext
 		switch(buildingType)
 		{
 		case BuildingType::FORGE:
-			m_ForgeManager->DwarfPutResources(entity);
+			m_ForgeManager->DwarfPutsResources(entity);
 			break;
 
 		case BuildingType::DWELLING:
@@ -302,7 +302,7 @@ namespace sfge::ext
 
 		for (unsigned int i = 0; i < m_BuildingsNeedToBeEmptied.size(); i++)
 		{
-			Entity warehouseEntity = m_WarehouseManager->GetWarehouseWithFreeSpaceAvailable(m_BuildingsNeedToBeEmptied[i].resourceType);
+			const Entity warehouseEntity = m_WarehouseManager->GetWarehouseWithFreeSpaceAvailable(m_BuildingsNeedToBeEmptied[i].resourceType);
 
 			if(warehouseEntity == INVALID_ENTITY)
 				break;
@@ -329,14 +329,14 @@ namespace sfge::ext
 		inventoryTask.receiver = entity;
 		inventoryTask.receiverType = buildingType;
 		inventoryTask.resourceType = resourceType;
-		inventoryTask.resourceQuantity = resourceQuantity;
+		inventoryTask.resourceQuantity = GetStackSizeByResourceType(resourceType);
 
 		m_BuildingsNeedToBeFill.push_back(inventoryTask);
 
 
 		for (unsigned int i = 0; i < m_BuildingsNeedToBeFill.size(); i++)
 		{
-			Entity warehouseEntity = m_WarehouseManager->GetWarehouseWithResources(m_BuildingsNeedToBeFill[i].resourceType);
+			const Entity warehouseEntity = m_WarehouseManager->GetWarehouseWithResources(m_BuildingsNeedToBeFill[i].resourceType);
 
 			if (warehouseEntity == INVALID_ENTITY)
 				break;
