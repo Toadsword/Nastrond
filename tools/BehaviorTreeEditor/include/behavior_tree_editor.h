@@ -64,9 +64,12 @@ private:
 	bool DisplayDeleteButton(const Node::ptr& node);
 	void DisplayAddButton(const Node::ptr& node);
 
+	void NewBehaviorTreeFile(const std::string&fileName);
+
 	FileBrowserModal m_FileBrowser;
 
     Node::ptr m_RootNode = nullptr;
+	std::string m_CurrentFilePath = "";
 
 	int m_IndexButton = 0;
 

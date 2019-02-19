@@ -30,11 +30,17 @@ SOFTWARE.
 #include <string>
 #include <iostream>
 
+#include <experimental/filesystem> // C++-standard header file name
+#include <filesystem> // Microsoft-specific implementation header file name
+
 #include <behavior_tree_editor.h>
 #include <utility/json_utility.h>
 #include <utility/log.h>
 #include <extensions/AI/behavior_tree_nodes_core.h>
 #include <extensions/AI/behavior_tree_factory.h>
+
+#include <iostream>
+#include <fstream>  
 
 namespace sfge::tools
 {
@@ -42,7 +48,7 @@ void BehaviorTreeEditor::Init() { }
 
 void BehaviorTreeEditor::Update(float dt)
 {
-	//ImGui::ShowDemoWindow();
+	ImGui::ShowDemoWindow();
 }
 
 void BehaviorTreeEditor::Draw()
@@ -55,13 +61,25 @@ void BehaviorTreeEditor::Draw()
 		auto isImportClicked = false;
 		if (ImGui::BeginMenuBar())
 		{
-			if (ImGui::BeginMenu("File"))
+			if (ImGui::BeginMenu("New"))
 			{
-				if (ImGui::MenuItem("Import"))
+				static char buf1[64] = ""; 
+				ImGui::InputText("behavior_tree_name", buf1, 64);
+
+				if(ImGui::Button("Confirm"))
 				{
-					isImportClicked = true;
+					NewBehaviorTreeFile(buf1);
+					memset(buf1, 0, 64);
 				}
 				ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Open"))
+			{
+				isImportClicked = true;
+			}
+			if (ImGui::MenuItem("Delete"))
+			{
+				
 			}
 			ImGui::EndMenuBar();
 		}
@@ -71,10 +89,11 @@ void BehaviorTreeEditor::Draw()
 		{
 			m_RootNode = nullptr;
 			LoadBehaviourTree(path);
+			m_CurrentFilePath = path;
 		}
 
 		//Tree displayed
-		if (m_RootNode != nullptr)
+		if (m_CurrentFilePath != "")
 		{
 			m_IndexButton = 0;
 			DisplayNode(m_RootNode);
@@ -252,6 +271,64 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 {
 	if (node == nullptr)
 	{
+		if(m_RootNode == nullptr)
+		{
+			
+			if (ImGui::Begin("Add node to behavior tree", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				if (ImGui::TreeNode("Composite : "))
+				{
+					if (ImGui::Selectable(
+						"Sequence", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SEQUENCE_COMPOSITE)))
+					{
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SEQUENCE_COMPOSITE);
+					}
+					if (ImGui::Selectable(
+						"Selector", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SELECTOR_COMPOSITE)))
+					{
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SELECTOR_COMPOSITE);
+					}
+
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("Decorator : "))
+				{
+					if (ImGui::Selectable(
+						"Repeater", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::REPEATER_DECORATOR)))
+					{
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEATER_DECORATOR);
+					}
+					if (ImGui::Selectable("Repeat until fail",
+						m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::
+							REPEAT_UNTIL_FAIL_DECORATOR)))
+					{
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
+					}
+					if (ImGui::Selectable(
+						"Inverter", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::INVERTER_DECORATOR)))
+					{
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::INVERTER_DECORATOR);
+					}
+					if (ImGui::Selectable("Succeeder",
+						m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR)))
+					{
+						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR);
+					}
+
+					ImGui::TreePop();
+				}
+
+				if (ImGui::Button("Add"))
+				{
+					if (m_SelectedNodeToAdd != -1)
+					{
+						m_RootNode = std::make_shared<Node>(nullptr, nullptr, static_cast<Node::NodeType>(m_SelectedNodeToAdd));
+					}
+				}
+				ImGui::End();
+			}
+		}
 		return;
 	}
 
@@ -578,5 +655,28 @@ void BehaviorTreeEditor::DisplayAddButton(const Node::ptr& node)
 		m_NodeToAddChild = node;
 	}
 	m_IndexButton++;
+}
+
+void BehaviorTreeEditor::NewBehaviorTreeFile(const std::string& fileName)
+{
+	auto currentPath = fs::current_path(); //TODO faire une variable global pour le chemin d'accès des fichier behavior tree
+	currentPath = currentPath.parent_path();
+	currentPath.append("data");
+	currentPath.append("behavior_tree");
+	currentPath.append(fileName+ ".asset");
+
+	m_CurrentFilePath = currentPath.generic_string();
+
+	std::ostringstream oss;
+	oss << "[System] New file : " << currentPath;
+	Log::GetInstance()->Error(oss.str());
+
+	std::ofstream outfile(currentPath);
+
+	outfile << "{\n}";
+
+	outfile.close();
+
+	LoadBehaviourTree(m_CurrentFilePath);
 }
 }
