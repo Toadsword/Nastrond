@@ -273,14 +273,12 @@ void Engine::Save()
 		myfile.close();
 	}
 
-
-
 	//Save of the scene file
 	//Loop on all the entities
-	for (int i = 1; i <= INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER * 2; i++)
+	for (int i = 1; i < INIT_ENTITY_NMB; i++)
 	{
 		// If a tile is found, we don't want to save it
-		if(m_SystemsContainer->entityManager.HasComponent(entityIndex, ComponentType::TILE))
+		if(m_SystemsContainer->entityManager.HasComponent(i, ComponentType::TILE))
 			continue;
 
 		hasAtLeastOneComponent = false;
@@ -303,11 +301,14 @@ void Engine::Save()
 		}
 
 		//Pycomponent
-		if (CheckJsonExists(pyComponentSave[i - 1], "script_path"))
+		if (CheckJsonExists(pyComponentSave[i][0], "script_path"))
 		{
-			j["entities"][entityIndex - 1]["components"][componentIndex] = pyComponentSave[i - 1];
+			for(int iPyComp = 0; iPyComp < pyComponentSave[i].size(); iPyComp++)
+			{
+				j["entities"][entityIndex - 1]["components"][componentIndex] = pyComponentSave[i][iPyComp];
+				componentIndex++;
+			}
 			hasAtLeastOneComponent = true;
-			componentIndex++;
 		}
 
 		//Tilemap
@@ -322,8 +323,7 @@ void Engine::Save()
 		//Camera
 		if (CheckJsonExists(cameraSave[i - 1], "type"))
 		{
-			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
-			j["entities"][entityIndex - 1]["components"][componentIndex]["reference_path"] = referencePath;
+			j["entities"][entityIndex - 1]["components"][componentIndex] = cameraSave[i - 1];
 			hasAtLeastOneComponent = true;
 			componentIndex++;
 		}

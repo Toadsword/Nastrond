@@ -538,8 +538,9 @@ json PyComponentManager::Save()
 	{
 		if (pyComponent != nullptr and pyComponent->GetEntity() != INVALID_ENTITY)
 		{
-			j[pyComponent->GetEntity()]["type"] = static_cast<int>(ComponentType::PYCOMPONENT);
-			j[pyComponent->GetEntity()]["script_path"] = m_ComponentsInfo[pyComponent->GetEntity()].path;
+			int numScripts = j[pyComponent->GetEntity()].size();
+			j[pyComponent->GetEntity()][numScripts]["type"] = static_cast<int>(ComponentType::PYCOMPONENT);
+			j[pyComponent->GetEntity()][numScripts]["script_path"] = m_ComponentsInfo[pyComponent->GetInstanceId()].path;
 		}
 	}
 	return j;

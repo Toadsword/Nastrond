@@ -32,7 +32,7 @@ TEST(Tilemap, TestLoadTilemap)
 {
 	sfge::Engine engine;
 	engine.Init();
-
+	
 	json sceneJson;
 	json entityJson;
 	json tilemapJson;
@@ -71,7 +71,7 @@ TEST(Tilemap, TestLoadTilemap)
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 	
 
-	//engine.GetSceneManager()->LoadSceneFromPath("data/scenes/testSave/coucou.scene");
+	//engine.GetSceneManager()->LoadSceneFromPath("data/scenes/saved_scene1.scene");
 
     engine.Start();
 }
