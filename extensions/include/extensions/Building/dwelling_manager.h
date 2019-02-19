@@ -28,7 +28,7 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_utilities.h>
 
 
 namespace sfge::ext
@@ -108,7 +108,7 @@ namespace sfge::ext
 		 * \param resourceType : the type of resources that want to be deposit.
 		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
 		 */
-		float GiveResources(Entity dwellingEntity, int nmbResources, ResourceType resourceType);
+		float DwarfPutResources(Entity dwellingEntity, int nmbResources, ResourceType resourceType);
 
 	private:
 

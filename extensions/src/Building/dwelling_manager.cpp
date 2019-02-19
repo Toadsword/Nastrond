@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/dwelling_manager.h>
+#include <extensions/Building/dwelling_manager.h>
 
 namespace sfge::ext
 {
@@ -177,7 +177,7 @@ namespace sfge::ext
 		return resourceTypes;
 	}
 
-	float DwellingManager::GiveResources(Entity entity, int nmbResources, ResourceType resourceType)
+	float DwellingManager::DwarfPutResources(Entity entity, int nmbResources, ResourceType resourceType)
 	{
 		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
 		{

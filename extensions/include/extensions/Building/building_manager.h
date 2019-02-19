@@ -28,10 +28,10 @@ SOFTWARE.
 #include <engine/system.h>
 #include <python/python_engine.h>
 
-#include <extensions/dwelling_manager.h>
-#include <extensions/forge_manager.h>
-#include <extensions/production_building_manager.h>
-#include <extensions/warehouse_manager.h>
+#include <extensions/Building/dwelling_manager.h>
+#include <extensions/Building/forge_manager.h>
+#include <extensions/Building/production_building_manager.h>
+#include <extensions/Building/warehouse_manager.h>
 
 
 namespace sfge::ext
@@ -92,11 +92,16 @@ namespace sfge::ext
 
 		InventoryTask ConveyorLookForTask();
 
+#pragma region Move resources section
+		void RegistrationBuildingToBeEmptied(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity);
+
+		void RegistrationBuildingToBeFill(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity);
+#pragma endregion 
 
 		//for dwellings
-		Entity AttributeDwarfToDwelling() { return INVALID_ENTITY; };
+		Entity AttributeDwarfToDwelling();
 
-		void DeallocateDwarfToDwelling(Entity entity) {};
+		void DeallocateDwarfToDwelling(Entity entity);
 
 
 	private:
@@ -104,6 +109,11 @@ namespace sfge::ext
 		ForgeManager* m_ForgeManager;
 		ProductionBuildingManager* m_ProductionBuildingManager;
 		WarehouseManager* m_WarehouseManager;
+
+		std::vector<InventoryTask> m_BuildingsNeedToBeEmptied;
+		std::vector<InventoryTask> m_BuildingsNeedToBeFill;
+
+		std::vector<InventoryTask> m_InventoryTasks;
 	};
 }
 #endif

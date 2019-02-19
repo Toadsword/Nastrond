@@ -39,6 +39,28 @@ namespace sfge::ext
 		FOOD
 	};
 
+	static const struct StackSize
+	{
+		static const unsigned short rawResources = 20;
+		static const unsigned short transformedResources = 5;
+	};
+
+	static unsigned short GetStackSizeByResourceType(ResourceType resourceType)
+	{
+		switch(resourceType)
+		{
+		case ResourceType::IRON :
+			return StackSize::rawResources;
+		case ResourceType::STONE:
+			return StackSize::rawResources;
+		case ResourceType::FOOD:
+			return StackSize::rawResources;
+		case ResourceType::TOOL:
+			return StackSize::rawResources;
+		}
+		return NO_RESOURCE_TYPE;
+	}
+
 	/**
 	 * \brief Struct that represent an inventory that must be empty.
 	 * \author Robin Alves

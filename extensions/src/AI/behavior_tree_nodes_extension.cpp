@@ -612,7 +612,7 @@ void TakeResourcesLeaf::Execute(const unsigned int index)
 #endif
 
 #ifdef BT_SOA
-	m_BehaviorTree->dwarfManager->TakeResources(index);
+	m_BehaviorTree->dwarfManager->DwarfTakeResources(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;

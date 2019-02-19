@@ -22,12 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/production_building_manager.h>
+#include <extensions/Building/production_building_manager.h>
+#include "extensions/Building/building_manager.h"
 
 
 namespace sfge::ext
 {
+
 	ProductionBuildingManager::ProductionBuildingManager(Engine& engine) : System(engine) {}
+
+	ProductionBuildingManager::~ProductionBuildingManager()
+	{
+		std::cout << "Production Building Manager \n";
+	}
 
 	void ProductionBuildingManager::Init()
 	{
@@ -59,6 +66,11 @@ namespace sfge::ext
 		std::cout << "production building Manager \n";
 
 		m_Init = true;
+
+		for (int i = 0; i < 100; i++)
+		{
+			AddNewBuilding(Vec2f(0, 0), BuildingType::EXCAVATION_POST);
+		}
 	}
 
 	void ProductionBuildingManager::Update(float dt)
@@ -87,11 +99,15 @@ namespace sfge::ext
 	{
 		auto* entityManager = m_Engine.GetEntityManager();
 
-		Configuration* configuration = m_Engine.GetConfig();
-		entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+		auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 
-		const auto newEntity = entityManager->CreateEntity(0);
-
+		if (newEntity == INVALID_ENTITY)
+		{
+			Configuration* configuration = m_Engine.GetConfig();
+			entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+			newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+		}
+		
 		//add transform
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
@@ -100,7 +116,6 @@ namespace sfge::ext
 		{
 			ResizeContainer(m_BuildingIndexCount + CONTAINER_EXTENDER);
 		}
-
 
 		if (!CheckEmptySlot(newEntity, buildingType, transformPtr))
 		{
@@ -144,43 +159,20 @@ namespace sfge::ext
 				EntityManager* entityManager = m_Engine.GetEntityManager();
 				entityManager->DestroyEntity(entity);
 
-				sf::Vector2f resetVertexArray = sf::Vector2f(0, 0);
+				
 
 				switch (buildingType)
 				{
 				case BuildingType::MINE:
-					m_MineVertexArray[4 * i].texCoords = resetVertexArray;
-					m_MineVertexArray[4 * i + 1].texCoords = resetVertexArray;
-					m_MineVertexArray[4 * i + 2].texCoords = resetVertexArray;
-					m_MineVertexArray[4 * i + 3].texCoords = resetVertexArray;
-
-					m_MineVertexArray[4 * i].position = resetVertexArray;
-					m_MineVertexArray[4 * i + 1].position = resetVertexArray;
-					m_MineVertexArray[4 * i + 2].position = resetVertexArray;
-					m_MineVertexArray[4 * i + 3].position = resetVertexArray;
+					ResetVertexArray(&m_MineVertexArray, i);
 					break;
 
 				case BuildingType::EXCAVATION_POST:
-					m_ExcavationPostVertexArray[4 * i].texCoords = resetVertexArray;
-					m_ExcavationPostVertexArray[4 * i + 1].texCoords = resetVertexArray;
-					m_ExcavationPostVertexArray[4 * i + 2].texCoords = resetVertexArray;
-					m_ExcavationPostVertexArray[4 * i + 3].texCoords = resetVertexArray;
-
-					m_ExcavationPostVertexArray[4 * i].position = resetVertexArray;
-					m_ExcavationPostVertexArray[4 * i + 1].position = resetVertexArray;
-					m_ExcavationPostVertexArray[4 * i + 2].position = resetVertexArray;
-					m_ExcavationPostVertexArray[4 * i + 3].position = resetVertexArray;
+					ResetVertexArray(&m_ExcavationPostVertexArray, i);
 					break;
-				case BuildingType::MUSHROOM_FARM:
-					m_MushroomFarmVertexArray[4 * i].texCoords = resetVertexArray;
-					m_MushroomFarmVertexArray[4 * i + 1].texCoords = resetVertexArray;
-					m_MushroomFarmVertexArray[4 * i + 2].texCoords = resetVertexArray;
-					m_MushroomFarmVertexArray[4 * i + 3].texCoords = resetVertexArray;
 
-					m_MushroomFarmVertexArray[4 * i].position = resetVertexArray;
-					m_MushroomFarmVertexArray[4 * i + 1].position = resetVertexArray;
-					m_MushroomFarmVertexArray[4 * i + 2].position = resetVertexArray;
-					m_MushroomFarmVertexArray[4 * i + 3].position = resetVertexArray;
+				case BuildingType::MUSHROOM_FARM:
+					ResetVertexArray(&m_MushroomFarmVertexArray, i);
 					break;
 				}
 				return true;
@@ -231,7 +223,6 @@ namespace sfge::ext
 				m_DwarfSlots[i].dwarfIn++;
 				if (m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
 					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
-
 			}
 		}
 	}
@@ -294,11 +285,11 @@ namespace sfge::ext
 		}
 	}
 
-	int ProductionBuildingManager::TakeResources(Entity entity)
+	int ProductionBuildingManager::DwarfTakeResources(Entity entity, BuildingType buildingType)
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == entity)
+			if (m_EntityIndex[i] == entity && m_BuildingTypes[i] == buildingType)
 			{
 				m_ResourcesInventories[i] -= m_StackSize;
 				return m_StackSize;
@@ -321,6 +312,12 @@ namespace sfge::ext
 				m_ProgressionCoolDowns[i] = 0;
 				m_ResourcesInventories[i]++;
 
+				if(m_ResourcesInventories[i] >= m_ReservedInventoriesResources[i] + m_StackSize)
+				{
+					m_ReservedInventoriesResources[i]++;
+					
+				}
+
 				if (m_ResourcesInventories[i] > m_MaxCapacity)
 				{
 					m_ResourcesInventories[i] = m_MaxCapacity;
@@ -335,6 +332,7 @@ namespace sfge::ext
 		m_DwarfSlots.resize(newSize);
 		m_BuildingTypes.resize(newSize);
 		m_ResourcesInventories.resize(newSize);
+		m_ReservedInventoriesResources.resize(newSize);
 		m_ProgressionCoolDowns.resize(newSize);
 		m_ResourceTypes.resize(newSize);
 		m_GeneralVertexIndex.resize(newSize);
@@ -470,6 +468,21 @@ namespace sfge::ext
 		(*vertexArray)[4 * index + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
 		(*vertexArray)[4 * index + 2].position = transformPtr->Position + textureSize / 2.0f;
 		(*vertexArray)[4 * index + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+	}
+
+	void ProductionBuildingManager::ResetVertexArray(sf::VertexArray * vertexArray, int index)
+	{
+		sf::Vector2f resetVertexArray = sf::Vector2f(0, 0);
+
+		(*vertexArray)[4 * index].texCoords = resetVertexArray;
+		(*vertexArray)[4 * index + 1].texCoords = resetVertexArray;
+		(*vertexArray)[4 * index + 2].texCoords = resetVertexArray;
+		(*vertexArray)[4 * index + 3].texCoords = resetVertexArray;
+
+		(*vertexArray)[4 * index].position = resetVertexArray;
+		(*vertexArray)[4 * index + 1].position = resetVertexArray;
+		(*vertexArray)[4 * index + 2].position = resetVertexArray;
+		(*vertexArray)[4 * index + 3].position = resetVertexArray;
 	}
 }
 

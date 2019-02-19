@@ -29,10 +29,13 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_utilities.h>
+
 
 namespace sfge::ext
 {
+
+	class BuildingManager;
 	/**
 	 * \author Robin Alves
 	 */
@@ -40,6 +43,9 @@ namespace sfge::ext
 	{
 	public:
 		ForgeManager(Engine& engine);
+
+		~ForgeManager();
+
 
 		void Init() override;
 
@@ -95,12 +101,6 @@ namespace sfge::ext
 		Entity GetFreeSlotInBuilding();
 
 		/**
-		 * \brief get a forge that have resources ready to be taken.
-		 * \return a forge entity with resources.
-		 */
-		Entity GetBuildingWithResources();
-
-		/**
 		 * \brief get the type of resources that a forge produce.
 		 * \return a resource type.
 		 */
@@ -112,27 +112,19 @@ namespace sfge::ext
 		 */
 		ResourceType GetNeededResourceType();
 
-		unsigned char GetAmountOfResources();
-
-		Entity GetBuildingWithNeed();
-
-		Entity GetBuildingWithProduction();
-
 		/**
 		 * \brief get a certain amount of resources that a forge have produce.
 		 * \param forgeEntity : an entity that is a forge.
 		 * \return an int of an amount of resources.
 		 */
-		int GetResourcesBack(Entity forgeEntity);
+		void DwarfTakeResources(Entity forgeEntity);
 
 		/**
 		 * \brief give resources that the forge need to produce.
 		 * \param forgeEntity : an entity that is a forge.
-		 * \param nmbResources : the number of resources that needed to be deposit.
 		 * \param resourceType : the type of resources that want to be deposit.
-		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
 		 */
-		float GiveResources(Entity forgeEntity, int nmbResources, ResourceType resourceType);
+		void DwarfPutResources(Entity forgeEntity);
 
 	private:
 		/**
@@ -155,24 +147,38 @@ namespace sfge::ext
 		 */
 		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
 
+		void SetupVertexArray(unsigned int forgeIndex, Transform2d* transformPtr);
+
+		void ResetVertexArray(int forgeIndex);
+
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
+		BuildingManager* m_BuildingManager;
+
+		unsigned short m_CoolDown = 100;
+		unsigned short m_ConsumptionGoal = 20;
+
+		unsigned short m_MaxCapacityGiver = 200;
+		unsigned short m_MaxCapacityReceiver = 100;
+
+		unsigned int m_BuildingIndexCount = 0;
 
 		std::vector<Entity> m_EntityIndex;
 
 		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<GiverInventory> m_ToolsInventories;
-		std::vector<ReceiverInventory> m_IronsInventories;
-		std::vector<ProgressionProduction> m_ProgressionProdTool;
+
+		std::vector<unsigned short> m_ResourcesInventoriesGiver;
+		std::vector<unsigned short> m_ResourcesInventoriesReceiver;
+
+		std::vector<unsigned char> m_ProgressionConsumption;
+		std::vector<unsigned short> m_ProgressionCoolDown;
 
 
-		const int m_StackSize = 5;
-
-		const int m_CoolDownFrames = 20;
+		std::vector<unsigned char> m_ReservedExportStackNumber;
+		std::vector<unsigned char> m_ReservedImportStackNumber;
 
 		ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
 		ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
-
 
 		//Building texture
 		std::string m_TexturePath;

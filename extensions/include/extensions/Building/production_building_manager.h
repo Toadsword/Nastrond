@@ -27,8 +27,9 @@ SOFTWARE.
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
+#include <python/python_engine.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_utilities.h>
 
 namespace sfge::ext
 {
@@ -39,6 +40,8 @@ namespace sfge::ext
 	{
 	public:
 		ProductionBuildingManager(Engine& engine);
+
+		~ProductionBuildingManager();
 
 		void Init() override;
 
@@ -110,7 +113,7 @@ namespace sfge::ext
 		 * \param entity : an entity that is a building.
 		 * \return an int of an amount of resources.
 		 */
-		int TakeResources(Entity entity);
+		int DwarfTakeResources(Entity entity, BuildingType buildingType);
 
 	private:
 		/**
@@ -158,6 +161,8 @@ namespace sfge::ext
 		 */
 		void SetupVertexArray(int newEntity, sf::VertexArray* vertexArrayPtr, sf::Texture* texture, Transform2d* transformPtr);
 
+		void ResetVertexArray(sf::VertexArray* vertexArray, int index);
+
 		bool m_Init = false;
 
 		Transform2dManager* m_Transform2DManager;
@@ -175,6 +180,8 @@ namespace sfge::ext
 		std::vector<DwarfSlots> m_DwarfSlots;
 
 		std::vector<unsigned short> m_ResourcesInventories;
+		std::vector<unsigned short> m_ReservedInventoriesResources;
+
 		std::vector<ResourceType> m_ResourceTypes;
 		std::vector<BuildingType> m_BuildingTypes;
 
@@ -194,6 +201,7 @@ namespace sfge::ext
 		unsigned int m_ExcavationPostCount = 0;
 		unsigned int m_MushroomFarmCount = 0;
 
+#pragma region Graphics section
 		//Mine texture
 		std::string m_MineTexturePath;
 		TextureId m_MineTextureId;
@@ -214,6 +222,7 @@ namespace sfge::ext
 		sf::Texture* m_MushroomFarmTexture;
 
 		sf::VertexArray m_MushroomFarmVertexArray;
+#pragma endregion
 	};
 }
 #endif

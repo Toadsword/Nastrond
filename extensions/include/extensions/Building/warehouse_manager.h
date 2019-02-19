@@ -28,7 +28,7 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_utilities.h>
 
 namespace sfge::ext
 {
@@ -95,6 +95,14 @@ namespace sfge::ext
 
 		Entity GetWarehouseWithFreeSpaceAvailable(ResourceType resourceType);
 
+		void DwarfTakeResources(Entity entity, ResourceType resourceType);
+
+		void DwarfPutResources(Entity entity, ResourceType resourceType);
+
+		void ReserveFill(Entity entity, ResourceType resourceType);
+
+		void ReserveEmpty(Entity entity, ResourceType);
+
 	private:
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
@@ -104,6 +112,27 @@ namespace sfge::ext
 
 		std::vector<DwarfSlots> m_DwarfSlots;
 
+#pragma region All inventories
+		std::vector<unsigned short> m_IronInventories;
+		std::vector<unsigned short> m_StoneInventories;
+		std::vector<unsigned short> m_ToolInventories;
+		std::vector<unsigned short> m_m_MushroomInventories;
+#pragma endregion
+
+		std::vector<unsigned char> m_ReservedInventoriesIron;
+		std::vector<unsigned char> m_ReservedInventoriesStone;
+		std::vector<unsigned char> m_ReservedInventoriesTool;
+		std::vector<unsigned char> m_ReservedInventoriesMushroom;
+
+		
+
+
+		//Warehouse texture
+		std::string m_WarehouseTexturePath;
+		TextureId m_WarehouseTextureId;
+		sf::Texture* m_WarehouseTexture;
+
+		sf::VertexArray m_WarehouseVertexArray;
 	};
 }
 #endif

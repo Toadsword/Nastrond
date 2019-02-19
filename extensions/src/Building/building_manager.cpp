@@ -23,7 +23,9 @@ SOFTWARE.
 */
 
 
-#include <extensions/building_manager.h>
+#include <extensions/Building/building_manager.h>
+#include "SFML/Window/WindowImpl.hpp"
+#include "extensions/AI/behavior_tree_nodes_extension.h"
 
 
 namespace sfge::ext
@@ -157,6 +159,29 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
+	void BuildingManager::DeallocateDwarfToWorkingPlace(BuildingType buildingType, Entity entity)
+	{
+		switch (buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->RemoveDwarfToBuilding(entity);
+			break;
+		case BuildingType::MINE:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->DwarfEnterBuilding(entity);
+			break;
+		}
+
+	}
+
 	void BuildingManager::DwarfEnterBuilding(BuildingType buildingType, Entity entity)
 	{
 		switch (buildingType)
@@ -175,6 +200,9 @@ namespace sfge::ext
 			break;
 		case BuildingType::WAREHOUSE:
 			m_WarehouseManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::DWELLING:
+			m_DwellingManager->DwarfEnterBuilding(entity);
 			break;
 		}
 	}
@@ -198,44 +226,150 @@ namespace sfge::ext
 		case BuildingType::WAREHOUSE:
 			m_WarehouseManager->DwarfExitBuilding(entity);
 			break;
+		case BuildingType::DWELLING:
+			m_DwellingManager->DwarfExitBuilding(entity);
+			break;
 		}
 	}
 
 	void BuildingManager::DwarfTakesResources(BuildingType buildingType, Entity entity, ResourceType resourceType)
 	{
+		switch(buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->DwarfTakeResources(entity);
+			break;
+		case BuildingType::MINE:
+			m_ProductionBuildingManager->DwarfTakeResources(entity, buildingType);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ProductionBuildingManager->DwarfTakeResources(entity, buildingType);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_ProductionBuildingManager->DwarfTakeResources(entity, buildingType);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->DwarfTakeResources(entity, resourceType);
+			break;
+		}
 	}
 
 	void BuildingManager::DwarfPutsResources(BuildingType buildingType, Entity entity, ResourceType resourceType, unsigned int resourceQuantity)
 	{
+		switch(buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->DwarfPutResources(entity);
+			break;
 
+		case BuildingType::DWELLING:
+			m_DwellingManager->DwarfPutResources(entity, resourceQuantity, resourceType);
+			break;
+
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->DwarfPutResources(entity, resourceType);
+			break;
+		}
 	}
 
 	BuildingManager::InventoryTask BuildingManager::ConveyorLookForTask()
 	{
-		std::vector<BuildingType> buildings;
-
-		buildings.push_back(BuildingType::FORGE);
-		buildings.push_back(BuildingType::MINE);
-		buildings.push_back(BuildingType::EXCAVATION_POST);
-		buildings.push_back(BuildingType::MUSHROOM_FARM);
-
-		InventoryTask inventoryTask;
-
-		for (int i = 0; i < buildings.size(); i++)
+		for(int i = 0; i < m_InventoryTasks.size(); i++)
 		{
-			switch (buildings[i])
+			if(!(m_InventoryTasks[i] == INVALID_INVENTORY_TASK))
 			{
-			case BuildingType::FORGE:
-				inventoryTask.giver = m_ForgeManager->GetBuildingWithResources();
-				if (inventoryTask.giver == INVALID_ENTITY)
-				{
-					break;
-				}
-				inventoryTask.resourceType = m_ForgeManager->GetProducedResourceType();
-				break;
+				return m_InventoryTasks[i];
+			}
+			else if (i == m_InventoryTasks.size() - 1)
+			{
+				m_InventoryTasks = std::vector<InventoryTask>();
 			}
 		}
-
-		return InventoryTask();
+		return INVALID_INVENTORY_TASK;
 	}
+
+	void BuildingManager::RegistrationBuildingToBeEmptied(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity)
+	{
+		InventoryTask inventoryTask = INVALID_INVENTORY_TASK;
+
+		inventoryTask.giver = entity;
+		inventoryTask.giverType = buildingType;
+		inventoryTask.resourceType = resourceType;
+		inventoryTask.resourceQuantity = resourceQuantity;
+
+		m_BuildingsNeedToBeEmptied.push_back(inventoryTask);
+
+
+		for (unsigned int i = 0; i < m_BuildingsNeedToBeEmptied.size(); i++)
+		{
+			Entity warehouseEntity = m_WarehouseManager->GetWarehouseWithFreeSpaceAvailable(m_BuildingsNeedToBeEmptied[i].resourceType);
+
+			if(warehouseEntity == INVALID_ENTITY)
+				break;
+
+			m_WarehouseManager->ReserveFill(warehouseEntity, m_BuildingsNeedToBeEmptied[i].resourceType);
+
+			m_BuildingsNeedToBeEmptied[i].receiver = warehouseEntity;
+			m_BuildingsNeedToBeEmptied[i].receiverType = BuildingType::WAREHOUSE;
+
+			m_InventoryTasks.push_back(m_BuildingsNeedToBeEmptied[0]);
+			m_BuildingsNeedToBeEmptied[i] = INVALID_INVENTORY_TASK;
+
+			if(i == m_BuildingsNeedToBeEmptied.size() - 1)
+			{
+				m_BuildingsNeedToBeEmptied = std::vector<InventoryTask>();
+			}
+		}
+	}
+
+	void BuildingManager::RegistrationBuildingToBeFill(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity)
+	{
+		InventoryTask inventoryTask = INVALID_INVENTORY_TASK;
+
+		inventoryTask.receiver = entity;
+		inventoryTask.receiverType = buildingType;
+		inventoryTask.resourceType = resourceType;
+		inventoryTask.resourceQuantity = resourceQuantity;
+
+		m_BuildingsNeedToBeFill.push_back(inventoryTask);
+
+
+		for (unsigned int i = 0; i < m_BuildingsNeedToBeFill.size(); i++)
+		{
+			Entity warehouseEntity = m_WarehouseManager->GetWarehouseWithResources(m_BuildingsNeedToBeFill[i].resourceType);
+
+			if (warehouseEntity == INVALID_ENTITY)
+				break;
+
+			m_BuildingsNeedToBeFill[i].giver = warehouseEntity;
+			m_BuildingsNeedToBeFill[i].giverType = BuildingType::WAREHOUSE;
+
+			m_InventoryTasks.push_back(m_BuildingsNeedToBeFill[0]);
+			m_BuildingsNeedToBeFill[i] = INVALID_INVENTORY_TASK;
+
+			if (i == m_BuildingsNeedToBeFill.size() - 1)
+			{
+				m_BuildingsNeedToBeFill = std::vector<InventoryTask>();
+			}
+		}
+	}
+
+	Entity BuildingManager::AttributeDwarfToDwelling()
+	{
+		Entity dwelling = m_DwellingManager->GetFreeSlotInBuilding();
+
+		if (dwelling == INVALID_ENTITY)
+			return INVALID_ENTITY;
+
+		m_DwellingManager->AddDwarfToBuilding(dwelling);
+
+		return dwelling;
+	}
+
+	void BuildingManager::DeallocateDwarfToDwelling(Entity entity)
+	{
+		m_DwellingManager->RemoveDwarfToBuilding(entity);
+	}
+
+
 }

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/warehouse_manager.h>
+#include <extensions/Building/warehouse_manager.h>
 
 namespace sfge::ext
 {
@@ -84,6 +84,17 @@ namespace sfge::ext
 		return Entity();
 	}
 
+	void WarehouseManager::DwarfTakeResources(Entity entity, ResourceType resourceType)
+	{
+	}
 
-
+	void WarehouseManager::DwarfPutResources(Entity entity, ResourceType resourceType)
+	{
+	}
+	void WarehouseManager::ReserveFill(Entity entity, ResourceType resourceType)
+	{
+	}
+	void WarehouseManager::ReserveEmpty(Entity entity, ResourceType)
+	{
+	}
 }
