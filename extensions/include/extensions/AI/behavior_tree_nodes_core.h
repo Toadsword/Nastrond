@@ -117,6 +117,7 @@ namespace sfge::ext::behavior_tree
 			WAIT_NIGHT_TIME_LEAF,
 			ASK_INVENTORY_TASK_LEAF,
 			TAKE_RESOURCE_LEAF,
+			PUT_RESOURCE_LEAF,
 			FIND_PATH_TO_LEAF
 		};
 

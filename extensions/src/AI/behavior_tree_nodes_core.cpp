@@ -241,6 +241,9 @@ void Node::Execute(const unsigned int index)
 	case NodeType::FIND_PATH_TO_LEAF:
 		FindPathToLeaf(index);
 		break;
+	case NodeType::PUT_RESOURCE_LEAF:
+		PutResourcesLeaf(index);
+		break;
 	default: 
 		std::cout << "Node not implemented\n";
 		break;
