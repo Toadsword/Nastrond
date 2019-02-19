@@ -30,7 +30,7 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
 #include <graphics/animation2d.h>
-#include <graphics/gizmo_manager.h>
+#include <graphics/gizmo2d.h>
 
 namespace sfge
 {

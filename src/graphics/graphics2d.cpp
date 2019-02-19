@@ -89,7 +89,7 @@ void Graphics2dManager::Draw()
 		m_SpriteManager.DrawSprites(*m_Window);
 		m_AnimationManager.DrawAnimations(*m_Window);
 		m_ShapeManager.DrawShapes(*m_Window);
-		m_GizmoManager.DrawGizmo(*m_Window);
+		m_GizmoManager.DrawGizmos(*m_Window);
 	}
 }
 

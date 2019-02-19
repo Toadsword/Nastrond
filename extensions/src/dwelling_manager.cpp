@@ -87,7 +87,7 @@ namespace sfge::ext
 			const size_t newDwelling = m_EntityIndex.size();
 
 			ResizeContainer(newDwelling + 1);
-			m_FoodInventories[newDwelling].resourceType = ResourceType::FOOD;
+			m_FoodInventories[newDwelling].ressourceType = RessourceType::FOOD;
 			m_CoolDownFramesProgression[newDwelling] = 0u;
 
 			m_EntityIndex[newDwelling] = newEntity;
@@ -206,13 +206,13 @@ namespace sfge::ext
 				m_EntityIndex[i] = newEntity;
 				const DwarfSlots newDwarfSlot;
 				m_DwarfSlots[i] = newDwarfSlot;
-				const ReceiverInventory newFoodInventory;
+				const RecieverInventory newFoodInventory;
 				m_FoodInventories[i] = newFoodInventory;
 				const unsigned int newCoolDown = 0;
 				m_CoolDownFramesProgression[i] = 0;
 
 
-				m_FoodInventories[i].resourceType = ResourceType::FOOD;
+				m_FoodInventories[i].ressourceType = RessourceType::FOOD;
 
 				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 

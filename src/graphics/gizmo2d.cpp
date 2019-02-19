@@ -21,23 +21,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-#include <graphics/graphics2d.h>
-#include <graphics/gizmo_manager.h>
-#include <utility/json_utility.h>
-#include <utility/log.h>
+#include <graphics/gizmo2d.h>
 #include <engine/transform2d.h>
-#include <engine/engine.h>
-#include <imgui.h>
-#include <imgui-SFML.h>
 
 namespace sfge
 {
 
-Gizmo::Gizmo (): Gizmo(nullptr, sf::Vector2f())
+Gizmo::Gizmo (): Offsetable(sf::Vector2f())
 {
 
 }
+
 Gizmo::Gizmo(Transform2d * transform, const sf::Vector2f offset) : Offsetable(offset)
 {
 	
@@ -86,6 +80,20 @@ void Gizmo::Update(float dt, Transform2d* transform) const
 	}
 }
 
+GizmoManager::~GizmoManager() {
+
+}
+
+GizmoManager::GizmoManager(Engine &engine) : MultipleComponentManager(engine)
+{
+
+}
+
+void editor::GizmoInfo::DrawOnInspector() {
+
+}
+
+
 void GizmoManager::Init()
 {
 	MultipleComponentManager::Init();
@@ -93,9 +101,10 @@ void GizmoManager::Init()
 }
 
 
-void GizmoManager::DrawGizmo(sf::RenderWindow &window)
-{
 
+
+void GizmoManager::DrawGizmos(sf::RenderWindow &window)
+{
 	rmt_ScopedCPUSample(GizmoDraw,0)
 	for(auto i = 0u; i < m_Components.size(); i++)
 	{
@@ -108,7 +117,7 @@ void GizmoManager::DrawGizmo(sf::RenderWindow &window)
 
 
 
-void GizmoManager::Update(const float dt)
+void GizmoManager::Update(float dt)
 {
 
 	rmt_ScopedCPUSample(GizmoUpdate,0)
@@ -129,12 +138,15 @@ void GizmoManager::Clear()
 
 }
 
+void GizmoManager::Collect() {
+
+}
 
 
 Gizmo *GizmoManager::AddComponent (Entity entity)
 {
-	auto GizmoPtr = GetComponentPtr (entity);
-	//tComponentInfo (entity).gizmoPtr = GizmoPtr;
+	auto GizmoPtr = GetComponentPtr(entity);
+	//auto& ComponentInfo = GetComponentInfo(entity);
 	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::GIZMO2D);
 	m_ComponentsInfo[entity - 1].SetEntity(entity);
 	return GizmoPtr;
@@ -144,19 +156,75 @@ Gizmo *GizmoManager::AddComponent (Entity entity)
 
 void GizmoManager::CreateComponent(json& componentJson, Entity entity)
 {
-	//Log::GetInstance()->Msg("Create component Gizmo");
+	//Log::GetInstance()->Msg("Create component Shape");
 	sf::Vector2f offset;
 	if (CheckJsonExists(componentJson, "offset"))
 	{
 		offset = GetVectorFromJson(componentJson, "offset");
 	}
 
-	auto& gizmo = m_Components[entity-1];
+	auto& gizmo = m_Components[entity - 1];
 	gizmo.SetOffset(offset);
 
-	
-	
-	
+	/*auto shapeInfo = editor::ShapeInfo();
+	shapeInfo.shapePtr = &shape;*/
+
+	//Todo Change For Gizmo
+	if (CheckJsonNumber(componentJson, "gizmo_type"))
+	{
+		const GizmoType gizmoType = componentJson["gizmo_type"];
+		switch (gizmoType)
+		{
+		case GizmoType::CIRCLE:
+		{
+
+			float radius = 10.0f;
+			if (CheckJsonNumber(componentJson, "radius"))
+			{
+				radius = componentJson["radius"];
+			}
+
+			auto circleShape = std::make_unique <sf::CircleShape>();
+			circleShape->setRadius(radius);
+			circleShape->setOrigin(radius, radius);
+			//gizmo.SetShape(std::move(circleShape));
+			gizmo.Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
+		}
+		break;
+		case GizmoType::RECTANGLE:
+		{
+			sf::Vector2f offset;
+			if (CheckJsonExists(componentJson, "offset"))
+			{
+				offset = GetVectorFromJson(componentJson, "offset");
+			}
+			sf::Vector2f size = sf::Vector2f();
+			if (CheckJsonExists(componentJson, "size"))
+			{
+				size = GetVectorFromJson(componentJson, "size");
+			}
+			auto rect = std::make_unique<sf::RectangleShape>();
+			rect->setSize(size);
+			rect->setOrigin(size.x / 2.0f, size.y / 2.0f);
+			//gizmo.SetShape(std::move(rect));
+			gizmo.Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
+
+		}
+		break;
+		default:
+			Log::GetInstance()->Error("Invalid shape type in ShapeManager Component Creation");
+			break;
+		}
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "[Error] No shape_type defined in json:  " << componentJson;
+		Log::GetInstance()->Error(oss.str());
+	}
+
+	auto& gizmo = m_Components[entity-1];
+	gizmo.SetOffset(offset);
 }
 
 void GizmoManager::DestroyComponent(Entity entity)
@@ -173,6 +241,14 @@ void GizmoManager::OnResize(size_t new_size)
 		m_ComponentsInfo[i].SetEntity(i + 1);
 		m_ComponentsInfo[i].gizmoPtr = &m_Components[i];
 	}
+}
+
+int GizmoManager::GetFreeComponentIndex() {
+	return 0;
+}
+
+Gizmo* GizmoManager::GetComponentPtr(Entity entity) {
+	return nullptr;
 }
 
 }

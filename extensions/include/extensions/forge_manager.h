@@ -28,7 +28,6 @@ SOFTWARE.
 #include <engine/system.h>
 #include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
-
 #include <extensions/building_utilities.h>
 
 namespace sfge::ext
@@ -80,12 +79,12 @@ namespace sfge::ext
 		/**
 		 * \brief Return the type of resources that the building produce.
 		 */
-		ResourceType GetProducedResourceType();
+		RessourceType GetProducedResourceType();
 
 		/**
 		 * \brief Return a vector with all the type of resources that the building need to produce.
 		 */
-		std::vector<ResourceType> GetNeededResourceType();
+		std::vector<RessourceType> GetNeededResourceType();
 
 		/**
 		 * \brief Return an amount of the produced resources of the given building entity.
@@ -95,7 +94,7 @@ namespace sfge::ext
 		/**
 		 * \brief Give resources to the the given building entity. Return the number of resources that the building could not recover or all if the building is full or if the resource type is not the good one.
 		 */
-		float GiveResources(Entity entity, int nmbResources, ResourceType resourceType);
+		float GiveResources(Entity entity, int nmbResources, RessourceType resourceType);
 
 	private:
 		/**
@@ -129,15 +128,15 @@ namespace sfge::ext
 
 		std::vector<DwarfSlots> m_DwarfSlots;
 		std::vector<GiverInventory> m_ToolsInventories;
-		std::vector<ReceiverInventory> m_IronsInventories;
+		std::vector<RecieverInventory> m_IronsInventories;
 		std::vector<ProgressionProduction> m_ProgressionProdTool;
 
 		const int m_stackSize = 5;
 
 		const int m_CoolDownFrames = 20;
 
-		ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
-		ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
+		RessourceType m_ResourceTypeNeeded = RessourceType::IRON;
+		RessourceType m_ResourceTypeProduced = RessourceType::TOOL;
 
 
 		//Building texture

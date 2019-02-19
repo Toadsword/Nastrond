@@ -89,9 +89,9 @@ namespace sfge::ext
 			const size_t newMine = m_EntityIndex.size();
 
 			ResizeContainer(newMine + 1);
-			m_IronInventory[newMine].resourceType = ResourceType::IRON;
+			m_IronInventory[newMine].ressourceType = RessourceType::IRON;
 
-			m_IronInventory[newMine].packSize = m_StackSize;
+			m_IronInventory[newMine].packNumber = m_StackSize;
 
 			m_EntityIndex[newMine] = newEntity;
 
@@ -188,7 +188,7 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	ResourceType MineManager::GetResourceType()
+	RessourceType MineManager::GetResourceType()
 	{
 		return m_ResourceType;
 	}
@@ -200,7 +200,7 @@ namespace sfge::ext
 			if(m_EntityIndex[i] == entity)
 			{
 				m_IronInventory[i].packNumber--;
-				return m_IronInventory[i].packSize;
+				return m_IronInventory[i].packNumber;
 			}
 		}
 		return 0;
@@ -216,14 +216,14 @@ namespace sfge::ext
 			}
 
 			//Check if the inventory is full
-			if (!(m_IronInventory[i].packNumber * m_IronInventory[i].packSize >= m_IronInventory[i].maxCapacity))
+			if (!(m_IronInventory[i].packNumber * m_IronInventory[i].packNumber >= m_IronInventory[i].maxCapacity))
 			{
 				//Produce Iron by checking the number of dwarf in the building
 				m_IronInventory[i].inventory += m_ProductionRate * m_DwarfSlots[i].dwarfIn;
 
-				if (m_IronInventory[i].inventory >= m_IronInventory[i].packSize)
+				if (m_IronInventory[i].inventory >= m_IronInventory[i].packNumber)
 				{
-					m_IronInventory[i].inventory -= m_IronInventory[i].packSize;
+					m_IronInventory[i].inventory -= m_IronInventory[i].packNumber;
 					m_IronInventory[i].packNumber++;
 				}
 			}
@@ -261,9 +261,9 @@ namespace sfge::ext
 				const GiverInventory newIronInventory;
 				m_IronInventory[i] = newIronInventory;
 
-				m_IronInventory[i].resourceType = ResourceType::IRON;
+				m_IronInventory[i].ressourceType = RessourceType::IRON;
 
-				m_IronInventory[i].packSize = m_StackSize;
+				m_IronInventory[i].packNumber = m_StackSize;
 
 				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 

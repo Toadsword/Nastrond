@@ -87,9 +87,9 @@ namespace sfge::ext
 
 			ResizeContainer(newForge + 1);
 
-			m_IronsInventories[newForge].resourceType = ResourceType::IRON;
-			m_ToolsInventories[newForge].resourceType = ResourceType::TOOL;
-			m_ProgressionProdTool[newForge].resourceType = ResourceType::TOOL;
+			m_IronsInventories[newForge].ressourceType = RessourceType::IRON;
+			m_ToolsInventories[newForge].ressourceType = RessourceType::TOOL;
+			m_ProgressionProdTool[newForge].ressourceType = RessourceType::TOOL;
 
 			m_EntityIndex[newForge] = newEntity;
 
@@ -174,14 +174,14 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	ResourceType ForgeManager::GetProducedResourceType()
+	RessourceType ForgeManager::GetProducedResourceType()
 	{
 		return m_ResourceTypeProduced;
 	}
 
-	std::vector<ResourceType> ForgeManager::GetNeededResourceType()
+	std::vector<RessourceType> ForgeManager::GetNeededResourceType()
 	{
-		std::vector<ResourceType> resourceTypes;
+		std::vector<RessourceType> resourceTypes;
 		resourceTypes.push_back(m_ResourceTypeNeeded);
 		return resourceTypes;
 	}
@@ -194,19 +194,19 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_ToolsInventories[i].packNumber--;
-				return m_ToolsInventories[i].packSize;
+				return m_ToolsInventories[i].packNumber;
 			}
 		}
 		return 0;
 	}
 
-	float ForgeManager::GiveResources(Entity entity, int nmbResources, ResourceType resourceType)
+	float ForgeManager::GiveResources(Entity entity, int nmbResources, RessourceType resourceType)
 	{
 		for (unsigned int i = 0; i < m_EntityIndex.size(); i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
-				if(m_IronsInventories[i].resourceType == resourceType)
+				if(m_IronsInventories[i].ressourceType == resourceType)
 				{
 					m_IronsInventories[i].inventory += nmbResources;
 					float tmpResourcesExcess = m_IronsInventories[i].inventory - m_IronsInventories[i].maxCapacity;
@@ -246,7 +246,7 @@ namespace sfge::ext
 				continue;
 			}
 
-			if (m_IronsInventories[i].inventory <= 0 || m_ToolsInventories[i].inventory + m_ToolsInventories[i].packNumber * m_ToolsInventories[i].packSize >= m_ToolsInventories[i].maxCapacity)
+			if (m_IronsInventories[i].inventory <= 0 || m_ToolsInventories[i].inventory + m_ToolsInventories[i].packNumber * m_ToolsInventories[i].packNumber >= m_ToolsInventories[i].maxCapacity)
 			{
 				continue;
 			}
@@ -265,10 +265,10 @@ namespace sfge::ext
 				m_ToolsInventories[i].inventory++;
 				m_ProgressionProdTool[i].progression = 0;
 
-				if (m_ToolsInventories[i].inventory >= m_ToolsInventories[i].packSize)
+				if (m_ToolsInventories[i].inventory >= m_ToolsInventories[i].packNumber)
 				{
 					m_ToolsInventories[i].packNumber++;
-					m_ToolsInventories[i].inventory -= m_ToolsInventories[i].packSize;
+					m_ToolsInventories[i].inventory -= m_ToolsInventories[i].packNumber;
 				}
 			}
 
@@ -293,18 +293,18 @@ namespace sfge::ext
 				m_EntityIndex[i] = newEntity;
 				const DwarfSlots newDwarfSlot;
 				m_DwarfSlots[i] = newDwarfSlot;
-				const ReceiverInventory newIronInventory;
+				const RecieverInventory newIronInventory;
 				m_IronsInventories[i] = newIronInventory;
 				const GiverInventory newToolInventory;
 				m_ToolsInventories[i] = newToolInventory;
 				const ProgressionProduction newProgressionProdTool;
 				m_ProgressionProdTool[i] = newProgressionProdTool;
 
-				m_IronsInventories[i].resourceType = ResourceType::IRON;
-				m_ToolsInventories[i].resourceType = ResourceType::TOOL;
-				m_ProgressionProdTool[i].resourceType = ResourceType::TOOL;
+				m_IronsInventories[i].ressourceType = RessourceType::IRON;
+				m_ToolsInventories[i].ressourceType = RessourceType::TOOL;
+				m_ProgressionProdTool[i].ressourceType = RessourceType::TOOL;
 
-				m_ToolsInventories[i].packSize = m_stackSize;
+				m_ToolsInventories[i].packNumber = m_stackSize;
 
 				const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 

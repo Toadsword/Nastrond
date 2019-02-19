@@ -42,8 +42,7 @@ enum class ShapeType
 	NONE,
 	CIRCLE,
 	RECTANGLE,
-	POLYGON,
-	CONVEX,
+	LINE,
 };
 
 class Shape : public Offsetable

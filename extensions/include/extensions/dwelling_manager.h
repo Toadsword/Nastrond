@@ -106,7 +106,7 @@ namespace sfge::ext
 
 
 		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<ReceiverInventory> m_FoodInventories;
+		std::vector<RecieverInventory> m_FoodInventories;
 		std::vector<unsigned int> m_CoolDownFramesProgression;
 
 #ifdef TEST_SYSTEM_DEBUG

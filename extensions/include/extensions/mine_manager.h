@@ -85,7 +85,7 @@ namespace sfge::ext
 		/**
 		 * \brief Return the type of resources that the building produce.
 		 */
-		ResourceType GetResourceType();
+		RessourceType GetResourceType();
 
 		/**
 		 * \brief Return an amount of the produced resources of the given building entity.
@@ -127,7 +127,7 @@ namespace sfge::ext
 
 		float m_ProductionRate = 0.01f;
 		unsigned int m_StackSize = 20u;
-		ResourceType m_ResourceType = ResourceType::IRON;
+		RessourceType m_ResourceType = RessourceType::IRON;
 
 		//Building texture
 		std::string m_TexturePath;
