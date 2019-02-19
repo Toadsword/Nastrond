@@ -60,8 +60,18 @@ void BehaviorTreeEditor::Draw()
 		auto isImportClicked = false;
 		if (ImGui::BeginMenuBar())
 		{
-			DisplayNewMenu();
+			if (ImGui::BeginMenu("New"))
+			{
+				static char buf1[64] = ""; 
+				ImGui::InputText("behavior_tree_name", buf1, 64);
 
+				if(ImGui::Button("Confirm"))
+				{
+					NewBehaviorTreeFile(buf1);
+					memset(buf1, 0, 64);
+				}
+				ImGui::EndMenu();
+			}
 			if (ImGui::MenuItem("Open"))
 			{
 				isImportClicked = true;
@@ -80,8 +90,12 @@ void BehaviorTreeEditor::Draw()
 			m_CurrentFilePath = path;
 		}
 
-		m_IndexButton = 0;
-		DisplayNode(m_RootNode);
+		//Tree displayed
+		if (m_CurrentFilePath != "")
+		{
+			m_IndexButton = 0;
+			DisplayNode(m_RootNode);
+		}
 	}
 	ImGui::End();
 
@@ -703,23 +717,7 @@ void BehaviorTreeEditor::DisplayAddMenu()
 	ImGui::End();
 }
 
-void BehaviorTreeEditor::DisplayNewMenu()
-{
-	if (ImGui::BeginMenu("New"))
-	{
-		static char buf1[64] = "";
-		ImGui::InputText("behavior_tree_name", buf1, 64);
-
-		if (ImGui::Button("Confirm"))
-		{
-			NewBehaviorTreeFile(buf1);
-			memset(buf1, 0, 64);
-		}
-		ImGui::EndMenu();
-	}
-}
-
-	void BehaviorTreeEditor::NewBehaviorTreeFile(const std::string& fileName)
+void BehaviorTreeEditor::NewBehaviorTreeFile(const std::string& fileName)
 {
 auto currentPath = fs::current_path(); //TODO faire une variable global pour le chemin d'accès des fichier behavior tree
 currentPath = currentPath.parent_path();

@@ -63,6 +63,9 @@ private:
 
 	bool DisplayDeleteButton(const Node::ptr& node);
 	void DisplayAddButton(const Node::ptr& node);
+	void DisplayDeleteMenu();
+	void DisplayAddMenu();
+	void DisplayNewMenu();
 
 	void NewBehaviorTreeFile(const std::string&fileName);
 
@@ -76,7 +79,6 @@ private:
 	Node::ptr m_NodeToAddChild = nullptr;
 
 	int m_SelectedNodeToAdd = -1;
-	bool m_HasToDeleteFile = false;
 };
 }
 #endif
