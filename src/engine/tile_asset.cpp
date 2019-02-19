@@ -31,94 +31,148 @@ SOFTWARE.
 #include <engine/tile_asset.h>
 #include <graphics/texture.h>
 #include <graphics/graphics2d.h>
+#include <utility/file_utility.h>
 
 namespace sfge
 {
-void TileTypeManager::Init()
-{
-	System::Init();
-	m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
-	m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
-}
-
-TileTypeId TileTypeManager::LoadTileType(std::string filename)
-{
+	void TileTypeManager::Init()
 	{
-		std::ostringstream oss;
-		oss << "Creating TileType Configuration from " << filename;
-		Log::GetInstance()->Msg(oss.str());
+		System::Init();
+		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 	}
 
-	auto jsonConfigPtr = LoadJson(filename);
-	if (jsonConfigPtr == nullptr)
+	TileTypeId TileTypeManager::LoadTileType(std::string filename)
 	{
-		std::ostringstream oss;
-		oss << "[Error] TileType JSON file: " << filename << " failed to open or did not parse as JSON";
-		Log::GetInstance()->Error(oss.str());
-		return INVALID_TILE_TYPE;
-	}
-	return LoadTileType(*jsonConfigPtr);
-}
-
-TileTypeId TileTypeManager::LoadTileType(json & jsonData)
-{
-	auto tiletypeId = INVALID_TILE_TYPE;
-
-	for (auto& tileTypeObj : jsonData)
-	{
-		if (CheckJsonExists(tileTypeObj, "id") && CheckJsonParameter(tileTypeObj, "id", nlohmann::detail::value_t::number_unsigned))
 		{
-			if (tileTypeObj["id"] > INVALID_TILE_TYPE)
-				tiletypeId = tileTypeObj["id"];
+			std::ostringstream oss;
+			oss << "Creating TileType Configuration from " << filename;
+			Log::GetInstance()->Msg(oss.str());
 		}
-		else
-			continue;
 
-		m_TileTypeId[tiletypeId - 1] = tiletypeId;
-
-		if (CheckJsonExists(tileTypeObj, "texturePath") && CheckJsonParameter(tileTypeObj, "texturePath", nlohmann::detail::value_t::string))
+		auto jsonConfigPtr = LoadJson(filename);
+		if (jsonConfigPtr == nullptr)
 		{
-			TextureId textId = m_TextureManager->LoadTexture(tileTypeObj["texturePath"]);
-			if(textId == INVALID_TEXTURE)
+			std::ostringstream oss;
+			oss << "[Error] TileType JSON file: " << filename << " failed to open or did not parse as JSON";
+			Log::GetInstance()->Error(oss.str());
+			return INVALID_TILE_TYPE;
+		}
+		return LoadTileType(*jsonConfigPtr);
+	}
+
+	TileTypeId TileTypeManager::LoadTileType(json & jsonData)
+	{
+		auto tiletypeId = INVALID_TILE_TYPE;
+
+		for (auto& tileTypeObj : jsonData)
+		{
+			if (CheckJsonExists(tileTypeObj, "id") && CheckJsonParameter(tileTypeObj, "id", nlohmann::detail::value_t::number_unsigned))
 			{
-				std::ostringstream oss;
-				oss << "[Error] Couldn't load texture for tileType " << tiletypeId << ".\n";
-				Log::GetInstance()->Error(oss.str());
-				return INVALID_TILE_TYPE;
+				if (tileTypeObj["id"] > INVALID_TILE_TYPE)
+					tiletypeId = tileTypeObj["id"];
+			}
+			else
+				continue;
+
+			m_TileTypeId[tiletypeId - 1] = tiletypeId;
+
+			if (CheckJsonExists(tileTypeObj, "texturePath") && CheckJsonParameter(tileTypeObj, "texturePath", nlohmann::detail::value_t::string))
+			{
+				TextureId textId = m_TextureManager->LoadTexture(tileTypeObj["texturePath"]);
+				if(textId == INVALID_TEXTURE)
+				{
+					std::ostringstream oss;
+					oss << "[Error] Couldn't load texture for tileType " << tiletypeId << ".\n";
+					Log::GetInstance()->Error(oss.str());
+					return INVALID_TILE_TYPE;
+				}
+
+				m_TexturesId[tiletypeId - 1] = textId;
 			}
 
-			m_TexturesId[tiletypeId - 1] = textId;
+			if(m_Incremental < tiletypeId)
+				m_Incremental = tiletypeId;
+			
+		}
+		return tiletypeId;
+	}
+
+	bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
+	{
+		if (tileTypeId == INVALID_TILE_TYPE)
+			return false;
+
+		auto* sprite = m_SpriteManager->GetComponentPtr(tileId);
+		if (!m_Engine.GetEntityManager()->HasComponent(tileId, ComponentType::SPRITE2D))
+			sprite = m_SpriteManager->AddComponent(tileId);
+		
+		sprite->SetTexture(m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1]));
+		m_SpriteManager->GetComponentInfo(tileId).textureId = m_TexturesId[tileTypeId - 1];
+
+		return true;
+	}
+
+	TextureId TileTypeManager::GetTextureFromTileType(TileTypeId tileTypeId)
+	{
+		for(int index = 0; index < m_TileTypeId.size(); index++)
+		{
+			if (m_TileTypeId[index] == tileTypeId)
+				return m_TexturesId[index];
+		}
+		return INVALID_TEXTURE;
+	}
+
+	std::vector<size_t> TileTypeManager::GetAllTileTypeIds()
+	{
+		return m_TileTypeId;
+	}
+
+	void TileTypeManager::AddNewTileType(std::string filename)
+	{
+		TextureId textId = m_TextureManager->LoadTexture(filename);
+		if(textId != INVALID_TEXTURE)
+		{
+			for(int index = 0; index < m_TileTypeId.size(); index++)
+			{
+				if(m_TileTypeId[index] == INVALID_TILE_TYPE)
+				{
+					m_Incremental++;
+					m_TileTypeId[index] = m_Incremental;
+					m_TexturesId[index] = textId;
+					break;
+				}
+			}
 		}
 	}
-	return tiletypeId;
-}
 
-bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
-{
-	if (tileTypeId == INVALID_TILE_TYPE)
-		return false;
+	void TileTypeManager::Clear()
+	{
+		for (auto& tiletypeId : m_TileTypeId)
+			tiletypeId = INVALID_TILE_TYPE;
+		
+		for (auto& textureId : m_TexturesId)
+			textureId = INVALID_TEXTURE;
+	}
 
-	auto* sprite = m_SpriteManager->GetComponentPtr(tileId);
-	if (!m_Engine.GetEntityManager()->HasComponent(tileId, ComponentType::SPRITE2D))
-		sprite = m_SpriteManager->AddComponent(tileId);
-	
-	sprite->SetTexture(m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1]));
-	m_SpriteManager->GetComponentInfo(tileId).textureId = m_TexturesId[tileTypeId - 1];
+	void TileTypeManager::Collect()
+	{
 
-	return true;
-}
+	}
 
-void TileTypeManager::Clear()
-{
-	for (auto& tiletypeId : m_TileTypeId)
-		tiletypeId = INVALID_TILE_TYPE;
-	
-	for (auto& textureId : m_TexturesId)
-		textureId = INVALID_TEXTURE;
-}
+	json TileTypeManager::Save()
+	{
+		json j;
 
-void TileTypeManager::Collect()
-{
+		for(int i = 0; i < m_TileTypeId.size(); i++)
+		{
+			if(m_TileTypeId[i] != INVALID_TILE_TYPE)
+			{
+				j[i]["id"] = m_TileTypeId[i];
+				j[i]["texturePath"] = m_TextureManager->GetTexturePath(m_TexturesId[i]);
+			}
+		}
 
-}
+		return j;
+	}
 }

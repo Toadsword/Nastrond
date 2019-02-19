@@ -44,9 +44,11 @@
 #include <engine/config.h>
 #include <input/input.h>
 #include <audio/audio.h>
+/*
 #include <graphics/shape2d.h>
 #include <graphics/sprite2d.h>
 #include <graphics/texture.h>
+*/
 #include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
 #include <python/pycomponent.h>

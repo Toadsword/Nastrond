@@ -187,7 +187,13 @@ void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
 		m_Window->setTitle(oss.str());
 	}
 }
-void Editor::AddDrawableObserver(editor::IDrawableManager *observer)
+
+	std::string Editor::GetCurrentSceneName() const
+	{
+		return m_CurrentScene->name;
+	}
+
+	void Editor::AddDrawableObserver(editor::IDrawableManager *observer)
 {
 	m_DrawableObservers.emplace(observer);
 }
