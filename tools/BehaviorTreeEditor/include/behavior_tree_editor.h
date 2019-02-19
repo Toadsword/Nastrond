@@ -67,7 +67,7 @@ private:
 
 	void DisplayNode(const Node::ptr& node);
 
-	void DisplayDeleteButton(const Node::ptr& node);
+	bool DisplayDeleteButton(const Node::ptr& node);
 	void DisplayAddButton(const Node::ptr& node);
 
 	FileBrowserModal m_FileBrowser;

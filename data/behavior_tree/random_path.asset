@@ -9,6 +9,7 @@
 				"childs": [
 						{ 
 							"name": "FindPathToLeaf",
+							"destination": 0,
 							"type" : 1
 						}, {
 							"name": "WaitForPathLeaf",

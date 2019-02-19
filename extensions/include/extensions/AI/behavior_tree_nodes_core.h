@@ -90,16 +90,6 @@ namespace sfge::ext::behavior_tree
 		using ptr = std::shared_ptr<Node>;
 
 		/**
-		 * \brief Constructor
-		 * \param bt behavior tree. Used to store data
-		 * \param parentNode, if null => is root node
-		 */
-		Node(BehaviorTree* bt, ptr parentNode);
-		~Node();
-
-		void Destroy();
-
-		/**
 		 * \brief Store all type of nodes
 		 */
 		enum class NodeType : unsigned char
@@ -112,7 +102,6 @@ namespace sfge::ext::behavior_tree
 			INVERTER_DECORATOR,
 			WAIT_FOR_PATH_LEAF,
 			MOVE_TO_LEAF,
-			FIND_RANDOM_PATH_LEAF,
 			HAS_DWELLING_LEAF,
 			SET_DWELLING_LEAF,
 			ENTER_DWELLING_LEAF,
@@ -130,6 +119,18 @@ namespace sfge::ext::behavior_tree
 			TAKE_RESOURCE_LEAF,
 			FIND_PATH_TO_LEAF
 		};
+
+		/**
+		 * \brief Constructor
+		 * \param bt behavior tree. Used to store data
+		 * \param parentNode, if null => is root node
+		 */
+		Node(BehaviorTree* bt, ptr parentNode, NodeType type);
+		~Node();
+
+		void Destroy();
+		void AddChild(NodeType type);
+
 
 		NodeType nodeType;
 

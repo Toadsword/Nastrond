@@ -29,15 +29,70 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-Node::Node(BehaviorTree* bt, ptr parentNode)
+Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 {
 	m_BehaviorTree = bt;
 	m_ParentNode = std::move(parentNode);
+	nodeType = type;
+	switch (type) { 
+	case NodeType::SEQUENCE_COMPOSITE: 
+	case NodeType::SELECTOR_COMPOSITE:
+	{
+		CompositeData compositeData;
+		compositeData.m_Children = std::vector<std::shared_ptr<Node>>{};
+		m_Datas = std::make_unique<CompositeData>(compositeData);
+	}
+		break;
+	case NodeType::REPEATER_DECORATOR:
+	{
+		RepeaterData repeaterData;
+		repeaterData.m_Child = nullptr;
+		repeaterData.m_Limit = 0;
+		m_Datas = std::make_unique<RepeaterData>(repeaterData);
+	}
+		break;
+	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+	case NodeType::SUCCEEDER_DECORATOR: 
+	case NodeType::INVERTER_DECORATOR: 
+	{
+		DecoratorData decoratorData;
+		decoratorData.m_Child = nullptr;
+		m_Datas = std::make_unique<DecoratorData>(decoratorData);
+	}
+		break;
+	case NodeType::WAIT_FOR_PATH_LEAF: break;
+	case NodeType::MOVE_TO_LEAF: break;
+	case NodeType::HAS_DWELLING_LEAF: break;
+	case NodeType::SET_DWELLING_LEAF: break;
+	case NodeType::ENTER_DWELLING_LEAF: break;
+	case NodeType::EXIT_DWELLING_LEAF: break;
+	case NodeType::ENTER_WORKING_PLACE_LEAF: break;
+	case NodeType::EXIT_WORKING_PLACE_LEAF: break;
+	case NodeType::HAS_JOB_LEAF: break;
+	case NodeType::HAS_STATIC_JOB_LEAF: break;
+	case NodeType::ASSIGN_JOB_LEAF: break;
+	case NodeType::IS_DAY_TIME_LEAF: break;
+	case NodeType::IS_NIGHT_TIME_LEAF: break;
+	case NodeType::WAIT_DAY_TIME_LEAF: break;
+	case NodeType::WAIT_NIGHT_TIME_LEAF: break;
+	case NodeType::ASK_INVENTORY_TASK_LEAF: break;
+	case NodeType::TAKE_RESOURCE_LEAF: break;
+	case NodeType::FIND_PATH_TO_LEAF:
+	{
+		FindPathToData findPathToData;
+		findPathToData.m_Destination = NodeDestination::RANDOM;
+		m_Datas = std::make_unique<FindPathToData>(findPathToData);
+	}
+		break;
+	default: ; }
 }
 
 Node::~Node()
 {
-	m_ParentNode->DestroyChild(this);
+	if (m_ParentNode != nullptr)
+	{
+		m_ParentNode->DestroyChild(this);
+	}
 }
 
 void Node::DestroyChild(Node* childNode)
@@ -74,16 +129,45 @@ void Node::DestroyChild(Node* childNode)
 
 void Node::Destroy()
 {
-	if(m_ParentNode == nullptr)
+	if(m_ParentNode != nullptr)
 	{
-		return;
+		m_ParentNode->DestroyChild(this);
+	}
+}
+
+void Node::AddChild(NodeType type)
+{
+	switch(nodeType)
+	{
+	case NodeType::SEQUENCE_COMPOSITE:
+	case NodeType::SELECTOR_COMPOSITE:
+	{
+		auto child = std::make_shared<Node>(m_BehaviorTree, m_ParentNode, type);
+
+		static_cast<CompositeData*>(m_Datas.get())->m_Children.push_back(child);
+	}
+		break;
+	case NodeType::REPEATER_DECORATOR:
+	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+	case NodeType::SUCCEEDER_DECORATOR:
+	case NodeType::INVERTER_DECORATOR:
+	{
+		auto child = std::make_shared<Node>(m_BehaviorTree, m_ParentNode, type);
+
+		static_cast<DecoratorData*>(m_Datas.get())->m_Child = child;
+	}
+		break;
+	default: 
+		std::ostringstream oss;
+		oss << "[Error] A child cannot be add to this node : " << std::to_string(static_cast<int>(nodeType));
+		Log::GetInstance()->Error(oss.str());
 	}
 
-	m_ParentNode->DestroyChild(this);
 }
 
 void Node::Execute(const unsigned int index)
 {
+	//TODO utiliser un pointeur de fonction initailizé dans le constructeur
 	switch (nodeType)
 	{
 	case NodeType::SEQUENCE_COMPOSITE:
@@ -1088,7 +1172,8 @@ void Node::FindPathToLeaf(const unsigned int index)
 	case NodeDestination::INVENTORY_TASK_RECEIVER:
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
 		break;
-	default: ;
+	default: 
+		;
 	}
 
 #ifdef BT_AOS
