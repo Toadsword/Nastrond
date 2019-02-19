@@ -34,6 +34,7 @@ SOFTWARE.
 #include <utility/json_utility.h>
 #include <utility/log.h>
 #include <extensions/AI/behavior_tree_nodes_core.h>
+#include <extensions/AI/behavior_tree_factory.h>
 
 namespace sfge::tools
 {
@@ -53,7 +54,7 @@ namespace sfge::tools
 		if (ImGui::Begin("Behavior Tree", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar))
 		{
 			//Menu bar
-			bool isImportClicked = false;
+			auto isImportClicked = false;
 			if (ImGui::BeginMenuBar()) {
 				if (ImGui::BeginMenu("File")) {
 					if (ImGui::MenuItem("Import")) {
@@ -82,7 +83,6 @@ namespace sfge::tools
 		{
 			if (ImGui::Begin("Add node to behavior tree", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
-
 				if (ImGui::TreeNode("Composite : "))
 				{
 					if(ImGui::Selectable("Sequence", m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SEQUENCE_COMPOSITE))) {
@@ -142,214 +142,7 @@ namespace sfge::tools
 
 	void BehaviorTreeEditor::LoadBehaviourTree(std::string& path)
 	{
-		const auto behaviorTreeJson = *LoadJson(path);
-
-		if (CheckJsonParameter(behaviorTreeJson, "rootNode", json::value_t::array))
-		{
-			auto rootNodeJson = behaviorTreeJson["rootNode"];
-			if (CheckJsonExists(rootNodeJson[0], "type"))
-			{
-				const NodeType nodeType = rootNodeJson[0]["type"];
-
-				switch (nodeType)
-				{
-				case NodeType::NONE:
-				{
-					std::ostringstream oss;
-					oss << "[Error] No type specified for root node : " << rootNodeJson[0];
-					Log::GetInstance()->Error(oss.str());
-				}
-				break;
-				case NodeType::LEAF:
-					m_RootNode = AddLeafNodeFromJson(rootNodeJson[0], nullptr);
-					break;
-				case NodeType::COMPOSITE:
-					m_RootNode = AddCompositeNodeFromJson(rootNodeJson[0], nullptr);
-					break;
-				case NodeType::DECORATOR:
-					m_RootNode = AddDecoratorNodeFromJson(rootNodeJson[0], nullptr);
-					break;
-				default:;
-				}
-			}
-			else
-			{
-				std::ostringstream oss;
-				oss << "[Error] the type for the rootNode is missing : " << rootNodeJson[0];
-				Log::GetInstance()->Error(oss.str());
-			}
-		}
-		else
-		{
-			std::ostringstream oss;
-			oss << "[Error] the rootNode parameter is missing : " << behaviorTreeJson;
-			Log::GetInstance()->Error(oss.str());
-		}
-	}
-
-	std::shared_ptr<Node> BehaviorTreeEditor::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
-	{
-		std::cout << "Load leaf\n";
-		std::shared_ptr<Node> leaf;
-
-		if (behaviorTreeJson["name"] == "WaitForPathLeaf")
-		{
-			std::cout << "   -> Wait for path leaf\n";
-			leaf = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::WAIT_FOR_PATH_LEAF);
-		}
-		else if (behaviorTreeJson["name"] == "MoveToLeaf")
-		{
-			std::cout << "   -> Move to leaf\n";
-			leaf = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::MOVE_TO_LEAF);
-		}
-		else if (behaviorTreeJson["name"] == "FindPathToLeaf")
-		{
-			std::cout << "   -> Find path to leaf\n";
-			leaf = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::FIND_PATH_TO_LEAF);
-
-			if (CheckJsonExists(behaviorTreeJson, "destination")) {
-				static_cast<ext::behavior_tree::FindPathToData*>(leaf->m_Datas.get())->m_Destination = static_cast<ext::behavior_tree::NodeDestination>(behaviorTreeJson["destination"]);
-			}
-		}
-		else
-		{
-			std::ostringstream oss;
-			oss << "[Error] The name : " << behaviorTreeJson["name"] << " is not assigned to any type of leaf";
-			Log::GetInstance()->Error(oss.str());
-
-			return nullptr;
-		}
-
-		return leaf;
-	}
-
-	std::shared_ptr<Node> BehaviorTreeEditor::AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
-	{
-		std::cout << "Load Composite\n";
-		std::shared_ptr<Node> composite;
-
-		if (behaviorTreeJson["name"] == "SequenceComposite")
-		{
-			composite = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::SEQUENCE_COMPOSITE);
-			std::cout << "   ->Sequence composite\n";
-		}
-		else if (behaviorTreeJson["name"] == "SelectorComposite")
-		{
-			composite = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::SELECTOR_COMPOSITE);
-			std::cout << "   ->Selector composite\n";
-		}
-		else
-		{
-			std::ostringstream oss;
-			oss << "[Error] The name : " << behaviorTreeJson["name"] << " is not assigned to any type of composite";
-			Log::GetInstance()->Error(oss.str());
-
-			return nullptr;
-		}
-
-		if (CheckJsonExists(behaviorTreeJson, "childs"))
-		{
-			for (auto& childJson : behaviorTreeJson["childs"])
-			{
-				if (CheckJsonExists(childJson, "type"))
-				{
-					const NodeType nodeType = childJson["type"];
-
-					switch (nodeType)
-					{
-					case NodeType::NONE:
-					{
-						std::ostringstream oss;
-						oss << "[Error] No type specified for root node : " << childJson;
-						Log::GetInstance()->Error(oss.str());
-					}
-					break;
-					case NodeType::LEAF:
-						static_cast<ext::behavior_tree::CompositeData*>(composite->m_Datas.get())->m_Children.push_back(AddLeafNodeFromJson(childJson, composite));
-						break;
-					case NodeType::COMPOSITE:
-						static_cast<ext::behavior_tree::CompositeData*>(composite->m_Datas.get())->m_Children.push_back(AddCompositeNodeFromJson(childJson, composite));
-						break;
-					case NodeType::DECORATOR:
-						static_cast<ext::behavior_tree::CompositeData*>(composite->m_Datas.get())->m_Children.push_back(AddDecoratorNodeFromJson(childJson, composite));
-						break;
-					default:;
-					}
-				}
-			}
-		}
-
-		return composite;
-	}
-
-	std::shared_ptr<Node> BehaviorTreeEditor::AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
-	{
-		std::cout << "Load Decorator\n";
-		std::shared_ptr<Node> decorator;
-
-		if (behaviorTreeJson["name"] == "RepeatUntilFailDecorator")
-		{
-			decorator = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
-			std::cout << "   ->Repeat until fail decorator\n";
-		}
-		else if (behaviorTreeJson["name"] == "InverterDecorator")
-		{
-			decorator = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::INVERTER_DECORATOR);
-			std::cout << "   ->Inverter decorator\n";
-		}
-		else if (behaviorTreeJson["name"] == "RepeaterDecorator")
-		{
-			decorator = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::REPEATER_DECORATOR);
-			std::cout << "   ->Repeater decorator\n";
-
-			if (CheckJsonExists(behaviorTreeJson, "limit"))
-			{
-				static_cast<ext::behavior_tree::RepeaterData*>(decorator->m_Datas.get())->m_Limit = behaviorTreeJson["limit"];
-			}
-		}
-		else if (behaviorTreeJson["name"] == "SucceederDecorator")
-		{
-			decorator = std::make_shared<Node>(nullptr, parentNode, Node::NodeType::SUCCEEDER_DECORATOR);
-			std::cout << "   ->Succeeder decorator\n";
-		}
-		else
-		{
-			std::ostringstream oss;
-			oss << "[Error] The name : " << behaviorTreeJson["name"] << " is not assigned to any type of decorator";
-			Log::GetInstance()->Error(oss.str());
-
-			return nullptr;
-		}
-
-		if (CheckJsonExists(behaviorTreeJson, "childs"))
-		{
-			for (auto& childJson : behaviorTreeJson["childs"])
-			{
-				if (CheckJsonExists(childJson, "type"))
-				{
-					const NodeType nodeType = childJson["type"];
-
-					switch (nodeType)
-					{
-					case NodeType::LEAF:
-						static_cast<ext::behavior_tree::DecoratorData*>(decorator->m_Datas.get())->m_Child = AddLeafNodeFromJson(childJson, decorator);
-						break;
-					case NodeType::COMPOSITE:
-						static_cast<ext::behavior_tree::DecoratorData*>(decorator->m_Datas.get())->m_Child = AddCompositeNodeFromJson(childJson, decorator);
-						break;
-					case NodeType::DECORATOR:
-						static_cast<ext::behavior_tree::DecoratorData*>(decorator->m_Datas.get())->m_Child = AddDecoratorNodeFromJson(childJson, decorator);
-						break;
-					default:
-						std::ostringstream oss;
-						oss << "[Error] No type specified for root node : " << childJson;
-						Log::GetInstance()->Error(oss.str());;
-					}
-				}
-			}
-		}
-
-		return decorator;
+		m_RootNode = ext::behavior_tree::BehaviorTreeFactory::LoadNodesFromJson(*LoadJson(path), nullptr);
 	}
 
 	void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)

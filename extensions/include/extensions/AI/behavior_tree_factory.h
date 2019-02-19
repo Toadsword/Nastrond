@@ -1,8 +1,7 @@
 /*
-
 MIT License
 
-Copyright (c) 2018 SAE Institute Switzerland AG
+Copyright (c) 2017 SAE Institute Switzerland AG
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,58 +20,44 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 */
-#ifndef SFGE_TOOLS_BEHAVIOR_TREE_EDITOR_H
-#define SFGE_TOOLS_BEHAVIOR_TREE_EDITOR_H
+#ifndef SFGE_EXT_BEHAVIOR_TREE_FACTORY_H
+#define SFGE_EXT_BEHAVIOR_TREE_FACTORY_H
+
+#include <vector>
+#include <memory>
 
 #include <engine/system.h>
-
-#include <file_selector.h>
-#include <extensions/AI/behavior_tree_nodes_core.h>
 #include <utility/json_utility.h>
+#include <engine/globals.h>
 
-namespace sfge::tools
+#include <extensions/dwarf_manager.h>
+#include <extensions/AI/behavior_tree_nodes_core.h>
+
+namespace sfge::ext::behavior_tree
 {
-
-	using ext::behavior_tree::Node;
-	using ext::behavior_tree::NodeType;
-
-class BehaviorTreeEditor : public System
+//#define BT_SOA
+#define BT_AOS
+/**
+* author Nicolas Schneider
+*/
+class BehaviorTreeFactory final
 {
 public:
-    using System::System;
-    /**
-     * \brief Called at scene init (a good place to link to other Systems
-     */
-    void Init() override;
-    /**
-     * \brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
-     */
-    void Update(float dt) override;
-    /**
-     * \brief Called every graphic frame after Update
-     */
-    void Draw() override;
+	/**
+	 * \brief Load complete behavior tree from json fil
+	 * \param behaviorTreeJson 
+	 */
+	static Node::ptr LoadNodesFromJson(json& behaviorTreeJson, BehaviorTree* behaviorTree);
+
 
 private:
+	static Node::ptr AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree);
 
-	void LoadBehaviourTree(std::string& path);
+	static Node::ptr AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree);
 
-	void DisplayNode(const Node::ptr& node);
-
-	bool DisplayDeleteButton(const Node::ptr& node);
-	void DisplayAddButton(const Node::ptr& node);
-
-	FileBrowserModal m_FileBrowser;
-
-    Node::ptr m_RootNode = nullptr;
-
-	int m_IndexButton = 0;
-
-	Node::ptr m_NodeToAddChild = nullptr;
-
-	int m_SelectedNodeToAdd = -1;
+	static Node::ptr AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree);
 };
 }
+
 #endif

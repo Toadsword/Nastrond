@@ -55,12 +55,6 @@ public:
 	void Draw() override;
 
 	/**
-	 * \brief Load complete behavior tree from json fil
-	 * \param behaviorTreeJson 
-	 */
-	void LoadNodesFromJson(json& behaviorTreeJson);
-
-	/**
 	* \brief Set root node of the behaviour tree
 	* \param rootNode
 	*/
@@ -104,12 +98,6 @@ public:
 	const bool flowGoUp = false;
 
 private:
-	std::shared_ptr<Node> AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
-
-	std::shared_ptr<Node> AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
-
-	std::shared_ptr<Node> AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
-
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;

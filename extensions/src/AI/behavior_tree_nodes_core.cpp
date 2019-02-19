@@ -89,10 +89,6 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 
 Node::~Node()
 {
-	if (m_ParentNode != nullptr)
-	{
-		m_ParentNode->DestroyChild(this);
-	}
 }
 
 void Node::DestroyChild(Node* childNode)
@@ -102,6 +98,7 @@ void Node::DestroyChild(Node* childNode)
 	case NodeType::SELECTOR_COMPOSITE:
 	{
 		std::vector<ptr> newChildren;
+
 		for (auto child : static_cast<CompositeData*>(m_Datas.get())->m_Children)
 		{
 			if (child.get() != childNode)
@@ -111,7 +108,9 @@ void Node::DestroyChild(Node* childNode)
 		}
 
 		static_cast<CompositeData*>(m_Datas.get())->m_Children = newChildren;
-	}
+		}
+			
+
 		break;
 	case NodeType::REPEATER_DECORATOR:
 	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
