@@ -32,43 +32,77 @@ namespace sfge::ext
 
 	void BuildingManager::Init()
 	{
-
 		m_DwellingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwellingManager>(
 			"DwellingManager");
+
 		m_ForgeManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ForgeManager>(
 			"ForgeManager");
-		m_MineManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<MineManager>(
-			"MineManager");
+
+		m_ProductionBuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<ProductionBuildingManager>(
+			"ProductionBuildingManager");
+
+		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
+			"WarehouseManager");
 	}
 
-	void BuildingManager::Update(float dt){}
+	void BuildingManager::Update(float dt) {}
 
-	void BuildingManager::FixedUpdate(){}
+	void BuildingManager::FixedUpdate()
+	{
+	}
 
-	void BuildingManager::Draw(){}
+	void BuildingManager::Draw() {}
+
+	void BuildingManager::SpawnBuilding(BuildingType buildingType, Vec2f position)
+	{
+		switch (buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->AddNewBuilding(position);
+			break;
+		case BuildingType::MINE:
+			m_ProductionBuildingManager->AddNewBuilding(position, buildingType);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ProductionBuildingManager->AddNewBuilding(position, buildingType);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_ProductionBuildingManager->AddNewBuilding(position, buildingType);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->AddNewBuilding(position);
+			break;
+		case BuildingType::DWELLING:
+			m_DwellingManager->AddNewBuilding(position);
+		break;
+		}
+	}
+
+	void BuildingManager::DestroyBuilding(BuildingType buildingType, Entity entity)
+	{
+		switch (buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->DestroyBuilding(entity);
+			break;
+		case BuildingType::MINE:
+			m_ProductionBuildingManager->DestroyBuilding(entity, buildingType);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ProductionBuildingManager->DestroyBuilding(entity, buildingType);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_ProductionBuildingManager->DestroyBuilding(entity, buildingType);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->DestroyBuilding(entity);
+			break;
+		}
+	}
 
 	Entity BuildingManager::AttributeDwarfToWorkingPlace(BuildingType buildingType)
 	{
-		//std::vector<BuildingType> buildingTypes;
-		//for (int i = 0; i < BuildingType::LENGTH - 1; i++)
-		//{
-		//	if (buildingType == static_cast<BuildingType>(i))
-		//	{
-		//		buildingTypes.push_back(static_cast<BuildingType>(i));
-		//	}
-		//}
-
-		//for (int i = 0; i < BuildingType::LENGTH - 1; i++)
-		//{
-		//	if (buildingType == static_cast<BuildingType>(i))
-		//		continue;
-
-		//	buildingTypes.push_back(static_cast<BuildingType>(i));
-		//}
-
-		//for (BuildingType type : buildingTypes)
-		//{
-		switch (/*type*/ buildingType)
+		switch (buildingType)
 		{
 		case BuildingType::FORGE: {
 			Entity forgeEntity = INVALID_ENTITY;
@@ -80,28 +114,128 @@ namespace sfge::ext
 			m_ForgeManager->AddDwarfToBuilding(forgeEntity);
 			return forgeEntity;
 		}
-
 		case BuildingType::MINE: {
 			Entity mineEntity = INVALID_ENTITY;
-			mineEntity = m_MineManager->GetFreeSlotInBuilding();
+			mineEntity = m_ProductionBuildingManager->GetFreeSlotInBuilding(buildingType);
 
 			if (mineEntity == INVALID_ENTITY)
 				return INVALID_ENTITY;
 
-			m_MineManager->AddDwarfToBuilding(mineEntity);
+			m_ProductionBuildingManager->AddDwarfToBuilding(mineEntity, buildingType);
 			return mineEntity;
 		}
+		case BuildingType::EXCAVATION_POST: {
+			Entity excavationPostEntity = INVALID_ENTITY;
+			excavationPostEntity = m_ProductionBuildingManager->GetFreeSlotInBuilding(buildingType);
 
-		case BuildingType::EXCAVATION_POST: 
-			break;
-		case BuildingType::MUSHROOM_FARM:
-			break;
-		case BuildingType::WAREHOUSE:
-			break;
+			if (excavationPostEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_ProductionBuildingManager->AddDwarfToBuilding(excavationPostEntity, buildingType);
+			return excavationPostEntity;
 		}
-		//}
+		case BuildingType::MUSHROOM_FARM: {
+			Entity mushroomFarmEntity = INVALID_ENTITY;
+			mushroomFarmEntity = m_ProductionBuildingManager->GetFreeSlotInBuilding(buildingType);
+
+			if (mushroomFarmEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_ProductionBuildingManager->AddDwarfToBuilding(mushroomFarmEntity, buildingType);
+			return mushroomFarmEntity;
+		}
+		case BuildingType::WAREHOUSE:
+			Entity warehouseEntity = INVALID_ENTITY;
+			warehouseEntity = m_WarehouseManager->GetFreeSlotInBuilding();
+
+			if (warehouseEntity == INVALID_ENTITY)
+				return INVALID_ENTITY;
+
+			m_WarehouseManager->AddDwarfToBuilding(warehouseEntity);
+			return warehouseEntity;
+		}
 		return INVALID_ENTITY;
 	}
 
+	void BuildingManager::DwarfEnterBuilding(BuildingType buildingType, Entity entity)
+	{
+		switch (buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::MINE:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->DwarfEnterBuilding(entity);
+			break;
+		}
+	}
 
+	void BuildingManager::DwarfExitBuilding(BuildingType buildingType, Entity entity)
+	{
+		switch (buildingType)
+		{
+		case BuildingType::FORGE:
+			m_ForgeManager->DwarfExitBuilding(entity);
+			break;
+		case BuildingType::MINE:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
+			break;
+		case BuildingType::WAREHOUSE:
+			m_WarehouseManager->DwarfExitBuilding(entity);
+			break;
+		}
+	}
+
+	void BuildingManager::DwarfTakesResources(BuildingType buildingType, Entity entity, ResourceType resourceType)
+	{
+	}
+
+	void BuildingManager::DwarfPutsResources(BuildingType buildingType, Entity entity, ResourceType resourceType, unsigned int resourceQuantity)
+	{
+
+	}
+
+	BuildingManager::InventoryTask BuildingManager::ConveyorLookForTask()
+	{
+		std::vector<BuildingType> buildings;
+
+		buildings.push_back(BuildingType::FORGE);
+		buildings.push_back(BuildingType::MINE);
+		buildings.push_back(BuildingType::EXCAVATION_POST);
+		buildings.push_back(BuildingType::MUSHROOM_FARM);
+
+		InventoryTask inventoryTask;
+
+		for (int i = 0; i < buildings.size(); i++)
+		{
+			switch (buildings[i])
+			{
+			case BuildingType::FORGE:
+				inventoryTask.giver = m_ForgeManager->GetBuildingWithResources();
+				if (inventoryTask.giver == INVALID_ENTITY)
+				{
+					break;
+				}
+				inventoryTask.resourceType = m_ForgeManager->GetProducedResourceType();
+				break;
+			}
+		}
+
+		return InventoryTask();
+	}
 }

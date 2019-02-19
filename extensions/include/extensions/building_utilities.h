@@ -30,9 +30,9 @@ namespace sfge::ext
 	/**
 	 * \author Robin Alves
 	 */
-	enum ResourceType
+	enum ResourceType : unsigned char
 	{
-		NONE,
+		NO_RESOURCE_TYPE,
 		IRON,
 		STONE,
 		TOOL,
@@ -49,7 +49,7 @@ namespace sfge::ext
 		unsigned int packNumber = 0u;
 		unsigned int packSize = 0u;
 		float inventory = 0u;
-		ResourceType resourceType = ResourceType::NONE;
+		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
 	};
 
 	/**
@@ -60,7 +60,7 @@ namespace sfge::ext
 	{
 		unsigned int maxCapacity = 100u;
 		float inventory = 0u;
-		ResourceType resourceType = ResourceType::NONE;
+		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
 	};
 
 	/**
@@ -71,7 +71,7 @@ namespace sfge::ext
 	{
 		unsigned int maxCapacity = 100u;
 		float inventory = 0u;
-		ResourceType resourceType = ResourceType::NONE;
+		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
 	};
 
 
@@ -84,7 +84,19 @@ namespace sfge::ext
 		float progression = 0.0f;
 		int goal = 20;
 		int FrameCoolDown = 0;
-		ResourceType resourceType = ResourceType::NONE;
+		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
+	};
+
+	enum BuildingType : unsigned char
+	{
+		NO_BUILDING_TYPE,
+		FORGE,
+		MINE,
+		EXCAVATION_POST,
+		MUSHROOM_FARM,
+		WAREHOUSE,
+		DWELLING, //Warning : Dwelling are not consider as working place
+		LENGTH
 	};
 
 	/**
@@ -98,6 +110,7 @@ namespace sfge::ext
 		int dwarfIn = 0;
 	};
 
+	const DwarfSlots RESET_DWARF_SLOTS;
 
 	const unsigned int EMPTY_INVENTORY = 0U;
 	const unsigned short CONTAINER_EXTENDER = 2000;
