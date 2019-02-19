@@ -28,8 +28,7 @@ SOFTWARE.
 #include <imgui-SFML.h>
 
 #include <string>
-#include <iostream>
-
+#include <fstream>  
 #include <experimental/filesystem> // C++-standard header file name
 #include <filesystem> // Microsoft-specific implementation header file name
 
@@ -39,8 +38,6 @@ SOFTWARE.
 #include <extensions/AI/behavior_tree_nodes_core.h>
 #include <extensions/AI/behavior_tree_factory.h>
 
-#include <iostream>
-#include <fstream>  
 
 namespace sfge::tools
 {
@@ -79,7 +76,7 @@ void BehaviorTreeEditor::Draw()
 			}
 			if (ImGui::MenuItem("Delete"))
 			{
-				
+				m_HasToDeleteFile = true;
 			}
 			ImGui::EndMenuBar();
 		}
@@ -100,6 +97,15 @@ void BehaviorTreeEditor::Draw()
 		}
 	}
 	ImGui::End();
+
+	if(m_HasToDeleteFile)
+	{
+		if (ImGui::Begin("Are you sure to delete", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			
+		}
+		ImGui::End();
+	}
 
 	if (m_NodeToAddChild != nullptr)
 	{
@@ -259,6 +265,36 @@ void BehaviorTreeEditor::Draw()
 			m_NodeToAddChild = nullptr;
 		}
 		ImGui::End();
+	}
+
+	if(m_HasToDeleteFile)
+	{
+		ImGui::OpenPopup("Delete");
+
+		if(ImGui::BeginPopup("Delete"))
+		{
+			if(ImGui::Button("Confirm"))
+			{
+				if (remove(m_CurrentFilePath.c_str()) != 0) {
+					perror("Error deleting file");
+					m_HasToDeleteFile = false;
+					m_CurrentFilePath = "";
+					m_RootNode = nullptr;
+				}
+				else {
+					puts("File successfully deleted");
+					m_HasToDeleteFile = false;
+					m_CurrentFilePath = "";
+					m_RootNode = nullptr;
+				}
+			}
+
+			if (ImGui::Button("Cancel"))
+			{
+				m_HasToDeleteFile = false;
+			}
+			ImGui::EndPopup();
+		}
 	}
 }
 
@@ -676,7 +712,5 @@ void BehaviorTreeEditor::NewBehaviorTreeFile(const std::string& fileName)
 	outfile << "{\n}";
 
 	outfile.close();
-
-	LoadBehaviourTree(m_CurrentFilePath);
 }
 }

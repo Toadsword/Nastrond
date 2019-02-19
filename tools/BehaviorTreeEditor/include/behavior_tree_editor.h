@@ -76,6 +76,7 @@ private:
 	Node::ptr m_NodeToAddChild = nullptr;
 
 	int m_SelectedNodeToAdd = -1;
+	bool m_HasToDeleteFile = false;
 };
 }
 #endif
