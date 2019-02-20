@@ -240,16 +240,16 @@ namespace sfge::ext
 			m_ForgeManager->DwarfTakesResources(entity);
 			break;
 		case BuildingType::MINE:
-			m_ProductionBuildingManager->DwarfTakeResources(entity, buildingType);
+			m_ProductionBuildingManager->DwarfTakesResources(entity, buildingType);
 			break;
 		case BuildingType::EXCAVATION_POST:
-			m_ProductionBuildingManager->DwarfTakeResources(entity, buildingType);
+			m_ProductionBuildingManager->DwarfTakesResources(entity, buildingType);
 			break;
 		case BuildingType::MUSHROOM_FARM:
-			m_ProductionBuildingManager->DwarfTakeResources(entity, buildingType);
+			m_ProductionBuildingManager->DwarfTakesResources(entity, buildingType);
 			break;
 		case BuildingType::WAREHOUSE:
-			m_WarehouseManager->DwarfTakeResources(entity, resourceType);
+			m_WarehouseManager->DwarfTakesResources(entity, resourceType);
 			break;
 		}
 	}
@@ -263,11 +263,11 @@ namespace sfge::ext
 			break;
 
 		case BuildingType::DWELLING:
-			m_DwellingManager->DwarfPutResources(entity, resourceQuantity, resourceType);
+			m_DwellingManager->DwarfPutsResources(entity);
 			break;
 
 		case BuildingType::WAREHOUSE:
-			m_WarehouseManager->DwarfPutResources(entity, resourceType);
+			m_WarehouseManager->DwarfPutsResources(entity, resourceType);
 			break;
 		}
 	}
@@ -278,7 +278,9 @@ namespace sfge::ext
 		{
 			if(!(m_InventoryTasks[i] == INVALID_INVENTORY_TASK))
 			{
-				return m_InventoryTasks[i];
+				const InventoryTask givenInventoryTask = m_InventoryTasks[i];
+				m_InventoryTasks[i] = INVALID_INVENTORY_TASK;
+				return givenInventoryTask;
 			}
 			else if (i == m_InventoryTasks.size() - 1)
 			{
@@ -370,6 +372,4 @@ namespace sfge::ext
 	{
 		m_DwellingManager->RemoveDwarfToBuilding(entity);
 	}
-
-
 }

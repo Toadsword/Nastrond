@@ -95,11 +95,11 @@ namespace sfge::ext
 		}
 
 
-			size_t newForge = m_BuildingIndexCount - 1;
+		const size_t newForge = m_BuildingIndexCount - 1;
 
-			m_EntityIndex[newForge] = newEntity;
+		m_EntityIndex[newForge] = newEntity;
 
-			SetupVertexArray(newForge, transformPtr);
+		SetupVertexArray(newForge, transformPtr);
 	}
 
 	bool ForgeManager::DestroyBuilding(Entity entity)
@@ -322,6 +322,7 @@ namespace sfge::ext
 	void ForgeManager::ResetVertexArray(int forgeIndex)
 	{
 		sf::Vector2f resetSize = sf::Vector2f(0, 0);
+
 		m_VertexArray[4 * forgeIndex].texCoords = resetSize;
 		m_VertexArray[4 * forgeIndex + 1].texCoords = resetSize;
 		m_VertexArray[4 * forgeIndex + 2].texCoords = resetSize;

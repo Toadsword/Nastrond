@@ -107,7 +107,7 @@ namespace sfge::ext
 		 * \param entity : an entity that is a building.
 		 * \return an int of an amount of resources.
 		 */
-		int DwarfTakeResources(Entity entity, BuildingType buildingType);
+		int DwarfTakesResources(Entity entity, BuildingType buildingType);
 
 	private:
 		/**

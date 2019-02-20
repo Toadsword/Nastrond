@@ -191,7 +191,7 @@ namespace sfge::ext
 		return m_ResourceTypeNeeded;
 	}
 
-	void DwellingManager::DwarfPutResources(Entity entity)
+	void DwellingManager::DwarfPutsResources(Entity entity)
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
 		{

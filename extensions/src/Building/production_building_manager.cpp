@@ -265,7 +265,7 @@ namespace sfge::ext
 		}
 	}
 
-	int ProductionBuildingManager::DwarfTakeResources(Entity entity, BuildingType buildingType)
+	int ProductionBuildingManager::DwarfTakesResources(Entity entity, BuildingType buildingType)
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
 		{

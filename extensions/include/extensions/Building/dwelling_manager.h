@@ -106,7 +106,7 @@ namespace sfge::ext
 		 * \brief give resources that the dwelling need.
 		 * \param dwellingEntity : an entity that is a dwelling.
 		 */
-		void DwarfPutResources(Entity dwellingEntity);
+		void DwarfPutsResources(Entity dwellingEntity);
 
 	private:
 

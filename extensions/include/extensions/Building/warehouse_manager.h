@@ -95,20 +95,46 @@ namespace sfge::ext
 
 		Entity GetWarehouseWithFreeSpaceAvailable(ResourceType resourceType);
 
-		void DwarfTakeResources(Entity entity, ResourceType resourceType);
+		void DwarfTakesResources(Entity entity, ResourceType resourceType);
 
-		void DwarfPutResources(Entity entity, ResourceType resourceType);
+		void DwarfPutsResources(Entity entity, ResourceType resourceType);
 
 		void ReserveFill(Entity entity, ResourceType resourceType);
 
-		void ReserveEmpty(Entity entity, ResourceType);
+		void ReserveEmpty(Entity entity, ResourceType resourceType);
 
 	private:
+		/**
+		 * \brief Resize all vector in one go to keep the synchronize all index.
+		 * \param newSize : the size with the new number of building.
+		 */
+		void ResizeContainer(const size_t newSize);
+
+
+		/**
+		 * \brief check if a slot already setup is empty and fill it.
+		 * \param newEntity : the entity that is newly created.
+		 * \param transformPtr : the transform of the newly created.
+		 * \return true if a slot was empty and has been fill.
+		 */
+		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+
+		void SetupVertexArray(unsigned int forgeIndex, Transform2d* transformPtr);
+
+		void ResetVertexArray(int forgeIndex);
+
+
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
 
-		std::vector<Entity> m_Entityindex;
+		sf::RenderWindow* m_Window;
+
+		const unsigned short m_MaxCapacity = 200;
+
+		unsigned int m_BuildingIndexCount = 0;
+
+		std::vector<Entity> m_EntityIndex;
 
 		std::vector<DwarfSlots> m_DwarfSlots;
 
@@ -116,23 +142,26 @@ namespace sfge::ext
 		std::vector<unsigned short> m_IronInventories;
 		std::vector<unsigned short> m_StoneInventories;
 		std::vector<unsigned short> m_ToolInventories;
-		std::vector<unsigned short> m_m_MushroomInventories;
+		std::vector<unsigned short> m_MushroomInventories;
+
+		std::vector<unsigned char> m_ReservedExportStackNumberIron;
+		std::vector<unsigned char> m_ReservedExportStackNumberStone;
+		std::vector<unsigned char> m_ReservedExportStackNumberTool;
+		std::vector<unsigned char> m_ReservedExportStackNumberMushroom;
+
+		std::vector<unsigned char> m_ReservedImportStackNumberIron;
+		std::vector<unsigned char> m_ReservedImportStackNumberStone;
+		std::vector<unsigned char> m_ReservedImportStackNumberTool;
+		std::vector<unsigned char> m_ReservedImportStackNumberMushroom;
 #pragma endregion
-
-		std::vector<unsigned char> m_ReservedInventoriesIron;
-		std::vector<unsigned char> m_ReservedInventoriesStone;
-		std::vector<unsigned char> m_ReservedInventoriesTool;
-		std::vector<unsigned char> m_ReservedInventoriesMushroom;
-
-		
 
 
 		//Warehouse texture
-		std::string m_WarehouseTexturePath;
-		TextureId m_WarehouseTextureId;
-		sf::Texture* m_WarehouseTexture;
+		std::string m_TexturePath;
+		TextureId m_TextureId;
+		sf::Texture* m_Texture;
 
-		sf::VertexArray m_WarehouseVertexArray;
+		sf::VertexArray m_VertexArray;
 	};
 }
 #endif

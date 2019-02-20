@@ -119,7 +119,6 @@ namespace sfge::ext
 		/**
 		 * \brief give resources that the forge need to produce.
 		 * \param forgeEntity : an entity that is a forge.
-		 * \param resourceType : the type of resources that want to be deposit.
 		 */
 		void DwarfPutsResources(Entity forgeEntity);
 
@@ -178,7 +177,7 @@ namespace sfge::ext
 		const ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
 		const ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
 
-		//Building texture
+		//Forge texture
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
