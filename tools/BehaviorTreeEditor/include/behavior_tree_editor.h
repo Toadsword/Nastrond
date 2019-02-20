@@ -65,7 +65,11 @@ private:
 	void DisplayAddButton(const Node::ptr& node);
 	void DisplayDeleteMenu();
 	void DisplayAddMenu();
+	void DisplayAddMenuComposite();
+	void DisplayAddMenuDecorator();
+	void DisplayAddMenuLeaf();
 	void DisplayNewMenu();
+	void DisplayNodeInfo();
 
 
 	FileBrowserModal m_FileBrowser;
@@ -82,6 +86,7 @@ private:
 	int m_ClickedNode = -1;
 	int m_IndexClickableNode = 0;
 	static int m_SelectionMask;
+	Node::ptr m_SelectedNode = nullptr;
 };
 }
 #endif
