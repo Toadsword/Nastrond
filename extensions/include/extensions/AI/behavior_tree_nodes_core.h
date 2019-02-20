@@ -41,7 +41,8 @@ namespace sfge::ext::behavior_tree
 		DWELLING,
 		WORKING_PLACE,
 		INVENTORY_TASK_GIVER,
-		INVENTORY_TASK_RECEIVER
+		INVENTORY_TASK_RECEIVER,
+		LENGTH
 	};
 
 	/**

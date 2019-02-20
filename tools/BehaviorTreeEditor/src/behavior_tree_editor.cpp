@@ -82,7 +82,7 @@ void BehaviorTreeEditor::Draw()
 		}
 
 		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() - 200);
+		ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() - 250);
 		//Reset value for node display
 		if (!m_CurrentFilePath.empty()) {
 			m_IndexButton = 0;
@@ -790,10 +790,11 @@ void BehaviorTreeEditor::DisplayNodeInfo()
 			ImGui::Spacing();
 			ImGui::TextWrapped("Description : \nRepeat the node underneath until the limit has been reached. If limit == 0 => always repeat.");
 			ImGui::Spacing();
-			ImGui::Spacing();
 			ImGui::Text("Datas:");
 			ImGui::Spacing();
-			ImGui::InputInt("Limit", &data->m_Limit, 1);
+			ImGui::Text("Limit : ");
+			ImGui::SameLine();
+			ImGui::InputInt("", &data->m_Limit, 1);
 			if(data->m_Limit < 0)
 			{
 				data->m_Limit = 0;
@@ -885,10 +886,58 @@ void BehaviorTreeEditor::DisplayNodeInfo()
 		}break;
 		case Node::NodeType::FIND_PATH_TO_LEAF:
 		{
+			auto* data = static_cast<ext::behavior_tree::FindPathToData*>(m_SelectedNode->m_Datas.get());
+
 			ImGui::Text("Find path to");
 			ImGui::Spacing();
 			ImGui::TextWrapped("Description : \nAsk path finder to find a path at from the current position to the giver position.");
 			ImGui::Spacing();
+			ImGui::Text("Datas:");
+			ImGui::Spacing();
+
+			const char* names[static_cast<int>(ext::behavior_tree::NodeDestination::LENGTH)];
+			for(auto i = 0; i < static_cast<int>(ext::behavior_tree::NodeDestination::LENGTH); i++)
+			{
+				switch(static_cast<ext::behavior_tree::NodeDestination>(i))
+				{
+				case ext::behavior_tree::NodeDestination::RANDOM: 
+					names[i] = "random..";
+					break;
+				case ext::behavior_tree::NodeDestination::DWELLING: 
+					names[i] = "dwelling..";
+					break;
+				case ext::behavior_tree::NodeDestination::WORKING_PLACE: 
+					names[i] = "working place..";
+					break;
+				case ext::behavior_tree::NodeDestination::INVENTORY_TASK_GIVER: 
+					names[i] = "inventory task giver..";
+					break;
+				case ext::behavior_tree::NodeDestination::INVENTORY_TASK_RECEIVER: 
+					names[i] = "inventory task receiver..";
+					break;
+				default: 
+					std::ostringstream oss;
+					oss << "[Error] Editing node : Node Destination not taken in count + " << i;
+					Log::GetInstance()->Error(oss.str());
+				}
+			}
+			ImGui::Text("Destination : ");
+			ImGui::SameLine();
+			if (ImGui::Button(names[static_cast<int>(data->m_Destination)]))
+				ImGui::OpenPopup("my_select_popup");
+			ImGui::SameLine();
+			if (ImGui::BeginPopup("my_select_popup"))
+			{
+				ImGui::Text("Destination");
+				ImGui::Separator();
+				for (auto i = 0; i < static_cast<int>(ext::behavior_tree::NodeDestination::LENGTH); i++)
+					if (ImGui::Selectable(names[i]))
+						data->m_Destination = static_cast<ext::behavior_tree::NodeDestination>(i);
+				ImGui::EndPopup();
+			}
+
+
+				
 		}break;
 		default: ;
 		}
