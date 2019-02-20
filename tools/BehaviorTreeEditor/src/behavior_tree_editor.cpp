@@ -28,7 +28,7 @@ SOFTWARE.
 #include <imgui-SFML.h>
 
 #include <string>
-#include <fstream>  
+#include <fstream>
 #include <experimental/filesystem> // C++-standard header file name
 #include <filesystem> // Microsoft-specific implementation header file name
 
@@ -41,7 +41,9 @@ SOFTWARE.
 
 namespace sfge::tools
 {
-void BehaviorTreeEditor::Init() { }
+void BehaviorTreeEditor::Init()
+{
+}
 
 void BehaviorTreeEditor::Update(float dt)
 {
@@ -66,9 +68,9 @@ void BehaviorTreeEditor::Draw()
 			{
 				isImportClicked = true;
 			}
-			
+
 			DisplayDeleteMenu();
-			
+
 			ImGui::EndMenuBar();
 		}
 
@@ -80,7 +82,10 @@ void BehaviorTreeEditor::Draw()
 			m_CurrentFilePath = path;
 		}
 
+		//Reset value for node display
 		m_IndexButton = 0;
+		m_ClickedNode = -1;
+		m_IndexClickableNode = 0;
 		DisplayNode(m_RootNode);
 	}
 	ImGui::End();
@@ -98,11 +103,12 @@ void BehaviorTreeEditor::LoadBehaviourTree(std::string& path)
 
 void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 {
+	static auto selectionMask = (1 << 2);
+
 	if (node == nullptr)
 	{
-		if(m_RootNode == nullptr)
+		if (m_RootNode == nullptr)
 		{
-			
 			if (ImGui::Begin("Add node to behavior tree", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				if (ImGui::TreeNode("Composite : "))
@@ -129,8 +135,8 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEATER_DECORATOR);
 					}
 					if (ImGui::Selectable("Repeat until fail",
-						m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::
-							REPEAT_UNTIL_FAIL_DECORATOR)))
+					                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::
+						                      REPEAT_UNTIL_FAIL_DECORATOR)))
 					{
 						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
 					}
@@ -140,7 +146,7 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::INVERTER_DECORATOR);
 					}
 					if (ImGui::Selectable("Succeeder",
-						m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR)))
+					                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR)))
 					{
 						m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR);
 					}
@@ -152,7 +158,8 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 				{
 					if (m_SelectedNodeToAdd != -1)
 					{
-						m_RootNode = std::make_shared<Node>(nullptr, nullptr, static_cast<Node::NodeType>(m_SelectedNodeToAdd));
+						m_RootNode = std::make_shared<Node>(nullptr, nullptr,
+						                                    static_cast<Node::NodeType>(m_SelectedNodeToAdd));
 					}
 				}
 				ImGui::End();
@@ -226,15 +233,32 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 	break;
 	case Node::NodeType::REPEATER_DECORATOR:
 	{
-		nodeName += "Repeater Decorator (";
-		nodeName += std::to_string(static_cast<ext::behavior_tree::RepeaterData*>(node->m_Datas.get())->m_Limit);
-		nodeName += ")";
-		nodeName += "##";
-		nodeName += m_IndexButton;
-		m_IndexButton++;
+		//Get node datas
+		auto* nodeData = static_cast<ext::behavior_tree::RepeaterData*>(node->m_Datas.get()
+		);
 
-		if (ImGui::TreeNode(nodeName.c_str()))
+		//Create node name
+		nodeName += "Repeater Decorator (";
+		nodeName += std::to_string(nodeData->m_Limit);
+		nodeName += ")";
+
+		//Set flags
+		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (
+			(selectionMask & (1 << m_IndexClickableNode)) ? ImGuiTreeNodeFlags_Selected : 0);
+
+		//Check if is open/selected
+		auto nodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(m_IndexClickableNode)),
+		                                  nodeFlags, nodeName.c_str());
+		if (ImGui::IsItemClicked())
 		{
+			m_ClickedNode = m_IndexClickableNode;
+		}
+		m_IndexClickableNode++;
+
+		//If open => display child and button, else only button
+		if (nodeOpen)
+		{
+			//Force early exit to don't draw deleted node
 			if (DisplayDeleteButton(node))
 			{
 				ImGui::TreePop();
@@ -242,13 +266,26 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 			}
 			DisplayAddButton(node);
 
-			DisplayNode(static_cast<ext::behavior_tree::RepeaterData*>(node->m_Datas.get())->m_Child);
+			DisplayNode(nodeData->m_Child);
 			ImGui::TreePop();
 		}
 		else
 		{
 			DisplayDeleteButton(node);
 			DisplayAddButton(node);
+		}
+
+		//If node clicked => changed selectionMask
+		if (m_ClickedNode != -1)
+		{
+			if (ImGui::GetIO().KeyCtrl)
+			{
+				selectionMask ^= (1 << m_ClickedNode); // CTRL+click to toggle
+			}
+			else
+			{
+				selectionMask = (1 << m_ClickedNode); // Click to single-select
+			}
 		}
 	}
 	break;
@@ -421,8 +458,13 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 		DisplayDeleteButton(node);
 		break;
 	case Node::NodeType::FIND_PATH_TO_LEAF:
+	{
+		//Get node datas
+		auto* nodeData = static_cast<ext::behavior_tree::FindPathToData*>(node->m_Datas.get());
+
+		//Create node name
 		nodeName += "Find path to leaf (";
-		switch (static_cast<ext::behavior_tree::FindPathToData*>(node->m_Datas.get())->m_Destination)
+		switch (nodeData->m_Destination)
 		{
 		case ext::behavior_tree::NodeDestination::RANDOM:
 			nodeName += "random";
@@ -439,13 +481,39 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 		case ext::behavior_tree::NodeDestination::INVENTORY_TASK_RECEIVER:
 			nodeName += "inventory task receiver";
 			break;
-		default: ;
+		default:;
 		}
 		nodeName += ")";
 
-		ImGui::Text(nodeName.c_str());
+		//Set flags
+		ImGuiTreeNodeFlags nodeFlags = ((selectionMask & (1 << m_IndexClickableNode)) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+		//Check if is open/selected
+		ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
+		ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(m_IndexClickableNode)),
+			nodeFlags, nodeName.c_str());
+		ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
+		if (ImGui::IsItemClicked())
+		{
+			m_ClickedNode = m_IndexClickableNode;
+		}
+		m_IndexClickableNode++;
 
 		DisplayDeleteButton(node);
+
+		//If node clicked => changed selectionMask
+		if (m_ClickedNode != -1)
+		{
+			if (ImGui::GetIO().KeyCtrl)
+			{
+				selectionMask ^= (1 << m_ClickedNode); // CTRL+click to toggle
+			}
+			else
+			{
+				selectionMask = (1 << m_ClickedNode); // Click to single-select
+			}
+		}
+	}
 		break;
 	default: ;
 	}
@@ -491,20 +559,16 @@ void BehaviorTreeEditor::DisplayDeleteMenu()
 	static bool openPopup = false;
 	if (ImGui::BeginMenu("Delete"))
 	{
-
 		if (ImGui::MenuItem("Confirm"))
 		{
 			openPopup = true;
 		}
 
-		if (ImGui::MenuItem("Cancel"))
-		{
-			
-		}
+		if (ImGui::MenuItem("Cancel")) { }
 		ImGui::EndMenu();
 	}
 
-	if(openPopup)
+	if (openPopup)
 	{
 		ImGui::OpenPopup("Delete?");
 		if (ImGui::BeginPopupModal("Delete?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -519,12 +583,14 @@ void BehaviorTreeEditor::DisplayDeleteMenu()
 
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
-				if (remove(m_CurrentFilePath.c_str()) != 0) {
+				if (remove(m_CurrentFilePath.c_str()) != 0)
+				{
 					perror("Error deleting file");
 					m_CurrentFilePath = "";
 					m_RootNode = nullptr;
 				}
-				else {
+				else
+				{
 					puts("File successfully deleted");
 					m_CurrentFilePath = "";
 					m_RootNode = nullptr;
@@ -571,8 +637,8 @@ void BehaviorTreeEditor::DisplayAddMenu()
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEATER_DECORATOR);
 			}
 			if (ImGui::Selectable("Repeat until fail",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::
-					REPEAT_UNTIL_FAIL_DECORATOR)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::
+				                      REPEAT_UNTIL_FAIL_DECORATOR)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
 			}
@@ -582,7 +648,7 @@ void BehaviorTreeEditor::DisplayAddMenu()
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::INVERTER_DECORATOR);
 			}
 			if (ImGui::Selectable("Succeeder",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SUCCEEDER_DECORATOR);
 			}
@@ -597,87 +663,87 @@ void BehaviorTreeEditor::DisplayAddMenu()
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::MOVE_TO_LEAF);
 			}
 			if (ImGui::Selectable("Wait for path",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::WAIT_FOR_PATH_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::WAIT_FOR_PATH_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::WAIT_FOR_PATH_LEAF);
 			}
 			if (ImGui::Selectable("Find path to",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::FIND_PATH_TO_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::FIND_PATH_TO_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::FIND_PATH_TO_LEAF);
 			}
 			if (ImGui::Selectable("Has dwelling",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::HAS_DWELLING_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::HAS_DWELLING_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::HAS_DWELLING_LEAF);
 			}
 			if (ImGui::Selectable("Set dwelling",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SET_DWELLING_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::SET_DWELLING_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::SET_DWELLING_LEAF);
 			}
 			if (ImGui::Selectable("Enter dwelling",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ENTER_DWELLING_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ENTER_DWELLING_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::ENTER_DWELLING_LEAF);
 			}
 			if (ImGui::Selectable("Exit dwelling",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::EXIT_DWELLING_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::EXIT_DWELLING_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::EXIT_DWELLING_LEAF);
 			}
 			if (ImGui::Selectable("Enter working place",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ENTER_WORKING_PLACE_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ENTER_WORKING_PLACE_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::ENTER_DWELLING_LEAF);
 			}
 			if (ImGui::Selectable("Has job",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::HAS_JOB_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::HAS_JOB_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::HAS_JOB_LEAF);
 			}
 			if (ImGui::Selectable("Has static job",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::HAS_STATIC_JOB_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::HAS_STATIC_JOB_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::HAS_STATIC_JOB_LEAF);
 			}
 			if (ImGui::Selectable("Assign job",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ASSIGN_JOB_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ASSIGN_JOB_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::ASSIGN_JOB_LEAF);
 			}
 			if (ImGui::Selectable("Is day time",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::IS_DAY_TIME_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::IS_DAY_TIME_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::IS_DAY_TIME_LEAF);
 			}
 			if (ImGui::Selectable("Is night time",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::IS_NIGHT_TIME_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::IS_NIGHT_TIME_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::IS_NIGHT_TIME_LEAF);
 			}
 			if (ImGui::Selectable("Wait day time",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::WAIT_DAY_TIME_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::WAIT_DAY_TIME_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::WAIT_DAY_TIME_LEAF);
 			}
 			if (ImGui::Selectable("Wait night time",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::WAIT_NIGHT_TIME_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::WAIT_NIGHT_TIME_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::WAIT_NIGHT_TIME_LEAF);
 			}
 			if (ImGui::Selectable("Ask inventory task",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ASK_INVENTORY_TASK_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::ASK_INVENTORY_TASK_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::ASK_INVENTORY_TASK_LEAF);
 			}
 			if (ImGui::Selectable("Take resources",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::TAKE_RESOURCE_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::TAKE_RESOURCE_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::TAKE_RESOURCE_LEAF);
 			}
 			if (ImGui::Selectable("Put resources",
-				m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::PUT_RESOURCE_LEAF)))
+			                      m_SelectedNodeToAdd == static_cast<int>(Node::NodeType::PUT_RESOURCE_LEAF)))
 			{
 				m_SelectedNodeToAdd = static_cast<int>(Node::NodeType::PUT_RESOURCE_LEAF);
 			}
@@ -686,6 +752,12 @@ void BehaviorTreeEditor::DisplayAddMenu()
 		}
 	}
 
+	if (ImGui::Button("Cancel"))
+	{
+		m_NodeToAddChild = nullptr;
+	}
+
+	ImGui::SameLine();
 	if (ImGui::Button("Add"))
 	{
 		if (m_SelectedNodeToAdd != -1)
@@ -693,12 +765,6 @@ void BehaviorTreeEditor::DisplayAddMenu()
 			m_NodeToAddChild->AddChild(static_cast<Node::NodeType>(m_SelectedNodeToAdd));
 			m_NodeToAddChild = nullptr;
 		}
-	}
-
-	ImGui::SameLine();
-	if (ImGui::Button("Cancel"))
-	{
-		m_NodeToAddChild = nullptr;
 	}
 	ImGui::End();
 }
@@ -719,24 +785,25 @@ void BehaviorTreeEditor::DisplayNewMenu()
 	}
 }
 
-	void BehaviorTreeEditor::NewBehaviorTreeFile(const std::string& fileName)
+void BehaviorTreeEditor::NewBehaviorTreeFile(const std::string& fileName)
 {
-auto currentPath = fs::current_path(); //TODO faire une variable global pour le chemin d'accès des fichier behavior tree
-currentPath = currentPath.parent_path();
-currentPath.append("data");
-currentPath.append("behavior_tree");
-currentPath.append(fileName+ ".asset");
+	auto currentPath = fs::current_path();
+	//TODO faire une variable global pour le chemin d'accès des fichier behavior tree
+	currentPath = currentPath.parent_path();
+	currentPath.append("data");
+	currentPath.append("behavior_tree");
+	currentPath.append(fileName + ".asset");
 
-m_CurrentFilePath = currentPath.generic_string();
+	m_CurrentFilePath = currentPath.generic_string();
 
-std::ostringstream oss;
-oss << "[System] New file : " << currentPath;
-Log::GetInstance()->Error(oss.str());
+	std::ostringstream oss;
+	oss << "[System] New file : " << currentPath;
+	Log::GetInstance()->Error(oss.str());
 
-std::ofstream outfile(currentPath);
+	std::ofstream outfile(currentPath);
 
-outfile << "{\n}";
+	outfile << "{\n}";
 
-outfile.close();
+	outfile.close();
 }
 }

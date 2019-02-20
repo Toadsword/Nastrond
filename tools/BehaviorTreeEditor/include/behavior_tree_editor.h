@@ -58,16 +58,15 @@ public:
 private:
 
 	void LoadBehaviourTree(std::string& path);
+	void NewBehaviorTreeFile(const std::string&fileName);
 
 	void DisplayNode(const Node::ptr& node);
-
 	bool DisplayDeleteButton(const Node::ptr& node);
 	void DisplayAddButton(const Node::ptr& node);
 	void DisplayDeleteMenu();
 	void DisplayAddMenu();
 	void DisplayNewMenu();
 
-	void NewBehaviorTreeFile(const std::string&fileName);
 
 	FileBrowserModal m_FileBrowser;
 
@@ -78,7 +77,11 @@ private:
 
 	Node::ptr m_NodeToAddChild = nullptr;
 
+	//Node selection
 	int m_SelectedNodeToAdd = -1;
+	int m_ClickedNode = -1;
+	int m_IndexClickableNode = 0;
+	static int m_SelectionMask;
 };
 }
 #endif
