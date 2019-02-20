@@ -26,14 +26,35 @@ SOFTWARE.
 
 namespace sfge
 {
+	RectTransform& RectTransform::operator=(const RectTransform&)
+	{
+		return *this;
+	}
+
+	RectTransform::RectTransform()
+	= default;
+
 	void RectTransform::Update(Camera* camera)
 	{
 		Position = basePosition + camera->GetPosition();
 	}
 
-	void RectTransformInfo::DrawOnInspector()
+	void editor::RectTransformInfo::DrawOnInspector()
 	{
 
+	}
+
+	RectTransformManager::RectTransformManager(Engine& engine):SingleComponentManager(engine)
+	{
+		m_CameraManager = engine.GetGraphics2dManager()->GetCameraManager();
+	}
+
+	RectTransformManager::~RectTransformManager()
+	= default;
+
+	RectTransformManager& RectTransformManager::operator=(const RectTransform&)
+	{
+		return *this;
 	}
 
 	void RectTransformManager::CreateComponent(json& componentJson, Entity entity)

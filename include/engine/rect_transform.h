@@ -25,29 +25,41 @@ SOFTWARE.
 #ifndef SFGE_RECT_TRANSFORM_H
 #define SFGE_RECT_TRANSFORM_H
 
-#include <editor/editor_info.h>
-#include <utility/json_utility.h>
+#include <string>
 #include <engine/component.h>
 #include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
 
 namespace sfge
 {
-	struct RectTransform : Transform2d {
+	class RectTransform final : public Transform2d {
+	public:
+		RectTransform& operator=(const RectTransform&);
+
+		RectTransform();
+
 		void Update(Camera* camera);
 
 		Vec2f basePosition = {0, 0};
 	};
-
-	struct RectTransformInfo : editor::ComponentInfo
+	namespace editor
 	{
-		void DrawOnInspector() override;
-		RectTransform* rectTransform = nullptr;
-	};
+		struct RectTransformInfo : ComponentInfo
+		{
+			void DrawOnInspector() override;
+			RectTransform* rectTransform = nullptr;
+		};
+	}
 
-	class RectTransformManager : public SingleComponentManager<RectTransform, RectTransformInfo, ComponentType::RECTTRANSFORM> {
+	class RectTransformManager final : public SingleComponentManager<RectTransform, editor::RectTransformInfo, ComponentType::RECTTRANSFORM> {
 	public:
 		using SingleComponentManager::SingleComponentManager;
+
+		RectTransformManager(Engine& engine);
+		~RectTransformManager();
+
+		RectTransformManager& operator=(const RectTransform&);
+
 		void CreateComponent(json& componentJson, Entity entity) override;
 		RectTransform* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;

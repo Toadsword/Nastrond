@@ -26,14 +26,24 @@ SOFTWARE.
 
 namespace sfge
 {
+	Image& Image::operator=(const Image&)
+	{
+		return *this;
+	}
+
+	Image::Image()
+	{
+		
+	}
+
 	void Image::Init()
 	{
 		
 	}
 
-	void Image::Update(RectTransform* rectTransform)
+	void Image::Update(Vec2f position)//RectTransform* rectTransform)
 	{
-		sprite.setPosition(rectTransform->Position.x, rectTransform->Position.y);
+		sprite.setPosition(position.x, position.y);//rectTransform->Position.x, rectTransform->Position.y);
 	}
 
 	void Image::Draw(sf::RenderWindow& window)
@@ -46,7 +56,7 @@ namespace sfge
 		this->spritePath = spritePath;
 	}
 
-	void Image::SetColor(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a)
+	void Image::SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
 	{
 		color[0] = r;
 		color[1] = g;
@@ -62,7 +72,7 @@ namespace sfge
 		this->color[3] = color.a;
 	}
 
-	void ImageInfo::DrawOnInspector()
+	void editor::ImageInfo::DrawOnInspector()
 	{
 		
 	}
@@ -92,9 +102,25 @@ namespace sfge
 		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::IMAGE);
 	}
 
+	ImageManager::ImageManager(Engine& engine):SingleComponentManager(engine)
+	{
+		m_RectTransformManager = engine.GetRectTransformManager();
+		m_TextureManager = engine.GetGraphics2dManager()->GetTextureManager();
+	}
+
+	ImageManager::~ImageManager()
+	= default;
+
+	ImageManager& ImageManager::operator=(const Image&)
+	{
+		return *this;
+	}
+
 	void ImageManager::Init()
 	{
 		SingleComponentManager::Init();
+		m_RectTransformManager = m_Engine.GetRectTransformManager();
+		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 	}
 
 	void ImageManager::Update(float dt)
@@ -103,7 +129,7 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1));
+				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
 			}
 		}
 	}

@@ -67,9 +67,6 @@ void Graphics2dManager::Init()
 	m_SpriteManager.Init();
  	m_AnimationManager.Init();
 	m_CameraManager.Init();
-	m_ButtonManager.Init();
-	m_TextManager.Init();
-	m_ImageManager.Init();
 }
 
 void Graphics2dManager::Update(float dt)
@@ -82,9 +79,6 @@ void Graphics2dManager::Update(float dt)
 		m_SpriteManager.Update(dt);
 		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
-		m_ButtonManager.Update(dt);
-		m_TextManager.Update(dt);
-		m_ImageManager.Update(dt);
 
 		//Refresh View Window
 		m_CameraManager.Update(dt);
@@ -98,9 +92,6 @@ void Graphics2dManager::Draw()
 		m_SpriteManager.DrawSprites(*m_Window);
 		m_AnimationManager.DrawAnimations(*m_Window);
 		m_ShapeManager.DrawShapes(*m_Window);
-		m_ButtonManager.DrawButtons(*m_Window);
-		m_TextManager.DrawTexts(*m_Window);
-		m_ImageManager.DrawImages(*m_Window);
 	}
 }
 
@@ -189,21 +180,6 @@ TextureManager* Graphics2dManager::GetTextureManager()
 ShapeManager* Graphics2dManager::GetShapeManager()
 {
 	return &m_ShapeManager;
-}
-
-ButtonManager* Graphics2dManager::GetButtonManager()
-{
-	return &m_ButtonManager;
-}
-
-TextManager* Graphics2dManager::GetTextManager()
-{
-	return &m_TextManager;
-}
-
-ImageManager* Graphics2dManager::GetImageManager()
-{
-	return &m_ImageManager;
 }
 
 CameraManager* Graphics2dManager::GetCameraManager()

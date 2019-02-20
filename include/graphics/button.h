@@ -25,13 +25,15 @@ SOFTWARE.
 #ifndef SFGE_BUTTON_H
 #define SFGE_BUTTON_H
 
+#include <string>
 #include <SFML/Graphics.hpp>
-#include <editor/editor_info.h>
-#include <utility/json_utility.h>
 #include <engine/component.h>
-#include <Input/input.h>
+#include <input/input.h>
 #include <engine/rect_transform.h>
-#include <graphics/graphics2d.h>
+#include <graphics/texture.h>
+#include <python/pycomponent.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 namespace sfge
 {
@@ -42,20 +44,25 @@ namespace sfge
 		CLICKED
 	};
 
-	struct Button {
+	class Button final
+	{
 	public:
+		Button& operator=(const Button&);
+
+		//Button();
+
 		void Init();
-		void Update(RectTransform* rectTransform);
+		void Update(Vec2f position);//RectTransform* rectTransform);
 		void Draw(sf::RenderWindow& window) const;
 
-		void SetSpriteNone(const std::string& spritePath);
-		void SetSpriteHovered(const std::string& spritePath);
-		void SetSpriteClicked(const std::string& spritePath);
-		void SetColorNone(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetSpriteNone(std::string spritePath);
+		void SetSpriteHovered(std::string spritePath);
+		void SetSpriteClicked(std::string spritePath);
+		void SetColorNone(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColorNone(sf::Color color);
-		void SetColorHovered(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColorHovered(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColorHovered(sf::Color color);
-		void SetColorClicked(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColorClicked(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColorClicked(sf::Color color);
 
 		std::string spriteNonePath;
@@ -64,6 +71,7 @@ namespace sfge
 		sf::Uint8 colorNone[4] = {0, 0, 0, 255};
 		sf::Uint8 colorHovered[4] = { 0, 0, 0, 255 };
 		sf::Uint8 colorClicked[4] = { 0, 0, 0, 255 };
+		//char pyFunction = 'action';
 
 		ButtonState state = ButtonState::NONE;
 		TextureId spriteNone;
@@ -73,15 +81,24 @@ namespace sfge
 		sf::Color color;
 	};
 
-	struct ButtonInfo : editor::ComponentInfo
+	namespace editor
 	{
-		void DrawOnInspector() override;
-		Button* button = nullptr;
-	};
+		struct ButtonInfo : ComponentInfo
+		{
+			void DrawOnInspector() override;
+			Button* button = nullptr;
+		};
+	}
 
-	class ButtonManager : public SingleComponentManager<Button, ButtonInfo, ComponentType::BUTTON> {
+	class ButtonManager final : public SingleComponentManager<Button, editor::ButtonInfo, ComponentType::BUTTON> {
 	public:
 		using SingleComponentManager::SingleComponentManager;
+
+		ButtonManager(Engine& engine);
+		~ButtonManager();
+
+		ButtonManager& operator=(const Button&);
+
 		void CreateComponent(json& componentJson, Entity entity) override;
 		Button* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;

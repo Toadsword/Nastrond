@@ -38,7 +38,8 @@ SystemsContainer::SystemsContainer(Engine &engine) :
 	editor(engine),
 	entityManager(engine),
 	tilemapSystem(engine),
-	rectTransformManager(engine)
+	rectTransformManager(engine),
+	uiManager(engine)
 {
 
 }

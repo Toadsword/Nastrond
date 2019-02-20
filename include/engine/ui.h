@@ -28,6 +28,7 @@ SOFTWARE.
 #include <engine/entity.h>
 #include <engine/system.h>
 #include <engine/rect_transform.h>
+#include <graphics/graphics2d.h>
 #include <graphics/text.h>
 #include <graphics/button.h>
 #include <graphics/image.h>
@@ -36,19 +37,25 @@ namespace sfge
 {	
 	class UIManager : public System {
 	public:
-		UIManager(Engine& engine);
+		using System::System;
 
 		void Init() override;
 		void Update(float dt) override;
-		void FixedUpdate() override;
 		void Draw() override;
+
+		ButtonManager* GetButtonManager();
+		TextManager* GetTextManager();
+		ImageManager* GetImageManager();
 	private:
 		// Managers
 		EntityManager* m_EntityManager;
 		RectTransformManager* m_RectTransformManager;
-		ImageManager* m_ImageManager;
-		TextManager* m_TextManager;
-		ButtonManager* m_ButtonManager;
+		Graphics2dManager* m_Graphics2dManager;
+		ButtonManager m_ButtonManager{ m_Engine };
+		TextManager m_TextManager{ m_Engine };
+		ImageManager m_ImageManager{ m_Engine };
+
+		sf::RenderWindow* m_Window;
 	};
 }
 #endif

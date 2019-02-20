@@ -25,23 +25,27 @@ SOFTWARE.
 #ifndef SFGE_IMAGE_H
 #define SFGE_IMAGE_H
 
+#include <string>
 #include <SFML/Graphics.hpp>
-#include <editor/editor_info.h>
-#include <utility/json_utility.h>
 #include <engine/component.h>
 #include <engine/rect_transform.h>
-#include <graphics/graphics2d.h>
+#include <graphics/texture.h>
 
 namespace sfge
 {
-	struct Image {
+	class Image final
+	{
 	public:
+		Image& operator=(const Image&);
+
+		Image();
+
 		void Init();
-		void Update(RectTransform* rectTransform);
+		void Update(Vec2f position);//RectTransform* rectTransform);
 		void Draw(sf::RenderWindow& window);
 
 		void SetSprite(std::string spritePath);
-		void SetColor(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColor(sf::Color color);
 
 		std::string spritePath;
@@ -49,16 +53,24 @@ namespace sfge
 		TextureId textureId;
 		sf::Sprite sprite;
 	};
-
-	struct ImageInfo : editor::ComponentInfo
+	namespace editor
 	{
-		void DrawOnInspector() override;
-		Image* image = nullptr;
-	};
+		struct ImageInfo : ComponentInfo
+		{
+			void DrawOnInspector() override;
+			Image* image = nullptr;
+		};
+	}
 
-	class ImageManager : public SingleComponentManager<Image, ImageInfo, ComponentType::IMAGE> {
+	class ImageManager final : public SingleComponentManager<Image, editor::ImageInfo, ComponentType::IMAGE> {
 	public:
 		using SingleComponentManager::SingleComponentManager;
+
+		ImageManager(Engine& engine);
+		~ImageManager();
+
+		ImageManager& operator=(const Image&);
+
 		void CreateComponent(json& componentJson, Entity entity) override;
 		Image* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;

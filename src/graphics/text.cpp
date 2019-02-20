@@ -26,14 +26,24 @@ SOFTWARE.
 
 namespace sfge
 {
+	Text& Text::operator=(const Text&)
+	{
+		return *this;
+	}
+
+	/*Text::Text()
+	{
+		
+	}*/
+
 	void Text::Init()
 	{
 		
 	}
 
-	void Text::Update(RectTransform* rectTransform)
+	void Text::Update(/*RectTransform* rectTransform*/Vec2f position)
 	{
-		text.setPosition(rectTransform->Position);
+		text.setPosition(position);//rectTransform->Position);
 	}
 
 	void Text::Draw(sf::RenderWindow& window) const
@@ -41,18 +51,18 @@ namespace sfge
 		window.draw(text);
 	}
 
-	void Text::SetString(const std::string& newText)
+	void Text::SetString(std::string newText)
 	{
 		text.setString(newText);
 	}
 
-	void Text::SetFont(const std::string& newFontPath)
+	void Text::SetFont(std::string newFontPath)
 	{
 		if (font.loadFromFile(newFontPath))
 			text.setFont(font);
 	}
-
-	void Text::SetSize(const unsigned newSize)
+	
+	void Text::SetSize(unsigned newSize)
 	{
 		text.setCharacterSize(newSize);
 	}
@@ -72,7 +82,7 @@ namespace sfge
 		return text.getCharacterSize();
 	}
 
-	void Text::SetColor(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a)
+	void Text::SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
 	{
 		color.r = r;
 		color.g = g;
@@ -88,9 +98,22 @@ namespace sfge
 		text.setColor(color);
 	}
 
-	void TextInfo::DrawOnInspector()
+	void editor::TextInfo::DrawOnInspector()
 	{
 		
+	}
+
+	TextManager::TextManager(Engine& engine):SingleComponentManager(engine)
+	{
+		m_RectTransformManager = engine.GetRectTransformManager();
+	}
+
+	TextManager::~TextManager()
+	= default;
+
+	TextManager& TextManager::operator=(const Text&)
+	{
+		return *this;
 	}
 
 	void TextManager::CreateComponent(json& componentJson, Entity entity)
@@ -124,6 +147,7 @@ namespace sfge
 	void TextManager::Init()
 	{
 		SingleComponentManager::Init();
+		m_RectTransformManager = m_Engine.GetRectTransformManager();
 	}
 
 	void TextManager::Update(float dt)
@@ -132,7 +156,7 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i+1));
+				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
 			}
 		}
 	}

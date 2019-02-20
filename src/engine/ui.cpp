@@ -29,20 +29,42 @@ namespace  sfge
 	void UIManager::Init()
 	{
 		m_EntityManager = m_Engine.GetEntityManager();
+		m_RectTransformManager = m_Engine.GetRectTransformManager();
+		m_Graphics2dManager = m_Engine.GetGraphics2dManager();
+
+		m_Window = m_Graphics2dManager->GetWindow();
+
+		m_ButtonManager.Init();
+		m_TextManager.Init();
+		m_ImageManager.Init();
 	}
 
 	void UIManager::Update(float dt)
 	{
-		
-	}
-
-	void UIManager::FixedUpdate()
-	{
-		
+		m_ButtonManager.Update(dt);
+		m_TextManager.Update(dt);
+		m_ImageManager.Update(dt);
 	}
 
 	void UIManager::Draw()
 	{
-		
+		m_ButtonManager.DrawButtons(*m_Window);
+		m_TextManager.DrawTexts(*m_Window);
+		m_ImageManager.DrawImages(*m_Window);
+	}
+
+	ButtonManager* UIManager::GetButtonManager()
+	{
+		return &m_ButtonManager;
+	}
+
+	TextManager* UIManager::GetTextManager()
+	{
+		return &m_TextManager;
+	}
+
+	ImageManager* UIManager::GetImageManager()
+	{
+		return &m_ImageManager;
 	}
 }

@@ -32,8 +32,8 @@ SOFTWARE.
 #include <graphics/animation2d.h>
 #include <graphics/camera.h>
 #include <graphics/button.h>
-#include <graphics/text.h>
 #include <graphics/image.h>
+#include <graphics/text.h>
 
 namespace sfge
 {
@@ -91,9 +91,6 @@ public:
 	SpriteManager* GetSpriteManager();
 	TextureManager* GetTextureManager();
 	CameraManager* GetCameraManager();
-	ButtonManager* GetButtonManager();
-	TextManager* GetTextManager();
-	ImageManager* GetImageManager();
 
 protected:
 	bool m_Windowless = false;
@@ -106,9 +103,7 @@ protected:
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
 	CameraManager m_CameraManager{ m_Engine };
-	ButtonManager m_ButtonManager{ m_Engine };
-	TextManager m_TextManager{ m_Engine };
-	ImageManager m_ImageManager{ m_Engine };
+	
 	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 

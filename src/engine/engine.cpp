@@ -93,6 +93,7 @@ void Engine::InitModules()
 	m_SystemsContainer->transformManager.Init();
 	m_SystemsContainer->rectTransformManager.Init();
     m_SystemsContainer->graphics2dManager.Init();
+	m_SystemsContainer->uiManager.Init();
     m_SystemsContainer->audioManager.Init();
     m_SystemsContainer->sceneManager.Init();
     m_SystemsContainer->inputManager.Init();
@@ -165,6 +166,7 @@ void Engine::Start()
         m_SystemsContainer->transformManager.Update(dt.asSeconds());
 
 		m_SystemsContainer->rectTransformManager.Update(dt.asSeconds());
+		m_SystemsContainer->uiManager.Update(dt.asSeconds());
 
         m_SystemsContainer->graphics2dManager.Update(dt.asSeconds());
 
@@ -278,6 +280,11 @@ Transform2dManager* Engine::GetTransform2dManager()
 RectTransformManager* Engine::GetRectTransformManager()
 {
 	return m_SystemsContainer ? &m_SystemsContainer->rectTransformManager : nullptr;
+}
+
+UIManager* Engine::GetUIManager()
+{
+	return m_SystemsContainer ? &m_SystemsContainer->uiManager : nullptr;
 }
 
 Editor* Engine::GetEditor() 

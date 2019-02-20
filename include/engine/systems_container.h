@@ -34,6 +34,7 @@
 #include <engine/entity.h>
 #include <engine/transform2d.h>
 #include <engine/rect_transform.h>
+#include <engine/ui.h>
 #include <editor/editor.h>
 #include <engine/tilemap.h>
 
@@ -56,7 +57,7 @@ struct SystemsContainer
   Transform2dManager transformManager;
   TilemapSystem tilemapSystem;
   RectTransformManager rectTransformManager;
-
+  UIManager uiManager;
 };
 }
 #endif //SFGE_SYSTEMS_CONTAINER_H

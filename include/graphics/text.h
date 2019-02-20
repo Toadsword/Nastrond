@@ -25,24 +25,28 @@ SOFTWARE.
 #ifndef SFGE_TEXT_H
 #define SFGE_TEXT_H
 
+#include <string>
 #include <SFML/Graphics.hpp>
-#include <editor/editor_info.h>
-#include <utility/json_utility.h>
 #include <engine/component.h>
 #include <engine/rect_transform.h>
-#include <graphics/graphics2d.h>
 
 namespace sfge
 {
-	struct Text {
+	class Text final
+	{
+	public:
+		Text& operator=(const Text&);
+
+		//Text();
+
 		void Init();
-		void Update(RectTransform* rectTransform);
+		void Update(/*RectTransform* rectTransform*/Vec2f position);
 		void Draw(sf::RenderWindow& window) const;
 
-		void SetString(const std::string& newText);
-		void SetFont(const std::string& newFontPath);
-		void SetSize(const unsigned newSize);
-		void SetColor(const sf::Uint8 r, const sf::Uint8 g, const sf::Uint8 b, const sf::Uint8 a);
+		void SetString(std::string newText);
+		void SetFont(std::string newFontPath);
+		void SetSize(unsigned newSize);
+		void SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColor(sf::Color newColor);
 
 		std::string GetString() const;
@@ -54,15 +58,24 @@ namespace sfge
 		sf::Color color;
 	};
 
-	struct TextInfo : editor::ComponentInfo
+	namespace editor
 	{
-		void DrawOnInspector() override;
-		Text* text = nullptr;
-	};
+		struct TextInfo : ComponentInfo
+		{
+			void DrawOnInspector() override;
+			Text* text = nullptr;
+		};
+	}
 
-	class TextManager : public SingleComponentManager<Text, TextInfo, ComponentType::TEXT> {
+	class TextManager final : public SingleComponentManager<Text, editor::TextInfo, ComponentType::TEXT> {
 	public:
 		using SingleComponentManager::SingleComponentManager;
+
+		TextManager(Engine& engine);
+		~TextManager();
+
+		TextManager& operator=(const Text&);
+
 		void CreateComponent(json& componentJson, Entity entity) override;
 		Text* AddComponent(Entity entity) override;
 		void DestroyComponent(Entity entity) override;

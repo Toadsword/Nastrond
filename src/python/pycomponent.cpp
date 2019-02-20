@@ -30,6 +30,7 @@
 #include <physics/physics2d.h>
 #include <graphics/graphics2d.h>
 #include <engine/engine.h>
+#include <engine/ui.h>
 #include <audio/audio.h>
 #include <utility/python_utility.h>
 #include <imgui.h>
@@ -177,6 +178,30 @@ void PyBehavior::Update(float dt)
 				auto* cameraManager = m_Engine.GetGraphics2dManager()->GetCameraManager();
 				auto* camera = cameraManager->GetComponentPtr(m_Entity);
 				return py::cast(camera, py::return_value_policy::reference);
+			}
+		case ComponentType::RECTTRANSFORM:
+			{
+				auto* rectTransformManager = m_Engine.GetRectTransformManager();
+				auto* rectTransform = rectTransformManager->GetComponentPtr(m_Entity);
+				return py::cast(rectTransform, py::return_value_policy::reference);
+			}
+		case ComponentType::BUTTON:
+			{
+				auto* buttonManager = m_Engine.GetUIManager()->GetButtonManager();
+				auto* button = buttonManager->GetComponentPtr(m_Entity);
+				return py::cast(button, py::return_value_policy::reference);
+			}
+		case ComponentType::IMAGE:
+			{
+				auto* imageManager = m_Engine.GetUIManager()->GetImageManager();
+				auto* image = imageManager->GetComponentPtr(m_Entity);
+				return py::cast(image, py::return_value_policy::reference);
+			}
+		case ComponentType::TEXT:
+			{
+				auto* textManager = m_Engine.GetUIManager()->GetTextManager();
+				auto* text = textManager->GetComponentPtr(m_Entity);
+				return py::cast(text, py::return_value_policy::reference);
 			}
 		default:
 			return py::none();
