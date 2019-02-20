@@ -25,6 +25,8 @@
 #ifndef SFGE_SYSTEM_H
 #define SFGE_SYSTEM_H
 
+#include <utility/json_utility.h>
+
 namespace sfge
 {
 
@@ -70,6 +72,10 @@ public:
 	* \brief Called after we load a scene
 	*/
 	virtual void Collect() {}
+
+	/**
+	 * \brief Called when the engine saves the game
+	 */
 
 	void SetEnable(bool enable);
 	bool GetEnable() const;

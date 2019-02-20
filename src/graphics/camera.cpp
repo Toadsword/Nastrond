@@ -104,16 +104,16 @@ namespace sfge
 	void CameraManager::Update(float dt)
 	{
 		rmt_ScopedCPUSample(CameraUpdate, 0)
-			for (auto i = 0u; i < m_Components.size(); i++)
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
 			{
-				if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
+				if (i == currentCamera) 
 				{
-					if (i == currentCamera) 
-					{
-						m_Components[i].Update(dt, (*m_GraphicsManager->GetWindow()));
-					}
+					m_Components[i].Update(dt, (*m_GraphicsManager->GetWindow()));
 				}
 			}
+		}
 	}
 
 	void CameraManager::SetCameraCurrent(short newCurrent)
@@ -128,6 +128,19 @@ namespace sfge
 	void CameraManager::Collect()
 	{
 
+	}
+
+	json CameraManager::Save()
+	{
+		json j;
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
+			{
+				j[i]["type"] = static_cast<int>(ComponentType::CAMERA);
+			}
+		}
+		return j;
 	}
 
 	void CameraManager::CreateComponent(json& componentJson, Entity entity)

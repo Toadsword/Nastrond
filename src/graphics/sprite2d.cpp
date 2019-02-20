@@ -211,6 +211,21 @@ void SpriteManager::DestroyComponent(Entity entity)
 	(void) entity;
 }
 
+json SpriteManager::Save()
+{
+	json j;
+	for (auto i = 0u; i < m_ComponentsInfo.size(); i++)
+	{
+		if (m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
+		{	
+			j[i]["type"] = static_cast<int>(ComponentType::SPRITE2D);
+			j[i]["path"] = m_ComponentsInfo[i].texturePath;
+			j[i]["is_visible"] = m_Components[i].is_visible;
+		}
+	}
+	return j;
+}
+
 void SpriteManager::OnResize(size_t new_size)
 {
 	m_Components.resize(new_size);

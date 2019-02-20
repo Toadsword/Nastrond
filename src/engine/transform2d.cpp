@@ -68,6 +68,24 @@ void Transform2dManager::Update(float dt) {
 	}
 }
 
+json Transform2dManager::Save()
+{
+	json j;
+	for (auto i = 0u; i < m_Components.size(); i++)
+	{
+		if (m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
+		{
+			j[i]["type"] = static_cast<int>(ComponentType::TRANSFORM2D);
+			j[i]["position"][0] = m_Components[i].Position.x;
+			j[i]["position"][1] = m_Components[i].Position.y;
+			j[i]["angle"] = m_Components[i].EulerAngle;
+			j[i]["scale"][0] = m_Components[i].Scale.x;
+			j[i]["scale"][1] = m_Components[i].Scale.y;
+		}
+	}
+	return j;
+}
+
 void Transform2dManager::OnResize(size_t newSize) {
 	m_Components.resize(newSize);
 	m_ComponentsInfo.resize(newSize);
