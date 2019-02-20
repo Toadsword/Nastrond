@@ -50,7 +50,7 @@ namespace sfge::ext
 		 * \brief Spawn a warehouse entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f position);
+		void SpawnBuilding(Vec2f position);
 
 		/**
 		 * \brief Destroy the warehouse at the given index.

@@ -63,7 +63,7 @@ namespace sfge::ext
 		m_Window->draw(m_VertexArray, m_Texture);
 	}
 
-	void ForgeManager::AddNewBuilding(Vec2f pos)
+	void ForgeManager::SpawnBuilding(Vec2f pos)
 	{
 		auto* entityManager = m_Engine.GetEntityManager();
 

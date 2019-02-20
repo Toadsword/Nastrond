@@ -51,7 +51,7 @@ namespace sfge::ext
 	{
 	}
 
-	void WarehouseManager::AddNewBuilding(Vec2f position)
+	void WarehouseManager::SpawnBuilding(Vec2f position)
 	{
 		auto* entityManager = m_Engine.GetEntityManager();
 
@@ -425,6 +425,7 @@ namespace sfge::ext
 		m_ReservedImportStackNumberTool.resize(newSize, 0);
 		m_ReservedImportStackNumberMushroom.resize(newSize, 0);
 
+		m_VertexArray.resize(newSize);
 	}
 	bool WarehouseManager::CheckEmptySlot(Entity newEntity, Transform2d * transformPtr)
 	{

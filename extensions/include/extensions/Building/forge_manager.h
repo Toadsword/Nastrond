@@ -56,7 +56,7 @@ namespace sfge::ext
 		 * \brief Spawn a forge entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f position);
+		void SpawnBuilding(Vec2f position);
 
 		/**
 		 * \brief Destroy the forge at the given index.

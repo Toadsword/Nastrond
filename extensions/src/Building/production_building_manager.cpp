@@ -85,7 +85,7 @@ namespace sfge::ext
 
 
 
-	void ProductionBuildingManager::AddNewBuilding(Vec2f position, BuildingType buildingType)
+	void ProductionBuildingManager::SpawnBuilding(Vec2f position, BuildingType buildingType)
 	{
 		auto* entityManager = m_Engine.GetEntityManager();
 
@@ -150,8 +150,6 @@ namespace sfge::ext
 				m_EntityIndex[i] = INVALID_ENTITY;
 				EntityManager* entityManager = m_Engine.GetEntityManager();
 				entityManager->DestroyEntity(entity);
-
-				
 
 				switch (buildingType)
 				{

@@ -55,7 +55,7 @@ namespace sfge::ext
 		 * \brief Spawn a building entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f position, BuildingType buildingType);
+		void SpawnBuilding(Vec2f position, BuildingType buildingType);
 
 		/**
 		 * \brief Destroy the mine at the given index.

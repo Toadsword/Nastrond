@@ -45,6 +45,19 @@ namespace sfge::ext
 
 		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
 			"WarehouseManager");
+		
+		for(int i = 0; i < 10; i++)
+		{
+			for(int j = 0; j < 10; j++)
+			{
+				SpawnBuilding(BuildingType::MINE, Vec2f(i * 100, j * 100));
+				SpawnBuilding(BuildingType::FORGE, Vec2f(i * 100, j * 100));
+				SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(i * 100, j * 100));
+				SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(i * 100, j * 100));
+				SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(i * 100, j * 100));
+				SpawnBuilding(BuildingType::DWELLING, Vec2f(i * 100, j * 100));
+			}
+		}
 	}
 
 	void BuildingManager::Update(float dt) {}
@@ -60,22 +73,22 @@ namespace sfge::ext
 		switch (buildingType)
 		{
 		case BuildingType::FORGE:
-			m_ForgeManager->AddNewBuilding(position);
+			m_ForgeManager->SpawnBuilding(position);
 			break;
 		case BuildingType::MINE:
-			m_ProductionBuildingManager->AddNewBuilding(position, buildingType);
+			m_ProductionBuildingManager->SpawnBuilding(position, buildingType);
 			break;
 		case BuildingType::EXCAVATION_POST:
-			m_ProductionBuildingManager->AddNewBuilding(position, buildingType);
+			m_ProductionBuildingManager->SpawnBuilding(position, buildingType);
 			break;
 		case BuildingType::MUSHROOM_FARM:
-			m_ProductionBuildingManager->AddNewBuilding(position, buildingType);
+			m_ProductionBuildingManager->SpawnBuilding(position, buildingType);
 			break;
 		case BuildingType::WAREHOUSE:
-			m_WarehouseManager->AddNewBuilding(position);
+			m_WarehouseManager->SpawnBuilding(position);
 			break;
 		case BuildingType::DWELLING:
-			m_DwellingManager->AddNewBuilding(position);
+			m_DwellingManager->SpawnBuilding(position);
 		break;
 		}
 	}
