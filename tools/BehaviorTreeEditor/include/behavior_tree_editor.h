@@ -69,6 +69,7 @@ private:
 	void DisplayAddMenuDecorator();
 	void DisplayAddMenuLeaf();
 	void DisplayNewMenu();
+	void DisplaySaveMenu();
 	void DisplayNodeInfo();
 
 

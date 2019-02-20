@@ -67,7 +67,7 @@ void BehaviorTreeEditor::Draw()
 			{
 				isImportClicked = true;
 			}
-
+			DisplaySaveMenu();
 			DisplayDeleteMenu();
 
 			ImGui::EndMenuBar();
@@ -766,6 +766,17 @@ void BehaviorTreeEditor::DisplayNewMenu()
 			memset(buf1, 0, 64);
 		}
 		ImGui::EndMenu();
+	}
+}
+
+void BehaviorTreeEditor::DisplaySaveMenu()
+{
+	if (ImGui::Button("Save"))
+	{
+		if(!m_CurrentFilePath.empty())
+		{
+			ext::behavior_tree::BehaviorTreeFactory::SaveBehaviorTreeToJson(m_RootNode, m_CurrentFilePath);
+		}
 	}
 }
 
