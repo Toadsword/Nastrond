@@ -144,7 +144,7 @@ namespace sfge::ext
 		const unsigned short m_MaxCapacity = 200;
 		const unsigned short m_CoolDown = 600;
 
-		unsigned int m_BuildingIndexCount;
+		unsigned int m_BuildingIndexCount = 0;
 
 		std::vector<Entity> m_EntityIndex;
 		std::vector<DwarfSlots> m_DwarfSlots;
