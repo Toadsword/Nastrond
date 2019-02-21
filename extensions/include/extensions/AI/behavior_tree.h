@@ -32,7 +32,7 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
-#include <extensions/AI/behavior_tree_nodes_core.h>
+#include <extensions/AI/behavior_tree_nodes_extension.h>
 
 namespace sfge::ext::behavior_tree
 {
@@ -67,20 +67,17 @@ public:
 	void SetEntities(std::vector<Entity>* vectorEntities);
 
 #ifdef BT_AOS
-	/**
-	 * \brief All data regarding flow in behavior tree
-	 */
-	struct DataBehaviorTree final
+	struct dataBehaviorTree
 	{
 		Node::ptr currentNode; //4
 
-		NodeStatus previousStatus; //1
+		Node::Status previousStatus; //1
 		bool doesFlowGoDown; // 1
 		unsigned char repeaterCounter; // 1
 		unsigned char sequenceActiveChild; // 1
 	};
 
-	std::vector<DataBehaviorTree> dataBehaviorTree;
+	std::vector<dataBehaviorTree> dataBehaviorTree;
 #endif
 
 #ifdef BT_SOA

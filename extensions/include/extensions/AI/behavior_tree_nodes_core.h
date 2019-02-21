@@ -26,12 +26,23 @@ SOFTWARE.
 
 #include <vector>
 #include <string>
+#include <map>
+#include <iostream>
+
+#include <utility/json_utility.h>
 
 namespace sfge::ext::behavior_tree
 {
-	class BehaviorTree;
-	class Node;
+class Node;
+class BehaviorTree;
 
+/**
+ * \brief Factory to build any node
+ * \author Nicolas Schneider
+ */
+class NodeFactory
+{
+public:
 	/**
 	 * \brief Represent all type of node available 
 	 */
@@ -78,17 +89,29 @@ namespace sfge::ext::behavior_tree
 	};
 
 	/**
-	 * \brief Status of nodes
+	 * \brief Use to register a node's factory
+	 * \param name string of the node class name
+	 * \param factory 
 	 */
-	enum class NodeStatus : unsigned char
-	{
-		SUCCESS,
-		FAIL,
-		RUNNING
-	};
+	static void RegisterType(const std::string& name, NodeFactory* factory) {
+		if (m_Factories.find(name) == m_Factories.end()) {
+			m_Factories[name] = factory;
+		}
+	}
 
-#pragma region nodeDatas
-	struct NodeData {};
+	/**
+	 * \brief Get the factory by string
+	 * \param name 
+	 * \return 
+	 */
+	static NodeFactory* GetFactory(const std::string& name)
+	{
+		return m_Factories[name];
+	}
+
+private:
+	inline static std::map<std::string, NodeFactory*> m_Factories;
+};
 
 	struct CompositeData : NodeData
 	{
@@ -105,22 +128,20 @@ namespace sfge::ext::behavior_tree
 		int limit = 0;
 	};
 
-	struct FindPathToData : NodeData
+	/**
+	 * \brief Status of nodes
+	 */
+	enum class Status : unsigned char
 	{
 		NodeDestination destination;
 	};
-#pragma endregion
 
 	/**
-	 * \author Nicolas Schneider
+	 * \brief execute the node
+	 * \param index of the dwarf
+	 * \return 
 	 */
-	class Node final
-	{
-	public:
-		/**
-		 * \brief shared pointer of node
-		 */
-		using ptr = std::shared_ptr<Node>;
+	virtual void Execute(unsigned int index) = 0; //TODO trouver un moyen de la remettre en virtual pure
 
 		/**
 		 * \brief Constructor
@@ -142,11 +163,11 @@ namespace sfge::ext::behavior_tree
 		 */
 		void AddChild(NodeType type);
 
-		/**
-		 * \brief execute the node
-		 * \param index of the dwarf
-		 */
-		void Execute(unsigned int index);
+	/**
+	 * \brief Add child to composite node
+	 * \param child 
+	 */
+	void AddChild(const ptr& child);
 
 		std::unique_ptr<NodeData> data;
 
