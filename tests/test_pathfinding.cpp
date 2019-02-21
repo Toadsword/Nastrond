@@ -105,7 +105,7 @@ TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
 	//const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/single_loop.asset");
 
-	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeFactory::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
+	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
 
 	engine.Start();
 }

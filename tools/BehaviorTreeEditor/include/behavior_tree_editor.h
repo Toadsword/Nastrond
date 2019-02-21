@@ -69,8 +69,8 @@ private:
 	void DisplayAddMenuDecorator();
 	void DisplayAddMenuLeaf();
 	void DisplayNewMenu();
-	void DisplaySaveMenu();
-	void DisplayNodeInfo();
+	void DisplaySaveMenu() const;
+	void DisplayNodeInfo() const;
 
 
 	FileBrowserModal m_FileBrowser;

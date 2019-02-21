@@ -23,11 +23,11 @@ SOFTWARE.
 */
 
 #include <extensions/AI/behavior_tree_factory.h>
-#include "utility/log.h"
+#include <utility/log.h>
 
 namespace sfge::ext::behavior_tree
 {
-Node::ptr BehaviorTreeFactory::LoadNodesFromJson(json& behaviorTreeJson, BehaviorTree* behaviorTree)
+Node::ptr BehaviorTreeUtility::LoadNodesFromJson(json& behaviorTreeJson, BehaviorTree* behaviorTree)
 {
 	if (CheckJsonParameter(behaviorTreeJson, "rootNode", json::value_t::array))
 	{
@@ -67,7 +67,7 @@ Node::ptr BehaviorTreeFactory::LoadNodesFromJson(json& behaviorTreeJson, Behavio
 	return nullptr;
 }
 
-void BehaviorTreeFactory::SaveBehaviorTreeToJson(const Node::ptr& node, const std::string& filePath)
+void BehaviorTreeUtility::SaveBehaviorTreeToJson(const Node::ptr& node, const std::string& filePath)
 {
 	std::ofstream outfile(filePath);
 	outfile << "{\"rootNode\": [";
@@ -111,22 +111,82 @@ void BehaviorTreeFactory::SaveBehaviorTreeToJson(const Node::ptr& node, const st
 	outfile.close();
 }
 
-Node::ptr BehaviorTreeFactory::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree)
+std::string BehaviorTreeUtility::NodeTypeToString(const Node::NodeType nodeType)
+{
+	switch (nodeType)
+	{
+	case Node::NodeType::SEQUENCE_COMPOSITE:
+		return "Sequence";
+	case Node::NodeType::SELECTOR_COMPOSITE:
+		return "Selector";
+	case Node::NodeType::REPEATER_DECORATOR:
+		return "Repeater";
+	case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+		return "Repeat until fail";
+	case Node::NodeType::SUCCEEDER_DECORATOR:
+		return "Succeeder";
+	case Node::NodeType::INVERTER_DECORATOR:
+		return "Inverter";
+	case Node::NodeType::WAIT_FOR_PATH_LEAF:
+		return "Wait for path";
+	case Node::NodeType::MOVE_TO_LEAF:
+		return "Move to";
+	case Node::NodeType::HAS_DWELLING_LEAF:
+		return "Has dwelling";
+	case Node::NodeType::SET_DWELLING_LEAF:
+		return "Set dwelling";
+	case Node::NodeType::ENTER_DWELLING_LEAF:
+		return "Enter dwelling";
+	case Node::NodeType::EXIT_DWELLING_LEAF:
+		return "Exit dwelling";
+	case Node::NodeType::ENTER_WORKING_PLACE_LEAF:
+		return "Enter working place";
+	case Node::NodeType::EXIT_WORKING_PLACE_LEAF:
+		return "Exit working place";
+	case Node::NodeType::HAS_JOB_LEAF:
+		return "Has job";
+	case Node::NodeType::HAS_STATIC_JOB_LEAF:
+		return "Has static job";
+	case Node::NodeType::ASSIGN_JOB_LEAF:
+		return "Assign job";
+	case Node::NodeType::IS_DAY_TIME_LEAF:
+		return "Is day time";
+	case Node::NodeType::IS_NIGHT_TIME_LEAF:
+		return "Is night time";
+	case Node::NodeType::WAIT_DAY_TIME_LEAF:
+		return "Wait day time";
+	case Node::NodeType::WAIT_NIGHT_TIME_LEAF:
+		return "Wait night time";
+	case Node::NodeType::ASK_INVENTORY_TASK_LEAF:
+		return "Ask inventory task";
+	case Node::NodeType::TAKE_RESOURCE_LEAF:
+		return "Take resource";
+	case Node::NodeType::PUT_RESOURCE_LEAF:
+		return "Put resource";
+	case Node::NodeType::FIND_PATH_TO_LEAF:
+		return "Find path to";
+	default:
+		std::cout << "ERROR\n";
+		return "";
+	}
+}
+
+Node::ptr BehaviorTreeUtility::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree)
 {
 	std::cout << "Load Leaf:\n";
 	std::shared_ptr<Node> leaf;
 
-	if (behaviorTreeJson["name"] == "WaitForPathLeaf")
+	if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::WAIT_FOR_PATH_LEAF))
 	{
 		std::cout << "   -> Wait for path leaf\n";
 		leaf = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::WAIT_FOR_PATH_LEAF);
 	}
-	else if (behaviorTreeJson["name"] == "MoveToLeaf")
+	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::MOVE_TO_LEAF))
 	{
 		std::cout << "   -> Move to leaf\n";
 		leaf = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::MOVE_TO_LEAF);
 	}
-	else if (behaviorTreeJson["name"] == "FindPathToLeaf")
+	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::FIND_PATH_TO_LEAF))
 	{
 		std::cout << "   -> Find path to leaf\n";
 		leaf = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::FIND_PATH_TO_LEAF);
@@ -147,17 +207,17 @@ Node::ptr BehaviorTreeFactory::AddLeafNodeFromJson(json& behaviorTreeJson, const
 	return leaf;
 }
 
-Node::ptr BehaviorTreeFactory::AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree)
+Node::ptr BehaviorTreeUtility::AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree)
 {
 	std::cout << "Load Composite:\n";
 	std::shared_ptr<Node> composite;
 
-	if (behaviorTreeJson["name"] == "SequenceComposite")
+	if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::SEQUENCE_COMPOSITE))
 	{
 		composite = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::SEQUENCE_COMPOSITE);
 		std::cout << "   ->Sequence composite\n";
 	}
-	else if (behaviorTreeJson["name"] == "SelectorComposite")
+	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::SELECTOR_COMPOSITE))
 	{
 		composite = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::SELECTOR_COMPOSITE);
 		std::cout << "   ->Selector composite\n";
@@ -206,22 +266,22 @@ Node::ptr BehaviorTreeFactory::AddCompositeNodeFromJson(json& behaviorTreeJson, 
 	return composite;
 }
 
-Node::ptr BehaviorTreeFactory::AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree)
+Node::ptr BehaviorTreeUtility::AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree)
 {
 	std::cout << "Load Decorator:\n";
 	std::shared_ptr<Node> decorator;
 
-	if (behaviorTreeJson["name"] == "RepeatUntilFailDecorator")
+	if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR))
 	{
 		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
 		std::cout << "   ->Repeat until fail decorator\n";
 	}
-	else if (behaviorTreeJson["name"] == "InverterDecorator")
+	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::INVERTER_DECORATOR))
 	{
 		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::INVERTER_DECORATOR);
 		std::cout << "   ->Inverter decorator\n";
 	}
-	else if (behaviorTreeJson["name"] == "RepeaterDecorator")
+	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::REPEATER_DECORATOR))
 	{
 		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::REPEATER_DECORATOR);
 		std::cout << "   ->Repeater decorator\n";
@@ -231,7 +291,7 @@ Node::ptr BehaviorTreeFactory::AddDecoratorNodeFromJson(json& behaviorTreeJson, 
 			static_cast<RepeaterData*>(decorator->m_Datas.get())->m_Limit = behaviorTreeJson["limit"];
 		}
 	}
-	else if (behaviorTreeJson["name"] == "SucceederDecorator")
+	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::SUCCEEDER_DECORATOR))
 	{
 		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::SUCCEEDER_DECORATOR);
 		std::cout << "   ->Succeeder decorator\n";
@@ -276,67 +336,33 @@ Node::ptr BehaviorTreeFactory::AddDecoratorNodeFromJson(json& behaviorTreeJson, 
 	return decorator;
 }
 
-std::string BehaviorTreeFactory::LeafNodeToString(const Node::ptr& node)
+std::string BehaviorTreeUtility::LeafNodeToString(const Node::ptr& node)
 {
 	std::string outString = "{";
+	outString += R"("name" : ")" + NodeTypeToString(node->nodeType) + "\",";
+
 	switch (node->nodeType)
 	{
 	case Node::NodeType::WAIT_FOR_PATH_LEAF:
-		outString += R"("name" : "WaitForPathLeaf",)";
-		break;
 	case Node::NodeType::MOVE_TO_LEAF:
-		outString += R"("name" : "MoveToLeaf",)";
-		break;
 	case Node::NodeType::HAS_DWELLING_LEAF:
-		outString += R"("name" : "HasDwellingLeaf",)";
-		break;
 	case Node::NodeType::SET_DWELLING_LEAF:
-		outString += R"("name" : "SetDwellingLeaf",)";
-		break;
 	case Node::NodeType::ENTER_DWELLING_LEAF:
-		outString += R"("name" : "EnterDwellingLeaf",)";
-		break;
 	case Node::NodeType::EXIT_DWELLING_LEAF:
-		outString += R"("name" : "ExitDwellingLeaf",)";
-		break;
 	case Node::NodeType::ENTER_WORKING_PLACE_LEAF:
-		outString += R"("name" : "EnterWorkingPlaceLeaf",)";
-		break;
 	case Node::NodeType::EXIT_WORKING_PLACE_LEAF:
-		outString += R"("name" : "ExitWorkingPlaceLeaf",)";
-		break;
 	case Node::NodeType::HAS_JOB_LEAF:
-		outString += R"("name" : "HasJobLeaf",)";
-		break;
 	case Node::NodeType::HAS_STATIC_JOB_LEAF:
-		outString += R"("name" : "HasStaticJobLeaf",)";
-		break;
 	case Node::NodeType::ASSIGN_JOB_LEAF:
-		outString += R"("name" : "AssignJobLeaf",)";
-		break;
 	case Node::NodeType::IS_DAY_TIME_LEAF:
-		outString += R"("name" : "IsDayTimeLeaf",)";
-		break;
 	case Node::NodeType::IS_NIGHT_TIME_LEAF:
-		outString += R"("name" : "IsNightTimeLeaf",)";
-		break;
 	case Node::NodeType::WAIT_DAY_TIME_LEAF:
-		outString += R"("name" : "WaitDayTimeLeaf",)";
-		break;
 	case Node::NodeType::WAIT_NIGHT_TIME_LEAF:
-		outString += R"("name" : "WaitNightTimeLeaf",)";
-		break;
 	case Node::NodeType::ASK_INVENTORY_TASK_LEAF:
-		outString += R"("name" : "AskInventoryTaskLeaf",)";
-		break;
 	case Node::NodeType::TAKE_RESOURCE_LEAF:
-		outString += R"("name" : "TakeResourceLeaf",)";
-		break;
 	case Node::NodeType::PUT_RESOURCE_LEAF:
-		outString += R"("name" : "PutResourceLeaf",)";
 		break;
 	case Node::NodeType::FIND_PATH_TO_LEAF:
-		outString += R"("name" : "FindPathToLeaf",)";
 		outString += "\"destination\" : " + std::to_string(
 			static_cast<int>(static_cast<FindPathToData*>(node->m_Datas.get())->m_Destination)) + ",";
 		break;
@@ -348,20 +374,11 @@ std::string BehaviorTreeFactory::LeafNodeToString(const Node::ptr& node)
 	return outString;
 }
 
-std::string BehaviorTreeFactory::CompositeNodeToString(const Node::ptr& node)
+std::string BehaviorTreeUtility::CompositeNodeToString(const Node::ptr& node)
 {
 	std::string outString = "{";
-
-	switch (node->nodeType)
-	{
-	case Node::NodeType::SEQUENCE_COMPOSITE:
-		outString += R"("name" :"SequenceComposite",)";
-		break;
-	case Node::NodeType::SELECTOR_COMPOSITE:
-		outString += R"("name" : "SelectorComposite",)";
-		break;
-	default: ;
-	}
+	outString += R"("name" : ")" + NodeTypeToString(node->nodeType) + "\",";
+	
 	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeType::COMPOSITE));
 
 	auto* data = static_cast<CompositeData*>(node->m_Datas.get());
@@ -420,27 +437,22 @@ std::string BehaviorTreeFactory::CompositeNodeToString(const Node::ptr& node)
 	return outString;
 }
 
-std::string BehaviorTreeFactory::DecoratorNodeToString(const Node::ptr& node)
+std::string BehaviorTreeUtility::DecoratorNodeToString(const Node::ptr& node)
 {
 	std::string outString = "{";
+	outString += R"("name" : ")" + NodeTypeToString(node->nodeType) + "\",";
 
-	switch (node->nodeType)
+	switch(node->nodeType)
 	{
-	case Node::NodeType::REPEATER_DECORATOR:
-		outString += R"("name" : "RepeaterDecorator",)";
-		outString += "\"limit\" : " + std::to_string(static_cast<RepeaterData*>(node->m_Datas.get())->m_Limit) +",";
+	case Node::NodeType::REPEATER_DECORATOR: 
+		outString += "\"limit\" : " + std::to_string(static_cast<RepeaterData*>(node->m_Datas.get())->m_Limit) + ",";
 		break;
-	case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
-		outString += R"("name" : "RepeatUntilFailDecorator",)";
-		break;
-	case Node::NodeType::SUCCEEDER_DECORATOR:
-		outString += R"("name" : "SucceederDecorator",)";
-		break;
-	case Node::NodeType::INVERTER_DECORATOR:
-		outString += R"("name" : "InverterDecorator",)";
-		break;
+	case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR: break;
+	case Node::NodeType::SUCCEEDER_DECORATOR: break;
+	case Node::NodeType::INVERTER_DECORATOR: break;
 	default: ;
 	}
+
 	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeType::DECORATOR));
 
 	auto* data = static_cast<DecoratorData*>(node->m_Datas.get());

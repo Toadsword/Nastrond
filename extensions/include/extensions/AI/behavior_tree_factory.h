@@ -25,10 +25,13 @@ SOFTWARE.
 #define SFGE_EXT_BEHAVIOR_TREE_FACTORY_H
 
 #include <memory>
+#include <map>
+#include <string>
 
 #include <utility/json_utility.h>
 #include <extensions/AI/behavior_tree_nodes_core.h>
 #include <fstream>
+#include <iostream>
 
 namespace sfge::ext::behavior_tree
 {
@@ -36,7 +39,7 @@ namespace sfge::ext::behavior_tree
 /**
 * author Nicolas Schneider
 */
-class BehaviorTreeFactory final
+class BehaviorTreeUtility final
 {
 public:
 	/**
@@ -52,6 +55,7 @@ public:
 	 */
 	static void SaveBehaviorTreeToJson(const Node::ptr& node, const std::string& filePath);
 
+	static std::string NodeTypeToString(const Node::NodeType nodeType);
 
 private:
 	static Node::ptr AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree);

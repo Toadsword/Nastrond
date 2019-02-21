@@ -1,20 +1,20 @@
 {
 	"rootNode": [{
-			"name": "RepeaterDecorator",
+			"name": "Repeater",
 			"limit": 0,
 			"type": 4,
 			"childs": [{
-					"name": "SequenceComposite",
+					"name": "Sequence",
 					"type": 2,
 					"childs": [{
-							"name": "FindPathToLeaf",
+							"name": "Find path to",
 							"destination": 0,
 							"type": 1
 						}, {
-							"name": "WaitForPathLeaf",
+							"name": "Wait for path",
 							"type": 1
 						}, {
-							"name": "MoveToLeaf",
+							"name": "Move to",
 							"type": 1
 						}
 					]
