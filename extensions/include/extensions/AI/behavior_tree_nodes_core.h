@@ -26,188 +26,247 @@ SOFTWARE.
 
 #include <vector>
 #include <string>
+#include <map>
+#include <iostream>
+
+#include <utility/json_utility.h>
 
 namespace sfge::ext::behavior_tree
 {
-	class BehaviorTree;
-	class Node;
+class Node;
+class BehaviorTree;
+
+/**
+ * \brief Factory to build any node
+ * \author Nicolas Schneider
+ */
+class NodeFactory
+{
+public:
+	/**
+	 * \brief Create a new Node
+	 * \param bt 
+	 * \param parentNode 
+	 * \param nodeJson 
+	 * \return 
+	 */
+	virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode, json& nodeJson) = 0;
 
 	/**
-	 * \brief Used by FindPathNode
+	 * \brief Use to register a node's factory
+	 * \param name string of the node class name
+	 * \param factory 
 	 */
-	enum class NodeDestination : unsigned char
+	static void RegisterType(const std::string& name, NodeFactory* factory) {
+		if (m_Factories.find(name) == m_Factories.end()) {
+			m_Factories[name] = factory;
+		}
+	}
+
+	/**
+	 * \brief Get the factory by string
+	 * \param name 
+	 * \return 
+	 */
+	static NodeFactory* GetFactory(const std::string& name)
 	{
-		RANDOM,
-		DWELLING,
-		WORKING_PLACE,
-		INVENTORY_TASK_GIVER,
-		INVENTORY_TASK_RECEIVER
-	};
+		return m_Factories[name];
+	}
+
+private:
+	inline static std::map<std::string, NodeFactory*> m_Factories;
+};
+
+#define REGISTER_NODE_TYPE(klass) \
+    class klass##Factory : public NodeFactory { \
+    public: \
+        klass##Factory() \
+        { \
+            RegisterType(#klass, this); \
+        } \
+        virtual std::shared_ptr<Node> Create(BehaviorTree* bt, std::shared_ptr<Node> parentNode, json& nodeJson) { \
+            return std::make_shared<klass>(bt, parentNode, nodeJson); \
+        } \
+    }; \
+    static klass##Factory global_##klass##Factory;
+
+/**
+ * author Nicolas Schneider
+ */
+class Node
+{
+public:
+	/**
+	 * \brief shared pointer of node
+	 */
+	using ptr = std::shared_ptr<Node>;
+
+	explicit Node(BehaviorTree* bt, ptr parentNode);
+	virtual ~Node() = default;
 
 	/**
 	 * \brief Status of nodes
 	 */
-	enum class NodeStatus : unsigned char
+	enum class Status : unsigned char
 	{
 		SUCCESS,
 		FAIL,
 		RUNNING
 	};
 
-#pragma region nodeDatas
-	struct NodeData {};
+	/**
+	 * \brief execute the node
+	 * \param index of the dwarf
+	 * \return 
+	 */
+	virtual void Execute(unsigned int index) = 0; //TODO trouver un moyen de la remettre en virtual pure
 
-	struct CompositeData : NodeData
-	{
-		std::vector<std::shared_ptr<Node>> m_Children;
-	};
+protected:
+	BehaviorTree* m_BehaviorTree;
+	ptr m_ParentNode;
+};
 
-	struct DecoratorData : NodeData
-	{
-		std::shared_ptr<Node> m_Child;
-	};
+enum class NodeType : char
+{
+	NONE = 0,
+	LEAF = 1 << 0,
+	COMPOSITE = 1 << 1,
+	DECORATOR = 1 << 2,
+};
 
-	struct RepeaterData : DecoratorData
-	{
-		int m_Limit = 0;
-	};
-
-	struct FindPathToData : NodeData
-	{
-		NodeDestination m_Destination;
-	};
-#pragma endregion
+/**
+* author Nicolas Schneider
+*/
+class CompositeNode : public Node
+{
+public:
+	explicit CompositeNode(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
 
 	/**
-	 * \author Nicolas Schneider
+	 * \brief Add child to composite node
+	 * \param child 
 	 */
-	class Node final
-	{
-	public:
-		/**
-		 * \brief shared pointer of node
-		 */
-		using ptr = std::shared_ptr<Node>;
+	void AddChild(const ptr& child);
 
-		/**
-		 * \brief Constructor
-		 * \param bt behavior tree. Used to store data
-		 * \param parentNode, if null => is root node
-		 */
-		explicit Node(BehaviorTree* bt, ptr parentNode);
+	/**
+	 * \brief check if the node as the child
+	 * \return 
+	 */
+	bool HasChildren() const;
+protected:
+	std::vector<ptr> m_Children;
+};
 
-		/**
-		 * \brief Store all type of nodes
-		 */
-		enum class NodeType : unsigned char
-		{
-			SEQUENCE_COMPOSITE,
-			SELECTOR_COMPOSITE,
-			REPEATER_DECORATOR,
-			REPEAT_UNTIL_FAIL_DECORATOR,
-			SUCCEEDER_DECORATOR,
-			INVERTER_DECORATOR,
-			WAIT_FOR_PATH_LEAF,
-			MOVE_TO_LEAF,
-			FIND_RANDOM_PATH_LEAF,
-			HAS_DWELLING_LEAF,
-			SET_DWELLING_LEAF,
-			ENTER_DWELLING_LEAF,
-			EXIT_DWELLING_LEAF,
-			ENTER_WORKING_PLACE_LEAF,
-			EXIT_WORKING_PLACE_LEAF,
-			HAS_JOB_LEAF,
-			HAS_STATIC_JOB_LEAF,
-			ASSIGN_JOB_LEAF,
-			IS_DAY_TIME_LEAF,
-			IS_NIGHT_TIME_LEAF,
-			WAIT_DAY_TIME_LEAF,
-			WAIT_NIGHT_TIME_LEAF,
-			ASK_INVENTORY_TASK_LEAF,
-			TAKE_RESOURCE_LEAF,
-			FIND_PATH_TO_LEAF
-		};
+/**
+* author Nicolas Schneider
+*/
+class SequenceComposite final : public CompositeNode
+{
+public:
+	SequenceComposite(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : CompositeNode(bt, parentNode) {}
 
-		NodeType nodeType;
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(SequenceComposite)
 
-		/**
-		 * \brief execute the node
-		 * \param index of the dwarf
-		 */
-		void Execute(unsigned int index);
+/**
+* author Nicolas Schneider
+*/
+class SelectorComposite final : public CompositeNode
+{
+public:
+	SelectorComposite(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : CompositeNode(bt, parentNode) {}
 
-		std::unique_ptr<NodeData> m_Datas;
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(SelectorComposite)
 
-	protected:
-#pragma region Core nodes
-		void SequenceComposite(unsigned int index);
+/**
+* author Nicolas Schneider
+*/
+class DecoratorNode : public Node
+{
+public:
 
-		void SelectorComposite(unsigned int index);
+	explicit DecoratorNode(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) { }
 
-		void RepeaterDecorator(unsigned int index);
+	/**
+	 * \brief Set the child of the decorator node
+	 * \param node 
+	 */
+	void SetChild(const Node::ptr& node);
 
-		void RepeatUntilFailDecorator(unsigned int index);
+	/**
+	 * \brief Check if has child
+	 * \return 
+	 */
+	bool HasChild() const;
 
-		void InverterDecorator(unsigned int index);
+protected:
+	ptr m_Child = nullptr;
+};
 
-		void SucceederDecorator(unsigned int index);
-#pragma endregion 
+/**
+* author Nicolas Schneider
+*/
+class RepeaterDecorator final : public DecoratorNode
+{
+public:
+	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson);
+	RepeaterDecorator(BehaviorTree* bt, const ptr& parentNode, int limit = 0);
 
-#pragma region Extensions nodes
-		void WaitForPath(unsigned int index);
+	void Execute(unsigned int index) override;
 
-		void MoveToLeaf(unsigned int index);
+private:
+	int m_Limit;
+};
+REGISTER_NODE_TYPE(RepeaterDecorator)
 
-		void FindRandomPathLeaf(unsigned int index);
+/**
+* author Nicolas Schneider
+*/
+class RepeatUntilFailDecorator final : public DecoratorNode
+{
+public:
+	RepeatUntilFailDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) { }
 
-		void HasDwellingLeaf(unsigned int index);
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(RepeatUntilFailDecorator)
 
-		void SetDwellingLeaf(unsigned int index);
+/**
+* author Nicolas Schneider
+*/
+class InverterDecorator final : public DecoratorNode
+{
+public:
+	InverterDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) {}
 
-		void EnterDwellingLeaf(unsigned int index);
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(InverterDecorator)
 
-		void ExitDwellingLeaf(unsigned int index);
+/**
+* author Nicolas Schneider
+*/
+class SucceederDecorator final : public DecoratorNode
+{
+public:
+	SucceederDecorator(BehaviorTree* bt, const ptr& parentNode, json& nodeJson) : DecoratorNode(bt, parentNode) {}
 
-		void EnterWorkingPlaceLeaf(unsigned int index);
+	void Execute(unsigned int index) override;
+};
+REGISTER_NODE_TYPE(SucceederDecorator)
 
-		void ExitWorkingPlaceLeaf(unsigned int index);
+/**
+* author Nicolas Schneider
+*/
+class Leaf : public Node
+{
+public:
+	explicit Leaf(BehaviorTree* bt, const ptr& parentNode) : Node(bt, parentNode) {}
+};
 
-		void HasJobLeaf(unsigned int index);
-
-		void HasStaticJobLeaf(unsigned int index);
-
-		void AssignJobLeaf(unsigned int index);
-
-		void IsDayTimeLeaf(unsigned int index);
-
-		void IsNightTimeLeaf(unsigned int index);
-
-		void WaitDayTimeLeaf(unsigned int index);
-
-		void WaitNightTimeLeaf(unsigned int index);
-
-		void AskInventoryTaskLeaf(unsigned int index);
-
-		void TakeResourcesLeaf(unsigned int index);
-
-		void PutResourcesLeaf(unsigned int index);
-
-		void FindPathToLeaf(unsigned int index);
-#pragma endregion 
-
-#pragma region Datas
-		BehaviorTree* m_BehaviorTree;
-		ptr m_ParentNode;
-#pragma endregion 
-	};
-
-	enum class NodeType : char
-	{
-		NONE = 0,
-		LEAF = 1 << 0,
-		COMPOSITE = 1 << 1,
-		DECORATOR = 1 << 2,
-	};
 }
 
 #endif
