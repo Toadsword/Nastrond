@@ -70,6 +70,12 @@ public:
 	* \return The pointer to the texture in memory
 	*/
 	sf::Texture* GetTexture(TextureId textureId);
+	/**
+	* \brief Used after loading the texture in the texture cache to get the path of the texture
+	* \param text_id The texture id striclty positive
+	* \return The pointer to the path texture in memory
+	*/
+	std::string GetTexturePath(TextureId textureId);
 	
 	void Clear() override;
 

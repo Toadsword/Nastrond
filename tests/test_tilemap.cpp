@@ -32,16 +32,16 @@ TEST(Tilemap, TestLoadTilemap)
 {
 	sfge::Engine engine;
 	engine.Init();
-
+	
 	json sceneJson;
 	json entityJson;
 	json tilemapJson;
-	//tilemapJson["path"] = "data/tilemap/nastrond_tilemap.asset";
+
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
 	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
 	tilemapJson["is_isometric"] = true;
 	tilemapJson["layer"] = 1;
-	tilemapJson["tile_scale"] = json::array({20, 10});
+	tilemapJson["tile_scale"] = json::array({509, 254});
 	tilemapJson["map_size"] = json::array({10, 10});
 	tilemapJson["map"] = json::array({
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
@@ -58,10 +58,20 @@ TEST(Tilemap, TestLoadTilemap)
 	entityJson["components"] = json::array({ tilemapJson });
 	entityJson["name"] = "TilemapTest";
 
-	sceneJson["entities"] = json::array({ entityJson });
-	sceneJson["name"] = "Test Tilemap";
+	json entityJson2;
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
 
+	sceneJson["entities"] = json::array({ entityJson, entityJson2 });
+	sceneJson["name"] = "Test Tilemap";
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+	
+
+	//engine.GetSceneManager()->LoadSceneFromPath("data/scenes/saved_scene1.scene");
 
     engine.Start();
 }

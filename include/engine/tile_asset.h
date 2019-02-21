@@ -80,16 +80,34 @@ public:
 	*/
 	bool SetTileTexture(Entity tileId, TileTypeId tileTypeId);
 
+	/**
+	* \brief Get the textureId affiliated to a tiletype
+	* \param tileTypeId The tiletype id to retrieve the textureId
+	* \return the textureId
+	*/
+	TextureId GetTextureFromTileType(TileTypeId tileTypeId);
+
+	/**
+	 * \brief Returns all the TileTypeIds.
+	 * \return list of all loaded tile type.
+	 */
+	std::vector<size_t> GetAllTileTypeIds();
+
+	void AddNewTileType(std::string filename);
+
 	void Clear() override;
 
 	void Collect() override;
+
+	json Save();	
 
 protected:
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
 private:
 	std::vector<TextureId> m_TexturesId = std::vector<TextureId>(INIT_ENTITY_NMB, 0);
-	std::vector<size_t> m_TileTypeId = std::vector<size_t>(INIT_ENTITY_NMB, 0);
+	std::vector<size_t> m_TileTypeId = std::vector<size_t>(INIT_ENTITY_NMB, INVALID_TILE_TYPE);
+	size_t m_Incremental = INVALID_TILE_TYPE;
 };
 }
 
