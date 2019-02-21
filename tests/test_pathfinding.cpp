@@ -97,14 +97,104 @@ TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 
 	sceneJson["systems"] = json::array({ systemJsonBehaviourTree,  systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
 
+	json entityCamera;
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityCamera["components"] = json::array({ CameraJson, pyCameraJson });
+
+
+	sceneJson["entities"] = json::array({ entityCamera});
+
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>("BehaviorTree");
 
 	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
-	//const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/single_loop.asset");
 
 	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
 
+	engine.Start();
+}
+
+TEST(AI, PathfindingTilemap)
+{
+	sfge::Engine engine;
+
+	auto initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	auto* sceneManager = engine.GetSceneManager();
+
+	//System
+	json systemJsonBehaviourTree;
+	systemJsonBehaviourTree["systemClassName"] = "BehaviorTree";
+
+	json systemJsonNavigation;
+	systemJsonNavigation["systemClassName"] = "NavigationGraphManager";
+
+	json systemJsonDwarf;
+	systemJsonDwarf["systemClassName"] = "DwarfManager";
+
+	json systemJsonDwelling;
+	systemJsonDwelling["systemClassName"] = "DwellingManager";
+
+	//Camera entity
+	json cameraJson;
+	cameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+
+	json entityCamera;
+	entityCamera["name"] = "CameraEntity";
+	entityCamera["components"] = json::array({ cameraJson, pyCameraJson });
+
+	//Tilemap entity
+	json tilemapJson;
+
+	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
+	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
+	tilemapJson["is_isometric"] = true;
+	tilemapJson["layer"] = 1;
+	tilemapJson["tile_scale"] = json::array({ 509, 254 });
+	tilemapJson["map_size"] = json::array({ 10, 10 });
+	tilemapJson["map"] = json::array({
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
+		});
+	json tilemapEntity;
+	tilemapEntity["name"] = "TilemapEntity";
+	tilemapEntity["components"] = json::array({ tilemapJson });
+
+	//Scene json
+	json sceneJson;
+	sceneJson["name"] = "Path finding in isometric tilemap";
+	sceneJson["entities"] = json::array({ entityCamera, tilemapEntity });
+	sceneJson["systems"] = json::array({ systemJsonBehaviourTree,  systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
+
+	//Load Scene
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	//Load behavior tree
+	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>("BehaviorTree");
+	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
+	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
+
+	//Start engine
 	engine.Start();
 }
