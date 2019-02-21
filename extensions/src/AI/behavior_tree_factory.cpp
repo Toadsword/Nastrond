@@ -168,9 +168,34 @@ std::string BehaviorTreeUtility::NodeTypeToString(const NodeType nodeType)
 	case NodeType::FIND_PATH_TO_LEAF:
 		return "Find path to";
 	default:
-		std::cout << "ERROR\n";
+		std::ostringstream oss;
+		oss << "[Error] NodeType to String : the type is not implemented";
+		Log::GetInstance()->Error(oss.str());
 		return "";
 	}
+}
+
+std::string BehaviorTreeUtility::NodeDestinationToString(const NodeDestination nodeDestination)
+{
+	switch(nodeDestination)
+	{
+	case NodeDestination::RANDOM: 
+		return "Random";
+	case NodeDestination::DWELLING: 
+		return "Dwelling";
+	case NodeDestination::WORKING_PLACE: 
+		return "Working place";
+	case NodeDestination::INVENTORY_TASK_GIVER: 
+		return "Inventory task giver";
+	case NodeDestination::INVENTORY_TASK_RECEIVER: 
+		return "Inventory task receiver";
+	default: 
+		std::ostringstream oss;
+		oss << "[Error] NodeDestination to String : the destination is not implemented";
+		Log::GetInstance()->Error(oss.str());
+		return "";
+	}
+
 }
 
 Node::ptr BehaviorTreeUtility::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree)

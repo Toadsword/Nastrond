@@ -358,25 +358,7 @@ void BehaviorTreeEditor::DisplayNode(const Node::ptr& node)
 
 		//Create node name
 		nodeName += "(";
-		switch (nodeData->destination)
-		{
-		case ext::behavior_tree::NodeDestination::RANDOM:
-			nodeName += "random";
-			break;
-		case ext::behavior_tree::NodeDestination::DWELLING:
-			nodeName += "dwelling";
-			break;
-		case ext::behavior_tree::NodeDestination::WORKING_PLACE:
-			nodeName += "working place";
-			break;
-		case ext::behavior_tree::NodeDestination::INVENTORY_TASK_GIVER:
-			nodeName += "inventory task giver";
-			break;
-		case ext::behavior_tree::NodeDestination::INVENTORY_TASK_RECEIVER:
-			nodeName += "inventory task receiver";
-			break;
-		default: ;
-		}
+		nodeName += ext::behavior_tree::BehaviorTreeUtility::NodeDestinationToString(static_cast<ext::behavior_tree::NodeDestination>(static_cast<int>(nodeData->destination)));
 		nodeName += ")";
 
 		//Set flags
@@ -828,35 +810,9 @@ void BehaviorTreeEditor::DisplayNodeInfo() const
 			ImGui::Text("Datas:");
 			ImGui::Spacing();
 
-			const char* names[static_cast<int>(ext::behavior_tree::NodeDestination::LENGTH)];
-			for (auto i = 0; i < static_cast<int>(ext::behavior_tree::NodeDestination::LENGTH); i++)
-			{
-				switch (static_cast<ext::behavior_tree::NodeDestination>(i))
-				{
-				case ext::behavior_tree::NodeDestination::RANDOM:
-					names[i] = "random..";
-					break;
-				case ext::behavior_tree::NodeDestination::DWELLING:
-					names[i] = "dwelling..";
-					break;
-				case ext::behavior_tree::NodeDestination::WORKING_PLACE:
-					names[i] = "working place..";
-					break;
-				case ext::behavior_tree::NodeDestination::INVENTORY_TASK_GIVER:
-					names[i] = "inventory task giver..";
-					break;
-				case ext::behavior_tree::NodeDestination::INVENTORY_TASK_RECEIVER:
-					names[i] = "inventory task receiver..";
-					break;
-				default:
-					std::ostringstream oss;
-					oss << "[Error] Editing node : Node Destination not taken in count + " << i;
-					Log::GetInstance()->Error(oss.str());
-				}
-			}
 			ImGui::Text("Destination : ");
 			ImGui::SameLine();
-			if (ImGui::Button(names[static_cast<int>(data->destination)]))
+			if (ImGui::Button(ext::behavior_tree::BehaviorTreeUtility::NodeDestinationToString(static_cast<ext::behavior_tree::NodeDestination>(static_cast<int>(data->destination))).c_str()))
 				ImGui::OpenPopup("my_select_popup");
 			ImGui::SameLine();
 			if (ImGui::BeginPopup("my_select_popup"))
@@ -864,7 +820,7 @@ void BehaviorTreeEditor::DisplayNodeInfo() const
 				ImGui::Text("Destination");
 				ImGui::Separator();
 				for (auto i = 0; i < static_cast<int>(ext::behavior_tree::NodeDestination::LENGTH); i++)
-					if (ImGui::Selectable(names[i]))
+					if (ImGui::Selectable(ext::behavior_tree::BehaviorTreeUtility::NodeDestinationToString(static_cast<ext::behavior_tree::NodeDestination>(i)).c_str()))
 						data->destination = static_cast<ext::behavior_tree::NodeDestination>(i);
 				ImGui::EndPopup();
 			}

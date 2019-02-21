@@ -41,7 +41,8 @@ class BehaviorTreeUtility final
 public:
 	/**
 	 * \brief Load complete behavior tree from json fil
-	 * \param behaviorTreeJson 
+	 * \param behaviorTreeJson
+	 * \param behaviorTree 
 	 */
 	static Node::ptr LoadNodesFromJson(json& behaviorTreeJson, BehaviorTree* behaviorTree);
 
@@ -57,7 +58,14 @@ public:
 	 * \param nodeType 
 	 * \return 
 	 */
-	static std::string NodeTypeToString(const NodeType nodeType);
+	static std::string NodeTypeToString(NodeType nodeType);
+
+	/**
+	 * \brief Transform a nodeDestination to a string
+	 * \param nodeDestination 
+	 * \return 
+	 */
+	static std::string NodeDestinationToString(NodeDestination nodeDestination);
 
 private:
 	static Node::ptr AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode, BehaviorTree* behaviorTree);

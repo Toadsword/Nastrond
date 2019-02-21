@@ -32,9 +32,9 @@ namespace sfge::ext::behavior_tree
 	class BehaviorTree;
 	class Node;
 
-	///**
-	//* \brief Store all type of nodes
-	//* /
+	/**
+	 * \brief Represent all type of node available 
+	 */
 	enum class NodeType : unsigned char
 	{
 		SEQUENCE_COMPOSITE,
@@ -131,7 +131,15 @@ namespace sfge::ext::behavior_tree
 		Node(BehaviorTree* bt, ptr parentNode, NodeType type);
 		~Node();
 
+		/**
+		 * \brief Called to destroy the node
+		 */
 		void Destroy();
+
+		/**
+		 * \brief Add a new child to a node of it's a composite or a decorator
+		 * \param type of new node
+		 */
 		void AddChild(NodeType type);
 
 		/**
@@ -205,7 +213,6 @@ namespace sfge::ext::behavior_tree
 		ptr m_ParentNode;
 #pragma endregion 
 	};
-
 
 	enum class NodeGroup : char
 	{
