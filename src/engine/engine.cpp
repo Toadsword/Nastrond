@@ -23,6 +23,8 @@ SOFTWARE.
 */
 
 #include <memory>
+#include <iostream>
+
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Clock.hpp>
@@ -33,6 +35,7 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <utility/log.h>
+#include <utility/file_utility.h>
 #include <engine/systems_container.h>
 
 
@@ -215,7 +218,6 @@ void Engine::Clear()
 
 void Engine::Collect() 
 {
-
 	m_SystemsContainer->entityManager.Collect();
 	m_SystemsContainer->graphics2dManager.Collect();
 	m_SystemsContainer->audioManager.Collect();
@@ -224,6 +226,130 @@ void Engine::Collect()
 	m_SystemsContainer->pythonEngine.Collect();
 	m_SystemsContainer->editor.Collect();
 	m_SystemsContainer->physicsManager.Collect();
+}
+
+void Engine::Save()
+{
+	json j;
+	j["name"] = m_SystemsContainer->editor.GetCurrentSceneName();
+	j["entities"] = nlohmann::detail::value_t::array;
+
+	//Gathering datas from the managers
+	json transformSave = m_SystemsContainer->transformManager.Save();
+	json spriteSave = m_SystemsContainer->graphics2dManager.GetSpriteManager()->Save();
+	json pyComponentSave = m_SystemsContainer->pythonEngine.GetPyComponentManager().Save();
+	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
+	json cameraSave = m_SystemsContainer->graphics2dManager.GetCameraManager()->Save();
+
+	bool hasAtLeastOneComponent = false;
+	unsigned entityIndex = 1;
+	unsigned componentIndex = 0;
+
+	std::string referencePath = TILEMAP_FOLDER + "coucou.asset";
+	//Save of the tileAsset file
+	if(CheckJsonExists(tilemapSave, "tiletype"))
+	{
+		// Copy all the sprites needed for the tiletypes into the data folder
+		for(int i = 0; i < tilemapSave["tiletype"].size(); i++)
+		{
+			std::string filepath = tilemapSave["tiletype"][i]["texturePath"].get<std::string>();
+
+			char slash = '/';
+			if (!(filepath.find(slash) < filepath.length()))
+				slash = '\\';
+			
+			std::string newPath = SPRITE_FOLDER + filepath.substr(filepath.find_last_of(slash) + 1);
+			if(!FileExists(filepath))
+				CopyFile(filepath, newPath);
+			
+			tilemapSave["tiletype"][i]["texturePath"] = newPath;
+		}
+
+		// File write
+		std::ofstream myfile;
+		myfile.open(referencePath);
+		myfile.flush();
+		myfile << std::setw(4) << tilemapSave["tiletype"] << std::endl;
+		myfile.close();
+	}
+
+	//Save of the scene file
+	//Loop on all the entities
+	for (int i = 1; i < INIT_ENTITY_NMB; i++)
+	{
+		// If a tile is found, we don't want to save it
+		if(m_SystemsContainer->entityManager.HasComponent(i, ComponentType::TILE))
+			continue;
+
+		hasAtLeastOneComponent = false;
+		componentIndex = 0;
+
+		//Transform2d
+		if (CheckJsonExists(transformSave[i - 1], "position"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = transformSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//Sprite
+		if (CheckJsonExists(spriteSave[i - 1], "path"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = spriteSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//Pycomponent
+		if (CheckJsonExists(pyComponentSave[i][0], "script_path"))
+		{
+			for(int iPyComp = 0; iPyComp < pyComponentSave[i].size(); iPyComp++)
+			{
+				j["entities"][entityIndex - 1]["components"][componentIndex] = pyComponentSave[i][iPyComp];
+				componentIndex++;
+			}
+			hasAtLeastOneComponent = true;
+		}
+
+		//Tilemap
+		if (CheckJsonExists(tilemapSave["tilemap"][i - 1], "map"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
+			j["entities"][entityIndex - 1]["components"][componentIndex]["reference_path"] = referencePath;
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//Camera
+		if (CheckJsonExists(cameraSave[i - 1], "type"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = cameraSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//If we stored something, we can add the name of the entity.
+		if (hasAtLeastOneComponent)
+		{
+			j["entities"][entityIndex - 1]["name"] = m_SystemsContainer->entityManager.GetEntityInfo(i).name;
+			entityIndex++;
+		}
+	}
+
+	int indexMakeUnique = 1;
+	std::string sceneFilename = SCENE_FOLDER + "saved_scene.scene";
+	while(FileExists(sceneFilename))
+	{
+		sceneFilename = SCENE_FOLDER + "saved_scene" + std::to_string(indexMakeUnique) + ".scene";
+		indexMakeUnique++;
+	}
+
+	// File write
+	std::ofstream myfile;
+	myfile.open(sceneFilename);
+	myfile.flush();
+	myfile << std::setw(4) << j << std::endl;
+	myfile.close();
 }
 
 

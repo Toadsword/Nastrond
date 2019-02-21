@@ -94,6 +94,8 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
+	json Save();
+
 	void OnResize(size_t new_size) override;
 protected:
 	Graphics2dManager* m_GraphicsManager = nullptr;
