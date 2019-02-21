@@ -26,7 +26,6 @@ SOFTWARE.
 #include <tools/tools_pch.h>
 #include <engine/engine.h>
 #include <anim_creator.h>
-#include <behavior_tree_editor.h>
 #include <tilemap_creator.h>
 
 namespace sfge::tools
@@ -35,9 +34,6 @@ void ExtendPythonTools(py::module& m)
 {
     py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
     animCreator
-		.def(py::init<Engine&>());
-    py::class_<BehaviorTreeEditor, System> behaviorTreeEditor(m, "BehaviorTreeEditor");
-    behaviorTreeEditor
 		.def(py::init<Engine&>());
     py::class_<TilemapCreator, System> tilemapCreator(m, "TilemapCreator");
     tilemapCreator

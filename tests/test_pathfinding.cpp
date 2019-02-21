@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include <extensions/python_extensions.h>
 #include <extensions/AI/behavior_tree.h>
-#include "extensions/AI/behavior_tree_factory.h"
+#include <extensions/AI/behavior_tree_nodes_extension.h>
 
 TEST(AI, PriorityQueue)
 {
@@ -81,8 +81,7 @@ TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 	auto* sceneManager = engine.GetSceneManager();
 
 	json sceneJson = {
-		{ "name", "Behavior tree" } 
-	};
+		{ "name", "Behavior tree" } };
 	json systemJsonBehaviourTree = {
 		{ "systemClassName", "BehaviorTree" }
 	};
@@ -105,7 +104,7 @@ TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
 	//const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/single_loop.asset");
 
-	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
+	behaviourTree->LoadNodesFromJson(*sceneJsonPtr);
 
 	engine.Start();
 }

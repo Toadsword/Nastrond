@@ -70,17 +70,17 @@ namespace sfge::tools
 class """ + tool_name + """ : public System
 {
     using System::System;
-    /**
-     * \\brief Called at scene init (a good place to link to other Systems
-     */
+    /*
+    * \\brief Called at scene init (a good place to link to other Systems
+    */
     void Init() override;
-    /**
-     * \\brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
-     */
+    /*
+    * \\brief Called every graphic frame (dt depends on the use of VSync or not, controllable in the Configuration) 
+    */
     void Update(float dt) override;
-    /**
-     * \\brief Called every graphic frame after Update
-     */
+     /*
+    * \\brief Called every graphic frame after Update
+    */
     void Draw() override;
 };
 }
