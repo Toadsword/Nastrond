@@ -46,18 +46,12 @@ namespace sfge::ext
 		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
 			"WarehouseManager");
 		
-		for(int i = 0; i < 10; i++)
-		{
-			for(int j = 0; j < 10; j++)
-			{
-				SpawnBuilding(BuildingType::MINE, Vec2f(i * 100, j * 100));
-				SpawnBuilding(BuildingType::FORGE, Vec2f(i * 100, j * 100));
-				SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(i * 100, j * 100));
-				SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(i * 100, j * 100));
-				SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(i * 100, j * 100));
-				SpawnBuilding(BuildingType::DWELLING, Vec2f(i * 100, j * 100));
-			}
-		}
+				SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
+				SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
+				SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
+				SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
+				SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));
+				SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
 	}
 
 	void BuildingManager::Update(float dt) {}

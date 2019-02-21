@@ -46,6 +46,8 @@ namespace sfge::ext
 
 		void FixedUpdate() override;
 
+		void Draw() override;
+
 		/**
 		 * \brief Spawn a warehouse entity at the given position.
 		 * \param position : the location of spawn wanted.

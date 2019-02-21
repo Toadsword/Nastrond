@@ -51,6 +51,11 @@ namespace sfge::ext
 	{
 	}
 
+	void WarehouseManager::Draw()
+	{
+		m_Window->draw(m_VertexArray, m_Texture);
+	}
+
 	void WarehouseManager::SpawnBuilding(Vec2f position)
 	{
 		auto* entityManager = m_Engine.GetEntityManager();
@@ -81,7 +86,6 @@ namespace sfge::ext
 		{
 			ResizeContainer(m_BuildingIndexCount + CONTAINER_EXTENDER);
 		}
-
 
 		const size_t newWarehouse = m_BuildingIndexCount - 1;
 
