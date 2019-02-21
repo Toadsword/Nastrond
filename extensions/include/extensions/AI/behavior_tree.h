@@ -32,7 +32,7 @@ SOFTWARE.
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
-#include <extensions/AI/behavior_tree_nodes_extension.h>
+#include <extensions/AI/behavior_tree_nodes_core.h>
 
 namespace sfge::ext::behavior_tree
 {
@@ -55,12 +55,6 @@ public:
 	void Draw() override;
 
 	/**
-	 * \brief Load complete behavior tree from json fil
-	 * \param behaviorTreeJson 
-	 */
-	void LoadNodesFromJson(json& behaviorTreeJson);
-
-	/**
 	* \brief Set root node of the behaviour tree
 	* \param rootNode
 	*/
@@ -73,17 +67,20 @@ public:
 	void SetEntities(std::vector<Entity>* vectorEntities);
 
 #ifdef BT_AOS
-	struct dataBehaviorTree
+	/**
+	 * \brief All data regarding flow in behavior tree
+	 */
+	struct DataBehaviorTree final
 	{
 		Node::ptr currentNode; //4
 
-		Node::Status previousStatus; //1
+		NodeStatus previousStatus; //1
 		bool doesFlowGoDown; // 1
 		unsigned char repeaterCounter; // 1
 		unsigned char sequenceActiveChild; // 1
 	};
 
-	std::vector<dataBehaviorTree> dataBehaviorTree;
+	std::vector<DataBehaviorTree> dataBehaviorTree;
 #endif
 
 #ifdef BT_SOA
@@ -101,12 +98,6 @@ public:
 	const bool flowGoUp = false;
 
 private:
-	std::shared_ptr<Node> AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
-
-	std::shared_ptr<Node> AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
-
-	std::shared_ptr<Node> AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode);
-
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
