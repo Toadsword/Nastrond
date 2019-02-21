@@ -120,6 +120,9 @@ public:
 	void RemovePyComponentsFrom(Entity entity);
 
 	void Destroy() override;
+
+	json Save();
+
 	/**
 	 * \brief Get a python component object
 	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later

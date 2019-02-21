@@ -78,6 +78,7 @@ public:
 	void Clear() override;
 
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
+	std::string GetCurrentSceneName() const;
 
 	void AddDrawableObserver(editor::IDrawableManager* observer);
 protected:
