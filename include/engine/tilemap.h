@@ -62,6 +62,8 @@ public:
 	 * \brief Update the tilemap and all the tiles within.
 	 */
 	void Update();
+
+	json Save();
 	
 	/**
 	 * \brief Calculate the size of the tilemap and returns it.
@@ -77,6 +79,9 @@ public:
 
 	void SetIsometric(bool newIso);
 	bool GetIsometric();
+
+	void SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds);
+	std::vector<std::vector<TileTypeId>>& GetTileTypes();
 	
 	std::vector<std::vector<Entity>>& GetTiles();
 
@@ -90,9 +95,19 @@ public:
 	/**
 	 * \brief Returns the EntityId positionned at specified position
 	 * \param pos Position of the tile.
-	 * \return Entity
+	 * \return Entity wanted
 	 */
 	Entity GetTileAt(Vec2f pos);
+	Vec2f GetTileAt(Entity tileEntity);
+
+	/**
+	 * \brief Set a new tiletype at the specified position
+	 * \param pos Position of the tile.
+	 * \param newTileType
+	 * \return Entity wanted
+	 */
+	void SetTileAt(Vec2f pos, TileTypeId newTileType);
+	void SetTileAt(Entity entity, TileTypeId newTileType);
 
 	/**
 	 * \brief Resize the limit size of the tilemap
@@ -102,9 +117,13 @@ public:
 
 protected:
 	/**
-	 * \brief Contains all the entites "tile" stored in the tilemap
+	 * \brief Contains all the entities "tile" stored in the tilemap
 	 */
 	std::vector<std::vector<Entity>> m_Tiles;
+	/**
+	 * \brief Contians all the tiletypeIds of the tilemap
+	 */
+	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
 	/**
 	 * \brief Scale of a tile in the tilemap
 	 */
@@ -114,13 +133,13 @@ protected:
 	 */
 	int m_Layer = 0;
 	/**
-	 * \brief Displays the tilemap as an isometric one or not
-	 */
-	bool m_IsIsometric = false;
-	/**
 	 * \brief Pointer to the TileManager
 	 */
 	TileManager* m_TileManager;
+	/**
+	 * \brief Displays the tilemap as an isometric one or not
+	 */
+	bool m_IsIsometric = false;
 };
 
 namespace editor
@@ -142,17 +161,33 @@ public:
 
 	void Clear();
 	void Collect() override;
+
+	json Save();
+
 	Tilemap* AddComponent(Entity entity) override;
 	void CreateComponent(json& componentJson, Entity entity) override;
+	void UpdateTile(Entity tilemapEntity, Vec2f pos, TileTypeId tileTypeId);
 	void DestroyComponent(Entity entity) override;
 	void OnResize(size_t new_size) override;
 
 	/**
 	 * \brief Create a tilemap with the json passed 
 	 * \param entity 
-	 * \param map Json tilemap data to construct the tilemap one
+	 * \param map Json tilemap data to construct the tilemap
 	 */
-	void InitializeMap(Entity entity, json& map);
+	void InitializeMap(Entity entity, json& map);	
+	/**
+	 * \brief Create a tilemap with the json passed
+	 * \param entity
+	 * \param tileTypeIds c++ data struct to construct the tilemap
+	 */
+	void InitializeMap(Entity entity, std::vector<std::vector<TileTypeId>> tileTypeIds);
+	
+	/**
+	 * \brief Set the position of all the tiles within the tilemap
+	 * \param entity containing a tilemap
+	 */
+	void SetupTilePosition(Entity entity);
 
 	/**
 	 * \brief Empty the map and destroys all the entity tiles attached to it.
@@ -160,6 +195,8 @@ public:
 	 */
 	void EmptyMap(Entity entity);
 
+	Vec2f GetTilePositionFromMouse(Entity entity);
+	Entity GetTileEntityFromMouse(Entity entity);
 protected:
 	Transform2dManager* m_Transform2dManager = nullptr;
 	TilemapSystem* m_TilemapSystem = nullptr;
@@ -189,6 +226,8 @@ public:
 	void Clear() override;
 
 	void Collect() override;
+
+	json Save();
 
 	TilemapManager* GetTilemapManager();
 	TileManager* GetTileManager();

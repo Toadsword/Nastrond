@@ -167,6 +167,13 @@ sf::Texture* TextureManager::GetTexture(TextureId textureId)
 	return &m_Textures[textureId-1];
 }
 
+std::string TextureManager::GetTexturePath(TextureId textureId)
+{
+	if (textureId == INVALID_TEXTURE)
+		return m_TexturePaths[textureId];
+	return m_TexturePaths[textureId - 1];
+}
+
 bool TextureManager::HasValidExtension(std::string filename)
 {
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');

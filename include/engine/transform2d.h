@@ -57,6 +57,7 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 	void Update(float dt) override;
+	json Save();
 
 	void OnResize(size_t newSize) override;
 };

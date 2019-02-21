@@ -137,6 +137,7 @@ namespace sfge
 
 		void Reset();
 		void Collect() override;
+		json Save();
 
 		Camera* AddComponent(Entity entity) override;
 		void CreateComponent(json& componentJson, Entity entity) override;

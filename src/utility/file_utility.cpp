@@ -82,4 +82,8 @@ bool RemoveDirectory(const std::string &dirname, bool removeAll)
 	}
 }
 
+bool CopyFile(const std::string& source, const std::string& destination)
+{
+	return fs::copy_file(source, destination);
+}
 }

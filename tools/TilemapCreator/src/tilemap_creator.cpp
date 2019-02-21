@@ -23,24 +23,53 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#include <tools/tools_pch.h>
-#include <engine/engine.h>
-#include <anim_creator.h>
+
 #include <tilemap_creator.h>
-#include <behavior_tree_editor.h>
+#include <utility/log.h>
 
 namespace sfge::tools
 {
-void ExtendPythonTools(py::module& m)
+void TilemapCreator::Init()
 {
-    py::class_<AnimCreator, System> animCreator(m, "AnimCreator");
-    animCreator
-		.def(py::init<Engine&>());
-    py::class_<TilemapCreator, System> tilemapCreator(m, "TilemapCreator");
-    tilemapCreator
-		.def(py::init<Engine&>());
-    py::class_<BehaviorTreeEditor, System> behaviorTreeEditor(m, "BehaviorTreeEditor");
-    behaviorTreeEditor
-		.def(py::init<Engine&>());
+	Log::GetInstance()->Msg("Init TilemapCreator");
+	m_TilemapImguiManager.Init(this);
+
+	m_TilemapManager = m_Engine.GetTilemapSystem()->GetTilemapManager();
+	m_TileTypeManager = m_Engine.GetTilemapSystem()->GetTileTypeManager();
+
+	m_IsInit = true;
 }
+
+void TilemapCreator::Update(float dt)
+{
+	if (!m_IsInit)
+		Init();
+
+	m_TilemapImguiManager.Update(dt);
+}
+
+
+void TilemapCreator::Draw()
+{
+	if (!m_IsInit)
+		return;
+
+	m_TilemapImguiManager.Draw();
+}
+
+TilemapImguiManager* TilemapCreator::GetTilemapImguiManager()
+{
+	return &m_TilemapImguiManager;
+}
+
+TilemapManager* TilemapCreator::GetTilemapManager()
+{
+	return m_TilemapManager;
+}
+
+TileTypeManager* TilemapCreator::GetTileTypeManager()
+{
+	return m_TileTypeManager;
+}
+
 }
