@@ -32,6 +32,38 @@ namespace sfge::ext::behavior_tree
 	class BehaviorTree;
 	class Node;
 
+	///**
+	//* \brief Store all type of nodes
+	//* /
+	enum class NodeType : unsigned char
+	{
+		SEQUENCE_COMPOSITE,
+		SELECTOR_COMPOSITE,
+		REPEATER_DECORATOR,
+		REPEAT_UNTIL_FAIL_DECORATOR,
+		SUCCEEDER_DECORATOR,
+		INVERTER_DECORATOR,
+		WAIT_FOR_PATH_LEAF,
+		MOVE_TO_LEAF,
+		HAS_DWELLING_LEAF,
+		SET_DWELLING_LEAF,
+		ENTER_DWELLING_LEAF,
+		EXIT_DWELLING_LEAF,
+		ENTER_WORKING_PLACE_LEAF,
+		EXIT_WORKING_PLACE_LEAF,
+		HAS_JOB_LEAF,
+		HAS_STATIC_JOB_LEAF,
+		ASSIGN_JOB_LEAF,
+		IS_DAY_TIME_LEAF,
+		IS_NIGHT_TIME_LEAF,
+		WAIT_DAY_TIME_LEAF,
+		WAIT_NIGHT_TIME_LEAF,
+		ASK_INVENTORY_TASK_LEAF,
+		TAKE_RESOURCE_LEAF,
+		PUT_RESOURCE_LEAF,
+		FIND_PATH_TO_LEAF
+	};
+
 	/**
 	 * \brief Used by FindPathNode
 	 */
@@ -60,22 +92,22 @@ namespace sfge::ext::behavior_tree
 
 	struct CompositeData : NodeData
 	{
-		std::vector<std::shared_ptr<Node>> m_Children;
+		std::vector<std::shared_ptr<Node>> children;
 	};
 
 	struct DecoratorData : NodeData
 	{
-		std::shared_ptr<Node> m_Child;
+		std::shared_ptr<Node> child;
 	};
 
 	struct RepeaterData : DecoratorData
 	{
-		int m_Limit = 0;
+		int limit = 0;
 	};
 
 	struct FindPathToData : NodeData
 	{
-		NodeDestination m_Destination;
+		NodeDestination destination;
 	};
 #pragma endregion
 
@@ -91,41 +123,10 @@ namespace sfge::ext::behavior_tree
 		using ptr = std::shared_ptr<Node>;
 
 		/**
-		 * \brief Store all type of nodes
-		 */
-		enum class NodeType : unsigned char
-		{
-			SEQUENCE_COMPOSITE,
-			SELECTOR_COMPOSITE,
-			REPEATER_DECORATOR,
-			REPEAT_UNTIL_FAIL_DECORATOR,
-			SUCCEEDER_DECORATOR,
-			INVERTER_DECORATOR,
-			WAIT_FOR_PATH_LEAF,
-			MOVE_TO_LEAF,
-			HAS_DWELLING_LEAF,
-			SET_DWELLING_LEAF,
-			ENTER_DWELLING_LEAF,
-			EXIT_DWELLING_LEAF,
-			ENTER_WORKING_PLACE_LEAF,
-			EXIT_WORKING_PLACE_LEAF,
-			HAS_JOB_LEAF,
-			HAS_STATIC_JOB_LEAF,
-			ASSIGN_JOB_LEAF,
-			IS_DAY_TIME_LEAF,
-			IS_NIGHT_TIME_LEAF,
-			WAIT_DAY_TIME_LEAF,
-			WAIT_NIGHT_TIME_LEAF,
-			ASK_INVENTORY_TASK_LEAF,
-			TAKE_RESOURCE_LEAF,
-			PUT_RESOURCE_LEAF,
-			FIND_PATH_TO_LEAF
-		};
-
-		/**
 		 * \brief Constructor
 		 * \param bt behavior tree. Used to store data
 		 * \param parentNode, if null => is root node
+		 * \param type
 		 */
 		Node(BehaviorTree* bt, ptr parentNode, NodeType type);
 		~Node();
@@ -133,72 +134,70 @@ namespace sfge::ext::behavior_tree
 		void Destroy();
 		void AddChild(NodeType type);
 
-
-		NodeType nodeType;
-
 		/**
 		 * \brief execute the node
 		 * \param index of the dwarf
 		 */
 		void Execute(unsigned int index);
 
-		std::unique_ptr<NodeData> m_Datas;
+		std::unique_ptr<NodeData> data;
 
+		NodeType nodeType;
 	protected:
 		void DestroyChild(Node* childNode);
 
 #pragma region Core nodes
-		void SequenceComposite(unsigned int index);
+		void SequenceComposite(unsigned int index) const;
 
-		void SelectorComposite(unsigned int index);
+		void SelectorComposite(unsigned int index) const;
 
-		void RepeaterDecorator(unsigned int index);
+		void RepeaterDecorator(unsigned int index) const;
 
-		void RepeatUntilFailDecorator(unsigned int index);
+		void RepeatUntilFailDecorator(unsigned int index) const;
 
-		void InverterDecorator(unsigned int index);
+		void InverterDecorator(unsigned int index) const;
 
-		void SucceederDecorator(unsigned int index);
+		void SucceederDecorator(unsigned int index) const;
 #pragma endregion 
 
 #pragma region Extensions nodes
-		void WaitForPath(unsigned int index);
+		void WaitForPath(unsigned int index) const;
 
-		void MoveToLeaf(unsigned int index);
+		void MoveToLeaf(unsigned int index) const;
 
-		void HasDwellingLeaf(unsigned int index);
+		void HasDwellingLeaf(unsigned int index) const;
 
-		void SetDwellingLeaf(unsigned int index);
+		void SetDwellingLeaf(unsigned int index) const;
 
-		void EnterDwellingLeaf(unsigned int index);
+		void EnterDwellingLeaf(unsigned int index) const;
 
-		void ExitDwellingLeaf(unsigned int index);
+		void ExitDwellingLeaf(unsigned int index) const;
 
-		void EnterWorkingPlaceLeaf(unsigned int index);
+		void EnterWorkingPlaceLeaf(unsigned int index) const;
 
-		void ExitWorkingPlaceLeaf(unsigned int index);
+		void ExitWorkingPlaceLeaf(unsigned int index) const;
 
-		void HasJobLeaf(unsigned int index);
+		void HasJobLeaf(unsigned int index) const;
 
-		void HasStaticJobLeaf(unsigned int index);
+		void HasStaticJobLeaf(unsigned int index) const;
 
-		void AssignJobLeaf(unsigned int index);
+		void AssignJobLeaf(unsigned int index) const;
 
-		void IsDayTimeLeaf(unsigned int index);
+		void IsDayTimeLeaf(unsigned int index) const;
 
-		void IsNightTimeLeaf(unsigned int index);
+		void IsNightTimeLeaf(unsigned int index) const;
 
-		void WaitDayTimeLeaf(unsigned int index);
+		void WaitDayTimeLeaf(unsigned int index) const;
 
-		void WaitNightTimeLeaf(unsigned int index);
+		void WaitNightTimeLeaf(unsigned int index) const;
 
-		void AskInventoryTaskLeaf(unsigned int index);
+		void AskInventoryTaskLeaf(unsigned int index) const;
 
-		void TakeResourcesLeaf(unsigned int index);
+		void TakeResourcesLeaf(unsigned int index) const;
 
-		void PutResourcesLeaf(unsigned int index);
+		void PutResourcesLeaf(unsigned int index) const;
 
-		void FindPathToLeaf(unsigned int index);
+		void FindPathToLeaf(unsigned int index) const;
 #pragma endregion 
 
 #pragma region Datas
@@ -207,7 +206,8 @@ namespace sfge::ext::behavior_tree
 #pragma endregion 
 	};
 
-	enum class NodeType : char
+
+	enum class NodeGroup : char
 	{
 		NONE = 0,
 		LEAF = 1 << 0,

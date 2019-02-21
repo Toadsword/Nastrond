@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <fstream>
+
 #include <extensions/AI/behavior_tree_factory.h>
 #include <utility/log.h>
 
@@ -34,15 +36,15 @@ Node::ptr BehaviorTreeUtility::LoadNodesFromJson(json& behaviorTreeJson, Behavio
 		auto rootNodeJson = behaviorTreeJson["rootNode"];
 		if (CheckJsonExists(rootNodeJson[0], "type"))
 		{
-			const NodeType nodeType = rootNodeJson[0]["type"];
+			const NodeGroup nodeType = rootNodeJson[0]["type"];
 
 			switch (nodeType)
 			{
-			case NodeType::LEAF:
+			case NodeGroup::LEAF:
 				return AddLeafNodeFromJson(rootNodeJson[0], nullptr, behaviorTree);
-			case NodeType::COMPOSITE:
+			case NodeGroup::COMPOSITE:
 				return AddCompositeNodeFromJson(rootNodeJson[0], nullptr, behaviorTree);
-			case NodeType::DECORATOR:
+			case NodeGroup::DECORATOR:
 				return AddDecoratorNodeFromJson(rootNodeJson[0], nullptr, behaviorTree);
 			default:
 				std::ostringstream oss;
@@ -73,35 +75,35 @@ void BehaviorTreeUtility::SaveBehaviorTreeToJson(const Node::ptr& node, const st
 	outfile << "{\"rootNode\": [";
 	switch (node->nodeType)
 	{
-	case Node::NodeType::SEQUENCE_COMPOSITE:
-	case Node::NodeType::SELECTOR_COMPOSITE:
+	case NodeType::SEQUENCE_COMPOSITE:
+	case NodeType::SELECTOR_COMPOSITE:
 		outfile << CompositeNodeToString(node);
 		break;
-	case Node::NodeType::REPEATER_DECORATOR:
-	case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
-	case Node::NodeType::SUCCEEDER_DECORATOR:
-	case Node::NodeType::INVERTER_DECORATOR:
+	case NodeType::REPEATER_DECORATOR:
+	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+	case NodeType::SUCCEEDER_DECORATOR:
+	case NodeType::INVERTER_DECORATOR:
 		outfile << DecoratorNodeToString(node);
 		break;
-	case Node::NodeType::WAIT_FOR_PATH_LEAF:
-	case Node::NodeType::MOVE_TO_LEAF: 
-	case Node::NodeType::HAS_DWELLING_LEAF:
-	case Node::NodeType::SET_DWELLING_LEAF: 
-	case Node::NodeType::ENTER_DWELLING_LEAF: 
-	case Node::NodeType::EXIT_DWELLING_LEAF:
-	case Node::NodeType::ENTER_WORKING_PLACE_LEAF: 
-	case Node::NodeType::EXIT_WORKING_PLACE_LEAF:
-	case Node::NodeType::HAS_JOB_LEAF:
-	case Node::NodeType::HAS_STATIC_JOB_LEAF: 
-	case Node::NodeType::ASSIGN_JOB_LEAF:
-	case Node::NodeType::IS_DAY_TIME_LEAF: 
-	case Node::NodeType::IS_NIGHT_TIME_LEAF: 
-	case Node::NodeType::WAIT_DAY_TIME_LEAF:
-	case Node::NodeType::WAIT_NIGHT_TIME_LEAF: 
-	case Node::NodeType::ASK_INVENTORY_TASK_LEAF: 
-	case Node::NodeType::TAKE_RESOURCE_LEAF:
-	case Node::NodeType::PUT_RESOURCE_LEAF: 
-	case Node::NodeType::FIND_PATH_TO_LEAF: 
+	case NodeType::WAIT_FOR_PATH_LEAF:
+	case NodeType::MOVE_TO_LEAF: 
+	case NodeType::HAS_DWELLING_LEAF:
+	case NodeType::SET_DWELLING_LEAF: 
+	case NodeType::ENTER_DWELLING_LEAF: 
+	case NodeType::EXIT_DWELLING_LEAF:
+	case NodeType::ENTER_WORKING_PLACE_LEAF: 
+	case NodeType::EXIT_WORKING_PLACE_LEAF:
+	case NodeType::HAS_JOB_LEAF:
+	case NodeType::HAS_STATIC_JOB_LEAF: 
+	case NodeType::ASSIGN_JOB_LEAF:
+	case NodeType::IS_DAY_TIME_LEAF: 
+	case NodeType::IS_NIGHT_TIME_LEAF: 
+	case NodeType::WAIT_DAY_TIME_LEAF:
+	case NodeType::WAIT_NIGHT_TIME_LEAF: 
+	case NodeType::ASK_INVENTORY_TASK_LEAF: 
+	case NodeType::TAKE_RESOURCE_LEAF:
+	case NodeType::PUT_RESOURCE_LEAF: 
+	case NodeType::FIND_PATH_TO_LEAF: 
 		outfile << LeafNodeToString(node);
 		break;
 	default: ;
@@ -111,59 +113,59 @@ void BehaviorTreeUtility::SaveBehaviorTreeToJson(const Node::ptr& node, const st
 	outfile.close();
 }
 
-std::string BehaviorTreeUtility::NodeTypeToString(const Node::NodeType nodeType)
+std::string BehaviorTreeUtility::NodeTypeToString(const NodeType nodeType)
 {
 	switch (nodeType)
 	{
-	case Node::NodeType::SEQUENCE_COMPOSITE:
+	case NodeType::SEQUENCE_COMPOSITE:
 		return "Sequence";
-	case Node::NodeType::SELECTOR_COMPOSITE:
+	case NodeType::SELECTOR_COMPOSITE:
 		return "Selector";
-	case Node::NodeType::REPEATER_DECORATOR:
+	case NodeType::REPEATER_DECORATOR:
 		return "Repeater";
-	case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
 		return "Repeat until fail";
-	case Node::NodeType::SUCCEEDER_DECORATOR:
+	case NodeType::SUCCEEDER_DECORATOR:
 		return "Succeeder";
-	case Node::NodeType::INVERTER_DECORATOR:
+	case NodeType::INVERTER_DECORATOR:
 		return "Inverter";
-	case Node::NodeType::WAIT_FOR_PATH_LEAF:
+	case NodeType::WAIT_FOR_PATH_LEAF:
 		return "Wait for path";
-	case Node::NodeType::MOVE_TO_LEAF:
+	case NodeType::MOVE_TO_LEAF:
 		return "Move to";
-	case Node::NodeType::HAS_DWELLING_LEAF:
+	case NodeType::HAS_DWELLING_LEAF:
 		return "Has dwelling";
-	case Node::NodeType::SET_DWELLING_LEAF:
+	case NodeType::SET_DWELLING_LEAF:
 		return "Set dwelling";
-	case Node::NodeType::ENTER_DWELLING_LEAF:
+	case NodeType::ENTER_DWELLING_LEAF:
 		return "Enter dwelling";
-	case Node::NodeType::EXIT_DWELLING_LEAF:
+	case NodeType::EXIT_DWELLING_LEAF:
 		return "Exit dwelling";
-	case Node::NodeType::ENTER_WORKING_PLACE_LEAF:
+	case NodeType::ENTER_WORKING_PLACE_LEAF:
 		return "Enter working place";
-	case Node::NodeType::EXIT_WORKING_PLACE_LEAF:
+	case NodeType::EXIT_WORKING_PLACE_LEAF:
 		return "Exit working place";
-	case Node::NodeType::HAS_JOB_LEAF:
+	case NodeType::HAS_JOB_LEAF:
 		return "Has job";
-	case Node::NodeType::HAS_STATIC_JOB_LEAF:
+	case NodeType::HAS_STATIC_JOB_LEAF:
 		return "Has static job";
-	case Node::NodeType::ASSIGN_JOB_LEAF:
+	case NodeType::ASSIGN_JOB_LEAF:
 		return "Assign job";
-	case Node::NodeType::IS_DAY_TIME_LEAF:
+	case NodeType::IS_DAY_TIME_LEAF:
 		return "Is day time";
-	case Node::NodeType::IS_NIGHT_TIME_LEAF:
+	case NodeType::IS_NIGHT_TIME_LEAF:
 		return "Is night time";
-	case Node::NodeType::WAIT_DAY_TIME_LEAF:
+	case NodeType::WAIT_DAY_TIME_LEAF:
 		return "Wait day time";
-	case Node::NodeType::WAIT_NIGHT_TIME_LEAF:
+	case NodeType::WAIT_NIGHT_TIME_LEAF:
 		return "Wait night time";
-	case Node::NodeType::ASK_INVENTORY_TASK_LEAF:
+	case NodeType::ASK_INVENTORY_TASK_LEAF:
 		return "Ask inventory task";
-	case Node::NodeType::TAKE_RESOURCE_LEAF:
+	case NodeType::TAKE_RESOURCE_LEAF:
 		return "Take resource";
-	case Node::NodeType::PUT_RESOURCE_LEAF:
+	case NodeType::PUT_RESOURCE_LEAF:
 		return "Put resource";
-	case Node::NodeType::FIND_PATH_TO_LEAF:
+	case NodeType::FIND_PATH_TO_LEAF:
 		return "Find path to";
 	default:
 		std::cout << "ERROR\n";
@@ -176,23 +178,23 @@ Node::ptr BehaviorTreeUtility::AddLeafNodeFromJson(json& behaviorTreeJson, const
 	std::cout << "Load Leaf:\n";
 	std::shared_ptr<Node> leaf;
 
-	if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::WAIT_FOR_PATH_LEAF))
+	if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::WAIT_FOR_PATH_LEAF))
 	{
 		std::cout << "   -> Wait for path leaf\n";
-		leaf = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::WAIT_FOR_PATH_LEAF);
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::WAIT_FOR_PATH_LEAF);
 	}
-	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::MOVE_TO_LEAF))
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::MOVE_TO_LEAF))
 	{
 		std::cout << "   -> Move to leaf\n";
-		leaf = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::MOVE_TO_LEAF);
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::MOVE_TO_LEAF);
 	}
-	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::FIND_PATH_TO_LEAF))
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::FIND_PATH_TO_LEAF))
 	{
 		std::cout << "   -> Find path to leaf\n";
-		leaf = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::FIND_PATH_TO_LEAF);
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::FIND_PATH_TO_LEAF);
 
 		if (CheckJsonExists(behaviorTreeJson, "destination")) {
-			static_cast<FindPathToData*>(leaf->m_Datas.get())->m_Destination = static_cast<NodeDestination>(behaviorTreeJson["destination"]);
+			static_cast<FindPathToData*>(leaf->data.get())->destination = static_cast<NodeDestination>(behaviorTreeJson["destination"]);
 		}
 	}
 	else
@@ -212,14 +214,14 @@ Node::ptr BehaviorTreeUtility::AddCompositeNodeFromJson(json& behaviorTreeJson, 
 	std::cout << "Load Composite:\n";
 	std::shared_ptr<Node> composite;
 
-	if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::SEQUENCE_COMPOSITE))
+	if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::SEQUENCE_COMPOSITE))
 	{
-		composite = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::SEQUENCE_COMPOSITE);
+		composite = std::make_shared<Node>(behaviorTree, parentNode, NodeType::SEQUENCE_COMPOSITE);
 		std::cout << "   ->Sequence composite\n";
 	}
-	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::SELECTOR_COMPOSITE))
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::SELECTOR_COMPOSITE))
 	{
-		composite = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::SELECTOR_COMPOSITE);
+		composite = std::make_shared<Node>(behaviorTree, parentNode, NodeType::SELECTOR_COMPOSITE);
 		std::cout << "   ->Selector composite\n";
 	}
 	else
@@ -237,25 +239,25 @@ Node::ptr BehaviorTreeUtility::AddCompositeNodeFromJson(json& behaviorTreeJson, 
 		{
 			if (CheckJsonExists(childJson, "type"))
 			{
-				const NodeType nodeType = childJson["type"];
+				const NodeGroup nodeType = childJson["type"];
 
 				switch (nodeType)
 				{
-				case NodeType::NONE:
+				case NodeGroup::NONE:
 				{
 					std::ostringstream oss;
 					oss << "[Error] No type specified for root node : " << childJson;
 					Log::GetInstance()->Error(oss.str());
 				}
 				break;
-				case NodeType::LEAF:
-					static_cast<CompositeData*>(composite->m_Datas.get())->m_Children.push_back(AddLeafNodeFromJson(childJson, composite, behaviorTree));
+				case NodeGroup::LEAF:
+					static_cast<CompositeData*>(composite->data.get())->children.push_back(AddLeafNodeFromJson(childJson, composite, behaviorTree));
 					break;
-				case NodeType::COMPOSITE:
-					static_cast<CompositeData*>(composite->m_Datas.get())->m_Children.push_back(AddCompositeNodeFromJson(childJson, composite, behaviorTree));
+				case NodeGroup::COMPOSITE:
+					static_cast<CompositeData*>(composite->data.get())->children.push_back(AddCompositeNodeFromJson(childJson, composite, behaviorTree));
 					break;
-				case NodeType::DECORATOR:
-					static_cast<CompositeData*>(composite->m_Datas.get())->m_Children.push_back(AddDecoratorNodeFromJson(childJson, composite, behaviorTree));
+				case NodeGroup::DECORATOR:
+					static_cast<CompositeData*>(composite->data.get())->children.push_back(AddDecoratorNodeFromJson(childJson, composite, behaviorTree));
 					break;
 				default:;
 				}
@@ -271,29 +273,29 @@ Node::ptr BehaviorTreeUtility::AddDecoratorNodeFromJson(json& behaviorTreeJson, 
 	std::cout << "Load Decorator:\n";
 	std::shared_ptr<Node> decorator;
 
-	if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR))
+	if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::REPEAT_UNTIL_FAIL_DECORATOR))
 	{
-		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
+		decorator = std::make_shared<Node>(behaviorTree, parentNode, NodeType::REPEAT_UNTIL_FAIL_DECORATOR);
 		std::cout << "   ->Repeat until fail decorator\n";
 	}
-	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::INVERTER_DECORATOR))
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::INVERTER_DECORATOR))
 	{
-		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::INVERTER_DECORATOR);
+		decorator = std::make_shared<Node>(behaviorTree, parentNode, NodeType::INVERTER_DECORATOR);
 		std::cout << "   ->Inverter decorator\n";
 	}
-	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::REPEATER_DECORATOR))
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::REPEATER_DECORATOR))
 	{
-		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::REPEATER_DECORATOR);
+		decorator = std::make_shared<Node>(behaviorTree, parentNode, NodeType::REPEATER_DECORATOR);
 		std::cout << "   ->Repeater decorator\n";
 
 		if (CheckJsonExists(behaviorTreeJson, "limit"))
 		{
-			static_cast<RepeaterData*>(decorator->m_Datas.get())->m_Limit = behaviorTreeJson["limit"];
+			static_cast<RepeaterData*>(decorator->data.get())->limit = behaviorTreeJson["limit"];
 		}
 	}
-	else if (behaviorTreeJson["name"] == NodeTypeToString(Node::NodeType::SUCCEEDER_DECORATOR))
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::SUCCEEDER_DECORATOR))
 	{
-		decorator = std::make_shared<Node>(behaviorTree, parentNode, Node::NodeType::SUCCEEDER_DECORATOR);
+		decorator = std::make_shared<Node>(behaviorTree, parentNode, NodeType::SUCCEEDER_DECORATOR);
 		std::cout << "   ->Succeeder decorator\n";
 	}
 	else
@@ -311,18 +313,18 @@ Node::ptr BehaviorTreeUtility::AddDecoratorNodeFromJson(json& behaviorTreeJson, 
 		{
 			if (CheckJsonExists(childJson, "type"))
 			{
-				const NodeType nodeType = childJson["type"];
+				const NodeGroup nodeType = childJson["type"];
 
 				switch (nodeType)
 				{
-				case NodeType::LEAF:
-					static_cast<DecoratorData*>(decorator->m_Datas.get())->m_Child = AddLeafNodeFromJson(childJson, decorator, behaviorTree);
+				case NodeGroup::LEAF:
+					static_cast<DecoratorData*>(decorator->data.get())->child = AddLeafNodeFromJson(childJson, decorator, behaviorTree);
 					break;
-				case NodeType::COMPOSITE:
-					static_cast<DecoratorData*>(decorator->m_Datas.get())->m_Child = AddCompositeNodeFromJson(childJson, decorator, behaviorTree);
+				case NodeGroup::COMPOSITE:
+					static_cast<DecoratorData*>(decorator->data.get())->child = AddCompositeNodeFromJson(childJson, decorator, behaviorTree);
 					break;
-				case NodeType::DECORATOR:
-					static_cast<DecoratorData*>(decorator->m_Datas.get())->m_Child = AddDecoratorNodeFromJson(childJson, decorator, behaviorTree);
+				case NodeGroup::DECORATOR:
+					static_cast<DecoratorData*>(decorator->data.get())->child = AddDecoratorNodeFromJson(childJson, decorator, behaviorTree);
 					break;
 				default:
 					std::ostringstream oss;
@@ -343,32 +345,32 @@ std::string BehaviorTreeUtility::LeafNodeToString(const Node::ptr& node)
 
 	switch (node->nodeType)
 	{
-	case Node::NodeType::WAIT_FOR_PATH_LEAF:
-	case Node::NodeType::MOVE_TO_LEAF:
-	case Node::NodeType::HAS_DWELLING_LEAF:
-	case Node::NodeType::SET_DWELLING_LEAF:
-	case Node::NodeType::ENTER_DWELLING_LEAF:
-	case Node::NodeType::EXIT_DWELLING_LEAF:
-	case Node::NodeType::ENTER_WORKING_PLACE_LEAF:
-	case Node::NodeType::EXIT_WORKING_PLACE_LEAF:
-	case Node::NodeType::HAS_JOB_LEAF:
-	case Node::NodeType::HAS_STATIC_JOB_LEAF:
-	case Node::NodeType::ASSIGN_JOB_LEAF:
-	case Node::NodeType::IS_DAY_TIME_LEAF:
-	case Node::NodeType::IS_NIGHT_TIME_LEAF:
-	case Node::NodeType::WAIT_DAY_TIME_LEAF:
-	case Node::NodeType::WAIT_NIGHT_TIME_LEAF:
-	case Node::NodeType::ASK_INVENTORY_TASK_LEAF:
-	case Node::NodeType::TAKE_RESOURCE_LEAF:
-	case Node::NodeType::PUT_RESOURCE_LEAF:
+	case NodeType::WAIT_FOR_PATH_LEAF:
+	case NodeType::MOVE_TO_LEAF:
+	case NodeType::HAS_DWELLING_LEAF:
+	case NodeType::SET_DWELLING_LEAF:
+	case NodeType::ENTER_DWELLING_LEAF:
+	case NodeType::EXIT_DWELLING_LEAF:
+	case NodeType::ENTER_WORKING_PLACE_LEAF:
+	case NodeType::EXIT_WORKING_PLACE_LEAF:
+	case NodeType::HAS_JOB_LEAF:
+	case NodeType::HAS_STATIC_JOB_LEAF:
+	case NodeType::ASSIGN_JOB_LEAF:
+	case NodeType::IS_DAY_TIME_LEAF:
+	case NodeType::IS_NIGHT_TIME_LEAF:
+	case NodeType::WAIT_DAY_TIME_LEAF:
+	case NodeType::WAIT_NIGHT_TIME_LEAF:
+	case NodeType::ASK_INVENTORY_TASK_LEAF:
+	case NodeType::TAKE_RESOURCE_LEAF:
+	case NodeType::PUT_RESOURCE_LEAF:
 		break;
-	case Node::NodeType::FIND_PATH_TO_LEAF:
+	case NodeType::FIND_PATH_TO_LEAF:
 		outString += "\"destination\" : " + std::to_string(
-			static_cast<int>(static_cast<FindPathToData*>(node->m_Datas.get())->m_Destination)) + ",";
+			static_cast<int>(static_cast<FindPathToData*>(node->data.get())->destination)) + ",";
 		break;
 	default: ;
 	}
-	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeType::LEAF));
+	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeGroup::LEAF));
 
 	outString += "}";
 	return outString;
@@ -379,48 +381,48 @@ std::string BehaviorTreeUtility::CompositeNodeToString(const Node::ptr& node)
 	std::string outString = "{";
 	outString += R"("name" : ")" + NodeTypeToString(node->nodeType) + "\",";
 	
-	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeType::COMPOSITE));
+	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeGroup::COMPOSITE));
 
-	auto* data = static_cast<CompositeData*>(node->m_Datas.get());
+	auto* data = static_cast<CompositeData*>(node->data.get());
 
-	if (!data->m_Children.empty())
+	if (!data->children.empty())
 	{
 		outString += ",";
 		outString += "\"childs\" : [";
 
-		for (auto child : data->m_Children)
+		for (auto child : data->children)
 		{
 			switch (child->nodeType)
 			{
-			case Node::NodeType::SEQUENCE_COMPOSITE:
-			case Node::NodeType::SELECTOR_COMPOSITE:
+			case NodeType::SEQUENCE_COMPOSITE:
+			case NodeType::SELECTOR_COMPOSITE:
 				outString += CompositeNodeToString(child);
 				break;
-			case Node::NodeType::REPEATER_DECORATOR:
-			case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
-			case Node::NodeType::SUCCEEDER_DECORATOR:
-			case Node::NodeType::INVERTER_DECORATOR:
+			case NodeType::REPEATER_DECORATOR:
+			case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+			case NodeType::SUCCEEDER_DECORATOR:
+			case NodeType::INVERTER_DECORATOR:
 				outString += DecoratorNodeToString(child);
 				break;
-			case Node::NodeType::WAIT_FOR_PATH_LEAF:
-			case Node::NodeType::MOVE_TO_LEAF:
-			case Node::NodeType::HAS_DWELLING_LEAF:
-			case Node::NodeType::SET_DWELLING_LEAF:
-			case Node::NodeType::ENTER_DWELLING_LEAF:
-			case Node::NodeType::EXIT_DWELLING_LEAF:
-			case Node::NodeType::ENTER_WORKING_PLACE_LEAF:
-			case Node::NodeType::EXIT_WORKING_PLACE_LEAF:
-			case Node::NodeType::HAS_JOB_LEAF:
-			case Node::NodeType::HAS_STATIC_JOB_LEAF:
-			case Node::NodeType::ASSIGN_JOB_LEAF:
-			case Node::NodeType::IS_DAY_TIME_LEAF:
-			case Node::NodeType::IS_NIGHT_TIME_LEAF:
-			case Node::NodeType::WAIT_DAY_TIME_LEAF:
-			case Node::NodeType::WAIT_NIGHT_TIME_LEAF:
-			case Node::NodeType::ASK_INVENTORY_TASK_LEAF:
-			case Node::NodeType::TAKE_RESOURCE_LEAF:
-			case Node::NodeType::PUT_RESOURCE_LEAF:
-			case Node::NodeType::FIND_PATH_TO_LEAF:
+			case NodeType::WAIT_FOR_PATH_LEAF:
+			case NodeType::MOVE_TO_LEAF:
+			case NodeType::HAS_DWELLING_LEAF:
+			case NodeType::SET_DWELLING_LEAF:
+			case NodeType::ENTER_DWELLING_LEAF:
+			case NodeType::EXIT_DWELLING_LEAF:
+			case NodeType::ENTER_WORKING_PLACE_LEAF:
+			case NodeType::EXIT_WORKING_PLACE_LEAF:
+			case NodeType::HAS_JOB_LEAF:
+			case NodeType::HAS_STATIC_JOB_LEAF:
+			case NodeType::ASSIGN_JOB_LEAF:
+			case NodeType::IS_DAY_TIME_LEAF:
+			case NodeType::IS_NIGHT_TIME_LEAF:
+			case NodeType::WAIT_DAY_TIME_LEAF:
+			case NodeType::WAIT_NIGHT_TIME_LEAF:
+			case NodeType::ASK_INVENTORY_TASK_LEAF:
+			case NodeType::TAKE_RESOURCE_LEAF:
+			case NodeType::PUT_RESOURCE_LEAF:
+			case NodeType::FIND_PATH_TO_LEAF:
 				outString += LeafNodeToString(child);
 				break;
 			default: ;
@@ -444,55 +446,55 @@ std::string BehaviorTreeUtility::DecoratorNodeToString(const Node::ptr& node)
 
 	switch(node->nodeType)
 	{
-	case Node::NodeType::REPEATER_DECORATOR: 
-		outString += "\"limit\" : " + std::to_string(static_cast<RepeaterData*>(node->m_Datas.get())->m_Limit) + ",";
+	case NodeType::REPEATER_DECORATOR: 
+		outString += "\"limit\" : " + std::to_string(static_cast<RepeaterData*>(node->data.get())->limit) + ",";
 		break;
-	case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR: break;
-	case Node::NodeType::SUCCEEDER_DECORATOR: break;
-	case Node::NodeType::INVERTER_DECORATOR: break;
+	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR: break;
+	case NodeType::SUCCEEDER_DECORATOR: break;
+	case NodeType::INVERTER_DECORATOR: break;
 	default: ;
 	}
 
-	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeType::DECORATOR));
+	outString += "\"type\" : " + std::to_string(static_cast<int>(NodeGroup::DECORATOR));
 
-	auto* data = static_cast<DecoratorData*>(node->m_Datas.get());
-	if(data->m_Child != nullptr)
+	auto* data = static_cast<DecoratorData*>(node->data.get());
+	if(data->child != nullptr)
 	{
 		outString += ",";
 		outString += "\"childs\" : [";
 
-		switch (data->m_Child->nodeType)
+		switch (data->child->nodeType)
 		{
-		case Node::NodeType::SEQUENCE_COMPOSITE:
-		case Node::NodeType::SELECTOR_COMPOSITE:
-			outString += CompositeNodeToString(data->m_Child);
+		case NodeType::SEQUENCE_COMPOSITE:
+		case NodeType::SELECTOR_COMPOSITE:
+			outString += CompositeNodeToString(data->child);
 			break;
-		case Node::NodeType::REPEATER_DECORATOR:
-		case Node::NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
-		case Node::NodeType::SUCCEEDER_DECORATOR:
-		case Node::NodeType::INVERTER_DECORATOR:
-			outString += DecoratorNodeToString(data->m_Child);
+		case NodeType::REPEATER_DECORATOR:
+		case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
+		case NodeType::SUCCEEDER_DECORATOR:
+		case NodeType::INVERTER_DECORATOR:
+			outString += DecoratorNodeToString(data->child);
 			break;
-		case Node::NodeType::WAIT_FOR_PATH_LEAF:
-		case Node::NodeType::MOVE_TO_LEAF:
-		case Node::NodeType::HAS_DWELLING_LEAF:
-		case Node::NodeType::SET_DWELLING_LEAF:
-		case Node::NodeType::ENTER_DWELLING_LEAF:
-		case Node::NodeType::EXIT_DWELLING_LEAF:
-		case Node::NodeType::ENTER_WORKING_PLACE_LEAF:
-		case Node::NodeType::EXIT_WORKING_PLACE_LEAF:
-		case Node::NodeType::HAS_JOB_LEAF:
-		case Node::NodeType::HAS_STATIC_JOB_LEAF:
-		case Node::NodeType::ASSIGN_JOB_LEAF:
-		case Node::NodeType::IS_DAY_TIME_LEAF:
-		case Node::NodeType::IS_NIGHT_TIME_LEAF:
-		case Node::NodeType::WAIT_DAY_TIME_LEAF:
-		case Node::NodeType::WAIT_NIGHT_TIME_LEAF:
-		case Node::NodeType::ASK_INVENTORY_TASK_LEAF:
-		case Node::NodeType::TAKE_RESOURCE_LEAF:
-		case Node::NodeType::PUT_RESOURCE_LEAF:
-		case Node::NodeType::FIND_PATH_TO_LEAF:
-			outString += LeafNodeToString(data->m_Child);
+		case NodeType::WAIT_FOR_PATH_LEAF:
+		case NodeType::MOVE_TO_LEAF:
+		case NodeType::HAS_DWELLING_LEAF:
+		case NodeType::SET_DWELLING_LEAF:
+		case NodeType::ENTER_DWELLING_LEAF:
+		case NodeType::EXIT_DWELLING_LEAF:
+		case NodeType::ENTER_WORKING_PLACE_LEAF:
+		case NodeType::EXIT_WORKING_PLACE_LEAF:
+		case NodeType::HAS_JOB_LEAF:
+		case NodeType::HAS_STATIC_JOB_LEAF:
+		case NodeType::ASSIGN_JOB_LEAF:
+		case NodeType::IS_DAY_TIME_LEAF:
+		case NodeType::IS_NIGHT_TIME_LEAF:
+		case NodeType::WAIT_DAY_TIME_LEAF:
+		case NodeType::WAIT_NIGHT_TIME_LEAF:
+		case NodeType::ASK_INVENTORY_TASK_LEAF:
+		case NodeType::TAKE_RESOURCE_LEAF:
+		case NodeType::PUT_RESOURCE_LEAF:
+		case NodeType::FIND_PATH_TO_LEAF:
+			outString += LeafNodeToString(data->child);
 			break;
 		default:;
 		}

@@ -36,7 +36,7 @@ namespace sfge::tools
 {
 
 	using ext::behavior_tree::Node;
-	using ext::behavior_tree::NodeType;
+	using ext::behavior_tree::NodeGroup;
 
 class BehaviorTreeEditor : public System
 {
