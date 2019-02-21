@@ -40,12 +40,12 @@ namespace sfge
 
 Sprite::Sprite() : Offsetable(sf::Vector2f())
 {
-	is_visible = false;
+	is_visible = true;
 }
 
 Sprite::Sprite(Transform2d* transform, sf::Vector2f offset) : Offsetable(offset)
 {
-	is_visible = false;
+	is_visible = true;
 }
 
 
@@ -83,17 +83,19 @@ void Sprite::SetTexture(sf::Texture* newTexture)
 
 void Sprite::Init()
 {
-	is_visible = false;
+	is_visible = true;
 
 }
 
-void Sprite::Update(Transform2d* transform, QuadtreeOcc* ManagerQuadtreeOcc)
+void Sprite::Update(Transform2d* transform, QuadtreeOcc* ManagerQuadtreeOcc, HashTable* Table)
 {
-	if(aabb.halfSize.x == 0 && aabb.halfSize.y ==0)
+	if(!init)
 	{
 		Sprite* spritePtr = this;
-		aabb = AABBOcc(&is_visible, PointOcc(transform->Position.x, transform->Position.y), PointOcc(sprite.getTexture()->getSize().x, sprite.getTexture()->getSize().y));
-		ManagerQuadtreeOcc->insert(aabb);
+		Table->InsertObjectPoint(new PointHash(is_visible, transform->Position.x, transform->Position.y));
+		//aabb = AABBOcc(&is_visible, PointOcc(transform->Position.x, transform->Position.y), PointOcc(sprite.getTexture()->getSize().x, sprite.getTexture()->getSize().y));
+		//ManagerQuadtreeOcc->insert(aabb);
+		init = true;
 	}	
 	auto pos = m_Offset;
 	
@@ -131,7 +133,8 @@ void SpriteManager::Init()
 	SingleComponentManager::Init();
 	m_GraphicsManager = m_Engine.GetGraphics2dManager();
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
-    m_QuadtreeManager = std::make_unique<QuadtreeOcc>(AABBOcc(nullptr, PointOcc(0, 0), PointOcc(11000, 11000)));
+    //m_QuadtreeManager = std::make_unique<QuadtreeOcc>(AABBOcc(nullptr, PointOcc(0, 0), PointOcc(11000, 11000)));
+	m_HashTable = std::make_unique<HashTable>(32, 500, 500);
 }
 
 Sprite* SpriteManager::AddComponent(Entity entity)
@@ -164,27 +167,74 @@ void SpriteManager::Update(float dt)
 	rmt_ScopedCPUSample(SpriteUpdate,0)
 	for(auto i = 0u; i < m_Components.size();i++)
 	{
-		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
+		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D))
 		{
-			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1), m_QuadtreeManager.get());
+			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1), m_QuadtreeManager.get(), m_HashTable.get());
 		}
 	}
 }
 
-
-void SpriteManager::DrawSprites(sf::RenderWindow &window)
-{
-
-	rmt_ScopedCPUSample(SpriteDraw,0)
-	for (auto i = 0u; i < m_Components.size();i++)
+	HashTable* SpriteManager::GetHashTable()
 	{
-		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
-			if (m_Components[i].GetIsVisible()) {
-				m_Components[i].Draw(window);
-			}
+		return m_HashTable.get();
 	}
-	
-}
+
+//
+//	void SpriteManager::DrawSprites(sf::RenderWindow &window)
+//{
+//
+//	rmt_ScopedCPUSample(SpriteDraw,0)
+//	for (auto i = 0u; i < m_Components.size();i++)
+//	{
+//		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
+//			if (m_Components[i].GetIsVisible()) {
+//				m_Components[i].Draw(window);
+//			}
+//	}
+//	m_HashTable->Draw(&window);
+//	
+//}
+//
+	struct Transform2dSort
+	{
+		Transform2d* transform;
+		int idEntity;
+
+		Transform2dSort(Transform2d &transform, int id)
+		{
+			this->transform = &transform;
+			this->idEntity = id;
+		}
+	};
+
+
+	bool sortByPosition(Transform2dSort &lhs, Transform2dSort &rhs) { return lhs.transform->Position.y < rhs.transform->Position.y; }
+
+	void SpriteManager::DrawSprites(sf::RenderWindow &window)
+	{
+		std::vector<Transform2d> transforms = m_Transform2dManager->GetComponents();
+		std::vector<Transform2dSort> tmp;
+		rmt_ScopedCPUSample(SpriteDraw, 0)
+			for (auto i = 0u; i < m_Components.size(); i++)
+			{
+				if (m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D)) {
+					if (m_Components[i].GetIsVisible()) {
+						tmp.push_back(Transform2dSort(transforms[i], i));
+					}
+				}
+			}
+
+		std::sort(tmp.begin(), tmp.end(), sortByPosition);
+
+		for (auto component : tmp) {
+			//std::cout << component.transform->Position.y << "; ";
+			m_Components[component.idEntity].Draw(window);
+		}
+		std::cout << std::endl;
+
+		//m_HashTable->Draw(&window);
+
+	}
 
 QuadtreeOcc* SpriteManager::GetQuadtreeManager()
 {

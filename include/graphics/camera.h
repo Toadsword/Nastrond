@@ -143,13 +143,13 @@ namespace sfge
 		void DestroyComponent(Entity entity) override;
 	protected:
 		Graphics2dManager* m_GraphicsManager;
-		QuadtreeOcc* m_OcclusionManager;
+		//QuadtreeOcc* m_OcclusionManager;
 		Transform2dManager* m_Transform2dManager;
 		InputManager* m_InputManager;
 		std::vector<Camera> m_cameras;
 		short currentCamera = MAINCAMERA;
 
-		AABBOcc aabbCamera;
+		AABBHash aabbCamera;
 	};
 }
 #endif

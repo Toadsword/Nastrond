@@ -122,14 +122,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("get_local_position", &MouseManager::GetLocalPosition)
 		.def("get_world_position", &MouseManager::GetWorldPosition);
 
-	//Todo Fix
-	//py::enum_<sf::Mouse::Button>(mouseManager, "Button")
-	//.value("Middle", sf::Mouse::Middle)
-	//.value("Left", sf::Mouse::Left)
-	//.value("Right", sf::Mouse::Button::Right)
-	//.export_values();
-
-
 	py::class_<Transform2dManager> transform2dManager(m , "Transform2dManager");
 	transform2dManager
 	    .def(py::init<Engine&>(), py::return_value_policy::reference)

@@ -3,6 +3,7 @@
 namespace sfge {
 		QuadtreeOcc::QuadtreeOcc()
 		{
+			depth = 1;
 			CAPACITY = 4;
 			nw = NULL;
 			ne = NULL;
@@ -25,18 +26,18 @@ namespace sfge {
 				color = sf::Color::Red;
 			}
 
-			//sf::VertexArray vertices(sf::LineStrip, 5);
-			//vertices[0].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
-			//vertices[0].color = color;
-			//vertices[1].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
-			//vertices[0].color = color;
-			//vertices[2].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
-			//vertices[0].color = color;
-			//vertices[3].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
-			//vertices[0].color = color;
-			//vertices[4].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
-			//vertices[4].color = color;
-			//window->draw(vertices);
+			sf::VertexArray vertices(sf::LineStrip, 5);
+			vertices[0].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
+			vertices[0].color = color;
+			vertices[1].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
+			vertices[0].color = color;
+			vertices[2].position = sf::Vector2f(boundary.centre.x + boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
+			vertices[0].color = color;
+			vertices[3].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y + boundary.halfSize.y);
+			vertices[0].color = color;
+			vertices[4].position = sf::Vector2f(boundary.centre.x - boundary.halfSize.x, boundary.centre.y - boundary.halfSize.y);
+			vertices[4].color = color;
+			window->draw(vertices);
 			
 			if (ne != nullptr)
 			{
@@ -58,6 +59,19 @@ namespace sfge {
 
 		QuadtreeOcc::QuadtreeOcc(AABBOcc boundary)
 		{
+			depth = 1;
+			objects = std::vector<AABBOcc>();
+			CAPACITY = 4;
+			nw = NULL;
+			ne = NULL;
+			sw = NULL;
+			se = NULL;
+			this->boundary = boundary;
+		}
+
+		QuadtreeOcc::QuadtreeOcc(AABBOcc boundary, short depht)
+		{
+			depth = depht;
 			objects = std::vector<AABBOcc>();
 			CAPACITY = 4;
 			nw = NULL;
@@ -84,16 +98,16 @@ namespace sfge {
 		{
 			PointOcc qSize = PointOcc(boundary.halfSize.x / 2, boundary.halfSize.y / 2);
 			PointOcc qCentre = PointOcc(boundary.centre.x - qSize.x, boundary.centre.y - qSize.y);
-			nw = new QuadtreeOcc(AABBOcc(nullptr ,qCentre, qSize));
+			nw = new QuadtreeOcc(AABBOcc(nullptr ,qCentre, qSize), depth + 1);
 
 			qCentre = PointOcc(boundary.centre.x + qSize.x, boundary.centre.y - qSize.y);
-			ne = new QuadtreeOcc(AABBOcc(nullptr, qCentre, qSize));
+			ne = new QuadtreeOcc(AABBOcc(nullptr, qCentre, qSize), depth + 1);
 
 			qCentre = PointOcc(boundary.centre.x - qSize.x, boundary.centre.y + qSize.y);
-			sw = new QuadtreeOcc(AABBOcc(nullptr, qCentre, qSize));
+			sw = new QuadtreeOcc(AABBOcc(nullptr, qCentre, qSize), depth + 1);
 
 			qCentre = PointOcc(boundary.centre.x + qSize.x, boundary.centre.y + qSize.y);
-			se = new QuadtreeOcc(AABBOcc(nullptr, qCentre, qSize));
+			se = new QuadtreeOcc(AABBOcc(nullptr, qCentre, qSize), depth + 1);
 
 			std::vector<AABBOcc>::iterator it = objects.begin();
 
@@ -163,7 +177,7 @@ namespace sfge {
 				return false;
 			}
 
-			if (objects.size() < CAPACITY)
+			if (objects.size() < CAPACITY || depth == MAX_DEPTH)
 			{
 				objects.push_back(d);
 				return true;

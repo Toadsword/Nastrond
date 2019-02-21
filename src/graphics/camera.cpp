@@ -68,18 +68,19 @@ namespace sfge
 	{
 		window.setView(m_View);
 
-		//sf::VertexArray triangle(sf::LineStrip, 5);
-		//triangle[0].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
-		//triangle[1].position = sf::Vector2f(m_View.getCenter().x + m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
-		//triangle[2].position = sf::Vector2f(m_View.getCenter().x + m_View.getSize().x / 4, m_View.getCenter().y + m_View.getSize().y / 4);
-		//triangle[3].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y + m_View.getSize().y / 4);
-		//triangle[4].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
-		//window.draw(triangle);
+		sf::VertexArray triangle(sf::LineStrip, 5);
+		triangle[0].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
+		triangle[1].position = sf::Vector2f(m_View.getCenter().x + m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
+		triangle[2].position = sf::Vector2f(m_View.getCenter().x + m_View.getSize().x / 4, m_View.getCenter().y + m_View.getSize().y / 4);
+		triangle[3].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y + m_View.getSize().y / 4);
+		triangle[4].position = sf::Vector2f(m_View.getCenter().x - m_View.getSize().x / 4, m_View.getCenter().y - m_View.getSize().y / 4);
+		window.draw(triangle);
 	}
 
 	CameraManager::CameraManager(Engine& engine): SingleComponentManager(engine)
 	{	
 	}
+
 	CameraManager::~CameraManager()
 	{
 	}
@@ -89,7 +90,8 @@ namespace sfge
 		return &(*m_cameras.begin());
 	}
 
-	Camera* CameraManager::AddComponent(Entity entity)
+	Camera* CameraManager::
+	AddComponent(Entity entity)
 	{
 		auto& camera = GetComponentRef(entity);
 		auto& cameraInfo = GetComponentInfo(entity);
@@ -107,7 +109,7 @@ namespace sfge
 		m_GraphicsManager = m_Engine.GetGraphics2dManager();
 		m_Transform2dManager = m_Engine.GetTransform2dManager();
 		m_InputManager = m_Engine.GetInputManager();
-		m_OcclusionManager = m_Engine.GetGraphics2dManager()->GetSpriteManager()->GetQuadtreeManager();
+		//m_OcclusionManager = m_Engine.GetGraphics2dManager()->GetSpriteManager()->GetQuadtreeManager();
 	}
 
 	void CameraManager::Update(float dt)
@@ -124,10 +126,19 @@ namespace sfge
 						sf::RenderWindow* win = m_GraphicsManager->GetWindow();
 						Vec2f position = m_Components[i].GetPosition();
 						Vec2f size = m_Components[i].GetView().getSize();
-						if (aabbCamera.centre.x != position.x || aabbCamera.centre.y != position.y) {
-							aabbCamera = AABBOcc(nullptr, PointOcc(position.x, position.y), PointOcc(size.x, size.y));
-							m_OcclusionManager->CheckCamera(aabbCamera);
+						size.x /= 4;
+						size.y /= 4;
+						if(aabbCamera.centre.position.x != position.x || aabbCamera.centre.position.y != position.y)
+						{
+								aabbCamera = AABBHash(PointHash(nullptr, sf::Vector2f(position)), PointHash(nullptr, sf::Vector2f(size)));
+								m_Engine.GetGraphics2dManager()->GetSpriteManager()->GetHashTable()->CheckCamera(aabbCamera);
+
 						}
+
+						//if (aabbCamera.centre.x != position.x || aabbCamera.centre.y != position.y) {
+						//	aabbCamera = AABBOcc(nullptr, PointOcc(position.x, position.y), PointOcc(size.x, size.y));
+						//	//m_OcclusionManager->CheckCamera(aabbCamera);
+						//}
 						//m_OcclusionManager->Draw(win);
 					}
 				}

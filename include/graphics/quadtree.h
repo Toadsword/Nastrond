@@ -79,11 +79,14 @@ namespace sf {
 				}
 			};
 
+			const short MAX_DEPTH = 7;
+
 			class QuadtreeOcc
 			{
 			public:
 				QuadtreeOcc();
 				QuadtreeOcc(AABBOcc boundary);
+				QuadtreeOcc(AABBOcc boundary, short depht);
 				
 
 				~QuadtreeOcc();
@@ -110,6 +113,7 @@ namespace sf {
 				int CAPACITY;
 
 				bool is_visible = false;
+				short depth;
 			};
 
 	}

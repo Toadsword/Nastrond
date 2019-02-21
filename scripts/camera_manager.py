@@ -49,10 +49,10 @@ class CameraManager(Component):
 
         #Keyboard
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Up):
-            dir.y = 0.5
+            dir.y = -0.5
 
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Down):
-            dir.y = -0.5
+            dir.y = +0.5
 
         if input_manager.keyboard.is_key_held(KeyboardManager.Key.Left):
             dir.x = -0.5
