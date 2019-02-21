@@ -27,7 +27,7 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-BehaviorTree::BehaviorTree(sfge::Engine& engine) : System(engine) {}
+BehaviorTree::BehaviorTree(Engine& engine) : System(engine) {}
 
 void BehaviorTree::Init()
 {

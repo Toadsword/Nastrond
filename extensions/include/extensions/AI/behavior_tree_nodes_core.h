@@ -26,23 +26,12 @@ SOFTWARE.
 
 #include <vector>
 #include <string>
-#include <map>
-#include <iostream>
-
-#include <utility/json_utility.h>
 
 namespace sfge::ext::behavior_tree
 {
-class Node;
-class BehaviorTree;
+	class BehaviorTree;
+	class Node;
 
-/**
- * \brief Factory to build any node
- * \author Nicolas Schneider
- */
-class NodeFactory
-{
-public:
 	/**
 	 * \brief Represent all type of node available 
 	 */
@@ -89,29 +78,17 @@ public:
 	};
 
 	/**
-	 * \brief Use to register a node's factory
-	 * \param name string of the node class name
-	 * \param factory 
+	 * \brief Status of nodes
 	 */
-	static void RegisterType(const std::string& name, NodeFactory* factory) {
-		if (m_Factories.find(name) == m_Factories.end()) {
-			m_Factories[name] = factory;
-		}
-	}
-
-	/**
-	 * \brief Get the factory by string
-	 * \param name 
-	 * \return 
-	 */
-	static NodeFactory* GetFactory(const std::string& name)
+	enum class NodeStatus : unsigned char
 	{
-		return m_Factories[name];
-	}
+		SUCCESS,
+		FAIL,
+		RUNNING
+	};
 
-private:
-	inline static std::map<std::string, NodeFactory*> m_Factories;
-};
+#pragma region nodeDatas
+	struct NodeData {};
 
 	struct CompositeData : NodeData
 	{
@@ -128,20 +105,22 @@ private:
 		int limit = 0;
 	};
 
-	/**
-	 * \brief Status of nodes
-	 */
-	enum class Status : unsigned char
+	struct FindPathToData : NodeData
 	{
 		NodeDestination destination;
 	};
+#pragma endregion
 
 	/**
-	 * \brief execute the node
-	 * \param index of the dwarf
-	 * \return 
+	 * \author Nicolas Schneider
 	 */
-	virtual void Execute(unsigned int index) = 0; //TODO trouver un moyen de la remettre en virtual pure
+	class Node final
+	{
+	public:
+		/**
+		 * \brief shared pointer of node
+		 */
+		using ptr = std::shared_ptr<Node>;
 
 		/**
 		 * \brief Constructor
@@ -163,11 +142,11 @@ private:
 		 */
 		void AddChild(NodeType type);
 
-	/**
-	 * \brief Add child to composite node
-	 * \param child 
-	 */
-	void AddChild(const ptr& child);
+		/**
+		 * \brief execute the node
+		 * \param index of the dwarf
+		 */
+		void Execute(unsigned int index);
 
 		std::unique_ptr<NodeData> data;
 
