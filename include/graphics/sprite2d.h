@@ -34,7 +34,6 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <editor/editor.h>
 #include <graphics/texture.h>
-#include <graphics/quadtree.h>
 #include <graphics/hashmap2d.h>
 
 namespace sfge
@@ -52,7 +51,7 @@ namespace sfge
 		Sprite(Transform2d* transform, sf::Vector2f offset);
 
 		void Init();
-		void Update(Transform2d* transform, QuadtreeOcc* ManagerQuadtreeOcc, HashTable* table);
+		void Update(Transform2d* transform, HashTable* table);//, QuadtreeOcc* ManagerQuadtreeOcc
 		void Draw(sf::RenderWindow& window);
 		const sf::Texture* GetTexture();
 		void SetTexture(sf::Texture* newTexture);
@@ -90,7 +89,7 @@ namespace sfge
 		void Init() override;
 		void Update(float dt) override;
 		void DrawSprites(sf::RenderWindow &window);
-		QuadtreeOcc* GetQuadtreeManager();
+		/*QuadtreeOcc* GetQuadtreeManager();*/
 		HashTable* GetHashTable();
 
 		void Reset();
@@ -104,7 +103,7 @@ namespace sfge
 		Graphics2dManager* m_GraphicsManager = nullptr;
 		Transform2dManager* m_Transform2dManager = nullptr;
 		//Todo Create a real Manager
-		std::unique_ptr<QuadtreeOcc> m_QuadtreeManager;
+		/*std::unique_ptr<QuadtreeOcc> m_QuadtreeManager;*/
 		std::unique_ptr<HashTable> m_HashTable;
 	};
 }

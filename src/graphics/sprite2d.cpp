@@ -87,7 +87,7 @@ void Sprite::Init()
 
 }
 
-void Sprite::Update(Transform2d* transform, QuadtreeOcc* ManagerQuadtreeOcc, HashTable* Table)
+void Sprite::Update(Transform2d* transform, HashTable* Table)//, QuadtreeOcc* ManagerQuadtreeOcc
 {
 	if(!init)
 	{
@@ -169,7 +169,7 @@ void SpriteManager::Update(float dt)
 	{
 		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D))
 		{
-			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1), m_QuadtreeManager.get(), m_HashTable.get());
+			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1), m_HashTable.get());//, m_QuadtreeManager.get()
 		}
 	}
 }
@@ -236,10 +236,10 @@ void SpriteManager::Update(float dt)
 
 	}
 
-QuadtreeOcc* SpriteManager::GetQuadtreeManager()
-{
-	return m_QuadtreeManager.get();
-}
+//QuadtreeOcc* SpriteManager::GetQuadtreeManager()
+//{
+//	return m_QuadtreeManager.get();
+//}
 
 void SpriteManager::Reset()
 {
