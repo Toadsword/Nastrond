@@ -32,6 +32,10 @@ SOFTWARE.
 #include <engine/vector.h>
 
 
+namespace sfge {
+class Tilemap;
+}
+
 namespace sfge::ext
 {
 /**
@@ -44,8 +48,8 @@ struct GraphNode final
 	Vec2f pos;
 };
 
-//#define DEBUG_MOD
-#define DEBUG_MAP
+#define AI_PATHFINDING_DRAW_NODES
+#define AI_PATHFINDING_DRAW_NODES_NEIGHBORS
 
 /**
  * \author Nicolas Schneider
@@ -75,7 +79,7 @@ private:
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
-	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
+	void BuildGraphFromArray(Tilemap* tilemap, std::vector<std::vector<int>>& map);
 
 	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 
@@ -103,13 +107,17 @@ private:
 	const short m_MaxPathForOneUpdate = 1;
 
 	std::vector<GraphNode> m_Graph;
-	sf::VertexArray m_VertexArray;
 
-#ifdef DEBUG_MAP
-	//Map info
-	const Vec2f m_TileExtends = Vec2f(6, 6);
-	Vec2f m_MapSize;
+	Vec2f m_TileExtends;
+
+#ifdef AI_PATHFINDING_DRAW_NODES
+	sf::VertexArray m_NodesQuads;
 #endif
+
+#ifdef AI_PATHFINDING_DRAW_NODES_NEIGHBORS
+	std::vector<sf::VertexArray> m_NodesNeighborsLines;
+#endif
+
 };
 }
 
