@@ -246,8 +246,6 @@ private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
-	void AddDwarfToDraw(unsigned int index);
-
 	//System
 	Transform2dManager* m_Transform2DManager;
 	TextureManager* m_TextureManager;
@@ -306,11 +304,6 @@ private:
 	std::vector<Entity> m_AssociatedWorkingPlace;
 	std::vector<BuildingType> m_AssociatedWorkingPlaceType;
 	std::queue<BuildingType> m_JobBuildingType;
-
-	//Vertex array
-	sf::VertexArray m_VertexArray;
-	std::vector<unsigned int> m_IndexesToDraw;
-	unsigned int m_IndexToDraw = 0;
 
 	//Data filed by the behaviourTree
 	std::vector<int> m_PathToIndexDwarfBT;

@@ -56,8 +56,6 @@ void DwarfManager::Init()
 	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 	m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
-	m_VertexArray = sf::VertexArray(sf::Quads, 0);
-
 #ifdef DEBUG_SPAWN_DWARF
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 	//Create dwarfs
@@ -82,7 +80,7 @@ void DwarfManager::Init()
 void DwarfManager::InstantiateDwarf(const Vec2f pos)
 {
 	auto* entityManager = m_Engine.GetEntityManager();
-	Configuration* configuration = m_Engine.GetConfig();
+	const auto configuration = m_Engine.GetConfig();
 
 	auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 
@@ -92,7 +90,7 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 		newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 	}
 
-	const int indexNewDwarf = GetIndexForNewEntity();
+	const auto indexNewDwarf = GetIndexForNewEntity();
 
 	//Update data for new dwarf in std::vectors
 	m_DwarfsEntities[indexNewDwarf] = newEntity;
@@ -101,23 +99,20 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 	m_AssociatedDwelling[indexNewDwarf] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[indexNewDwarf] = INVALID_ENTITY;
 
-	sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-	m_VertexArray[4 * indexNewDwarf].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * indexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-	m_VertexArray[4 * indexNewDwarf + 2].texCoords = textureSize;
-	m_VertexArray[4 * indexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
-
 	//Add transform
 	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = pos;
 
-	m_VertexArray[4 * indexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
-	m_VertexArray[4 * indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(
-		textureSize.x / 2.0f, -textureSize.y / 2.0f);
-	m_VertexArray[4 * indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
-	m_VertexArray[4 * indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(
-		-textureSize.x / 2.0f, textureSize.y / 2.0f);
+	//Add sprite
+	auto* sprite = m_SpriteManager->AddComponent(newEntity);
+	sprite->SetTexture(m_Texture);
+
+	//Set sprite infos
+	auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
+	spriteInfo.name = "Sprite dwarf";
+	spriteInfo.sprite = sprite;
+	spriteInfo.textureId = m_TextureId;
+	spriteInfo.texturePath = m_TexturePath;
 }
 
 void DwarfManager::DestroyDwarfByIndex(unsigned int index)
@@ -132,17 +127,6 @@ void DwarfManager::DestroyDwarfByIndex(unsigned int index)
 	m_States[index] = State::INVALID;
 	m_AssociatedDwelling[index] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
-
-	//Reset vertexArray to non-visible
-	m_VertexArray[4 * index + 0].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
-
-	m_VertexArray[4 * index + 0].position = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
 }
 
 void DwarfManager::DestroyDwarfByEntity(Entity entity)
@@ -169,17 +153,6 @@ void DwarfManager::DestroyDwarfByEntity(Entity entity)
 		m_AssociatedDwelling[index] = INVALID_ENTITY;
 		m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
 		m_DwarfsEntities[index] = INVALID_ENTITY;
-
-		//Reset vertexArray
-		m_VertexArray[4 * index].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
-
-		m_VertexArray[4 * index].position = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
 	}
 }
 
@@ -356,8 +329,6 @@ void DwarfManager::ResizeContainers()
 	m_Paths.resize(newSize);
 	m_States.resize(newSize);
 
-	m_IndexesToDraw.resize(newSize);
-
 	//Associate behaviour tree
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
 		"BehaviorTree");
@@ -365,7 +336,6 @@ void DwarfManager::ResizeContainers()
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlaceType.resize(newSize, NO_BUILDING_TYPE);
-	m_VertexArray.resize(m_VertexArray.getVertexCount() + 4 * m_ContainersExtender);
 
 	m_PathFollowingBT.resize(newSize);
 	m_PathToIndexDwarfBT.resize(newSize);
@@ -392,12 +362,6 @@ int DwarfManager::GetIndexForNewEntity()
 	return index;
 }
 
-void DwarfManager::AddDwarfToDraw(const unsigned int index)
-{
-	m_IndexesToDraw[m_IndexToDraw] = index;
-	m_IndexToDraw++;
-}
-
 void DwarfManager::Update(float dt)
 {
 #ifdef DEBUG_RANDOM_PATH
@@ -415,8 +379,6 @@ void DwarfManager::Update(float dt)
 				Vec2f(std::rand() % static_cast<int>(screenSize.x),
 					std::rand() % static_cast<int>(screenSize.y
 						)));
-
-			AddDwarfToDraw(indexDwarf);
 		}
 		m_IndexPathToRandomBT = 0;
 	}
@@ -432,8 +394,6 @@ void DwarfManager::Update(float dt)
 			auto dir = m_Paths[indexDwarf][m_Paths[indexDwarf].size() - 1] - transformPtr->Position;
 
 			transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
-
-			AddDwarfToDraw(indexDwarf);
 
 		}
 		m_IndexPathFollowingBT = 0;
@@ -482,23 +442,5 @@ void DwarfManager::Draw()
 		window->draw(lines);
 	}
 #endif
-
-	//Draw dwarf
-	if (m_IndexToDraw != 0) {
-		const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
-		for (size_t i = 0; i < m_IndexToDraw; i++)
-		{
-			const auto indexDwarf = m_IndexesToDraw[i];
-			const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position;
-			const auto indexVertex = 4 * i;
-
-			m_VertexArray[indexVertex].position = position - halfTextureSize;
-			m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(halfTextureSize.x, -halfTextureSize.y);
-			m_VertexArray[indexVertex + 2].position = position + halfTextureSize;
-			m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(-halfTextureSize.x, halfTextureSize.y);
-		}
-		m_IndexToDraw = 0;
-	}
-	window->draw(m_VertexArray, m_Texture);
 }
 }
