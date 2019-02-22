@@ -57,11 +57,11 @@ void DwarfManager::Init()
 	m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 #ifdef DEBUG_SPAWN_DWARF
-	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 	//Create dwarfs
 	for (auto i = 0u; i < m_DwarfToSpawn; i++)
 	{
-		const Vec2f pos(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
+		//TODO modifier dès que Duncan a rajouter un moyen d'obtenir les bounds de la tilemap au niveau des positions
+		const Vec2f pos(std::rand() % static_cast<int>(900) - 450, std::rand() % static_cast<int>(450));
 
 		InstantiateDwarf(pos);
 	}
@@ -366,7 +366,6 @@ void DwarfManager::Update(float dt)
 {
 #ifdef DEBUG_RANDOM_PATH
 	const auto config = m_Engine.GetConfig();
-	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 #endif
 	//Random path
 	if (m_IndexPathToRandomBT != 0) {
@@ -374,11 +373,11 @@ void DwarfManager::Update(float dt)
 		{
 			const auto indexDwarf = m_PathToRandomBT[i];
 
+			//TODO modifier dès que Duncan a rajouter un moyen d'obtenir les bounds de la tilemap au niveau des positions
+			const Vec2f pos(std::rand() % static_cast<int>(900) - 450, std::rand() % static_cast<int>(450));
+
 			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
-			m_NavigationGraphManager->AskForPath(&m_Paths[indexDwarf], transformPtr->Position,
-				Vec2f(std::rand() % static_cast<int>(screenSize.x),
-					std::rand() % static_cast<int>(screenSize.y
-						)));
+			m_NavigationGraphManager->AskForPath(&m_Paths[indexDwarf], transformPtr->Position, pos);
 		}
 		m_IndexPathToRandomBT = 0;
 	}

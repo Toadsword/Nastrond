@@ -163,20 +163,22 @@ TEST(AI, PathfindingTilemap)
 	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
 	tilemapJson["is_isometric"] = true;
 	tilemapJson["layer"] = 1;
-	tilemapJson["tile_scale"] = json::array({ 509, 254 });
+	//tilemapJson["tile_scale"] = json::array({ 509, 254 });
+	tilemapJson["tile_scale"] = json::array({ 100, 50 });
 	tilemapJson["map_size"] = json::array({ 10, 10 });
 	tilemapJson["map"] = json::array({
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 2, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 2, 1, 1, 1, 1, 1}),
+		json::array({1, 2, 2, 2, 2, 2, 2, 2, 2, 1}),
+		json::array({1, 1, 1, 1, 2, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 2, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 2, 1, 1, 1, 1, 1}),
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
 		});
+
 	json tilemapEntity;
 	tilemapEntity["name"] = "TilemapEntity";
 	tilemapEntity["components"] = json::array({ tilemapJson });

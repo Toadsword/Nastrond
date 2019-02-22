@@ -75,10 +75,18 @@ void NavigationGraphManager::Init()
 		m_NodesQuads[index + 2].position = node.pos + sf::Vector2f(10, 10);
 		m_NodesQuads[index + 3].position = node.pos + sf::Vector2f(-10, 10);
 
-		m_NodesQuads[index + 0].color = sf::Color::White;
-		m_NodesQuads[index + 1].color = sf::Color::White;
-		m_NodesQuads[index + 2].color = sf::Color::White;
-		m_NodesQuads[index + 3].color = sf::Color::White;
+		if (node.cost == SOLID_COST) {
+			m_NodesQuads[index + 0].color = sf::Color::Red;
+			m_NodesQuads[index + 1].color = sf::Color::Red;
+			m_NodesQuads[index + 2].color = sf::Color::Red;
+			m_NodesQuads[index + 3].color = sf::Color::Red;
+		}
+		else {
+			m_NodesQuads[index + 0].color = sf::Color::White;
+			m_NodesQuads[index + 1].color = sf::Color::White;
+			m_NodesQuads[index + 2].color = sf::Color::White;
+			m_NodesQuads[index + 3].color = sf::Color::White;
+		}
 	}
 #endif
 
@@ -119,8 +127,8 @@ void NavigationGraphManager::Update(float dt)
 		auto waitingPath = m_WaitingPaths.front();
 		m_WaitingPaths.pop();
 
-		//auto tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
-		//waitingPath.path->assign(tmp.begin(), tmp.end());
+		auto tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
+		waitingPath.path->assign(tmp.begin(), tmp.end());
 	}
 }
 
@@ -154,14 +162,23 @@ void NavigationGraphManager::AskForPath(std::vector<Vec2f>* path, const Vec2f or
 void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<std::vector<int>>& map)
 {
 	auto transformManager = m_Engine.GetTransform2dManager();
+	auto* tilemapSystem = m_Engine.GetTilemapSystem();
+	auto tileManager = tilemapSystem->GetTileManager();
 
 	for (auto x = 0; x < map.size(); x++)
 	{
 		for (auto y = 0; y < map[x].size(); y++)
 		{
 			GraphNode node;
-			
-			node.cost = map[x][y];
+			auto tile = tileManager->GetComponentPtr(tilemap->GetTileAt(Vec2f(x, y)));
+
+			//if(tilemap->GetTileAt(Vec2f(x, y))
+			if (tile->GetType() == 2) {
+				node.cost = SOLID_COST;
+			}else
+			{
+				node.cost = map[x][y];
+			}
 			node.pos = transformManager->GetComponentPtr(tilemap->GetTileAt(Vec2f(x, y)))->Position;
 
 			m_Graph.push_back(node);
@@ -200,11 +217,12 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 					}
 					else
 					{
-						if (m_Graph[y * map.size() + (x + j)].cost != SOLID_COST &&
+						//TODO vérifier si la construction est correcte surtout si les voisins sont libres
+						/*if (m_Graph[y * map.size() + (x + j)].cost != SOLID_COST &&
 							m_Graph[(y + i) * map.size() + x].cost != SOLID_COST)
-						{
+						{*/
 							node.neighborsIndex.push_back(indexNeighbor);
-						}
+						//}
 					}
 				}
 			}
