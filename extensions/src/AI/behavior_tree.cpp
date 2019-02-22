@@ -27,7 +27,7 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-BehaviorTree::BehaviorTree(sfge::Engine& engine) : System(engine) {}
+BehaviorTree::BehaviorTree(Engine& engine) : System(engine) {}
 
 void BehaviorTree::Init()
 {
@@ -81,51 +81,6 @@ void BehaviorTree::FixedUpdate() { }
 
 void BehaviorTree::Draw() { }
 
-void BehaviorTree::LoadNodesFromJson(json& behaviorTreeJson)
-{
-	if (CheckJsonParameter(behaviorTreeJson, "rootNode", json::value_t::array))
-	{
-		auto rootNodeJson = behaviorTreeJson["rootNode"];
-		if (CheckJsonExists(rootNodeJson[0], "type"))
-		{
-			const NodeType nodeType = rootNodeJson[0]["type"];
-
-			switch (nodeType)
-			{
-			case NodeType::NONE:
-			{
-				std::ostringstream oss;
-				oss << "[Error] No type specified for root node : " << rootNodeJson[0];
-				Log::GetInstance()->Error(oss.str());
-			}
-			break;
-			case NodeType::LEAF:
-				SetRootNode(AddLeafNodeFromJson(rootNodeJson[0], nullptr));
-				break;
-			case NodeType::COMPOSITE:
-				SetRootNode(AddCompositeNodeFromJson(rootNodeJson[0], nullptr));
-				break;
-			case NodeType::DECORATOR:
-				SetRootNode(AddDecoratorNodeFromJson(rootNodeJson[0], nullptr));
-				break;
-			default: ;
-			}
-		}
-		else
-		{
-			std::ostringstream oss;
-			oss << "[Error] the type for the rootNode is missing : " << rootNodeJson[0];
-			Log::GetInstance()->Error(oss.str());
-		}
-	}
-	else
-	{
-		std::ostringstream oss;
-		oss << "[Error] the rootNode parameter is missing : " << behaviorTreeJson;
-		Log::GetInstance()->Error(oss.str());
-	}
-}
-
 void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
 {
 	m_RootNode = rootNode;
@@ -134,91 +89,5 @@ void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
 void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 {
 	m_Entities = vectorEntities;
-}
-
-std::shared_ptr<Node> BehaviorTree::AddLeafNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
-{
-	auto leaf = NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode, behaviorTreeJson);
-	return leaf;
-}
-
-std::shared_ptr<Node> BehaviorTree::AddCompositeNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
-{
-	auto composite = std::dynamic_pointer_cast<CompositeNode>(
-		NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode, behaviorTreeJson));
-
-	if (CheckJsonExists(behaviorTreeJson, "childs"))
-	{
-		for (auto& childJson : behaviorTreeJson["childs"])
-		{
-			if (CheckJsonExists(childJson, "type"))
-			{
-				const NodeType nodeType = childJson["type"];
-
-				switch (nodeType)
-				{
-				case NodeType::NONE:
-				{
-					std::ostringstream oss;
-					oss << "[Error] No type specified for root node : " << childJson;
-					Log::GetInstance()->Error(oss.str());
-				}
-				break;
-				case NodeType::LEAF:
-					composite->AddChild(AddLeafNodeFromJson(childJson, composite));
-					break;
-				case NodeType::COMPOSITE:
-					composite->AddChild(AddCompositeNodeFromJson(childJson, composite));
-					break;
-				case NodeType::DECORATOR:
-					composite->AddChild(AddDecoratorNodeFromJson(childJson, composite));
-					break;
-				default: ;
-				}
-			}
-		}
-	}
-
-	return composite;
-}
-
-std::shared_ptr<Node> BehaviorTree::AddDecoratorNodeFromJson(json& behaviorTreeJson, const Node::ptr& parentNode)
-{
-	auto decorator = std::dynamic_pointer_cast<DecoratorNode>(
-		NodeFactory::GetFactory(behaviorTreeJson["name"])->Create(this, parentNode, behaviorTreeJson));
-
-	if (CheckJsonExists(behaviorTreeJson, "childs"))
-	{
-		for (auto& childJson : behaviorTreeJson["childs"])
-		{
-			if (CheckJsonExists(childJson, "type"))
-			{
-				const NodeType nodeType = childJson["type"];
-
-				switch (nodeType)
-				{
-				case NodeType::NONE:
-				{
-					std::ostringstream oss;
-					oss << "[Error] No type specified for root node : " << childJson;
-					Log::GetInstance()->Error(oss.str());
-				}
-				break;
-				case NodeType::LEAF:
-					decorator->SetChild(AddLeafNodeFromJson(childJson, decorator));
-					break;
-				case NodeType::COMPOSITE:
-					decorator->SetChild(AddCompositeNodeFromJson(childJson, decorator));
-					break;
-				case NodeType::DECORATOR:
-					decorator->SetChild(AddDecoratorNodeFromJson(childJson, decorator));
-					break;
-				default: ;
-				}
-			}
-		}
-	}
-
-	return decorator;
 }
 }
