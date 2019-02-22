@@ -45,6 +45,14 @@ namespace sfge::ext
 		void FixedUpdate() override;
 
 		void Draw() override;
+
+		void SpawnRoad(Vec2f position);
+
+		void DestroyRoad(Entity entity);
+
+		void GetNeighbors();
+
+
 	};
 }
 #endif
