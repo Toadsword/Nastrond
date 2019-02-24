@@ -151,6 +151,8 @@ namespace sfge::ext::behavior_tree
 		std::unique_ptr<NodeData> data;
 
 		NodeType nodeType;
+
+		std::function<void(unsigned int)> executeFunction;
 	protected:
 		void DestroyChild(Node* childNode);
 

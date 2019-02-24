@@ -35,12 +35,23 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 	m_ParentNode = std::move(parentNode);
 	nodeType = type;
 	switch (type) { 
-	case NodeType::SEQUENCE_COMPOSITE: 
+	case NodeType::SEQUENCE_COMPOSITE:
+	{
+		CompositeData compositeData;
+		compositeData.children = std::vector<std::shared_ptr<Node>>{};
+		data = std::make_unique<CompositeData>(compositeData);
+
+
+		executeFunction = [=](int index) {this->SequenceComposite(index); };
+	}
+	break;
 	case NodeType::SELECTOR_COMPOSITE:
 	{
 		CompositeData compositeData;
 		compositeData.children = std::vector<std::shared_ptr<Node>>{};
 		data = std::make_unique<CompositeData>(compositeData);
+
+		executeFunction = [=](int index) {this->SelectorComposite(index); };
 	}
 		break;
 	case NodeType::REPEATER_DECORATOR:
@@ -49,40 +60,99 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 		repeaterData.child = nullptr;
 		repeaterData.limit = 0;
 		data = std::make_unique<RepeaterData>(repeaterData);
+
+		executeFunction = [=](int index) {this->RepeaterDecorator(index); };
 	}
 		break;
 	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
-	case NodeType::SUCCEEDER_DECORATOR: 
+	{
+		DecoratorData decoratorData;
+		decoratorData.child = nullptr;
+		data = std::make_unique<DecoratorData>(decoratorData);
+
+		executeFunction = [=](int index) {this->RepeatUntilFailDecorator(index); };
+	}
+	break;
+	case NodeType::SUCCEEDER_DECORATOR:
+	{
+		DecoratorData decoratorData;
+		decoratorData.child = nullptr;
+		data = std::make_unique<DecoratorData>(decoratorData);
+
+		executeFunction = [=](int index) {this->SucceederDecorator(index); };
+	}
+	break;
 	case NodeType::INVERTER_DECORATOR: 
 	{
 		DecoratorData decoratorData;
 		decoratorData.child = nullptr;
 		data = std::make_unique<DecoratorData>(decoratorData);
+
+		executeFunction = [=](int index) {this->InverterDecorator(index); };
 	}
 		break;
-	case NodeType::WAIT_FOR_PATH_LEAF: break;
-	case NodeType::MOVE_TO_LEAF: break;
-	case NodeType::HAS_DWELLING_LEAF: break;
-	case NodeType::SET_DWELLING_LEAF: break;
-	case NodeType::ENTER_DWELLING_LEAF: break;
-	case NodeType::EXIT_DWELLING_LEAF: break;
-	case NodeType::ENTER_WORKING_PLACE_LEAF: break;
-	case NodeType::EXIT_WORKING_PLACE_LEAF: break;
-	case NodeType::HAS_JOB_LEAF: break;
-	case NodeType::HAS_STATIC_JOB_LEAF: break;
-	case NodeType::ASSIGN_JOB_LEAF: break;
-	case NodeType::IS_DAY_TIME_LEAF: break;
-	case NodeType::IS_NIGHT_TIME_LEAF: break;
-	case NodeType::WAIT_DAY_TIME_LEAF: break;
-	case NodeType::WAIT_NIGHT_TIME_LEAF: break;
-	case NodeType::ASK_INVENTORY_TASK_LEAF: break;
-	case NodeType::TAKE_RESOURCE_LEAF: break;
+	case NodeType::WAIT_FOR_PATH_LEAF: 
+		executeFunction = [=](int index) {this->WaitForPath(index); };
+		break;
+	case NodeType::MOVE_TO_LEAF: 
+		executeFunction = [=](int index) {this->MoveToLeaf(index); };
+		break;
+	case NodeType::HAS_DWELLING_LEAF: 
+		executeFunction = [=](int index) {this->HasDwellingLeaf(index); };
+		break;
+	case NodeType::SET_DWELLING_LEAF:
+		executeFunction = [=](int index) {this->SetDwellingLeaf(index); };
+		break;
+	case NodeType::ENTER_DWELLING_LEAF: 
+		executeFunction = [=](int index) {this->EnterDwellingLeaf(index); };
+		break;
+	case NodeType::EXIT_DWELLING_LEAF: 
+		executeFunction = [=](int index) {this->ExitDwellingLeaf(index); };
+		break;
+	case NodeType::ENTER_WORKING_PLACE_LEAF: 
+		executeFunction = [=](int index) {this->EnterWorkingPlaceLeaf(index); };
+		break;
+	case NodeType::EXIT_WORKING_PLACE_LEAF: 
+		executeFunction = [=](int index) {this->ExitWorkingPlaceLeaf(index); };
+		break;
+	case NodeType::HAS_JOB_LEAF: 
+		executeFunction = [=](int index) {this->HasJobLeaf(index); };
+		break;
+	case NodeType::HAS_STATIC_JOB_LEAF: 
+		executeFunction = [=](int index) {this->HasStaticJobLeaf(index); };
+		break;
+	case NodeType::ASSIGN_JOB_LEAF: 
+		executeFunction = [=](int index) {this->AssignJobLeaf(index); };
+		break;
+	case NodeType::IS_DAY_TIME_LEAF: 
+		executeFunction = [=](int index) {this->IsDayTimeLeaf(index); };
+		break;
+	case NodeType::IS_NIGHT_TIME_LEAF: 
+		executeFunction = [=](int index) {this->IsNightTimeLeaf(index); };
+		break;
+	case NodeType::WAIT_DAY_TIME_LEAF: 
+		executeFunction = [=](int index) {this->WaitDayTimeLeaf(index); };
+		break;
+	case NodeType::WAIT_NIGHT_TIME_LEAF: 
+		executeFunction = [=](int index) {this->WaitNightTimeLeaf(index); };
+		break;
+	case NodeType::ASK_INVENTORY_TASK_LEAF: 
+		executeFunction = [=](int index) {this->AskInventoryTaskLeaf(index); };
+		break;
+	case NodeType::TAKE_RESOURCE_LEAF: 
+		executeFunction = [=](int index) {this->TakeResourcesLeaf(index); };
+		break;
 	case NodeType::FIND_PATH_TO_LEAF:
 	{
 		FindPathToData findPathToData;
 		findPathToData.destination = NodeDestination::RANDOM;
 		data = std::make_unique<FindPathToData>(findPathToData);
+
+		executeFunction = [=](int index) {this->FindPathToLeaf(index); };
 	}
+		break;
+	case NodeType::PUT_RESOURCE_LEAF: 
+		executeFunction = [=](int index) {this->PutResourcesLeaf(index); };
 		break;
 	default: ; }
 }
@@ -166,88 +236,7 @@ void Node::AddChild(NodeType type)
 
 void Node::Execute(const unsigned int index)
 {
-	//TODO utiliser un pointeur de fonction initailizé dans le constructeur
-	switch (nodeType)
-	{
-	case NodeType::SEQUENCE_COMPOSITE:
-		SequenceComposite(index);
-		break;
-	case NodeType::SELECTOR_COMPOSITE:
-		SelectorComposite(index);
-		break;
-	case NodeType::REPEATER_DECORATOR:
-		RepeaterDecorator(index);
-		break;
-	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
-		RepeatUntilFailDecorator(index);
-		break;
-	case NodeType::INVERTER_DECORATOR:
-		InverterDecorator(index);
-		break;
-	case NodeType::SUCCEEDER_DECORATOR:
-		SucceederDecorator(index);
-		break;
-	case NodeType::WAIT_FOR_PATH_LEAF:
-		WaitForPath(index);
-		break;
-	case NodeType::MOVE_TO_LEAF:
-		MoveToLeaf(index);
-		break;
-	case NodeType::HAS_DWELLING_LEAF:
-		HasDwellingLeaf(index);
-		break;
-	case NodeType::SET_DWELLING_LEAF:
-		SetDwellingLeaf(index);
-		break;
-	case NodeType::ENTER_DWELLING_LEAF:
-		EnterDwellingLeaf(index);
-		break;
-	case NodeType::EXIT_DWELLING_LEAF:
-		ExitDwellingLeaf(index);
-		break;
-	case NodeType::ENTER_WORKING_PLACE_LEAF:
-		EnterWorkingPlaceLeaf(index);
-		break;
-	case NodeType::EXIT_WORKING_PLACE_LEAF:
-		ExitWorkingPlaceLeaf(index);
-		break;
-	case NodeType::HAS_JOB_LEAF:
-		HasJobLeaf(index);
-		break;
-	case NodeType::HAS_STATIC_JOB_LEAF:
-		HasStaticJobLeaf(index);
-		break;
-	case NodeType::ASSIGN_JOB_LEAF:
-		AssignJobLeaf(index);
-		break;
-	case NodeType::IS_DAY_TIME_LEAF:
-		IsDayTimeLeaf(index);
-		break;
-	case NodeType::IS_NIGHT_TIME_LEAF:
-		IsNightTimeLeaf(index);
-		break;
-	case NodeType::WAIT_DAY_TIME_LEAF:
-		WaitDayTimeLeaf(index);
-		break;
-	case NodeType::WAIT_NIGHT_TIME_LEAF:
-		WaitNightTimeLeaf(index);
-		break;
-	case NodeType::ASK_INVENTORY_TASK_LEAF:
-		AskInventoryTaskLeaf(index);
-		break;
-	case NodeType::TAKE_RESOURCE_LEAF:
-		TakeResourcesLeaf(index);
-		break;
-	case NodeType::FIND_PATH_TO_LEAF:
-		FindPathToLeaf(index);
-		break;
-	case NodeType::PUT_RESOURCE_LEAF:
-		PutResourcesLeaf(index);
-		break;
-	default: 
-		std::cout << "Node not implemented\n";
-		break;
-	}
+	executeFunction(index);
 }
 
 void Node::SequenceComposite(const unsigned int index) const

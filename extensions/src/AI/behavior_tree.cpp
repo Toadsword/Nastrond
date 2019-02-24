@@ -36,6 +36,10 @@ void BehaviorTree::Init()
 
 void BehaviorTree::Update(float dt)
 {
+#ifdef AI_DEBUG_COUNT_TIME
+	auto t1 = std::chrono::high_resolution_clock::now();
+#endif
+
 #ifdef BT_SOA
 	if (currentNode.size() < m_Entities->size())
 		{
@@ -74,6 +78,10 @@ void BehaviorTree::Update(float dt)
 		dataBehaviorTree[i].currentNode->Execute(i);
 #endif
 
+#ifdef AI_DEBUG_COUNT_TIME
+		m_TimerDuration += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+		m_TimerCounter++;
+#endif
 	}
 }
 
