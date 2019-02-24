@@ -100,14 +100,14 @@ private:
 	const static short ROAD_COST = 1;
 	const static short NORMAL_COST = 2;
 
-	const short m_MaxPathForOneUpdate = 1;
+	const int m_MaxPathForOneUpdate = 100'000;
 
 	std::vector<GraphNode> m_Graph;
 	sf::VertexArray m_VertexArray;
 
 #ifdef DEBUG_MAP
 	//Map info
-	const Vec2f m_TileExtends = Vec2f(6, 6);
+	const Vec2f m_TileExtends = Vec2f(60, 60);
 	Vec2f m_MapSize;
 #endif
 };

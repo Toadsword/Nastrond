@@ -256,7 +256,7 @@ private:
 	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
-	const size_t m_ContainersExtender = 100;
+	const size_t m_ContainersExtender = 100'000;
 	std::vector<Entity> m_DwarfsEntities;
 
 	//State management
@@ -291,7 +291,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100;
+	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
 	//Dwarfs texture

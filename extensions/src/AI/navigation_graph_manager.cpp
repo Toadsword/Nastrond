@@ -39,7 +39,7 @@ void NavigationGraphManager::Init()
 #ifdef DEBUG_MAP
 	std::vector<std::vector<int>> map;
 
-	const int size = 250u;
+	const int size = 25u;
 
 	for (size_t i = 0; i < size; i++)
 	{
@@ -53,12 +53,12 @@ void NavigationGraphManager::Init()
 		map.push_back(line);
 	}
 
-	for (size_t i = 0; i < size; i++)
+	for (size_t i = 0; i < 5; i++)
 	{
 		const Vec2f pos(std::rand() % size, std::rand() % size);
 
-		const auto width = std::rand() % 15;
-		const auto height = std::rand() % 15;
+		const auto width = std::rand() % 1;
+		const auto height = std::rand() % 1;
 
 		for (auto x = 0; x < width; x++)
 		{
