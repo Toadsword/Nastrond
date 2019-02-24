@@ -247,48 +247,44 @@ bool DwarfManager::HasPath(unsigned int index)
 	return !m_Paths[index].empty();
 }
 
-std::mutex AddFindPathToDestinationBTMutex;
 void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Vec2f destination)
 {
-	std::lock_guard<std::mutex> lock(AddFindPathToDestinationBTMutex);
-	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
-	m_PathToDestinationBT[m_IndexPathToDestinationBT] = destination;
+	m_PathToIndexDwarfBTNotSorted[index] = true;
+	m_PathToDestinationBT[index] = destination;
+
 	m_IndexPathToDestinationBT++;
 }
 
-std::mutex AddFindRandomPathBTMutex;
 void DwarfManager::AddFindRandomPathBT(unsigned int index)
 {
-	std::lock_guard<std::mutex> lock(AddFindRandomPathBTMutex);
-	m_PathToRandomBT[m_IndexPathToRandomBT] = index;
+	m_PathToRandomBTNotSorted[index] = true;
+
 	m_IndexPathToRandomBT++;
 }
 
-std::mutex AddPathFollowingBTMutex;
 void DwarfManager::AddPathFollowingBT(unsigned int index)
 {
-	std::lock_guard<std::mutex> lock(AddPathFollowingBTMutex);
-	m_PathFollowingBT[m_IndexPathFollowingBT] = index;
+	m_PathFollowingBTNotSorted[index] = true;
+
 	m_IndexPathFollowingBT++;
 }
 
-std::mutex AddInventoryTaskPathToGiverMutex;
 void DwarfManager::AddInventoryTaskPathToGiver(const unsigned int index)
 {
-	std::lock_guard<std::mutex> lock(AddInventoryTaskPathToGiverMutex);
-	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
-	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
-	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].giver)->Position;
+	m_PathToIndexDwarfBTNotSorted[index] = true;
+	m_PathToDestinationBT[index] = m_Transform2DManager
+		->GetComponentPtr(m_InventoryTaskBT[index].giver)->Position;
+
 	m_IndexPathToDestinationBT++;
 }
 
-std::mutex AddInventoryTaskPathToReceiverMutex;
 void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
 {
-	std::lock_guard<std::mutex> lock(AddInventoryTaskPathToReceiverMutex);
-	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
-	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
-	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].receiver)->Position;
+
+	m_PathToIndexDwarfBTNotSorted[index] = index;
+	m_PathToDestinationBT[index] = m_Transform2DManager
+		->GetComponentPtr(m_InventoryTaskBT[index].receiver)->Position;
+
 	m_IndexPathToDestinationBT++;
 }
 
@@ -325,6 +321,7 @@ bool DwarfManager::HasStaticJob(const unsigned int index)
 std::mutex AssignJobMutex;
 bool DwarfManager::AssignJob(const unsigned int index)
 {
+	//TODO enlever le lock pour que le tout soit plus rapide
 	std::lock_guard<std::mutex> lock(AssignJobMutex);
 	char nbJob = 0;
 
@@ -379,9 +376,18 @@ void DwarfManager::ResizeContainers()
 	m_AssociatedWorkingPlaceType.resize(newSize, NO_BUILDING_TYPE);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() + 4 * m_ContainersExtender);
 
+
+	m_PathFollowingBTNotSorted.resize(newSize);
+
 	m_PathFollowingBT.resize(newSize);
+
+	m_PathToIndexDwarfBTNotSorted.resize(newSize);
+
 	m_PathToIndexDwarfBT.resize(newSize);
 	m_PathToDestinationBT.resize(newSize);
+
+	m_PathToRandomBTNotSorted.resize(newSize);
+
 	m_PathToRandomBT.resize(newSize);
 
 	m_InventoryTaskBT.resize(newSize);
@@ -412,6 +418,51 @@ void DwarfManager::AddDwarfToDraw(const unsigned int index)
 
 void DwarfManager::Update(float dt)
 {
+#ifdef AI_DEBUG_COUNT_TIME
+	auto t1 = std::chrono::high_resolution_clock::now();
+#endif
+
+	//Sort array
+	//Path to destination
+	auto tmpIndex = 0;
+	for(auto i = 0; i < m_DwarfsEntities.size(); i++)
+	{
+		if (m_PathToIndexDwarfBTNotSorted[i]) {
+			m_PathFollowingBT[tmpIndex] = i;
+			tmpIndex++;
+
+			m_PathToIndexDwarfBTNotSorted[i] = false;
+		}
+	}
+	m_IndexPathToDestinationBT = tmpIndex;
+
+	//Follow path
+	tmpIndex = 0;
+	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
+	{
+		if (m_PathFollowingBTNotSorted[i]) {
+			m_PathFollowingBT[tmpIndex] = i;
+			tmpIndex++;
+
+			m_PathFollowingBTNotSorted[i] = false;
+		}
+	}
+	m_IndexPathFollowingBT = tmpIndex;
+
+	//Path to random
+	tmpIndex = 0;
+	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
+	{
+		if (m_PathToRandomBTNotSorted[i]) {
+			m_PathToRandomBT[tmpIndex] = i;
+			tmpIndex++;
+
+			m_PathToRandomBTNotSorted[i] = false;
+		}
+	}
+	m_IndexPathToRandomBT = tmpIndex;
+
+
 #ifdef DEBUG_RANDOM_PATH
 	const auto config = m_Engine.GetConfig();
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
@@ -471,6 +522,14 @@ void DwarfManager::Update(float dt)
 		break;
 	default: ;
 	}
+
+#ifdef AI_DEBUG_COUNT_TIME
+	auto t2 = std::chrono::high_resolution_clock::now();
+	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	m_TimerMilli += timerDuration / 1000;
+	m_TimerMicro += timerDuration % 1000;
+	m_TimerCounter++;
+#endif
 }
 
 void DwarfManager::FixedUpdate() {}

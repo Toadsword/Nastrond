@@ -64,7 +64,6 @@ void BehaviorTree::Update(float dt)
 
 	}
 
-#ifdef BT_MULTI_THREAD
 	auto& threadPool = m_Engine.GetThreadPool();
 	const auto coreNmb = threadPool.size();
 
@@ -79,26 +78,8 @@ void BehaviorTree::Update(float dt)
 	UpdateRange(0, m_Entities->size() / (coreNmb + 1) - 1);
 	for (int i = 0; i < coreNmb; i++)
 	{
-		std::cout << "join [" << i << "]\n";
 		joinFutures[i].get();
 	}
-#else
-
-	for (size_t i = 0; i < m_Entities->size(); i++)
-	{
-		if (m_Entities->at(i) == INVALID_ENTITY)
-		{
-			continue;
-		}
-#ifdef BT_SOA
-		currentNode[i]->Execute(i);
-#endif
-
-#ifdef BT_AOS
-		dataBehaviorTree[i].currentNode->Execute(i);
-#endif
-	}
-#endif
 
 #ifdef AI_DEBUG_COUNT_TIME
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -128,7 +109,7 @@ void BehaviorTree::UpdateRange(const int startIndex, const int endIndex)
 #ifdef BT_AOS
 		dataBehaviorTree[i].currentNode->Execute(i);
 #endif
-		}
+	}
 }
 
 	void BehaviorTree::SetRootNode(const Node::ptr& rootNode)

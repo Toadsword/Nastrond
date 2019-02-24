@@ -36,6 +36,8 @@ namespace sfge::ext
 #define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
 
+#define AI_DEBUG_COUNT_TIME
+
 /**
  * \author Nicolas Schneider
  */
@@ -43,6 +45,13 @@ class DwarfManager : public System
 {
 public:
 	DwarfManager(Engine& engine);
+
+	~DwarfManager()
+	{
+#ifdef AI_DEBUG_COUNT_TIME
+		std::cout << "[DwarfManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter << "\n";
+#endif
+	}
 
 	void Init() override;
 
@@ -291,7 +300,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100;
+	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
 	//Dwarfs texture
@@ -313,13 +322,17 @@ private:
 	unsigned int m_IndexToDraw = 0;
 
 	//Data filed by the behaviourTree
+	std::vector<bool> m_PathToIndexDwarfBTNotSorted;
 	std::vector<int> m_PathToIndexDwarfBT;
 	std::vector<Vec2f> m_PathToDestinationBT;
 	unsigned int m_IndexPathToDestinationBT = 0;
 
+	std::vector<bool> m_PathToRandomBTNotSorted;
 	std::vector<int> m_PathToRandomBT;
 	unsigned int m_IndexPathToRandomBT = 0;
 
+
+	std::vector<bool> m_PathFollowingBTNotSorted;
 	std::vector<int> m_PathFollowingBT;
 	unsigned int m_IndexPathFollowingBT = 0;
 
@@ -337,6 +350,12 @@ private:
 		NIGHT
 	};
 	DayState m_DayState = DAY;
+
+#ifdef AI_DEBUG_COUNT_TIME
+	unsigned int m_TimerMilli = 0u;
+	unsigned int m_TimerMicro = 0u;
+	int m_TimerCounter = 0;
+#endif
 };
 }
 
