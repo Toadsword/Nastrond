@@ -23,6 +23,9 @@ SOFTWARE.
 */
 
 #include <graphics/image.h>
+#include "imgui.h"
+#include "utility/file_utility.h"
+#include <graphics/texture.h>
 
 namespace sfge
 {
@@ -41,9 +44,9 @@ namespace sfge
 		
 	}
 
-	void Image::Update(Vec2f position)//RectTransform* rectTransform)
+	void Image::Update(Vec2f position)
 	{
-		sprite.setPosition(position.x, position.y);//rectTransform->Position.x, rectTransform->Position.y);
+		sprite.setPosition(position.x, position.y);
 	}
 
 	void Image::Draw(sf::RenderWindow& window)
@@ -51,41 +54,70 @@ namespace sfge
 		window.draw(sprite);
 	}
 
-	void Image::SetSprite(std::string spritePath)
-	{
-		this->spritePath = spritePath;
-	}
-
 	void Image::SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
 	{
-		color[0] = r;
-		color[1] = g;
-		color[2] = b;
-		color[3] = a;
+		color.r = r;
+		color.g = g;
+		color.b = b;
+		color.a = a;
+
+		sprite.setColor(color);
 	}
 
 	void Image::SetColor(sf::Color color)
 	{
-		this->color[0] = color.r;
-		this->color[1] = color.g;
-		this->color[2] = color.b;
-		this->color[3] = color.a;
+		this->color = color;
+
+		sprite.setColor(color);
 	}
 
 	void editor::ImageInfo::DrawOnInspector()
 	{
-		
+		ImGui::Separator();
+		ImGui::Text("Image");
 	}
 
 	void ImageManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		if (CheckJsonExists(componentJson, "spritePath"))
+		if (CheckJsonParameter(componentJson, "spritePath", json::value_t::string))
 		{
-			m_Components[entity].SetSprite(componentJson["spritePath"]);
+			std::string path = componentJson["spritePath"].get<std::string>();
+			m_Components[entity].spritePath = path;
+			sf::Texture* texture = nullptr;
+			if (FileExists(path))
+			{
+				const TextureId textureId = m_TextureManager->LoadTexture(path);
+				if (textureId != INVALID_TEXTURE)
+				{
+					texture = m_TextureManager->GetTexture(textureId);
+					m_Components[entity].sprite.setTexture(*texture);
+					m_Components[entity].textureId = textureId;
 
-			if (CheckJsonExists(componentJson, "color"))
-				m_Components[entity].SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
+					if (CheckJsonExists(componentJson, "color"))
+						m_Components[entity].SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
+				}
+				else
+				{
+					std::ostringstream oss;
+					oss << "Texture file " << path << " cannot be loaded";
+					Log::GetInstance()->Error(oss.str());
+				}
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "Texture file " << path << " does not exist";
+				Log::GetInstance()->Error(oss.str());
+			}
 		}
+		else
+		{
+			Log::GetInstance()->Error("[Error] No Path for Sprite");
+		}
+
+
+		m_RectTransformManager->GetComponentPtr(entity)->rect = m_Components[entity].sprite.getGlobalBounds();
+		m_RectTransformManager->GetComponentPtr(entity)->rectAdjusted = m_Components[entity].sprite.getGlobalBounds();
 	}
 
 	Image* ImageManager::AddComponent(Entity entity)
@@ -125,11 +157,12 @@ namespace sfge
 
 	void ImageManager::Update(float dt)
 	{
+		System::Update(dt);
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
+				m_Components[i + 1].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
 			}
 		}
 	}
@@ -140,33 +173,8 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE))
 			{
-				m_Components[i].Draw(window);
+				m_Components[i + 1].Draw(window);
 			}
 		}
-	}
-
-	void ImageManager::LoadSprites()
-	{
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON))
-			{
-				m_Components[i].textureId = m_TextureManager->LoadTexture(m_Components[i].spritePath);
-			}
-		}
-	}
-
-	void ImageManager::SetSprite(Image* image) const
-	{
-		image->sprite.setTexture(*m_TextureManager->GetTexture(image->textureId));
-
-		sf::Color color;
-
-		color.r = image->color[0];
-		color.g = image->color[1];
-		color.b = image->color[2];
-		color.a = image->color[3];
-
-		image->sprite.setColor(color);
 	}
 }

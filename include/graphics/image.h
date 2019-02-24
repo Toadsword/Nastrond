@@ -29,10 +29,12 @@ SOFTWARE.
 #include <SFML/Graphics.hpp>
 #include <engine/component.h>
 #include <engine/rect_transform.h>
-#include <graphics/texture.h>
 
 namespace sfge
 {
+	/*
+	 * Author: Cédric Chambaz
+	 */
 	class Image final
 	{
 	public:
@@ -41,17 +43,16 @@ namespace sfge
 		Image();
 
 		void Init();
-		void Update(Vec2f position);//RectTransform* rectTransform);
+		void Update(Vec2f position);
 		void Draw(sf::RenderWindow& window);
 
-		void SetSprite(std::string spritePath);
 		void SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColor(sf::Color color);
 
 		std::string spritePath;
-		sf::Uint8 color[4] = {0, 0, 0, 255};
 		TextureId textureId;
 		sf::Sprite sprite;
+		sf::Color color;
 	};
 	namespace editor
 	{
@@ -78,9 +79,6 @@ namespace sfge
 		void Init() override;
 		void Update(float dt) override;
 		void DrawImages(sf::RenderWindow& window);
-
-		void LoadSprites();
-		void SetSprite(Image* image) const;
 	protected:
 		RectTransformManager* m_RectTransformManager;
 		TextureManager* m_TextureManager;

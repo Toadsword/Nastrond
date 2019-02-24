@@ -32,19 +32,19 @@ SOFTWARE.
 
 namespace sfge
 {
+	/*
+	 * Author: Cédric Chambaz
+	 */
 	class Text final
 	{
 	public:
 		Text& operator=(const Text&);
 
-		//Text();
-
 		void Init();
-		void Update(/*RectTransform* rectTransform*/Vec2f position);
+		void Update(Vec2f position);
 		void Draw(sf::RenderWindow& window) const;
 
 		void SetString(std::string newText);
-		void SetFont(std::string newFontPath);
 		void SetSize(unsigned newSize);
 		void SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColor(sf::Color newColor);

@@ -35,6 +35,9 @@ SOFTWARE.
 
 namespace sfge
 {	
+	/*
+	 * Author: Cédric Chambaz
+	 */
 	class UIManager : public System {
 	public:
 		using System::System;

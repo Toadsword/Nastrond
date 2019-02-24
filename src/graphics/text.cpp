@@ -23,6 +23,8 @@ SOFTWARE.
 */
 
 #include <graphics/text.h>
+#include <imgui.h>
+#include "utility/file_utility.h"
 
 namespace sfge
 {
@@ -31,19 +33,14 @@ namespace sfge
 		return *this;
 	}
 
-	/*Text::Text()
-	{
-		
-	}*/
-
 	void Text::Init()
 	{
 		
 	}
 
-	void Text::Update(/*RectTransform* rectTransform*/Vec2f position)
+	void Text::Update(Vec2f position)
 	{
-		text.setPosition(position);//rectTransform->Position);
+		text.setPosition(position);
 	}
 
 	void Text::Draw(sf::RenderWindow& window) const
@@ -56,12 +53,6 @@ namespace sfge
 		text.setString(newText);
 	}
 
-	void Text::SetFont(std::string newFontPath)
-	{
-		if (font.loadFromFile(newFontPath))
-			text.setFont(font);
-	}
-	
 	void Text::SetSize(unsigned newSize)
 	{
 		text.setCharacterSize(newSize);
@@ -89,18 +80,20 @@ namespace sfge
 		color.b = b;
 		color.a = a;
 
-		text.setColor(color);
+		text.setFillColor(color);
 	}
 
 	void Text::SetColor(sf::Color newColor)
 	{
 		color = newColor;
-		text.setColor(color);
+
+		text.setFillColor(color);
 	}
 
 	void editor::TextInfo::DrawOnInspector()
 	{
-		
+		ImGui::Separator();
+		ImGui::Text("Text");
 	}
 
 	TextManager::TextManager(Engine& engine):SingleComponentManager(engine)
@@ -118,16 +111,46 @@ namespace sfge
 
 	void TextManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		if (CheckJsonExists(componentJson, "text"))
-			m_Components[entity].SetString(componentJson["text"]);
-		if (CheckJsonExists(componentJson, "size"))
-			m_Components[entity].SetSize(componentJson["size"]);
-		if (CheckJsonExists(componentJson, "font"))
-			m_Components[entity].SetFont(componentJson["font"]);
-		if (CheckJsonExists(componentJson, "color"))
-			m_Components[entity].SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
+		if (CheckJsonParameter(componentJson, "font", json::value_t::string))
+		{
+			std::string path = m_Engine.GetConfig()->dataDirname + componentJson["font"].get<std::string>();
+
+			if (FileExists(path))
+			{
+				if (m_Components[entity].font.loadFromFile(path))
+				{
+					std::string strText = "Empty text";
+
+					if (CheckJsonExists(componentJson, "text"))
+						strText = componentJson["text"].get<std::string>();
+
+					sf::Text text(strText, m_Components[entity].font);
+
+					m_Components[entity].text = text;
+
+					if (CheckJsonExists(componentJson, "color"))
+						m_Components[entity].SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
+					if (CheckJsonExists(componentJson, "size"))
+						m_Components[entity].SetSize(componentJson["size"]);
+				}
+				else
+				{
+					std::ostringstream oss;
+					oss << "Font file " << path << " cannot be loaded";
+					Log::GetInstance()->Error(oss.str());
+				}
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "Font file " << path << " does not exist";
+				Log::GetInstance()->Error(oss.str());
+			}
+		}
 		else
-			m_Components[entity].SetColor(sf::Color::Black);
+		{
+			Log::GetInstance()->Error("[Error] No font for Sprite");
+		}
 	}
 
 	Text* TextManager::AddComponent(Entity entity)
@@ -152,11 +175,20 @@ namespace sfge
 
 	void TextManager::Update(float dt)
 	{
+		System::Update(dt);
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
+				/* // Adjustement of the text position in order to be centered in the sprite of the entity
+				 * // Currently not working, waiting on camera to finish
+				sf::FloatRect rect = m_RectTransformManager->GetComponentPtr(i + 1)->rectAdjusted;
+
+				Vec2f position = { rect.left + rect.width, rect.top - rect.height };
+
+				m_Components[i + 1].Update(position);*/
+
+				m_Components[i + 1].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
 			}
 		}
 	}
@@ -166,7 +198,7 @@ namespace sfge
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT))
-				m_Components[i].Draw(window);
+				m_Components[i + 1].Draw(window);
 		}
 	}
 }

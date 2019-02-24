@@ -23,22 +23,17 @@ SOFTWARE.
 */
 
 #include <graphics/button.h>
+#include "imgui.h"
+#include <engine/ui.h>
+#include <graphics/texture.h>
+#include "utility/file_utility.h"
 
 namespace sfge
 {
 	void editor::ButtonInfo::DrawOnInspector()
 	{
-
-	}
-
-	/*Button::Button()
-	{
-		
-	}*/
-
-	Button& Button::operator=(const Button&)
-	{
-		return *this;
+		ImGui::Separator();
+		ImGui::Text("Button");
 	}
 
 	void Button::Init()
@@ -46,129 +41,19 @@ namespace sfge
 		
 	}
 
-	void Button::Update(Vec2f position)//RectTransform* rectTransform)
-	{
-		sprite.setPosition(position.x, position.y);//rectTransform->Position.x, rectTransform->Position.y);
-	}
-
-	void Button::Draw(sf::RenderWindow& window) const
-	{
-		window.draw(sprite);
-	}
-
-	void Button::SetSpriteNone(std::string spritePath)
-	{
-		spriteNonePath = spritePath;
-	}
-
-	void Button::SetSpriteHovered(std::string spritePath)
-	{
-		spriteHoveredPath = spritePath;
-	}
-
-	void Button::SetSpriteClicked(std::string spritePath)
-	{
-		spriteClickedPath = spritePath;
-	}
-
-	void Button::SetColorNone(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
-	{
-		colorNone[0] = r;
-		colorNone[1] = g;
-		colorNone[2] = b;
-		colorNone[3] = a;
-	}
-
-	void Button::SetColorNone(sf::Color color)
-	{
-		colorNone[0] = color.r;
-		colorNone[1] = color.g;
-		colorNone[2] = color.b;
-		colorNone[3] = color.a;
-	}
-
-	void Button::SetColorHovered(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
-	{
-		colorHovered[0] = r;
-		colorHovered[1] = g;
-		colorHovered[2] = b;
-		colorHovered[3] = a;
-	}
-
-	void Button::SetColorHovered(sf::Color color)
-	{
-		colorHovered[0] = color.r;
-		colorHovered[1] = color.g;
-		colorHovered[2] = color.b;
-		colorHovered[3] = color.a;
-	}
-
-	void Button::SetColorClicked(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
-	{
-		colorClicked[0] = r;
-		colorClicked[1] = g;
-		colorClicked[2] = b;
-		colorClicked[3] = a;
-	}
-
-	void Button::SetColorClicked(sf::Color color)
-	{
-		colorClicked[0] = color.r;
-		colorClicked[1] = color.g;
-		colorClicked[2] = color.b;
-		colorClicked[3] = color.a;
-	}
-
 	ButtonManager::ButtonManager(Engine& engine):SingleComponentManager(engine)
 	{
 		m_RectTransformManager = engine.GetRectTransformManager();
 		m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
-		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 	}
 
 	ButtonManager::~ButtonManager()
 	= default;
 
-	ButtonManager& ButtonManager::operator=(const Button&)
-	{
-		return *this;
-	}
 
 	void ButtonManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		if (CheckJsonExists(componentJson, "spriteNone"))
-		{
-			m_Components[entity].SetSpriteNone(componentJson["spriteNone"]);
-
-			if (CheckJsonExists(componentJson, "colorNone"))
-				m_Components[entity].SetColorNone(componentJson["colorNone"][0], componentJson["colorNone"][1], componentJson["colorNone"][2], componentJson["colorNone"][3]);
-		}
-		if (CheckJsonExists(componentJson, "spriteHovered"))
-		{
-			m_Components[entity].SetSpriteNone(componentJson["spriteHovered"]);
-
-			if (CheckJsonExists(componentJson, "colorHovered"))
-				m_Components[entity].SetColorHovered(componentJson["colorHovered"][0], componentJson["colorHovered"][1], componentJson["colorHovered"][2], componentJson["colorHovered"][3]);
-		}
-		if (CheckJsonExists(componentJson, "spriteClicked"))
-		{
-			m_Components[entity].SetSpriteNone(componentJson["spriteClicked"]);
-
-			if (CheckJsonExists(componentJson, "colorClicked"))
-				m_Components[entity].SetColorClicked(componentJson["colorClicked"][0], componentJson["colorClicked"][1], componentJson["colorClicked"][2], componentJson["colorClicked"][3]);
-		}
-
-		/*
-		* TODO:
-		* Assign an action to the button (both in python and C++)
-		* Python only need the module and the function name (as string) to be done with :
-		*		getattr(module, 'function')
-		*		Now : How to launch a function with parameter? Python function == without parameter?
-		* C++ need both pointer to the function and the datas :
-		*		A dictionary could be made with [key][ptr], but it needs to be done dynamically
-		*		as it should be built on initialisation. (-> put int UIManager and add to it when
-		*		initializing a button) How to get the ptr of the function?
-		*/
+		
 	}
 
 	Button* ButtonManager::AddComponent(Entity entity)
@@ -189,120 +74,31 @@ namespace sfge
 	{
 		SingleComponentManager::Init();
 		m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
-		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_RectTransformManager = m_Engine.GetRectTransformManager();
 	}
 
 	void ButtonManager::Update(float dt)
 	{
+		System::Update(dt);
 		bool checkClick = m_MouseManager->IsButtonUp(sf::Mouse::Button::Left);
 
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM) && m_EntityManager->HasComponent(i + 1, ComponentType::PYCOMPONENT))
 			{
-				// Temporary value of the button state
-				const ButtonState tmpState = m_Components[i].state;
-
-				if(m_Components[i].sprite.getLocalBounds().contains(mousePosition.x, mousePosition.y))
+				if (checkClick && m_RectTransformManager->GetComponentPtr(i + 1)->rectAdjusted.contains(mousePosition.x, mousePosition.y))
 				{
-					m_Components[i].state = ButtonState::HOVERED;
-
-					if (checkClick)
-					{
-						m_Components[i].state = ButtonState::CLICKED;
-
-						if (m_EntityManager->HasComponent(i + 1, ComponentType::PYCOMPONENT))
-						{
-							/*const char* function = &m_Components[i].pyFunction;
-							try
-							{
-								//py::gil_scoped_release release;
-								PYBIND11_OVERLOAD_PURE_NAME(
-									void,
-									Behavior,
-									"action",
-									action
-									);
-							}
-							catch (std::runtime_error& e)
-							{
-								std::stringstream oss;
-								oss << "Python error on PySystem Draw\n" << e.what();
-								Log::GetInstance()->Error(oss.str());
-							}*/
-						}
-						checkClick = false;
-					}					
+					// Action
+					m_Components[i + 1].hasBeenClicked = 1;
 				}
-				else
-				{
-					m_Components[i].state = ButtonState::NONE;
-				}
-
-				// Change the sprite of the button if his state has changed
-				if (tmpState != m_Components[i].state)
-					SetSprite(&m_Components[i]);
-
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
 			}
 		}
 	}
 
 	void ButtonManager::DrawButtons(sf::RenderWindow& window)
 	{
-		/*
-		 * Should be in the update but the window reference is given here
-		 */
 		mousePosition.x = m_MouseManager->GetLocalPosition(window).x;
 		mousePosition.y = m_MouseManager->GetLocalPosition(window).y;
-
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
-			{
-				m_Components[i].Draw(window);
-			}
-		}
 	}
 
-	void ButtonManager::LoadSprites()
-	{
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON))
-			{
-				m_Components[i].spriteNone = m_TextureManager->LoadTexture(m_Components[i].spriteNonePath);
-				m_Components[i].spriteHovered = m_TextureManager->LoadTexture(m_Components[i].spriteHoveredPath);
-				m_Components[i].spriteClicked = m_TextureManager->LoadTexture(m_Components[i].spriteClickedPath);
-			}
-		}
-	}
-
-	void ButtonManager::SetSprite(Button* button) const
-	{
-		switch (button->state)
-		{
-		case ButtonState::NONE:
-			button->sprite.setTexture(*m_TextureManager->GetTexture(button->spriteNone));
-			button->color.r = button->colorNone[0];
-			button->color.r = button->colorNone[1];
-			button->color.r = button->colorNone[2];
-			button->color.r = button->colorNone[3];
-			break;
-		case ButtonState::HOVERED:
-			button->sprite.setTexture(*m_TextureManager->GetTexture(button->spriteHovered));
-			button->color.r = button->colorHovered[0];
-			button->color.r = button->colorHovered[1];
-			button->color.r = button->colorHovered[2];
-			button->color.r = button->colorHovered[3];
-			break;
-		case ButtonState::CLICKED:
-			button->sprite.setTexture(*m_TextureManager->GetTexture(button->spriteClicked));
-			button->color.r = button->colorClicked[0];
-			button->color.r = button->colorClicked[1];
-			button->color.r = button->colorClicked[2];
-			button->color.r = button->colorClicked[3];
-			break;
-		}		
-	}
 }

@@ -22,49 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "engine/ui.h"
+#include <engine/engine.h>
+#include <engine/scene.h>
+#include <utility/json_utility.h>
+#include <gtest/gtest.h>
 
-namespace  sfge
+TEST(UI, TestUI)
 {
-	void UIManager::Init()
-	{
-		m_EntityManager = m_Engine.GetEntityManager();
-		m_RectTransformManager = m_Engine.GetRectTransformManager();
-		m_Graphics2dManager = m_Engine.GetGraphics2dManager();
+	sfge::Engine engine;
+	engine.Init();
 
-		m_Window = m_Graphics2dManager->GetWindow();
+	engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_ui.scene");
 
-		m_ButtonManager.Init();
-		m_TextManager.Init();
-		m_ImageManager.Init();
-	}
-
-	void UIManager::Update(float dt)
-	{
-		m_ButtonManager.Update(dt);
-		m_TextManager.Update(dt);
-		m_ImageManager.Update(dt);
-	}
-
-	void UIManager::Draw()
-	{
-		m_ButtonManager.DrawButtons(*m_Window);		
-		m_ImageManager.DrawImages(*m_Window);
-		m_TextManager.DrawTexts(*m_Window);
-	}
-
-	ButtonManager* UIManager::GetButtonManager()
-	{
-		return &m_ButtonManager;
-	}
-
-	TextManager* UIManager::GetTextManager()
-	{
-		return &m_TextManager;
-	}
-
-	ImageManager* UIManager::GetImageManager()
-	{
-		return &m_ImageManager;
-	}
+	engine.Start();
 }

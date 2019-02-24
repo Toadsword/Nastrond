@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <engine/rect_transform.h>
+#include <imgui.h>
 
 namespace sfge
 {
@@ -36,12 +37,43 @@ namespace sfge
 
 	void RectTransform::Update(Camera* camera)
 	{
-		Position = basePosition + camera->GetPosition();
+		if(camera == nullptr)
+		{
+			Position = basePosition;
+			rectAdjusted.left = rect.left + basePosition.x;
+			rectAdjusted.top = rect.top + basePosition.y;
+		}
+		else
+		{
+			Position = basePosition + camera->GetPosition();
+			rectAdjusted.left = rect.left + Position.x;
+			rectAdjusted.top = rect.top + Position.y;
+		}
 	}
 
 	void editor::RectTransformInfo::DrawOnInspector()
 	{
-
+		float pos[2] = { rectTransform->Position.x, rectTransform->Position.y };
+		float rectPos[4] = { rectTransform->rect.left, rectTransform->rect.top, rectTransform->rect.width, rectTransform->rect.height };
+		float rectPosAdjusted[4] = { rectTransform->rectAdjusted.left, rectTransform->rectAdjusted.top, rectTransform->rectAdjusted.width, rectTransform->rectAdjusted.height };
+		ImGui::Separator();
+		ImGui::Text("RectTransform");
+		ImGui::InputFloat2("Position", pos);
+		rectTransform->Position.x = pos[0];
+		rectTransform->Position.y = pos[1];
+		float scale[2] = { rectTransform->Scale.x, rectTransform->Scale.y };
+		ImGui::InputFloat2("Scale", scale);
+		ImGui::InputFloat("Angle", &rectTransform->EulerAngle);
+		ImGui::InputFloat4("Rect", rectPos);
+		rectTransform->rect.left = rectPos[0];
+		rectTransform->rect.top = rectPos[1];
+		rectTransform->rect.width = rectPos[2];
+		rectTransform->rect.height = rectPos[3];
+		ImGui::InputFloat4("Rect adjusted", rectPosAdjusted);
+		rectTransform->rectAdjusted.left = rectPosAdjusted[0];
+		rectTransform->rectAdjusted.top = rectPosAdjusted[1];
+		rectTransform->rectAdjusted.width = rectPosAdjusted[2];
+		rectTransform->rectAdjusted.height = rectPosAdjusted[3];
 	}
 
 	RectTransformManager::RectTransformManager(Engine& engine):SingleComponentManager(engine)
@@ -95,6 +127,7 @@ namespace sfge
 	
 	void RectTransformManager::Update(float dt)
 	{
+		System::Update(dt);
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))

@@ -32,6 +32,9 @@ SOFTWARE.
 
 namespace sfge
 {
+	/*
+	 * Author: Cédric Chambaz
+	 */
 	class RectTransform final : public Transform2d {
 	public:
 		RectTransform& operator=(const RectTransform&);
@@ -40,7 +43,14 @@ namespace sfge
 
 		void Update(Camera* camera);
 
-		Vec2f basePosition = {0, 0};
+		// Position on which the component follow the camera movement
+		Vec2f basePosition = { 0, 0 };
+
+		// Rectangle of the sprite contained by the entity
+		sf::FloatRect rect = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+		// Adjusted rectangle with the current position
+		sf::FloatRect rectAdjusted = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
 	namespace editor
 	{

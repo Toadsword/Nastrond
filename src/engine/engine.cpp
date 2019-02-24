@@ -175,8 +175,9 @@ void Engine::Start()
 
 		m_SystemsContainer->sceneManager.Draw();
 
+		m_SystemsContainer->uiManager.Draw();
 		m_SystemsContainer->graphics2dManager.Draw();
-
+		
         m_SystemsContainer->pythonEngine.Draw();
         m_SystemsContainer->editor.Draw();
         m_SystemsContainer->graphics2dManager.Display();

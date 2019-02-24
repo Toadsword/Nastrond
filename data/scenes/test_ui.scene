@@ -1,0 +1,48 @@
+{
+"name": "UI_Test",
+	"entities": 
+	[
+		{
+			"name": "TestButton",
+			"components": [
+				{
+					"name": "RectTransform",
+					"type": 2048,
+					"basePosition": [500, 500],
+					"scale" : [1.0,1.0],
+					"angle": 0.0
+				},
+				{
+					"name": "Image",
+					"type": 4096,
+					"spritePath": "data/sprites/other_play.png",
+					"color": [255, 222, 173, 10]
+				},
+				{
+					"name": "Button",
+					"type": 16384
+				}
+			]
+		},
+		{
+			"name": "TestText",
+			"components": [
+				{
+					"name": "RectTransform",
+					"type": 2048,
+					"basePosition": [500, 150],
+					"scale" : [1.0,1.0],
+					"angle": 0.0
+				},
+				{
+					"name": "Text",
+					"type": 8192,
+					"text": "This is a button",
+					"size": 32,					
+					"font": "font/arial.ttf",
+					"color": [255, 222, 173, 255]
+				}
+			]
+		}
+	]
+}
