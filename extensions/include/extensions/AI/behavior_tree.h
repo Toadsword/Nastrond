@@ -38,8 +38,8 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-//#define BT_SOA
-#define BT_AOS
+#define BT_SOA
+//#define BT_AOS
 /**
 * author Nicolas Schneider
 */
@@ -95,7 +95,7 @@ public:
 #ifdef BT_SOA
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
-	std::vector<Node::Status> previousStatus;
+	std::vector<NodeStatus> previousStatus;
 
 	std::vector<char> repeaterCounter;
 	std::vector<char> sequenceActiveChild;
