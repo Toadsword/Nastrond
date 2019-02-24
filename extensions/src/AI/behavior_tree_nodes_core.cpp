@@ -234,7 +234,7 @@ void Node::AddChild(NodeType type)
 
 }
 
-void Node::Execute(const unsigned int index)
+void Node::Execute(const unsigned int index) const
 {
 	executeFunction(index);
 }

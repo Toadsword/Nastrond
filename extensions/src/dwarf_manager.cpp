@@ -247,35 +247,45 @@ bool DwarfManager::HasPath(unsigned int index)
 	return !m_Paths[index].empty();
 }
 
+std::mutex AddFindPathToDestinationBTMutex;
 void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Vec2f destination)
 {
+	std::lock_guard<std::mutex> lock(AddFindPathToDestinationBTMutex);
 	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
 	m_PathToDestinationBT[m_IndexPathToDestinationBT] = destination;
 	m_IndexPathToDestinationBT++;
 }
 
+std::mutex AddFindRandomPathBTMutex;
 void DwarfManager::AddFindRandomPathBT(unsigned int index)
 {
+	std::lock_guard<std::mutex> lock(AddFindRandomPathBTMutex);
 	m_PathToRandomBT[m_IndexPathToRandomBT] = index;
 	m_IndexPathToRandomBT++;
 }
 
+std::mutex AddPathFollowingBTMutex;
 void DwarfManager::AddPathFollowingBT(unsigned int index)
 {
+	std::lock_guard<std::mutex> lock(AddPathFollowingBTMutex);
 	m_PathFollowingBT[m_IndexPathFollowingBT] = index;
 	m_IndexPathFollowingBT++;
 }
 
+std::mutex AddInventoryTaskPathToGiverMutex;
 void DwarfManager::AddInventoryTaskPathToGiver(const unsigned int index)
 {
+	std::lock_guard<std::mutex> lock(AddInventoryTaskPathToGiverMutex);
 	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
 	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
 	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].giver)->Position;
 	m_IndexPathToDestinationBT++;
 }
 
+std::mutex AddInventoryTaskPathToReceiverMutex;
 void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
 {
+	std::lock_guard<std::mutex> lock(AddInventoryTaskPathToReceiverMutex);
 	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
 	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
 	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].receiver)->Position;
@@ -312,8 +322,10 @@ bool DwarfManager::HasStaticJob(const unsigned int index)
 	return m_AssociatedWorkingPlaceType[index] != WAREHOUSE;
 }
 
+std::mutex AssignJobMutex;
 bool DwarfManager::AssignJob(const unsigned int index)
 {
+	std::lock_guard<std::mutex> lock(AssignJobMutex);
 	char nbJob = 0;
 
 	while (nbJob < m_JobBuildingType.size())

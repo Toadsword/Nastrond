@@ -146,7 +146,7 @@ namespace sfge::ext::behavior_tree
 		 * \brief execute the node
 		 * \param index of the dwarf
 		 */
-		void Execute(unsigned int index);
+		void Execute(unsigned int index) const;
 
 		std::unique_ptr<NodeData> data;
 

@@ -64,6 +64,26 @@ void BehaviorTree::Update(float dt)
 
 	}
 
+#ifdef BT_MULTI_THREAD
+	auto& threadPool = m_Engine.GetThreadPool();
+	const auto coreNmb = threadPool.size();
+
+	std::vector<std::future<void>> joinFutures(coreNmb);
+	for (int threadIndex = 0; threadIndex < coreNmb; threadIndex++)
+	{
+		int start = (threadIndex + 1)*m_Entities->size() / (coreNmb + 1);
+		int end = (threadIndex + 2)*m_Entities->size() / (coreNmb + 1) - 1;
+		auto updateFunction = std::bind(&BehaviorTree::UpdateRange, this, start, end);
+		joinFutures[threadIndex] = threadPool.push(updateFunction);
+	}
+	UpdateRange(0, m_Entities->size() / (coreNmb + 1) - 1);
+	for (int i = 0; i < coreNmb; i++)
+	{
+		std::cout << "join [" << i << "]\n";
+		joinFutures[i].get();
+	}
+#else
+
 	for (size_t i = 0; i < m_Entities->size(); i++)
 	{
 		if (m_Entities->at(i) == INVALID_ENTITY)
@@ -77,22 +97,41 @@ void BehaviorTree::Update(float dt)
 #ifdef BT_AOS
 		dataBehaviorTree[i].currentNode->Execute(i);
 #endif
+	}
+#endif
 
 #ifdef AI_DEBUG_COUNT_TIME
-		auto t2 = std::chrono::high_resolution_clock::now();
-		const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-		m_TimerMilli += timerDuration / 1000;
-		m_TimerMicro += timerDuration % 1000;
-		m_TimerCounter++;
+	auto t2 = std::chrono::high_resolution_clock::now();
+	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	m_TimerMilli += timerDuration / 1000;
+	m_TimerMicro += timerDuration % 1000;
+	m_TimerCounter++;
 #endif
-	}
 }
 
 void BehaviorTree::FixedUpdate() { }
 
 void BehaviorTree::Draw() { }
 
-void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
+void BehaviorTree::UpdateRange(const int startIndex, const int endIndex)
+{
+	for (size_t i = startIndex; i < endIndex; i++)
+	{
+		if (m_Entities->at(i) == INVALID_ENTITY)
+		{
+			continue;
+		}
+#ifdef BT_SOA
+		currentNode[i]->Execute(i);
+#endif
+
+#ifdef BT_AOS
+		dataBehaviorTree[i].currentNode->Execute(i);
+#endif
+		}
+}
+
+	void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
 {
 	m_RootNode = rootNode;
 }

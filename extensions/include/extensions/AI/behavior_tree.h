@@ -40,6 +40,8 @@ namespace sfge::ext::behavior_tree
 {
 //#define BT_SOA
 #define BT_AOS
+//#define BT_MULTI_THREAD
+
 /**
 * author Nicolas Schneider
 */
@@ -62,6 +64,8 @@ public:
 	void FixedUpdate() override;
 
 	void Draw() override;
+
+	void UpdateRange(int startIndex, int endIndex);
 
 	/**
 	* \brief Set root node of the behaviour tree
