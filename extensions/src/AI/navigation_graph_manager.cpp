@@ -117,6 +117,9 @@ void NavigationGraphManager::Init()
 void NavigationGraphManager::Update(float dt)
 {
 	//TODO ne pas passer par un nombre fix, mais plutôt alouer un temps maximum et faire un test à chaque fois pour savoir s'il reste suffisament de temps
+#ifdef AI_DEBUG_COUNT_TIME
+	auto t1 = std::chrono::high_resolution_clock::now();
+#endif
 	for (size_t i = 0; i < m_MaxPathForOneUpdate; i++)
 	{
 		if (m_WaitingPaths.empty())
@@ -130,6 +133,11 @@ void NavigationGraphManager::Update(float dt)
 		auto tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
 		waitingPath.path->assign(tmp.begin(), tmp.end());
 	}
+
+#ifdef AI_DEBUG_COUNT_TIME
+	m_TimerDuration += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+	m_TimerCounter++;
+#endif
 }
 
 void NavigationGraphManager::FixedUpdate() {}
@@ -202,8 +210,10 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 			{
 				for (auto j = -1; j < 2; j++)
 				{
+					//Skip self
 					if (i == 0 && j == 0) continue;
 
+					//Skip if outside of bounds
 					if (y + i < 0 || y + i >= map.size() || x + j < 0 || x + j >= map[y].size()) continue;
 
 					const int indexNeighbor = (y + i) * map.size() + (x + j);

@@ -51,6 +51,8 @@ struct GraphNode final
 #define AI_PATHFINDING_DRAW_NODES
 #define AI_PATHFINDING_DRAW_NODES_NEIGHBORS
 
+#define AI_DEBUG_COUNT_TIME
+
 /**
  * \author Nicolas Schneider
  */
@@ -58,6 +60,12 @@ class NavigationGraphManager final : public System
 {
 public:
 	explicit NavigationGraphManager(Engine& engine);
+	~NavigationGraphManager()
+	{
+#ifdef AI_DEBUG_COUNT_TIME
+		std::cout << "[NavigationGraphManager]Update: " << m_TimerDuration / m_TimerCounter / 1000 << "," << m_TimerDuration / m_TimerCounter % 1000 << "\n";
+#endif
+	}
 
 	void Init() override;
 
@@ -104,7 +112,7 @@ private:
 	const static short ROAD_COST = 1;
 	const static short NORMAL_COST = 2;
 
-	const short m_MaxPathForOneUpdate = 1;
+	const short m_MaxPathForOneUpdate = 100'000;
 
 	std::vector<GraphNode> m_Graph;
 
@@ -116,6 +124,11 @@ private:
 
 #ifdef AI_PATHFINDING_DRAW_NODES_NEIGHBORS
 	std::vector<sf::VertexArray> m_NodesNeighborsLines;
+#endif
+
+#ifdef AI_DEBUG_COUNT_TIME
+	int m_TimerDuration = 0;
+	int m_TimerCounter = 0;
 #endif
 
 };

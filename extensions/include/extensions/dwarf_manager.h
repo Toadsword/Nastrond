@@ -36,6 +36,8 @@ namespace sfge::ext
 #define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
 
+#define AI_DEBUG_COUNT_TIME
+
 /**
  * \author Nicolas Schneider
  */
@@ -43,6 +45,14 @@ class DwarfManager : public System
 {
 public:
 	DwarfManager(Engine& engine);
+
+	~DwarfManager()
+	{
+#ifdef AI_DEBUG_COUNT_TIME
+		std::cout << "[DwarfManager]Update: " << m_TimerDuration / m_TimerCounter / 1000 << "," << m_TimerDuration / m_TimerCounter % 1000 << "\n";
+#endif
+
+	}
 
 	void Init() override;
 
@@ -254,7 +264,7 @@ private:
 	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
-	const size_t m_ContainersExtender = 100;
+	const size_t m_ContainersExtender = 100'000;
 	std::vector<Entity> m_DwarfsEntities;
 
 	//State management
@@ -289,7 +299,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100;
+	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
 	//Dwarfs texture
@@ -330,6 +340,12 @@ private:
 		NIGHT
 	};
 	DayState m_DayState = DAY;
+
+#ifdef AI_DEBUG_COUNT_TIME
+	int m_TimerDuration = 0;
+	int m_TimerCounter = 0;
+#endif
+
 };
 }
 

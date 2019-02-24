@@ -24,11 +24,12 @@ SOFTWARE.
 #ifndef SFGE_EXT_BEHAVIOR_TREE_H
 #define SFGE_EXT_BEHAVIOR_TREE_H
 
+#define AI_DEBUG_COUNT_TIME
+
 #include <vector>
 #include <memory>
 
 #include <engine/system.h>
-#include <utility/json_utility.h>
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
@@ -41,10 +42,16 @@ namespace sfge::ext::behavior_tree
 /**
 * author Nicolas Schneider
 */
-class BehaviorTree final : public System
-{
-public:
-	explicit BehaviorTree(Engine& engine);
+	class BehaviorTree final : public System
+	{
+	public:
+		explicit BehaviorTree(Engine& engine);
+	~BehaviorTree()
+	{
+#ifdef AI_DEBUG_COUNT_TIME
+		std::cout << "[BehaviorTree]Update: " << m_TimerDuration / m_TimerCounter / 1000 << "," << m_TimerDuration / m_TimerCounter % 1000 << "\n";
+#endif
+	}
 
 	void Init() override;
 
@@ -101,6 +108,11 @@ private:
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
+
+#ifdef AI_DEBUG_COUNT_TIME
+	int m_TimerDuration = 0;
+	int m_TimerCounter = 0;
+#endif
 };
 }
 

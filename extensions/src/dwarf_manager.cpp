@@ -364,6 +364,10 @@ int DwarfManager::GetIndexForNewEntity()
 
 void DwarfManager::Update(float dt)
 {
+#ifdef AI_DEBUG_COUNT_TIME
+	auto t1 = std::chrono::high_resolution_clock::now();
+#endif
+
 #ifdef DEBUG_RANDOM_PATH
 	const auto config = m_Engine.GetConfig();
 #endif
@@ -418,6 +422,12 @@ void DwarfManager::Update(float dt)
 		break;
 	default: ;
 	}
+
+#ifdef AI_DEBUG_COUNT_TIME
+	m_TimerDuration += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+	m_TimerCounter++;
+#endif
+
 }
 
 void DwarfManager::FixedUpdate() {}
