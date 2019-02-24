@@ -63,7 +63,7 @@ public:
 	~NavigationGraphManager()
 	{
 #ifdef AI_DEBUG_COUNT_TIME
-		std::cout << "[NavigationGraphManager]Update: " << m_TimerDuration / m_TimerCounter / 1000 << "," << m_TimerDuration / m_TimerCounter % 1000 << "\n";
+		std::cout << "[NavigationGraphManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter << "\n";
 #endif
 	}
 
@@ -112,7 +112,7 @@ private:
 	const static short ROAD_COST = 1;
 	const static short NORMAL_COST = 2;
 
-	const short m_MaxPathForOneUpdate = 100'000;
+	const int m_MaxPathForOneUpdate = 100'000;
 
 	std::vector<GraphNode> m_Graph;
 
@@ -127,7 +127,8 @@ private:
 #endif
 
 #ifdef AI_DEBUG_COUNT_TIME
-	int m_TimerDuration = 0;
+	unsigned int m_TimerMilli = 0u;
+	unsigned int m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
 #endif
 

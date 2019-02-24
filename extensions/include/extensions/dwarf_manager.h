@@ -49,7 +49,7 @@ public:
 	~DwarfManager()
 	{
 #ifdef AI_DEBUG_COUNT_TIME
-		std::cout << "[DwarfManager]Update: " << m_TimerDuration / m_TimerCounter / 1000 << "," << m_TimerDuration / m_TimerCounter % 1000 << "\n";
+		std::cout << "[DwarfManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter << "\n";
 #endif
 
 	}
@@ -342,7 +342,8 @@ private:
 	DayState m_DayState = DAY;
 
 #ifdef AI_DEBUG_COUNT_TIME
-	int m_TimerDuration = 0;
+	unsigned int m_TimerMilli = 0u;
+	unsigned int m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
 #endif
 

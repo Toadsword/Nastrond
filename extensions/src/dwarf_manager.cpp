@@ -424,7 +424,10 @@ void DwarfManager::Update(float dt)
 	}
 
 #ifdef AI_DEBUG_COUNT_TIME
-	m_TimerDuration += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+	auto t2 = std::chrono::high_resolution_clock::now();
+	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	m_TimerMilli += timerDuration / 1000;
+	m_TimerMicro += timerDuration % 1000;
 	m_TimerCounter++;
 #endif
 
