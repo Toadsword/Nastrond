@@ -124,11 +124,9 @@ namespace sfge::ext
 		/**
 		 * \brief return true if a slot in the index is empty then take this slot.
 		 */
-		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+		bool CheckEmptySlot(Entity newEntity);
 
-		void SetupVertexArray(unsigned int forgeIndex, Transform2d* transformPtr);
-
-		void ResetVertexArray(int forgeIndex);
+		void SetupVertexArray(unsigned int forgeIndex);
 
 		/**
 		 * \brief Decrease happiness when call.
@@ -137,6 +135,8 @@ namespace sfge::ext
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
+		SpriteManager* m_SpriteManager;
+		Configuration* m_Configuration;
 		BuildingManager* m_BuildingManager;
 
 		sf::RenderWindow* m_Window;
@@ -160,9 +160,6 @@ namespace sfge::ext
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
-
-		//Vertex array
-		sf::VertexArray m_VertexArray;
 	};
 }
 

@@ -136,20 +136,20 @@ namespace sfge::ext
 
 
 		/**
-		 * \brief check if a slot already setup is empty and fill it.
+		 * \brief check if a slot of a building already setup is empty and fill it.
 		 * \param newEntity : the entity that is newly created.
-		 * \param transformPtr : the transform of the newly created.
 		 * \return true if a slot was empty and has been fill.
 		 */
-		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+		bool CheckEmptySlot(Entity newEntity);
 
-		void SetupVertexArray(unsigned int forgeIndex, Transform2d* transformPtr);
-
-		void ResetVertexArray(int forgeIndex);
+		void SetupTexture(unsigned int forgeIndex);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
+		SpriteManager* m_SpriteManager;
+		Configuration* m_Configuration;
 		BuildingManager* m_BuildingManager;
+
 		sf::RenderWindow* m_Window;
 
 		unsigned short m_CoolDown = 100;
@@ -181,9 +181,6 @@ namespace sfge::ext
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
-
-		//Vertex array
-		sf::VertexArray m_VertexArray;
 	};
 }
 #endif

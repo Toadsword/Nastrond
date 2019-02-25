@@ -121,47 +121,35 @@ namespace sfge::ext
 		 */
 		void ResizeContainer(size_t newSize);
 
-
-		/**
-		 * \brief Resize the vertex array for the good type of building.
-		 * \param newSize : the new size of the vertex array.
-		 * \param buildingType : the type of building of the vertex array.
-		 */
-		void ResizeContainerForVertexArray(size_t newSize, BuildingType buildingType);
-
 		/**
 		 * \brief check if a slot already setup is empty and fill it.
 		 * \param newEntity : the entity that is newly created.
 		 * \param buildingType  the type of building that you are creating.
-		 * \param transformPtr : the transform of the newly created.
 		 * \return true if a slot was empty and has been fill.
 		 */
-		bool CheckEmptySlot(Entity newEntity, BuildingType buildingType, Transform2d* transformPtr);
+		bool CheckEmptySlot(Entity newEntity, BuildingType buildingType);
 
 		/**
 		 * \brief Attribute a vertexArray ofr the entity.
-		 * \param entityIndex : the index of the entity.
+		 * \param newEntity : the entity of the building newly created.
 		 * \param buildingType : the type of building of the entity.
-		 * \param transformPtr : the transform of the entity.
 		 */
-		void AttributionVertxArray(unsigned int entityIndex, BuildingType buildingType, Transform2d * transformPtr);
+		void AttributionTexture(Entity newEntity, BuildingType buildingType);
 
 		/**
 		 * \brief Setup The Vertex array for the sprite of the entity.
 		 * \param newEntity : the index of the entity.
-		 * \param vertexArrayPtr : the pointer of the vertex array of the needed building type.
 		 * \param texture : the texture of the needed building.
-		 * \param transformPtr : the transform of the entity.
 		 */
-		void SetupVertexArray(int newEntity, sf::VertexArray* vertexArrayPtr, sf::Texture* texture, Transform2d* transformPtr);
-
-		void ResetVertexArray(sf::VertexArray* vertexArray, int index);
+		void SetupTexture(Entity newEntity, sf::Texture* texture);
 
 		bool m_Init = false;
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
+		SpriteManager* m_SpriteManager;
 		BuildingManager* m_BuildingManager;
+		Configuration* m_Configuration;
 
 		sf::RenderWindow* m_Window;
 
@@ -201,21 +189,15 @@ namespace sfge::ext
 		TextureId m_MineTextureId;
 		sf::Texture* m_MineTexture;
 
-		sf::VertexArray m_MineVertexArray;
-
 		//Excavation post texture
 		std::string m_ExcavationPostTexturePath;
 		TextureId m_ExcavationPostTextureId;
 		sf::Texture* m_ExcavationPostTexture;
 
-		sf::VertexArray m_ExcavationPostVertexArray;
-
 		//Mushroom farm texture
 		std::string m_MushroomFarmTexturePath;
 		TextureId m_MushroomFarmTextureId;
 		sf::Texture* m_MushroomFarmTexture;
-
-		sf::VertexArray m_MushroomFarmVertexArray;
 #pragma endregion
 	};
 }

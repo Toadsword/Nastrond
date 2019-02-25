@@ -34,6 +34,8 @@ namespace sfge::ext
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+		m_Configuration = m_Engine.GetConfig();
 		m_BuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<BuildingManager>(
 			"BuildingManager");
 
@@ -44,8 +46,6 @@ namespace sfge::ext
 		m_TexturePath = "data/sprites/forge.png";
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
-
-		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 	}
 
 	void ForgeManager::Update(float dt)
@@ -60,7 +60,6 @@ namespace sfge::ext
 
 	void ForgeManager::Draw()
 	{
-		m_Window->draw(m_VertexArray, m_Texture);
 	}
 
 	void ForgeManager::SpawnBuilding(Vec2f pos)
@@ -72,8 +71,7 @@ namespace sfge::ext
 
 		if(newEntity == INVALID_ENTITY)
 		{
-			Configuration* configuration = m_Engine.GetConfig();
-			entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+			entityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
 			newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 		}
 
@@ -81,7 +79,7 @@ namespace sfge::ext
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(pos.x, pos.y);
 
-		if(CheckEmptySlot(newEntity, transformPtr))
+		if(CheckEmptySlot(newEntity))
 		{
 			return;
 		}
@@ -91,7 +89,7 @@ namespace sfge::ext
 
 		if (m_BuildingIndexCount >= m_EntityIndex.size())
 		{
-			ResizeContainer(m_BuildingIndexCount + CONTAINER_EXTENDER);
+			ResizeContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
 		}
 
 
@@ -99,7 +97,7 @@ namespace sfge::ext
 
 		m_EntityIndex[newForge] = newEntity;
 
-		SetupVertexArray(newForge, transformPtr);
+		SetupTexture(newEntity);
 	}
 
 	bool ForgeManager::DestroyBuilding(Entity entity)
@@ -111,8 +109,6 @@ namespace sfge::ext
 				m_EntityIndex[i] = INVALID_ENTITY;
 				EntityManager* entityManager = m_Engine.GetEntityManager();
 				entityManager->DestroyEntity(entity);
-
-				ResetVertexArray(i);
 				return true;
 			}
 		}
@@ -238,8 +234,6 @@ namespace sfge::ext
 
 		m_ReservedExportStackNumber.resize(newSize, 0);
 		m_ReservedImportStackNumber.resize(newSize, 0);
-
-		m_VertexArray.resize(newSize * 4);
 	}
 
 	void ForgeManager::ProduceTools()
@@ -279,7 +273,7 @@ namespace sfge::ext
 		}
 	}
 
-	bool ForgeManager::CheckEmptySlot(Entity newEntity, Transform2d* transformPtr)
+	bool ForgeManager::CheckEmptySlot(Entity newEntity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -297,40 +291,16 @@ namespace sfge::ext
 				m_ReservedExportStackNumber[i] = 0;
 				m_ReservedImportStackNumber[i] = 0;
 
-				SetupVertexArray(i, transformPtr);
+				SetupTexture(newEntity);
 				return true;
 			}
 		}
 		return false;
 	}
-	void ForgeManager::SetupVertexArray(unsigned int forgeIndex, Transform2d* transformPtr)
+	void ForgeManager::SetupTexture(unsigned int forgeIndex)
 	{
-		const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-		m_VertexArray[4 * forgeIndex].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * forgeIndex + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-		m_VertexArray[4 * forgeIndex + 2].texCoords = textureSize;
-		m_VertexArray[4 * forgeIndex + 3].texCoords = sf::Vector2f(0, textureSize.y);
-						  
-		m_VertexArray[4 * forgeIndex].position = transformPtr->Position - textureSize / 2.0f;
-		m_VertexArray[4 * forgeIndex + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-		m_VertexArray[4 * forgeIndex + 2].position = transformPtr->Position + textureSize / 2.0f;
-		m_VertexArray[4 * forgeIndex + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
-
-
-	}
-	void ForgeManager::ResetVertexArray(int forgeIndex)
-	{
-		sf::Vector2f resetSize = sf::Vector2f(0, 0);
-
-		m_VertexArray[4 * forgeIndex].texCoords = resetSize;
-		m_VertexArray[4 * forgeIndex + 1].texCoords = resetSize;
-		m_VertexArray[4 * forgeIndex + 2].texCoords = resetSize;
-		m_VertexArray[4 * forgeIndex + 3].texCoords = resetSize;
-
-		m_VertexArray[4 * forgeIndex].position = resetSize;
-		m_VertexArray[4 * forgeIndex + 1].position = resetSize;
-		m_VertexArray[4 * forgeIndex + 2].position = resetSize;
-		m_VertexArray[4 * forgeIndex + 3].position = resetSize;
+		// Sprite Component part
+		Sprite* sprite = m_SpriteManager->AddComponent(forgeIndex);
+		sprite->SetTexture(m_Texture);
 	}
 }

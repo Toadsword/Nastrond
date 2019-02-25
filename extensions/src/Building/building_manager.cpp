@@ -24,8 +24,6 @@ SOFTWARE.
 
 
 #include <extensions/Building/building_manager.h>
-#include "SFML/Window/WindowImpl.hpp"
-#include "extensions/AI/behavior_tree_nodes_extension.h"
 
 
 namespace sfge::ext
@@ -45,13 +43,13 @@ namespace sfge::ext
 
 		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
 			"WarehouseManager");
-		
-				SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
-				SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
-				SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
-				SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
-				SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));
-				SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
+
+		SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
+		SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
+		SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
+		SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
+		SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));
+		SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
 	}
 
 	void BuildingManager::Update(float dt) {}

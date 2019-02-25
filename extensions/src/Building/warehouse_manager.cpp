@@ -32,6 +32,8 @@ namespace sfge::ext
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+		m_Configuration = m_Engine.GetConfig();
 
 		m_Window = m_Engine.GetGraphics2dManager()->GetWindow();
 
@@ -39,8 +41,6 @@ namespace sfge::ext
 		m_TexturePath = "data/sprites/warehouse.png";
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
-
-		m_VertexArray = sf::VertexArray(sf::Quads, 0);
 	}
 
 	void WarehouseManager::Update(float dt)
@@ -53,7 +53,6 @@ namespace sfge::ext
 
 	void WarehouseManager::Draw()
 	{
-		m_Window->draw(m_VertexArray, m_Texture);
 	}
 
 	void WarehouseManager::SpawnBuilding(Vec2f position)
@@ -65,8 +64,7 @@ namespace sfge::ext
 
 		if (newEntity == INVALID_ENTITY)
 		{
-			Configuration* configuration = m_Engine.GetConfig();
-			entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+			entityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + CONTAINER_RESERVATION);
 			newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 		}
 
@@ -74,7 +72,7 @@ namespace sfge::ext
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
 
-		if (CheckEmptySlot(newEntity, transformPtr))
+		if (CheckEmptySlot(newEntity))
 		{
 			return;
 		}
@@ -82,16 +80,19 @@ namespace sfge::ext
 		m_BuildingIndexCount++;
 
 
-		if (m_BuildingIndexCount >= m_EntityIndex.size())
+		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NumberReservation)
 		{
-			ResizeContainer(m_BuildingIndexCount + CONTAINER_EXTENDER);
+			ReserveContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
+			m_NumberReservation++;
 		}
+
+		AttributeContainer();
 
 		const size_t newWarehouse = m_BuildingIndexCount - 1;
 
 		m_EntityIndex[newWarehouse] = newEntity;
 
-		SetupVertexArray(newWarehouse, transformPtr);
+		SetupTexture(newEntity);
 	}
 
 	bool WarehouseManager::DestroyBuilding(Entity entity)
@@ -103,8 +104,6 @@ namespace sfge::ext
 				m_EntityIndex[i] = INVALID_ENTITY;
 				EntityManager* entityManager = m_Engine.GetEntityManager();
 				entityManager->DestroyEntity(entity);
-
-				ResetVertexArray(i);
 				return true;
 			}
 		}
@@ -409,29 +408,8 @@ namespace sfge::ext
 			}
 		}
 	}
-	void WarehouseManager::ResizeContainer(const size_t newSize)
-	{
-		m_EntityIndex.resize(newSize, INVALID_ENTITY);
-		m_DwarfSlots.resize(newSize, DwarfSlots());
 
-		m_IronInventories.resize(newSize, 0);
-		m_StoneInventories.resize(newSize, 0);
-		m_ToolInventories.resize(newSize, 0);
-		m_MushroomInventories.resize(newSize, 0);
-
-		m_ReservedExportStackNumberIron.resize(newSize, 0);
-		m_ReservedExportStackNumberStone.resize(newSize, 0);
-		m_ReservedExportStackNumberTool.resize(newSize, 0);
-		m_ReservedExportStackNumberMushroom.resize(newSize, 0);
-
-		m_ReservedImportStackNumberIron.resize(newSize, 0);
-		m_ReservedImportStackNumberStone.resize(newSize, 0);
-		m_ReservedImportStackNumberTool.resize(newSize, 0);
-		m_ReservedImportStackNumberMushroom.resize(newSize, 0);
-
-		m_VertexArray.resize(newSize);
-	}
-	bool WarehouseManager::CheckEmptySlot(Entity newEntity, Transform2d * transformPtr)
+	bool WarehouseManager::CheckEmptySlot(Entity newEntity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -455,40 +433,57 @@ namespace sfge::ext
 				m_ReservedImportStackNumberTool[i] = 0;
 				m_ReservedImportStackNumberMushroom[i] = 0;
 
-				SetupVertexArray(i, transformPtr);
+				SetupTexture(newEntity);
 				return true;
 			}
 		}
 		return false;
 	}
-	void WarehouseManager::SetupVertexArray(unsigned int forgeIndex, Transform2d * transformPtr)
+	void WarehouseManager::SetupTexture(unsigned int warehouseIndex)
 	{
-		const sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-		m_VertexArray[4 * forgeIndex].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * forgeIndex + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-		m_VertexArray[4 * forgeIndex + 2].texCoords = textureSize;
-		m_VertexArray[4 * forgeIndex + 3].texCoords = sf::Vector2f(0, textureSize.y);
-
-		m_VertexArray[4 * forgeIndex].position = transformPtr->Position - textureSize / 2.0f;
-		m_VertexArray[4 * forgeIndex + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-		m_VertexArray[4 * forgeIndex + 2].position = transformPtr->Position + textureSize / 2.0f;
-		m_VertexArray[4 * forgeIndex + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
+		//Sprite Component part
+		Sprite* sprite = m_SpriteManager->AddComponent(warehouseIndex);
+		sprite->SetTexture(m_Texture);
 	}
 
-	void WarehouseManager::ResetVertexArray(int forgeIndex)
+	void WarehouseManager::ReserveContainer(const size_t newSize)
 	{
-		sf::Vector2f resetSize = sf::Vector2f(0, 0);
+		m_EntityIndex.reserve(newSize);
+		m_DwarfSlots.reserve(newSize);
 
-		m_VertexArray[4 * forgeIndex].texCoords = resetSize;
-		m_VertexArray[4 * forgeIndex + 1].texCoords = resetSize;
-		m_VertexArray[4 * forgeIndex + 2].texCoords = resetSize;
-		m_VertexArray[4 * forgeIndex + 3].texCoords = resetSize;
+		m_IronInventories.reserve(newSize);
+		m_StoneInventories.reserve(newSize);
+		m_ToolInventories.reserve(newSize);
+		m_MushroomInventories.reserve(newSize);
 
-		m_VertexArray[4 * forgeIndex].position = resetSize;
-		m_VertexArray[4 * forgeIndex + 1].position = resetSize;
-		m_VertexArray[4 * forgeIndex + 2].position = resetSize;
-		m_VertexArray[4 * forgeIndex + 3].position = resetSize;
+		m_ReservedExportStackNumberIron.reserve(newSize);
+		m_ReservedExportStackNumberStone.reserve(newSize);
+		m_ReservedExportStackNumberTool.reserve(newSize);
+		m_ReservedExportStackNumberMushroom.reserve(newSize);
 
+		m_ReservedImportStackNumberIron.reserve(newSize);
+		m_ReservedImportStackNumberStone.reserve(newSize);
+		m_ReservedImportStackNumberTool.reserve(newSize);
+		m_ReservedImportStackNumberMushroom.reserve(newSize);
+	}
+	void WarehouseManager::AttributeContainer()
+	{
+		m_EntityIndex.push_back(INVALID_ENTITY);
+		m_DwarfSlots.push_back(DwarfSlots());
+
+		m_IronInventories.push_back(0);
+		m_StoneInventories.push_back(0);
+		m_ToolInventories.push_back(0);
+		m_MushroomInventories.push_back(0);
+
+		m_ReservedExportStackNumberIron.push_back(0);
+		m_ReservedExportStackNumberStone.push_back(0);
+		m_ReservedExportStackNumberTool.push_back(0);
+		m_ReservedExportStackNumberMushroom.push_back(0);
+
+		m_ReservedImportStackNumberIron.push_back(0);
+		m_ReservedImportStackNumberStone.push_back(0);
+		m_ReservedImportStackNumberTool.push_back(0);
+		m_ReservedImportStackNumberMushroom.push_back(0);
 	}
 }

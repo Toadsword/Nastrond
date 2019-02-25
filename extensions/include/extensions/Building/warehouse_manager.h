@@ -107,34 +107,32 @@ namespace sfge::ext
 
 	private:
 		/**
-		 * \brief Resize all vector in one go to keep the synchronize all index.
-		 * \param newSize : the size with the new number of building.
-		 */
-		void ResizeContainer(const size_t newSize);
-
-
-		/**
 		 * \brief check if a slot already setup is empty and fill it.
 		 * \param newEntity : the entity that is newly created.
 		 * \param transformPtr : the transform of the newly created.
 		 * \return true if a slot was empty and has been fill.
 		 */
-		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+		bool CheckEmptySlot(Entity newEntity);
 
-		void SetupVertexArray(unsigned int forgeIndex, Transform2d* transformPtr);
+		void SetupTexture(unsigned int warehouseIndex);
 
-		void ResetVertexArray(int forgeIndex);
+		void ReserveContainer(const size_t newSize);
+
+		void AttributeContainer();
 
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
+		Configuration* m_Configuration;
+
 
 		sf::RenderWindow* m_Window;
 
 		const unsigned short m_MaxCapacity = 200;
 
 		unsigned int m_BuildingIndexCount = 0;
+		unsigned int m_NumberReservation = 0;
 
 		std::vector<Entity> m_EntityIndex;
 
@@ -162,8 +160,6 @@ namespace sfge::ext
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
-
-		sf::VertexArray m_VertexArray;
 	};
 }
 #endif

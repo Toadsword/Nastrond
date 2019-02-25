@@ -35,6 +35,8 @@ namespace sfge::ext
 	{
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
+		m_Configuration = m_Engine.GetConfig();
 		m_BuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<BuildingManager>(
 			"BuildingManager");
 
@@ -54,12 +56,6 @@ namespace sfge::ext
 		m_MushroomFarmTexturePath = "data/sprites/mushroomFarm.png";
 		m_MushroomFarmTextureId = m_TextureManager->LoadTexture(m_MushroomFarmTexturePath);
 		m_MushroomFarmTexture = m_TextureManager->GetTexture(m_MushroomFarmTextureId);
-
-		m_MineVertexArray = sf::VertexArray(sf::Quads, 0);
-		m_ExcavationPostVertexArray = sf::VertexArray(sf::Quads, 0);
-		m_MushroomFarmVertexArray = sf::VertexArray(sf::Quads, 0);
-		std::cout << "production building Manager \n";
-
 		m_Init = true;
 	}
 
@@ -78,9 +74,6 @@ namespace sfge::ext
 
 	void ProductionBuildingManager::Draw()
 	{
-		m_Window->draw(m_MineVertexArray, m_MineTexture);
-		m_Window->draw(m_ExcavationPostVertexArray, m_ExcavationPostTexture);
-		m_Window->draw(m_MushroomFarmVertexArray, m_MushroomFarmTexture);
 	}
 
 
@@ -93,8 +86,7 @@ namespace sfge::ext
 
 		if (newEntity == INVALID_ENTITY)
 		{
-			Configuration* configuration = m_Engine.GetConfig();
-			entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + 1);
+			entityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
 			newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 		}
 		
@@ -102,7 +94,7 @@ namespace sfge::ext
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
 
-		if (CheckEmptySlot(newEntity, buildingType, transformPtr))
+		if (CheckEmptySlot(newEntity, buildingType))
 		{
 			return;
 		}
@@ -111,7 +103,7 @@ namespace sfge::ext
 
 		if (m_BuildingIndexCount >= m_EntityIndex.size())
 		{
-			ResizeContainer(m_BuildingIndexCount + CONTAINER_EXTENDER);
+			ResizeContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
 		}
 
 			const size_t newBuilding = m_BuildingIndexCount - 1;
@@ -138,7 +130,7 @@ namespace sfge::ext
 				break;
 			}
 
-			AttributionVertxArray(newBuilding, buildingType, transformPtr);
+			AttributionTexture(newEntity, buildingType);
 	}
 
 	bool ProductionBuildingManager::DestroyBuilding(Entity entity, BuildingType buildingType)
@@ -150,21 +142,6 @@ namespace sfge::ext
 				m_EntityIndex[i] = INVALID_ENTITY;
 				EntityManager* entityManager = m_Engine.GetEntityManager();
 				entityManager->DestroyEntity(entity);
-
-				switch (buildingType)
-				{
-				case BuildingType::MINE:
-					ResetVertexArray(&m_MineVertexArray, i);
-					break;
-
-				case BuildingType::EXCAVATION_POST:
-					ResetVertexArray(&m_ExcavationPostVertexArray, i);
-					break;
-
-				case BuildingType::MUSHROOM_FARM:
-					ResetVertexArray(&m_MushroomFarmVertexArray, i);
-					break;
-				}
 				return true;
 			}
 		}
@@ -314,29 +291,9 @@ namespace sfge::ext
 		m_ReservedExportStackNumber.resize(newSize);
 		m_ProgressionCoolDowns.resize(newSize);
 		m_ResourceTypes.resize(newSize);
-		m_GeneralVertexIndex.resize(newSize);
 	}
 
-	void ProductionBuildingManager::ResizeContainerForVertexArray(size_t newSize, BuildingType buildingType)
-	{
-		switch (buildingType)
-		{
-		case BuildingType::MINE:
-			m_MineVertexArray.resize(newSize * 4);
-			m_MineVertexIndex.resize(newSize);
-			break;
-		case BuildingType::EXCAVATION_POST:
-			m_ExcavationPostVertexArray.resize(newSize * 4);
-			m_ExcavationPostVertexIndex.resize(newSize);
-			break;
-		case BuildingType::MUSHROOM_FARM:
-			m_MushroomFarmVertexArray.resize(newSize * 4);
-			m_MushroomFarmVertexIndex.resize(newSize);
-			break;
-		}
-	}
-
-	bool ProductionBuildingManager::CheckEmptySlot(Entity newEntity, BuildingType buildingType, Transform2d* transformPtr)
+	bool ProductionBuildingManager::CheckEmptySlot(Entity newEntity, BuildingType buildingType)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -363,7 +320,7 @@ namespace sfge::ext
 				break;
 			}
 
-			AttributionVertxArray(i, buildingType, transformPtr);
+			AttributionTexture(newEntity, buildingType);
 
 
 			return true;
@@ -371,97 +328,29 @@ namespace sfge::ext
 		return false;
 	}
 
-	void ProductionBuildingManager::AttributionVertxArray(unsigned int entityIndex, BuildingType buildingType, Transform2d * transformPtr)
+	void ProductionBuildingManager::AttributionTexture(Entity newEntity, BuildingType buildingType)
 	{
 		switch (buildingType)
 		{
 		case BuildingType::MINE:
-			for (unsigned int i = 0; i < m_MineCount; i++)
-			{
-				if (!m_MineVertexIndex[i])
-				{
-					m_MineVertexIndex[i] = true;
-					SetupVertexArray(i, &m_MineVertexArray, m_MineTexture, transformPtr);
-					m_GeneralVertexIndex[entityIndex] = i;
-					return;
-				}
-			}
-
-			ResizeContainerForVertexArray(m_MineCount + CONTAINER_EXTENDER, buildingType);
-			m_MineCount++;
-			m_MineVertexIndex[m_MineCount - 1] = true;
-			SetupVertexArray(m_MineCount - 1, &m_MineVertexArray, m_MineTexture, transformPtr);
-			m_GeneralVertexIndex[entityIndex] = m_MineCount - 1;
+			SetupTexture(newEntity, m_MineTexture);
 			break;
 
 		case BuildingType::EXCAVATION_POST:
-			for (unsigned int i = 0; i < m_ExcavationPostCount; i++)
-			{
-				if (!m_ExcavationPostVertexIndex[i])
-				{
-					m_ExcavationPostVertexIndex[i] = true;
-					SetupVertexArray(i, &m_ExcavationPostVertexArray, m_ExcavationPostTexture, transformPtr);
-					m_GeneralVertexIndex[entityIndex] = i;
-					return;
-				}
-			}
-
-			ResizeContainerForVertexArray(m_ExcavationPostCount + CONTAINER_EXTENDER, buildingType);
-			m_ExcavationPostCount++;
-			m_ExcavationPostVertexIndex[m_ExcavationPostCount - 1] = true;
-			SetupVertexArray(m_ExcavationPostCount - 1, &m_ExcavationPostVertexArray, m_ExcavationPostTexture, transformPtr);
-			m_GeneralVertexIndex[entityIndex] = m_ExcavationPostCount - 1;
+			SetupTexture(newEntity, m_ExcavationPostTexture);
 			break;
 
 		case BuildingType::MUSHROOM_FARM:
-			for (unsigned int i = 0; i < m_MushroomFarmCount; i++)
-			{
-				if (!m_MushroomFarmVertexIndex[i])
-				{
-					m_MushroomFarmVertexIndex[i] = true;
-					SetupVertexArray(i, &m_MushroomFarmVertexArray, m_MushroomFarmTexture, transformPtr);
-					m_GeneralVertexIndex[entityIndex] = i;
-					return;
-				}
-			}
-
-			ResizeContainerForVertexArray(m_MushroomFarmCount + CONTAINER_EXTENDER, buildingType);
-			m_MushroomFarmCount++;
-			m_MushroomFarmVertexIndex[m_MushroomFarmCount - 1] = true;
-			SetupVertexArray(m_MushroomFarmCount - 1, &m_MushroomFarmVertexArray, m_MushroomFarmTexture, transformPtr);
-			m_GeneralVertexIndex[entityIndex] = m_MushroomFarmCount - 1;
+			SetupTexture(newEntity, m_MushroomFarmTexture);
 			break;
 		}
 	}
 
-	void ProductionBuildingManager::SetupVertexArray(int index, sf::VertexArray* vertexArray, sf::Texture* texture, Transform2d * transformPtr)
+	void ProductionBuildingManager::SetupTexture(Entity newEntity, sf::Texture* texture)
 	{
-		const sf::Vector2f textureSize = sf::Vector2f(texture->getSize().x, texture->getSize().y);
-
-		(*vertexArray)[4 * index].texCoords = sf::Vector2f(0, 0);
-		(*vertexArray)[4 * index + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-		(*vertexArray)[4 * index + 2].texCoords = textureSize;
-		(*vertexArray)[4 * index + 3].texCoords = sf::Vector2f(0, textureSize.y);
-
-		(*vertexArray)[4 * index].position = transformPtr->Position - textureSize / 2.0f;
-		(*vertexArray)[4 * index + 1].position = transformPtr->Position + sf::Vector2f(textureSize.x / 2.0f, -textureSize.y / 2.0f);
-		(*vertexArray)[4 * index + 2].position = transformPtr->Position + textureSize / 2.0f;
-		(*vertexArray)[4 * index + 3].position = transformPtr->Position + sf::Vector2f(-textureSize.x / 2.0f, textureSize.y / 2.0f);
-	}
-
-	void ProductionBuildingManager::ResetVertexArray(sf::VertexArray * vertexArray, int index)
-	{
-		sf::Vector2f resetVertexArray = sf::Vector2f(0, 0);
-
-		(*vertexArray)[4 * index].texCoords = resetVertexArray;
-		(*vertexArray)[4 * index + 1].texCoords = resetVertexArray;
-		(*vertexArray)[4 * index + 2].texCoords = resetVertexArray;
-		(*vertexArray)[4 * index + 3].texCoords = resetVertexArray;
-
-		(*vertexArray)[4 * index].position = resetVertexArray;
-		(*vertexArray)[4 * index + 1].position = resetVertexArray;
-		(*vertexArray)[4 * index + 2].position = resetVertexArray;
-		(*vertexArray)[4 * index + 3].position = resetVertexArray;
+		// Sprite Component part
+		Sprite* sprite = m_SpriteManager->AddComponent(newEntity);
+		sprite->SetTexture(texture);
 	}
 }
 
