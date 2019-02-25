@@ -28,12 +28,14 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 
+#include <extensions/Building/building_utilities.h>
+
 namespace sfge::ext
 {
 	/**
 	 * \author Robin Alves
 	 */
-	class RoadManager : System
+	class RoadManager : public System
 	{
 	public:
 		RoadManager(Engine& engine);
@@ -48,11 +50,67 @@ namespace sfge::ext
 		
 		void SpawnRoad(Vec2f position);
 
-		void DestroyRoad(Entity entity);
+		void SpawnGround(Vec2f position);
+
+		void DestroyRoad(const Entity entity);
 
 		void GetNeighbors();
 
+	private:
+		bool CheckEmptySlot(const Entity entity);
 
+		void SetupTexture(const Entity entity);
+
+		void SetupTextureGround(const Entity entity);
+
+
+		Transform2dManager* m_Transform2DManager;
+		TextureManager* m_TextureManager;
+		SpriteManager* m_SpriteManager;
+		EntityManager* m_EntityManager;
+		Configuration* m_Configuration;
+
+		std::vector<Entity> m_EntityIndex;
+
+		unsigned int m_BuildingIndexCount = 0;
+		unsigned int m_NmbReservation = 0;
+
+		// Road cross 4 texture
+		std::string m_CrossTexturePath;
+		TextureId m_CrossTextureId;
+		sf::Texture* m_CrossTexture;
+
+		// Road threeWay texture
+		std::string m_ThreeWayTexturePath;
+		TextureId m_ThreeWayTextureId;
+		sf::Texture* m_ThreeWayTexture;
+
+		// Road OneWay texture
+		std::string m_OneWayTexturePath;
+		TextureId m_OneWayTextureId;
+		sf::Texture* m_OneWayTexture;
+
+		// Road End texture
+		std::string m_EndTexturePath;
+		TextureId m_EndTextureId;
+		sf::Texture* m_EndTexture;
+
+		// Road TurnNS texture
+		std::string m_TurnNSTexturePath;
+		TextureId m_TurnNSTextureId;
+		sf::Texture* m_TurnNSTexture;
+
+		// Road TurnWE texture
+		std::string m_TurnWETexturePath;
+		TextureId m_TurnWETextureId;
+		sf::Texture* m_TurnWETexture;
+
+		// Road TurnWE texture
+		std::string m_GroundTexturePath;
+		TextureId m_GroundTextureId;
+		sf::Texture* m_GroundTexture;
+
+		std::vector<sf::Texture*> m_TextureList;
 	};
 }
 #endif
