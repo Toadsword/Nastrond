@@ -86,12 +86,13 @@ namespace sfge::ext
 
 		m_BuildingIndexCount++;
 
-
-		if (m_BuildingIndexCount >= m_EntityIndex.size())
+		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
 		{
-			ResizeContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
+			ReserveContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
+			m_NmbReservation++;
 		}
 
+		AttributeContainer();
 
 		const size_t newForge = m_BuildingIndexCount - 1;
 
@@ -186,16 +187,6 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	ResourceType ForgeManager::GetProducedResourceType()
-	{
-		return m_ResourceTypeProduced;
-	}
-
-	ResourceType ForgeManager::GetNeededResourceType()
-	{
-		return m_ResourceTypeNeeded;
-	}
-
 	void ForgeManager::DwarfTakesResources(Entity entity)
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
@@ -220,20 +211,20 @@ namespace sfge::ext
 		}
 	}
 
-	void ForgeManager::ResizeContainer(const size_t newSize)
+	void ForgeManager::ReserveContainer(const size_t newSize)
 	{
-		m_EntityIndex.resize(newSize, INVALID_ENTITY);
+		m_EntityIndex.reserve(newSize);
 
-		m_DwarfSlots.resize(newSize, DwarfSlots());
+		m_DwarfSlots.reserve(newSize);
 
-		m_ResourcesInventoriesGiver.resize(newSize, 0);
-		m_ResourcesInventoriesReceiver.resize(newSize, 0);
+		m_ResourcesInventoriesGiver.reserve(newSize);
+		m_ResourcesInventoriesReceiver.reserve(newSize);
 
-		m_ProgressionConsumption.resize(newSize, 0);
-		m_ProgressionCoolDown.resize(newSize, 0);
+		m_ProgressionConsumption.reserve(newSize);
+		m_ProgressionCoolDown.reserve(newSize);
 
-		m_ReservedExportStackNumber.resize(newSize, 0);
-		m_ReservedImportStackNumber.resize(newSize, 0);
+		m_ReservedExportStackNumber.reserve(newSize);
+		m_ReservedImportStackNumber.reserve(newSize);
 	}
 
 	void ForgeManager::ProduceTools()
@@ -297,7 +288,22 @@ namespace sfge::ext
 		}
 		return false;
 	}
-	void ForgeManager::SetupTexture(unsigned int forgeIndex)
+	void ForgeManager::AttributeContainer()
+	{
+		m_EntityIndex.emplace_back(INVALID_ENTITY);
+
+		m_DwarfSlots.emplace_back(DwarfSlots());
+
+		m_ResourcesInventoriesGiver.emplace_back(0);
+		m_ResourcesInventoriesReceiver.emplace_back(0);
+
+		m_ProgressionConsumption.emplace_back(0);
+		m_ProgressionCoolDown.emplace_back(0);
+
+		m_ReservedExportStackNumber.emplace_back(0);
+		m_ReservedImportStackNumber.emplace_back(0);
+	}
+	void ForgeManager::SetupTexture(const unsigned int forgeIndex)
 	{
 		// Sprite Component part
 		Sprite* sprite = m_SpriteManager->AddComponent(forgeIndex);

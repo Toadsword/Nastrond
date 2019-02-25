@@ -109,12 +109,11 @@ namespace sfge::ext
 		/**
 		 * \brief check if a slot already setup is empty and fill it.
 		 * \param newEntity : the entity that is newly created.
-		 * \param transformPtr : the transform of the newly created.
 		 * \return true if a slot was empty and has been fill.
 		 */
 		bool CheckEmptySlot(Entity newEntity);
 
-		void SetupTexture(unsigned int warehouseIndex);
+		void SetupTexture(const unsigned int warehouseIndex);
 
 		void ReserveContainer(const size_t newSize);
 
@@ -132,7 +131,7 @@ namespace sfge::ext
 		const unsigned short m_MaxCapacity = 200;
 
 		unsigned int m_BuildingIndexCount = 0;
-		unsigned int m_NumberReservation = 0;
+		unsigned int m_NmbReservation = 0;
 
 		std::vector<Entity> m_EntityIndex;
 

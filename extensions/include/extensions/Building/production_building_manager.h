@@ -97,12 +97,6 @@ namespace sfge::ext
 		Entity GetFreeSlotInBuilding(BuildingType buildingType);
 
 		/**
-		 * \brief get the type of resources that a building produce.
-		 * \return a resource type.
-		 */
-		ResourceType GetProducedResourceType(BuildingType buildingType);
-
-		/**
 		 * \brief get a certain amount of resources that a building have produce.
 		 * \param entity : an entity that is a building.
 		 * \return an int of an amount of resources.

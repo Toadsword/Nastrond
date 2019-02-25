@@ -84,16 +84,19 @@ namespace sfge::ext
 
 		m_BuildingIndexCount++;
 
-		if (m_BuildingIndexCount >= m_EntityIndex.size())
+		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
 		{
-			ResizeContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
+			ReserveContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
+			m_NmbReservation++;
 		}
 
-			const size_t newDwelling = m_BuildingIndexCount - 1;
+		AttributeContainer();
 
-			m_EntityIndex[newDwelling] = newEntity;
+		const size_t newDwelling = m_BuildingIndexCount - 1;
 
-			SetupVertexArray(newEntity);
+		m_EntityIndex[newDwelling] = newEntity;
+
+		SetupTexture(newEntity);
 	}
 
 	bool DwellingManager::DestroyBuilding(Entity entity)
@@ -182,11 +185,6 @@ namespace sfge::ext
 		}
 	}
 
-	ResourceType DwellingManager::GetNeededResourceType()
-	{
-		return m_ResourceTypeNeeded;
-	}
-
 	void DwellingManager::DwarfPutsResources(Entity entity)
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
@@ -239,15 +237,26 @@ namespace sfge::ext
 		}
 	}
 
-	void DwellingManager::ResizeContainer(const size_t newSize)
+	void DwellingManager::ReserveContainer(const size_t newSize)
 	{
-		m_EntityIndex.resize(newSize, INVALID_ENTITY);
-		m_DwarfSlots.resize(newSize, DwarfSlots());
+		m_EntityIndex.reserve(newSize);
+		m_DwarfSlots.reserve(newSize);
 
-		m_ResourcesInventories.resize(newSize, 0);
-		m_ReservedImportStackNumber.resize(newSize, 0);
+		m_ResourcesInventories.reserve(newSize);
+		m_ReservedImportStackNumber.reserve(newSize);
 
-		m_ProgressionCoolDown.resize(newSize, 0);
+		m_ProgressionCoolDown.reserve(newSize);
+	}
+
+	void DwellingManager::AttributeContainer()
+	{
+		m_EntityIndex.emplace_back(INVALID_ENTITY);
+		m_DwarfSlots.emplace_back(DwarfSlots());
+
+		m_ResourcesInventories.emplace_back(0);
+		m_ReservedImportStackNumber.emplace_back(0);
+
+		m_ProgressionCoolDown.emplace_back(0);
 	}
 
 	bool DwellingManager::CheckEmptySlot(Entity newEntity)
@@ -263,7 +272,7 @@ namespace sfge::ext
 				m_ProgressionCoolDown[i] = 0;
 				m_ReservedImportStackNumber[i] = 0;
 
-				SetupVertexArray(newEntity);
+				SetupTexture(newEntity);
 
 				return true;
 			}
@@ -271,7 +280,7 @@ namespace sfge::ext
 		return false;
 	}
 
-	void DwellingManager::SetupVertexArray(unsigned int dwellingIndex)
+	void DwellingManager::SetupTexture(const unsigned int dwellingIndex)
 	{
 		//Sprite Component part
 		Sprite* sprite = m_SpriteManager->AddComponent(dwellingIndex);

@@ -74,34 +74,34 @@ namespace sfge::ext
 
 		InventoryTask INVALID_INVENTORY_TASK = InventoryTask();
 
-		void SpawnBuilding(BuildingType buildingType, Vec2f position);
+		void SpawnBuilding(const BuildingType buildingType, const Vec2f position);
 
-		void DestroyBuilding(BuildingType buildingType, Entity entity);
+		void DestroyBuilding(const BuildingType buildingType, const Entity entity);
 
-		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
+		Entity AttributeDwarfToWorkingPlace(const BuildingType buildingType);
 
-		void DeallocateDwarfToWorkingPlace(BuildingType buildingType, Entity entity);
+		void DeallocateDwarfToWorkingPlace(const BuildingType buildingType, const Entity entity);
 
-		void DwarfEnterBuilding(BuildingType buildingType, Entity entity);
+		void DwarfEnterBuilding(const BuildingType buildingType, const Entity entity);
 
-		void DwarfExitBuilding(BuildingType buildingType, Entity entity);
+		void DwarfExitBuilding(const BuildingType buildingType, const Entity entity);
 
-		void DwarfTakesResources(BuildingType buildingType, Entity entity, ResourceType resourceType);
+		void DwarfTakesResources(const BuildingType buildingType, const Entity entity, const ResourceType resourceType);
 
-		void DwarfPutsResources(BuildingType buildingType, Entity entity, ResourceType resourceType, unsigned int resourceQuantity);
+		void DwarfPutsResources(const BuildingType buildingType, const Entity entity, const ResourceType resourceType, const unsigned int resourceQuantity);
 
 		InventoryTask ConveyorLookForTask();
 
 #pragma region Move resources section
-		void RegistrationBuildingToBeEmptied(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity);
+		void RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
 
-		void RegistrationBuildingToBeFill(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity);
+		void RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
 #pragma endregion 
 
 		//for dwellings
 		Entity AttributeDwarfToDwelling();
 
-		void DeallocateDwarfToDwelling(Entity entity);
+		void DeallocateDwarfToDwelling(const Entity entity);
 
 
 	private:

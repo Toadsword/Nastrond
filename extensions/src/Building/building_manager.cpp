@@ -44,12 +44,17 @@ namespace sfge::ext
 		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
 			"WarehouseManager");
 
-		SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
-		SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
-		SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
-		SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
-		SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));
-		SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
+
+		////////////////////////Debug////////////////////////
+		for(int i = 0; i < 100; i++)
+		{
+			//SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
+			//SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
+			//SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
+			SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
+			SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
+			SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));			
+		}
 	}
 
 	void BuildingManager::Update(float dt) {}
@@ -60,7 +65,7 @@ namespace sfge::ext
 
 	void BuildingManager::Draw() {}
 
-	void BuildingManager::SpawnBuilding(BuildingType buildingType, Vec2f position)
+	void BuildingManager::SpawnBuilding(const BuildingType buildingType, const Vec2f position)
 	{
 		switch (buildingType)
 		{
@@ -85,7 +90,7 @@ namespace sfge::ext
 		}
 	}
 
-	void BuildingManager::DestroyBuilding(BuildingType buildingType, Entity entity)
+	void BuildingManager::DestroyBuilding(const BuildingType buildingType, const Entity entity)
 	{
 		switch (buildingType)
 		{
@@ -107,7 +112,7 @@ namespace sfge::ext
 		}
 	}
 
-	Entity BuildingManager::AttributeDwarfToWorkingPlace(BuildingType buildingType)
+	Entity BuildingManager::AttributeDwarfToWorkingPlace(const BuildingType buildingType)
 	{
 		switch (buildingType)
 		{
@@ -164,7 +169,7 @@ namespace sfge::ext
 		return INVALID_ENTITY;
 	}
 
-	void BuildingManager::DeallocateDwarfToWorkingPlace(BuildingType buildingType, Entity entity)
+	void BuildingManager::DeallocateDwarfToWorkingPlace(const BuildingType buildingType, const Entity entity)
 	{
 		switch (buildingType)
 		{
@@ -187,7 +192,7 @@ namespace sfge::ext
 
 	}
 
-	void BuildingManager::DwarfEnterBuilding(BuildingType buildingType, Entity entity)
+	void BuildingManager::DwarfEnterBuilding(const BuildingType buildingType, const Entity entity)
 	{
 		switch (buildingType)
 		{
@@ -212,7 +217,7 @@ namespace sfge::ext
 		}
 	}
 
-	void BuildingManager::DwarfExitBuilding(BuildingType buildingType, Entity entity)
+	void BuildingManager::DwarfExitBuilding(const BuildingType buildingType, const Entity entity)
 	{
 		switch (buildingType)
 		{
@@ -237,7 +242,7 @@ namespace sfge::ext
 		}
 	}
 
-	void BuildingManager::DwarfTakesResources(BuildingType buildingType, Entity entity, ResourceType resourceType)
+	void BuildingManager::DwarfTakesResources(const BuildingType buildingType, const Entity entity, const ResourceType resourceType)
 	{
 		switch(buildingType)
 		{
@@ -259,7 +264,7 @@ namespace sfge::ext
 		}
 	}
 
-	void BuildingManager::DwarfPutsResources(BuildingType buildingType, Entity entity, ResourceType resourceType, unsigned int resourceQuantity)
+	void BuildingManager::DwarfPutsResources(const BuildingType buildingType, const Entity entity, const ResourceType resourceType, const unsigned int resourceQuantity)
 	{
 		switch(buildingType)
 		{
@@ -295,7 +300,7 @@ namespace sfge::ext
 		return INVALID_INVENTORY_TASK;
 	}
 
-	void BuildingManager::RegistrationBuildingToBeEmptied(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity)
+	void BuildingManager::RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity)
 	{
 		InventoryTask inventoryTask = INVALID_INVENTORY_TASK;
 
@@ -329,7 +334,7 @@ namespace sfge::ext
 		}
 	}
 
-	void BuildingManager::RegistrationBuildingToBeFill(Entity entity, BuildingType buildingType, ResourceType resourceType, int resourceQuantity)
+	void BuildingManager::RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity)
 	{
 		InventoryTask inventoryTask = INVALID_INVENTORY_TASK;
 
@@ -373,7 +378,7 @@ namespace sfge::ext
 		return dwelling;
 	}
 
-	void BuildingManager::DeallocateDwarfToDwelling(Entity entity)
+	void BuildingManager::DeallocateDwarfToDwelling(const Entity entity)
 	{
 		m_DwellingManager->RemoveDwarfToBuilding(entity);
 	}

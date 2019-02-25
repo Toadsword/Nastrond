@@ -80,10 +80,10 @@ namespace sfge::ext
 		m_BuildingIndexCount++;
 
 
-		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NumberReservation)
+		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
 		{
 			ReserveContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
-			m_NumberReservation++;
+			m_NmbReservation++;
 		}
 
 		AttributeContainer();
@@ -468,22 +468,22 @@ namespace sfge::ext
 	}
 	void WarehouseManager::AttributeContainer()
 	{
-		m_EntityIndex.push_back(INVALID_ENTITY);
-		m_DwarfSlots.push_back(DwarfSlots());
+		m_EntityIndex.emplace_back(INVALID_ENTITY);
+		m_DwarfSlots.emplace_back(DwarfSlots());
 
-		m_IronInventories.push_back(0);
-		m_StoneInventories.push_back(0);
-		m_ToolInventories.push_back(0);
-		m_MushroomInventories.push_back(0);
+		m_IronInventories.emplace_back(0);
+		m_StoneInventories.emplace_back(0);
+		m_ToolInventories.emplace_back(0);
+		m_MushroomInventories.emplace_back(0);
 
-		m_ReservedExportStackNumberIron.push_back(0);
-		m_ReservedExportStackNumberStone.push_back(0);
-		m_ReservedExportStackNumberTool.push_back(0);
-		m_ReservedExportStackNumberMushroom.push_back(0);
+		m_ReservedExportStackNumberIron.emplace_back(0);
+		m_ReservedExportStackNumberStone.emplace_back(0);
+		m_ReservedExportStackNumberTool.emplace_back(0);
+		m_ReservedExportStackNumberMushroom.emplace_back(0);
 
-		m_ReservedImportStackNumberIron.push_back(0);
-		m_ReservedImportStackNumberStone.push_back(0);
-		m_ReservedImportStackNumberTool.push_back(0);
-		m_ReservedImportStackNumberMushroom.push_back(0);
+		m_ReservedImportStackNumberIron.emplace_back(0);
+		m_ReservedImportStackNumberStone.emplace_back(0);
+		m_ReservedImportStackNumberTool.emplace_back(0);
+		m_ReservedImportStackNumberMushroom.emplace_back(0);
 	}
 }

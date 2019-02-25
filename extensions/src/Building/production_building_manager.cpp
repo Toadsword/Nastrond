@@ -106,31 +106,31 @@ namespace sfge::ext
 			ResizeContainer(m_BuildingIndexCount + CONTAINER_RESERVATION);
 		}
 
-			const size_t newBuilding = m_BuildingIndexCount - 1;
+		const size_t newBuilding = m_BuildingIndexCount - 1;
 
-			m_BuildingTypes[newBuilding] = buildingType;
+		m_BuildingTypes[newBuilding] = buildingType;
 
-			m_EntityIndex[newBuilding] = newEntity;
+		m_EntityIndex[newBuilding] = newEntity;
 
-			const DwarfSlots newDwarfSlot;
-			m_DwarfSlots[newBuilding] = newDwarfSlot;
-			m_ResourcesInventories[newBuilding] = 0;
-			m_ProgressionCoolDowns[newBuilding] = 0;
+		const DwarfSlots newDwarfSlot;
+		m_DwarfSlots[newBuilding] = newDwarfSlot;
+		m_ResourcesInventories[newBuilding] = 0;
+		m_ProgressionCoolDowns[newBuilding] = 0;
 
-			switch (buildingType)
-			{
-			case BuildingType::MINE:
-				m_ResourceTypes[newBuilding] = m_MineResourceType;
-				break;
-			case BuildingType::EXCAVATION_POST:
-				m_ResourceTypes[newBuilding] = m_ExcavationPostResourceType;
-				break;
-			case BuildingType::MUSHROOM_FARM:
-				m_ResourceTypes[newBuilding] = m_MushroomFarmResourceType;
-				break;
-			}
+		switch (buildingType)
+		{
+		case BuildingType::MINE:
+			m_ResourceTypes[newBuilding] = m_MineResourceType;
+			break;
+		case BuildingType::EXCAVATION_POST:
+			m_ResourceTypes[newBuilding] = m_ExcavationPostResourceType;
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			m_ResourceTypes[newBuilding] = m_MushroomFarmResourceType;
+			break;
+		}
 
-			AttributionTexture(newEntity, buildingType);
+		AttributionTexture(newEntity, buildingType);
 	}
 
 	bool ProductionBuildingManager::DestroyBuilding(Entity entity, BuildingType buildingType)
@@ -204,7 +204,6 @@ namespace sfge::ext
 				m_DwarfSlots[i].dwarfIn--;
 				if (m_DwarfSlots[i].dwarfIn < 0)
 					m_DwarfSlots[i].dwarfIn = 0;
-
 			}
 		}
 	}
@@ -219,25 +218,6 @@ namespace sfge::ext
 			}
 		}
 		return INVALID_ENTITY;
-	}
-
-	ResourceType ProductionBuildingManager::GetProducedResourceType(BuildingType buildingType)
-	{
-		switch (buildingType)
-		{
-		case BuildingType::MINE:
-			return m_MineResourceType;
-			break;
-
-		case BuildingType::EXCAVATION_POST:
-			return m_ExcavationPostResourceType;
-			break;
-
-		case BuildingType::MUSHROOM_FARM:
-			return m_MushroomFarmResourceType;
-			break;
-
-		}
 	}
 
 	int ProductionBuildingManager::DwarfTakesResources(Entity entity, BuildingType buildingType)
@@ -263,7 +243,9 @@ namespace sfge::ext
 				continue;
 			}
 
-			if ((m_ProgressionCoolDowns[i] += m_DwarfSlots[i].dwarfIn) == m_CoolDown)
+			m_ProgressionCoolDowns[i] += m_DwarfSlots[i].dwarfIn;
+
+			if (m_ProgressionCoolDowns[i] == m_CoolDown)
 			{
 				m_ProgressionCoolDowns[i] = 0;
 				m_ResourcesInventories[i]++;

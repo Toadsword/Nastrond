@@ -97,12 +97,6 @@ namespace sfge::ext
 		void DwarfExitBuilding(Entity dwellingEntity);
 
 		/**
-		 * \brief Get all resources that the building need to do his work.
-		 * \return a vector with all the type of resources that the dwelling need.
-		 */
-		ResourceType GetNeededResourceType();
-
-		/**
 		 * \brief give resources that the dwelling need.
 		 * \param dwellingEntity : an entity that is a dwelling.
 		 */
@@ -119,14 +113,16 @@ namespace sfge::ext
 		 * \brief Resize all vector in one go to keep the synchronize all index.
 		 * \param newSize : the size with the new number of building.
 		 */
-		void ResizeContainer(const size_t newSize);
+		void ReserveContainer(const size_t newSize);
+
+		void AttributeContainer();
 
 		/**
 		 * \brief return true if a slot in the index is empty then take this slot.
 		 */
 		bool CheckEmptySlot(Entity newEntity);
 
-		void SetupVertexArray(unsigned int forgeIndex);
+		void SetupTexture(const unsigned int dwellingIndex);
 
 		/**
 		 * \brief Decrease happiness when call.
@@ -140,6 +136,8 @@ namespace sfge::ext
 		BuildingManager* m_BuildingManager;
 
 		sf::RenderWindow* m_Window;
+
+		unsigned int m_NmbReservation = 0u;
 
 		const unsigned short m_MaxCapacity = 200;
 		const unsigned short m_CoolDown = 600;

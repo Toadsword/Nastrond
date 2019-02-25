@@ -98,18 +98,6 @@ namespace sfge::ext
 		Entity GetFreeSlotInBuilding();
 
 		/**
-		 * \brief get the type of resources that a forge produce.
-		 * \return a resource type.
-		 */
-		ResourceType GetProducedResourceType();
-
-		/**
-		 * \brief Get all resources that the building need to do his work.
-		 * \return a vector with all the type of resources that the forge need.
-		 */
-		ResourceType GetNeededResourceType();
-
-		/**
 		 * \brief get a certain amount of resources that a forge have produce.
 		 * \param forgeEntity : an entity that is a forge.
 		 * \return an int of an amount of resources.
@@ -132,7 +120,7 @@ namespace sfge::ext
 		 * \brief Resize all vector in one go to keep the synchronize all index.
 		 * \param newSize : the size with the new number of building.
 		 */
-		void ResizeContainer(const size_t newSize);
+		void ReserveContainer(const size_t newSize);
 
 
 		/**
@@ -142,7 +130,9 @@ namespace sfge::ext
 		 */
 		bool CheckEmptySlot(Entity newEntity);
 
-		void SetupTexture(unsigned int forgeIndex);
+		void AttributeContainer();
+
+		void SetupTexture(const unsigned int forgeIndex);
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
@@ -151,6 +141,8 @@ namespace sfge::ext
 		BuildingManager* m_BuildingManager;
 
 		sf::RenderWindow* m_Window;
+
+		unsigned int m_NmbReservation = 0u;
 
 		unsigned short m_CoolDown = 100;
 		unsigned short m_ConsumptionGoal = 20;
