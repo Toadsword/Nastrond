@@ -41,6 +41,8 @@ namespace sfge::ext
 		m_TexturePath = "data/sprites/warehouse.png";
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
+
+		Log::GetInstance()->Msg("Warehouse Manager initialized");
 	}
 
 	void WarehouseManager::Update(float dt)
@@ -439,10 +441,10 @@ namespace sfge::ext
 		}
 		return false;
 	}
-	void WarehouseManager::SetupTexture(unsigned int warehouseIndex)
+	void WarehouseManager::SetupTexture(const Entity entity)
 	{
 		//Sprite Component part
-		Sprite* sprite = m_SpriteManager->AddComponent(warehouseIndex);
+		Sprite* sprite = m_SpriteManager->AddComponent(entity);
 		sprite->SetTexture(m_Texture);
 	}
 

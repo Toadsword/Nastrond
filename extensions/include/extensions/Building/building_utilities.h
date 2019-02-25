@@ -117,6 +117,8 @@ namespace sfge::ext
 		EXCAVATION_POST,
 		MUSHROOM_FARM,
 		WAREHOUSE,
+		ROAD,
+		GROUND,
 		DWELLING, //Warning : Dwelling are not consider as working place
 		LENGTH
 	};

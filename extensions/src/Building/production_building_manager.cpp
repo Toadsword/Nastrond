@@ -56,7 +56,9 @@ namespace sfge::ext
 		m_MushroomFarmTexturePath = "data/sprites/mushroomFarm.png";
 		m_MushroomFarmTextureId = m_TextureManager->LoadTexture(m_MushroomFarmTexturePath);
 		m_MushroomFarmTexture = m_TextureManager->GetTexture(m_MushroomFarmTextureId);
+
 		m_Init = true;
+		Log::GetInstance()->Msg("Production Building Manager initialized");
 	}
 
 	void ProductionBuildingManager::Update(float dt)

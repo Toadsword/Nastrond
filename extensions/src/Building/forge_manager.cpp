@@ -46,6 +46,8 @@ namespace sfge::ext
 		m_TexturePath = "data/sprites/forge.png";
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
+
+		Log::GetInstance()->Msg("Forge Manager initialized");
 	}
 
 	void ForgeManager::Update(float dt)

@@ -41,11 +41,13 @@ namespace sfge::ext
 
 		m_Window = m_Engine.GetGraphics2dManager()->GetWindow();
 
-
 		//Load texture
 		m_TexturePath = "data/sprites/dwelling.png";
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
+
+		Log::GetInstance()->Msg("Dwelling Manager initialized");
+
 	}
 
 	void DwellingManager::Update(float dt)

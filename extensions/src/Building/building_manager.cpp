@@ -43,18 +43,22 @@ namespace sfge::ext
 
 		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
 			"WarehouseManager");
+		std::cout << "new Road \n";
+		m_RoadManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<RoadManager>(
+			"RoadManager");
 
+		Log::GetInstance()->Msg("Building Manager initialized");
 
 		////////////////////////Debug////////////////////////
-		for(int i = 0; i < 100; i++)
-		{
-			//SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
-			//SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
-			//SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
-			SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
-			SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
-			SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));			
-		}
+		//for(int i = 0; i < 100; i++)
+		//{
+		//	SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
+		//	SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
+		//	SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
+		//	SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
+		//	SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
+		//	SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));			
+		//}
 	}
 
 	void BuildingManager::Update(float dt) {}
@@ -86,7 +90,13 @@ namespace sfge::ext
 			break;
 		case BuildingType::DWELLING:
 			m_DwellingManager->SpawnBuilding(position);
-		break;
+			break;
+		case BuildingType::ROAD:
+			m_RoadManager->SpawnRoad(position);
+			break;
+		case BuildingType::GROUND:
+			m_RoadManager->SpawnGround(position);
+			break;
 		}
 	}
 

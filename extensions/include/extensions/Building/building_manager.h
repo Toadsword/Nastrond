@@ -32,6 +32,7 @@ SOFTWARE.
 #include <extensions/Building/forge_manager.h>
 #include <extensions/Building/production_building_manager.h>
 #include <extensions/Building/warehouse_manager.h>
+#include <extensions/Building/road_manager.h>
 
 
 namespace sfge::ext
@@ -96,7 +97,7 @@ namespace sfge::ext
 		void RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
 
 		void RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
-#pragma endregion 
+#pragma endregion
 
 		//for dwellings
 		Entity AttributeDwarfToDwelling();
@@ -109,6 +110,7 @@ namespace sfge::ext
 		ForgeManager* m_ForgeManager;
 		ProductionBuildingManager* m_ProductionBuildingManager;
 		WarehouseManager* m_WarehouseManager;
+		RoadManager* m_RoadManager;
 
 		std::vector<InventoryTask> m_BuildingsNeedToBeEmptied;
 		std::vector<InventoryTask> m_BuildingsNeedToBeFill;

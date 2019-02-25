@@ -113,7 +113,7 @@ namespace sfge::ext
 		 */
 		bool CheckEmptySlot(Entity newEntity);
 
-		void SetupTexture(const unsigned int warehouseIndex);
+		void SetupTexture(const Entity entity);
 
 		void ReserveContainer(const size_t newSize);
 
