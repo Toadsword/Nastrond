@@ -30,6 +30,9 @@ SOFTWARE.
 #include <iostream>
 
 
+#include <fstream>
+
+
 TEST(Building, ProductionBuilding)
 {
 	sfge::Engine engine;
@@ -151,7 +154,7 @@ TEST(Building, BuildingManager)
 	engine.Start();
 }
 
-TEST(Building, BuildingNoEntityManager)
+TEST(Building, WarehouseTest)
 {
 	sfge::Engine engine;
 
@@ -164,12 +167,57 @@ TEST(Building, BuildingNoEntityManager)
 	const auto config = engine.GetConfig();
 
 	json sceneJson = {
-		{ "name", "Building with no entity" } };
+		{ "name", "warehouse Test" } };
 
-	json systemJsonBuildingNoEntityManager = {
-		{ "systemClassName", "BuildingNoEntityManager" } };
+	json systemJsonWarehouseManager = {
+		{ "systemClassName", "WarehouseManager" } };
 
-	sceneJson["systems"] = json::array({ systemJsonBuildingNoEntityManager });
+	sceneJson["systems"] = json::array({ systemJsonWarehouseManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+TEST(Building, BuildingConstructorTest)
+{
+	sfge::Engine engine;
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	const auto config = engine.GetConfig();
+
+	json sceneJson = {
+		{ "name", "Building Manager Test" } };
+
+	json systemJsonDwellingManager = {
+		{ "systemClassName", "DwellingManager" } };
+
+	json systemJsonProductionBuildingManager = {
+		{ "systemClassName", "ProductionBuildingManager" } };
+
+	json systemJsonForgeManager = {
+		{ "systemClassName", "ForgeManager" } };
+
+	json systemJsonWarehouseManager = {
+		{ "systemClassName", "WarehouseManager" } };
+
+	json systemJsonRoadgManager = {
+		{ "systemClassName", "RoadManager" } };
+
+	json systemJsonBuildingManager = {
+		{ "systemClassName", "BuildingManager" } };
+
+	json systemJsonBuildingConstructor = {
+		{ "systemClassName", "BuildingConstructor" } };
+
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehouseManager, systemJsonRoadgManager, systemJsonBuildingManager, systemJsonBuildingConstructor });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
