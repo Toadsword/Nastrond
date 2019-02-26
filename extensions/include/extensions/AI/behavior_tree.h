@@ -78,14 +78,6 @@ public:
 	*/
 	void SetEntities(std::vector<Entity>* vectorEntities);
 
-	void Resize(int newSize)
-	{
-		for (int i = 0; i < nodes.size(); i++)
-		{
-			nodes[i]->Resize(newSize);
-		}
-	}
-
 #ifdef BT_AOS
 	/**
 	 * \brief All data regarding flow in behavior tree
@@ -103,15 +95,24 @@ public:
 	std::vector<DataBehaviorTree> dataBehaviorTree;
 #endif
 
+#ifdef BT_SOA
+	std::vector<Node::ptr> currentNode;
+	std::vector<bool> doesFlowGoDown;
+	std::vector<NodeStatus> previousStatus;
+
+	std::vector<char> repeaterCounter;
+	std::vector<char> sequenceActiveChild;
+#endif
+
 	DwarfManager* dwarfManager;
 
-	std::vector<Node::ptr> nodes;
+	const bool flowGoDown = true;
+	const bool flowGoUp = false;
 
 private:
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
-	std::vector<bool> attributed;
 
 #ifdef AI_DEBUG_COUNT_TIME
 	unsigned int m_TimerMilli = 0u;

@@ -80,26 +80,15 @@ namespace sfge::ext::behavior_tree
 	/**
 	 * \brief Status of nodes
 	 */
-	enum NodeStatus : unsigned char
+	enum class NodeStatus : unsigned char
 	{
 		SUCCESS,
 		FAIL,
 		RUNNING
 	};
 
-	enum FlowDirection : unsigned char
-	{
-		UP,
-		DOWN,
-		NEXT,
-		NONE
-	};
-
 #pragma region nodeDatas
-	struct NodeData
-	{
-		std::shared_ptr<Node> next = nullptr;
-	};
+	struct NodeData {};
 
 	struct CompositeData : NodeData
 	{
@@ -125,11 +114,9 @@ namespace sfge::ext::behavior_tree
 	/**
 	 * \author Nicolas Schneider
 	 */
-	class Node
+	class Node final
 	{
 	public:
-		using Entity = unsigned int;
-
 		/**
 		 * \brief shared pointer of node
 		 */
@@ -166,38 +153,15 @@ namespace sfge::ext::behavior_tree
 		NodeType nodeType;
 
 		std::function<void(unsigned int)> executeFunction;
-
-		std::vector<Entity> nextEntity;
-		int indexNextEntity = 0;
-		std::vector<Entity> currentEntity;
-		int indexCurrentEntity = 0;
-
-		std::vector<NodeStatus> previousStatus;
-		std::vector<NodeStatus> nextStatus;
-
-		std::vector<FlowDirection> previousFlowDirection;
-		std::vector<FlowDirection> nextFlowDirection;
-
-		std::vector<ptr> nextNode;
-
-		void Resize(int newSize);
-
-		void FollowFlow();
-
-		void UpdateFlow();
-
-		void AddEntity(Entity e);
-		void AddEntity(Entity e, NodeStatus status, FlowDirection flow);
 	protected:
-
 		void DestroyChild(Node* childNode);
 
 #pragma region Core nodes
-		void SequenceComposite(unsigned int index);
+		void SequenceComposite(unsigned int index) const;
 
 		void SelectorComposite(unsigned int index) const;
 
-		void RepeaterDecorator(unsigned int index);
+		void RepeaterDecorator(unsigned int index) const;
 
 		void RepeatUntilFailDecorator(unsigned int index) const;
 
@@ -207,9 +171,9 @@ namespace sfge::ext::behavior_tree
 #pragma endregion 
 
 #pragma region Extensions nodes
-		void WaitForPath(unsigned int index);
+		void WaitForPath(unsigned int index) const;
 
-		void MoveToLeaf(unsigned int index);
+		void MoveToLeaf(unsigned int index) const;
 
 		void HasDwellingLeaf(unsigned int index) const;
 
@@ -243,7 +207,7 @@ namespace sfge::ext::behavior_tree
 
 		void PutResourcesLeaf(unsigned int index) const;
 
-		void FindPathToLeaf(unsigned int index);
+		void FindPathToLeaf(unsigned int index) const;
 #pragma endregion 
 
 #pragma region Datas
