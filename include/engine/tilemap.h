@@ -36,7 +36,7 @@ SOFTWARE.
 #include <engine/tile.h>
 #include <engine/tile_asset.h>
 
-#define Opti1
+//#define Opti1
 
 namespace sfge
 {
@@ -71,10 +71,10 @@ public:
 	 * \brief Calculate the size of the tilemap and returns it.
 	 * \return the size of the tilemap.
 	 */
-	Vec2f GetSize();
+	Vec2f GetTilemapSize();
 
-	void SetTileScale(Vec2f newScale);
-	Vec2f GetTileScale();
+	void SetTileSize(Vec2f newSize);
+	Vec2f GetTileSize();
 
 	void SetLayer(int newLayer);
 	int GetLayer();
@@ -83,14 +83,38 @@ public:
 	bool GetIsometric();
 
 #ifdef Opti1
+	/**
+	 * \brief Set all the tile types passed in parameter to the tilemap. Usually used to "paste" copies datas to the tilemap.
+	 * \param tileTypeIds The datas containing the new tiletypes
+	 */
 	void SetTileTypes(std::vector<TileTypeId> tileTypeIds);
+	/**
+	 * \brief Get all the tiletypes datas of the tilemap
+	 * \return Vector of TileTypeId
+	 */
 	std::vector<TileTypeId>& GetTileTypes();
-
+	
+	/**
+	 * \brief Get all the tileEntities of the tilemap, at their position
+	 * \return Vector of Entities, poiting to Tile entities of the tilemap
+	 */
 	std::vector<Entity>& GetTiles();
 #else
+	/**
+	 * \brief Set all the tile types passed in parameter to the tilemap. Usually used to "paste" copies datas to the tilemap.
+	 * \param tileTypeIds The datas containing the new tiletypes
+	 */
 	void SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds);
+	
+	/**
+	 * \brief Get all the tiletypes datas of the tilemap
+	 * \return Vector of TileTypeId
+	 */
 	std::vector<std::vector<TileTypeId>>& GetTileTypes();
-
+	/**
+	 * \brief Get all the tileEntities of the tilemap, at their position
+	 * \return Vector of Entities, poiting to Tile entities of the tilemap
+	 */
 	std::vector<std::vector<Entity>>& GetTiles();
 #endif
 	/**
@@ -106,6 +130,11 @@ public:
 	 * \return Entity wanted
 	 */
 	Entity GetTileAt(Vec2f pos);
+	/**
+	 * \brief Returns the EntityId positionned at specified position
+	 * \param tileEntity Entity of the tile.
+	 * \return Position of the passed tile
+	 */
 	Vec2f GetTileAt(Entity tileEntity);
 
 	/**
@@ -115,6 +144,12 @@ public:
 	 * \return Entity wanted
 	 */
 	void SetTileAt(Vec2f pos, TileTypeId newTileType);
+	/**
+	 * \brief Set a new tiletype at the specified position
+	 * \param entity Entity of the tile, contained by the tilemap.
+	 * \param newTileType
+	 * \return Entity wanted
+	 */
 	void SetTileAt(Entity entity, TileTypeId newTileType);
 
 	/**
@@ -134,7 +169,7 @@ protected:
 	std::vector<std::vector<Entity>> m_Tiles;
 #endif
 	/**
-	 * \brief Contians all the tiletypeIds of the tilemap
+	 * \brief Contains all the tiletypeIds of the tilemap
 	 */
 #ifdef Opti1
 	std::vector<TileTypeId> m_TileTypeIds;
@@ -142,9 +177,9 @@ protected:
 	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
 #endif
 	/**
-	 * \brief Scale of a tile in the tilemap
+	 * \brief Size of a tile in the tilemap in pixel
 	 */
-	Vec2f m_TileScale = {1, 1};
+	Vec2f m_TileSize = {1, 1};
 	/**
 	 * \brief Layer of the tilemap (Concerns the layer of drawing)
 	 */
@@ -192,14 +227,15 @@ public:
 	 * \param entity 
 	 * \param map Json tilemap data to construct the tilemap
 	 */
-	void InitializeMap(Entity entity, json& map);	
+	void InitializeMap(Entity entity, json& map);
 	/**
 	 * \brief Create a tilemap with the json passed
 	 * \param entity
 	 * \param tileTypeIds c++ data struct to construct the tilemap
+	 * \param tilemapSize Size of the tilemap
 	 */
 #ifdef Opti1
-	void InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds);
+	void InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds, Vec2f tilemapSize);
 #else
 	void InitializeMap(Entity entity, std::vector<std::vector<TileTypeId>> tileTypeIds);
 #endif

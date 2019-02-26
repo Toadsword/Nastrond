@@ -136,6 +136,20 @@ namespace sfge::tools
 				                          ->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
 				m_TilemapCreator->GetTilemapManager()->AddComponent(newTilemapEntity);
 
+#ifdef Opti1
+				const Vec2f newTilemapSize = Vec2f(m_SizeNewTilemap[0], m_SizeNewTilemap[1]);
+				std::vector<TileTypeId> newTiletypeIds = std::vector<TileTypeId>{ static_cast<unsigned>(m_SizeNewTilemap[0]) * static_cast<unsigned>(m_SizeNewTilemap[1]) };
+
+				for (unsigned indexX = 0; indexX < newTilemapSize.x; indexX++)
+				{
+					for (unsigned indexY = 0; indexY < newTilemapSize.y; indexY++)
+					{
+						newTiletypeIds[indexX * m_SizeNewTilemap[0] + indexY] = INVALID_TILE_TYPE;
+					}
+				}
+
+				m_TilemapCreator->GetTilemapManager()->InitializeMap(newTilemapEntity, newTiletypeIds, newTilemapSize);
+#else
 				std::vector<std::vector<TileTypeId>> newTiletypeIds = std::vector<std::vector<TileTypeId>>{
 					static_cast<unsigned>(m_SizeNewTilemap[0]),
 					std::vector<TileTypeId>(static_cast<unsigned>(m_SizeNewTilemap[1]))
@@ -150,6 +164,7 @@ namespace sfge::tools
 				}
 
 				m_TilemapCreator->GetTilemapManager()->InitializeMap(newTilemapEntity, newTiletypeIds);
+#endif
 				m_FlagDisplayNewTilemap = false;
 			}
 			ImGui::Separator();
@@ -261,14 +276,32 @@ namespace sfge::tools
 				}
 			}
 			{
-				Vec2f currentSize = tilemap->GetSize();
+				Vec2f currentSize = tilemap->GetTilemapSize();
 				int aSize[2] = {currentSize.x, currentSize.y};
 				ImGui::InputInt2("Tilemap Size", aSize);
 
 				if ((aSize[0] != currentSize.x || aSize[1] != currentSize.y) && aSize[0] > 0 && aSize[1] > 0)
 				{
+#ifdef Opti1
+					std::vector<TileTypeId> oldTileTypes = tilemap->GetTileTypes();
+					const Vec2f oldSize = tilemap->GetTilemapSize();
+
+					std::vector<TileTypeId> newTileTypeIds = std::vector<TileTypeId>{ static_cast<unsigned>(aSize[0]) * static_cast<unsigned>(aSize[1]) };
+
+					for (unsigned indexX = 0; indexX < aSize[0]; indexX++)
+					{
+						for (unsigned indexY = 0; indexY < aSize[1]; indexY++)
+						{
+							if (indexX < oldSize.x && indexY < oldSize.y)
+								newTileTypeIds[indexX * aSize[0] + indexY] = oldTileTypes[indexX * aSize[0] * indexY];
+							else
+								newTileTypeIds[indexX * aSize[0] + indexY] = INVALID_TILE_TYPE;
+						}
+					}
+					m_TilemapCreator->GetTilemapManager()->InitializeMap(m_SelectedTilemap, newTileTypeIds, Vec2f(aSize[0], aSize[1]));
+#else
 					std::vector<std::vector<TileTypeId>> oldTileTypes = tilemap->GetTileTypes();
-					const Vec2f oldSize = tilemap->GetSize();
+					const Vec2f oldSize = tilemap->GetTilemapSize();
 
 					std::vector<std::vector<TileTypeId>> newTileTypeIds = std::vector<std::vector<TileTypeId>>{
 						static_cast<unsigned>(aSize[0]),
@@ -285,16 +318,17 @@ namespace sfge::tools
 						}
 					}
 					m_TilemapCreator->GetTilemapManager()->InitializeMap(m_SelectedTilemap, newTileTypeIds);
+#endif
 				}
 			}
 			{
-				Vec2f currentScale = tilemap->GetTileScale();
-				int aScale[2] = {currentScale.x, currentScale.y};
+				Vec2f currentSize = tilemap->GetTileSize();
+				int aScale[2] = { currentSize.x, currentSize.y};
 				ImGui::InputInt2("Tile scale", aScale);
 
-				if (aScale[0] != currentScale.x || aScale[1] != currentScale.y)
+				if (aScale[0] != currentSize.x || aScale[1] != currentSize.y)
 				{
-					tilemap->SetTileScale(Vec2f(aScale[0], aScale[1]));
+					tilemap->SetTileSize(Vec2f(aScale[0], aScale[1]));
 					m_TilemapCreator->GetTilemapManager()->SetupTilePosition(m_SelectedTilemap);
 				}
 			}
