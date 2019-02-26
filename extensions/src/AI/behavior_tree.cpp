@@ -68,7 +68,7 @@ void BehaviorTree::Update(float dt)
 	const auto coreNmb = threadPool.size();
 
 	std::vector<std::future<void>> joinFutures(coreNmb);
-	for (int threadIndex = 0; threadIndex < coreNmb; threadIndex++)
+	for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
 	{
 		int start = (threadIndex + 1)*m_Entities->size() / (coreNmb + 1);
 		int end = (threadIndex + 2)*m_Entities->size() / (coreNmb + 1) - 1;
@@ -96,14 +96,14 @@ void BehaviorTree::Draw() { }
 
 void BehaviorTree::UpdateRange(const int startIndex, const int endIndex)
 {
-	for (size_t i = startIndex; i < endIndex; i++)
+	for (auto i = startIndex; i < endIndex; i++)
 	{
 		if (m_Entities->at(i) == INVALID_ENTITY)
 		{
 			continue;
 		}
 #ifdef BT_SOA
-		currentNode[i]->Execute(i);
+		currentNode[i]->executeFunction(i);
 #endif
 
 #ifdef BT_AOS

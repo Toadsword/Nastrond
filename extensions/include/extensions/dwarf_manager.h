@@ -265,7 +265,7 @@ private:
 	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
-	const size_t m_ContainersExtender = 100'000;
+	const size_t m_ContainersExtender = 200'000;
 	std::vector<Entity> m_DwarfsEntities;
 
 	//State management

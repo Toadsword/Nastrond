@@ -42,7 +42,7 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 		data = std::make_unique<CompositeData>(compositeData);
 
 
-		executeFunction = [=](int index) {this->SequenceComposite(index); };
+		executeFunction = [=](const int index) {this->SequenceComposite(index); };
 	}
 	break;
 	case NodeType::SELECTOR_COMPOSITE:
@@ -51,7 +51,7 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 		compositeData.children = std::vector<std::shared_ptr<Node>>{};
 		data = std::make_unique<CompositeData>(compositeData);
 
-		executeFunction = [=](int index) {this->SelectorComposite(index); };
+		executeFunction = [=](const int index) {this->SelectorComposite(index); };
 	}
 		break;
 	case NodeType::REPEATER_DECORATOR:
@@ -61,7 +61,7 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 		repeaterData.limit = 0;
 		data = std::make_unique<RepeaterData>(repeaterData);
 
-		executeFunction = [=](int index) {this->RepeaterDecorator(index); };
+		executeFunction = [=](const int index) {this->RepeaterDecorator(index); };
 	}
 		break;
 	case NodeType::REPEAT_UNTIL_FAIL_DECORATOR:
@@ -70,7 +70,7 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 		decoratorData.child = nullptr;
 		data = std::make_unique<DecoratorData>(decoratorData);
 
-		executeFunction = [=](int index) {this->RepeatUntilFailDecorator(index); };
+		executeFunction = [=](const int index) {this->RepeatUntilFailDecorator(index); };
 	}
 	break;
 	case NodeType::SUCCEEDER_DECORATOR:
@@ -79,7 +79,7 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 		decoratorData.child = nullptr;
 		data = std::make_unique<DecoratorData>(decoratorData);
 
-		executeFunction = [=](int index) {this->SucceederDecorator(index); };
+		executeFunction = [=](const int index) {this->SucceederDecorator(index); };
 	}
 	break;
 	case NodeType::INVERTER_DECORATOR: 
@@ -88,71 +88,71 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 		decoratorData.child = nullptr;
 		data = std::make_unique<DecoratorData>(decoratorData);
 
-		executeFunction = [=](int index) {this->InverterDecorator(index); };
+		executeFunction = [=](const int index) {this->InverterDecorator(index); };
 	}
 		break;
 	case NodeType::WAIT_FOR_PATH_LEAF: 
-		executeFunction = [=](int index) {this->WaitForPath(index); };
+		executeFunction = [=](const int index) {this->WaitForPath(index); };
 		break;
 	case NodeType::MOVE_TO_LEAF: 
-		executeFunction = [=](int index) {this->MoveToLeaf(index); };
+		executeFunction = [=](const int index) {this->MoveToLeaf(index); };
 		break;
 	case NodeType::HAS_DWELLING_LEAF: 
-		executeFunction = [=](int index) {this->HasDwellingLeaf(index); };
+		executeFunction = [=](const int index) {this->HasDwellingLeaf(index); };
 		break;
 	case NodeType::SET_DWELLING_LEAF:
-		executeFunction = [=](int index) {this->SetDwellingLeaf(index); };
+		executeFunction = [=](const int index) {this->SetDwellingLeaf(index); };
 		break;
 	case NodeType::ENTER_DWELLING_LEAF: 
-		executeFunction = [=](int index) {this->EnterDwellingLeaf(index); };
+		executeFunction = [=](const int index) {this->EnterDwellingLeaf(index); };
 		break;
 	case NodeType::EXIT_DWELLING_LEAF: 
-		executeFunction = [=](int index) {this->ExitDwellingLeaf(index); };
+		executeFunction = [=](const int index) {this->ExitDwellingLeaf(index); };
 		break;
 	case NodeType::ENTER_WORKING_PLACE_LEAF: 
-		executeFunction = [=](int index) {this->EnterWorkingPlaceLeaf(index); };
+		executeFunction = [=](const int index) {this->EnterWorkingPlaceLeaf(index); };
 		break;
 	case NodeType::EXIT_WORKING_PLACE_LEAF: 
-		executeFunction = [=](int index) {this->ExitWorkingPlaceLeaf(index); };
+		executeFunction = [=](const int index) {this->ExitWorkingPlaceLeaf(index); };
 		break;
 	case NodeType::HAS_JOB_LEAF: 
-		executeFunction = [=](int index) {this->HasJobLeaf(index); };
+		executeFunction = [=](const int index) {this->HasJobLeaf(index); };
 		break;
 	case NodeType::HAS_STATIC_JOB_LEAF: 
-		executeFunction = [=](int index) {this->HasStaticJobLeaf(index); };
+		executeFunction = [=](const int index) {this->HasStaticJobLeaf(index); };
 		break;
 	case NodeType::ASSIGN_JOB_LEAF: 
-		executeFunction = [=](int index) {this->AssignJobLeaf(index); };
+		executeFunction = [=](const int index) {this->AssignJobLeaf(index); };
 		break;
 	case NodeType::IS_DAY_TIME_LEAF: 
-		executeFunction = [=](int index) {this->IsDayTimeLeaf(index); };
+		executeFunction = [=](const int index) {this->IsDayTimeLeaf(index); };
 		break;
 	case NodeType::IS_NIGHT_TIME_LEAF: 
-		executeFunction = [=](int index) {this->IsNightTimeLeaf(index); };
+		executeFunction = [=](const int index) {this->IsNightTimeLeaf(index); };
 		break;
 	case NodeType::WAIT_DAY_TIME_LEAF: 
-		executeFunction = [=](int index) {this->WaitDayTimeLeaf(index); };
+		executeFunction = [=](const int index) {this->WaitDayTimeLeaf(index); };
 		break;
 	case NodeType::WAIT_NIGHT_TIME_LEAF: 
-		executeFunction = [=](int index) {this->WaitNightTimeLeaf(index); };
+		executeFunction = [=](const int index) {this->WaitNightTimeLeaf(index); };
 		break;
 	case NodeType::ASK_INVENTORY_TASK_LEAF: 
-		executeFunction = [=](int index) {this->AskInventoryTaskLeaf(index); };
+		executeFunction = [=](const int index) {this->AskInventoryTaskLeaf(index); };
 		break;
 	case NodeType::TAKE_RESOURCE_LEAF: 
-		executeFunction = [=](int index) {this->TakeResourcesLeaf(index); };
+		executeFunction = [=](const int index) {this->TakeResourcesLeaf(index); };
 		break;
 	case NodeType::FIND_PATH_TO_LEAF:
 	{
-		FindPathToData findPathToData;
+		FindPathToData findPathToData{};
 		findPathToData.destination = NodeDestination::RANDOM;
 		data = std::make_unique<FindPathToData>(findPathToData);
 
-		executeFunction = [=](int index) {this->FindPathToLeaf(index); };
+		executeFunction = [=](const int index) {this->FindPathToLeaf(index); };
 	}
 		break;
 	case NodeType::PUT_RESOURCE_LEAF: 
-		executeFunction = [=](int index) {this->PutResourcesLeaf(index); };
+		executeFunction = [=](const int index) {this->PutResourcesLeaf(index); };
 		break;
 	default: ; }
 }
