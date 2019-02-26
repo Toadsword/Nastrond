@@ -26,11 +26,13 @@ SOFTWARE.
 
 #include <extensions/AI/behavior_tree_factory.h>
 #include <utility/log.h>
+#include <extensions/AI/behavior_tree.h>
 
 namespace sfge::ext::behavior_tree
 {
 Node::ptr BehaviorTreeUtility::LoadNodesFromJson(json& behaviorTreeJson, BehaviorTree* behaviorTree)
 {
+	std::cout << "Load nodes\n";
 	if (CheckJsonParameter(behaviorTreeJson, "rootNode", json::value_t::array))
 	{
 		auto rootNodeJson = behaviorTreeJson["rootNode"];
@@ -231,6 +233,8 @@ Node::ptr BehaviorTreeUtility::AddLeafNodeFromJson(json& behaviorTreeJson, const
 		return nullptr;
 	}
 
+	behaviorTree->nodes.push_back(leaf);
+
 	return leaf;
 }
 
@@ -258,6 +262,8 @@ Node::ptr BehaviorTreeUtility::AddCompositeNodeFromJson(json& behaviorTreeJson, 
 		return nullptr;
 	}
 
+	auto* compositeData = static_cast<CompositeData*>(composite->data.get());
+
 	if (CheckJsonExists(behaviorTreeJson, "childs"))
 	{
 		for (auto& childJson : behaviorTreeJson["childs"])
@@ -276,19 +282,26 @@ Node::ptr BehaviorTreeUtility::AddCompositeNodeFromJson(json& behaviorTreeJson, 
 				}
 				break;
 				case NodeGroup::LEAF:
-					static_cast<CompositeData*>(composite->data.get())->children.push_back(AddLeafNodeFromJson(childJson, composite, behaviorTree));
+					compositeData->children.push_back(AddLeafNodeFromJson(childJson, composite, behaviorTree));
 					break;
 				case NodeGroup::COMPOSITE:
-					static_cast<CompositeData*>(composite->data.get())->children.push_back(AddCompositeNodeFromJson(childJson, composite, behaviorTree));
+					compositeData->children.push_back(AddCompositeNodeFromJson(childJson, composite, behaviorTree));
 					break;
 				case NodeGroup::DECORATOR:
-					static_cast<CompositeData*>(composite->data.get())->children.push_back(AddDecoratorNodeFromJson(childJson, composite, behaviorTree));
+					compositeData->children.push_back(AddDecoratorNodeFromJson(childJson, composite, behaviorTree));
 					break;
 				default:;
 				}
 			}
 		}
 	}
+
+	for (auto i = 0; i < compositeData->children.size() - 1; i++)
+	{
+		compositeData->children[i]->data->next = compositeData->children[i + 1];
+	}
+
+	behaviorTree->nodes.push_back(composite);
 
 	return composite;
 }
@@ -359,6 +372,8 @@ Node::ptr BehaviorTreeUtility::AddDecoratorNodeFromJson(json& behaviorTreeJson, 
 			}
 		}
 	}
+
+	behaviorTree->nodes.push_back(decorator);
 
 	return decorator;
 }

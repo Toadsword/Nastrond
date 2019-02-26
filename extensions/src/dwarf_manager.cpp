@@ -371,6 +371,7 @@ void DwarfManager::ResizeContainers()
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
 		"BehaviorTree");
 	behaviorTree->SetEntities(&m_DwarfsEntities);
+
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlaceType.resize(newSize, NO_BUILDING_TYPE);
