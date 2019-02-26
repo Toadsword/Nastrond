@@ -40,6 +40,9 @@ namespace sfge
 	public:
 		Text& operator=(const Text&);
 
+		Text();
+		~Text();
+
 		void Init();
 		void Update(Vec2f position);
 		void Draw(sf::RenderWindow& window) const;

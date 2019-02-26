@@ -41,6 +41,7 @@ namespace sfge
 		Image& operator=(const Image&);
 
 		Image();
+		~Image();
 
 		void Init();
 		void Update(Vec2f position);

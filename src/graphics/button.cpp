@@ -23,10 +23,8 @@ SOFTWARE.
 */
 
 #include <graphics/button.h>
-#include "imgui.h"
+#include <imgui.h>
 #include <engine/ui.h>
-#include <graphics/texture.h>
-#include "utility/file_utility.h"
 
 namespace sfge
 {
@@ -36,14 +34,15 @@ namespace sfge
 		ImGui::Text("Button");
 	}
 
-	void Button::Init()
-	{
-		
-	}
+	Button::Button() { }
+
+	Button::~Button() { }
+
+	void Button::Init() { }
 
 	ButtonManager::ButtonManager(Engine& engine):SingleComponentManager(engine)
 	{
-		m_RectTransformManager = engine.GetRectTransformManager();
+		m_RectTransformManager = m_Engine.GetRectTransformManager();
 		m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
 	}
 
@@ -51,10 +50,7 @@ namespace sfge
 	= default;
 
 
-	void ButtonManager::CreateComponent(json& componentJson, Entity entity)
-	{
-		
-	}
+	void ButtonManager::CreateComponent(json& componentJson, Entity entity) { }
 
 	Button* ButtonManager::AddComponent(Entity entity)
 	{
@@ -77,28 +73,15 @@ namespace sfge
 		m_RectTransformManager = m_Engine.GetRectTransformManager();
 	}
 
-	void ButtonManager::Update(float dt)
+	Vec2f ButtonManager::GetLocalMousePosition()
 	{
-		System::Update(dt);
-		bool checkClick = m_MouseManager->IsButtonUp(sf::Mouse::Button::Left);
+		Vec2f mousePosition = { 0,0 };
 
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::BUTTON) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM) && m_EntityManager->HasComponent(i + 1, ComponentType::PYCOMPONENT))
-			{
-				if (checkClick && m_RectTransformManager->GetComponentPtr(i + 1)->rectAdjusted.contains(mousePosition.x, mousePosition.y))
-				{
-					// Action
-					m_Components[i + 1].hasBeenClicked = 1;
-				}
-			}
-		}
+		mousePosition.x = m_MouseManager->GetLocalPosition(*m_Engine.GetGraphics2dManager()->GetWindow()).x;
+		mousePosition.y = m_MouseManager->GetLocalPosition(*m_Engine.GetGraphics2dManager()->GetWindow()).y;
+		
+		return mousePosition;
 	}
 
-	void ButtonManager::DrawButtons(sf::RenderWindow& window)
-	{
-		mousePosition.x = m_MouseManager->GetLocalPosition(window).x;
-		mousePosition.y = m_MouseManager->GetLocalPosition(window).y;
-	}
 
 }

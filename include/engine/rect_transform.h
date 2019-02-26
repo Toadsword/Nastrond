@@ -25,7 +25,6 @@ SOFTWARE.
 #ifndef SFGE_RECT_TRANSFORM_H
 #define SFGE_RECT_TRANSFORM_H
 
-#include <string>
 #include <engine/component.h>
 #include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
@@ -40,8 +39,11 @@ namespace sfge
 		RectTransform& operator=(const RectTransform&);
 
 		RectTransform();
+		~RectTransform();
 
 		void Update(Camera* camera);
+
+		bool Contains(float x, float y);
 
 		// Position on which the component follow the camera movement
 		Vec2f basePosition = { 0, 0 };

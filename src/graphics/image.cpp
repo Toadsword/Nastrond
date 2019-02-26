@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #include <graphics/image.h>
-#include "imgui.h"
-#include "utility/file_utility.h"
+#include <imgui.h>
+#include <utility/file_utility.h>
 #include <graphics/texture.h>
 
 namespace sfge
@@ -34,15 +34,11 @@ namespace sfge
 		return *this;
 	}
 
-	Image::Image()
-	{
-		
-	}
+	Image::Image() { }
 
-	void Image::Init()
-	{
-		
-	}
+	Image::~Image() { }
+
+	void Image::Init() { }
 
 	void Image::Update(Vec2f position)
 	{

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "engine/ui.h"
+#include <engine/ui.h>
 
 namespace  sfge
 {
@@ -41,14 +41,12 @@ namespace  sfge
 
 	void UIManager::Update(float dt)
 	{
-		m_ButtonManager.Update(dt);
 		m_TextManager.Update(dt);
 		m_ImageManager.Update(dt);
 	}
 
 	void UIManager::Draw()
 	{
-		m_ButtonManager.DrawButtons(*m_Window);		
 		m_ImageManager.DrawImages(*m_Window);
 		m_TextManager.DrawTexts(*m_Window);
 	}

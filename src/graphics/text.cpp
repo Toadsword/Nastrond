@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <graphics/text.h>
 #include <imgui.h>
-#include "utility/file_utility.h"
+#include <utility/file_utility.h>
 
 namespace sfge
 {
@@ -33,10 +33,11 @@ namespace sfge
 		return *this;
 	}
 
-	void Text::Init()
-	{
-		
-	}
+	Text::Text() { }
+
+	Text::~Text() { }
+
+	void Text::Init() { }
 
 	void Text::Update(Vec2f position)
 	{
@@ -180,14 +181,6 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				/* // Adjustement of the text position in order to be centered in the sprite of the entity
-				 * // Currently not working, waiting on camera to finish
-				sf::FloatRect rect = m_RectTransformManager->GetComponentPtr(i + 1)->rectAdjusted;
-
-				Vec2f position = { rect.left + rect.width, rect.top - rect.height };
-
-				m_Components[i + 1].Update(position);*/
-
 				m_Components[i + 1].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
 			}
 		}

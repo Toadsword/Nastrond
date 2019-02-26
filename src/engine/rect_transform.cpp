@@ -35,6 +35,8 @@ namespace sfge
 	RectTransform::RectTransform()
 	= default;
 
+	RectTransform::~RectTransform() { }
+
 	void RectTransform::Update(Camera* camera)
 	{
 		if(camera == nullptr)
@@ -50,6 +52,17 @@ namespace sfge
 			rectAdjusted.top = rect.top + Position.y;
 		}
 	}
+
+	bool RectTransform::Contains(float x, float y)
+	{
+		float minX = std::min(rectAdjusted.left, static_cast<float>(rectAdjusted.left + rectAdjusted.width));
+		float maxX = std::max(rectAdjusted.left, static_cast<float>(rectAdjusted.left + rectAdjusted.width));
+		float minY = std::min(rectAdjusted.top, static_cast<float>(rectAdjusted.top + rectAdjusted.height));
+		float maxY = std::max(rectAdjusted.top, static_cast<float>(rectAdjusted.top + rectAdjusted.height));
+
+		return (x >= minX) && (x < maxX) && (y >= minY) && (y < maxY);
+	}
+
 
 	void editor::RectTransformInfo::DrawOnInspector()
 	{

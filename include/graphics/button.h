@@ -25,15 +25,10 @@ SOFTWARE.
 #ifndef SFGE_BUTTON_H
 #define SFGE_BUTTON_H
 
-#include <string>
-#include <SFML/Graphics.hpp>
 #include <engine/component.h>
 #include <input/input.h>
 #include <engine/rect_transform.h>
 #include <python/pycomponent.h>
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-#include <python/python_engine.h>
 
 namespace sfge
 {
@@ -45,12 +40,10 @@ namespace sfge
 	public:
 		Button& operator=(const Button&) = delete;
 
-		void Init();
+		Button();
+		~Button();
 
-		/*
-		 * hasBeenClicked work as a boolean to know when the player has clicked on this button
-		 */
-		int hasBeenClicked = 0;
+		void Init();
 	};
 
 	namespace editor
@@ -76,10 +69,9 @@ namespace sfge
 		void DestroyComponent(Entity entity) override;
 
 		void Init() override;
-		void Update(float dt) override;
-		void DrawButtons(sf::RenderWindow& window);
+
+		Vec2f GetLocalMousePosition();
 	protected:
-		Vec2f mousePosition;
 		RectTransformManager* m_RectTransformManager;
 		MouseManager* m_MouseManager;
 	};
