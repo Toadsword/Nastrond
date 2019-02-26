@@ -29,6 +29,7 @@ SOFTWARE.
 #include <python/python_engine.h>
 
 #include <extensions/Building/building_manager.h>
+#include <extensions/Building/road_manager.h>
 
 
 
@@ -56,6 +57,7 @@ namespace sfge::ext
 		void SetupTileMap();
 
 		BuildingManager* m_BuildingManager;
+		RoadManager* m_RoadManager;
 	};
 }
 #endif

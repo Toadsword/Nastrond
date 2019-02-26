@@ -48,18 +48,21 @@ namespace sfge::ext
 
 		void Draw() override;
 		
-		void SpawnRoad(Vec2f position);
+		void SpawnRoad(Vec2f position, std::vector<bool> roadAround);
 
-		void SpawnGround(Vec2f position);
+		void SpawnRoad(std::vector<int> tilesTypeVector, int Length, Vec2f positionFirstTile, Vec2f size, int targetType, const int groundType);
 
 		void DestroyRoad(const Entity entity);
 
 		void GetNeighbors();
 
-	private:
-		bool CheckEmptySlot(const Entity entity);
 
-		void SetupTexture(const Entity entity);
+	private:
+		bool CheckEmptySlot(const Entity entity, Transform2d* transform2d, std::vector<bool> roadAround);
+
+		void RoadTextureSelection(const Entity entity, Transform2d* transform2d, std::vector<bool> roadAround);
+
+		void SetupTexture(const Entity entity, sf::Texture* texture, const TextureId textureId, const std::string texturePath);
 
 		void SetupTextureGround(const Entity entity);
 
@@ -106,11 +109,14 @@ namespace sfge::ext
 		sf::Texture* m_TurnWETexture;
 
 		// Road TurnWE texture
+		std::string m_SoloTexturePath;
+		TextureId m_SoloTextureId;
+		sf::Texture* m_SoloTexture;
+
+		// Road TurnWE texture
 		std::string m_GroundTexturePath;
 		TextureId m_GroundTextureId;
 		sf::Texture* m_GroundTexture;
-
-		std::vector<sf::Texture*> m_TextureList;
 	};
 }
 #endif

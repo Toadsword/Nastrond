@@ -219,6 +219,18 @@ TEST(Building, BuildingConstructorTest)
 
 	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehouseManager, systemJsonRoadgManager, systemJsonBuildingManager, systemJsonBuildingConstructor });
 
+
+	json entityJson;
+	entityJson["name"] = "Camera";
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJson["components"] = json::array({ CameraJson, pyCameraJson });
+
+	sceneJson["entities"] = json::array({ entityJson });
+
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
 	sceneManager->LoadSceneFromJson(sceneJson);

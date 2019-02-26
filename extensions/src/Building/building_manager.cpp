@@ -92,10 +92,10 @@ namespace sfge::ext
 			m_DwellingManager->SpawnBuilding(position);
 			break;
 		case BuildingType::ROAD:
-			m_RoadManager->SpawnRoad(position);
+			//m_RoadManager->SpawnRoad(position);
 			break;
 		case BuildingType::GROUND:
-			m_RoadManager->SpawnGround(position);
+			//m_RoadManager->SpawnGround(position);
 			break;
 		}
 	}
