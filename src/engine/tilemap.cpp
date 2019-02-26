@@ -129,6 +129,22 @@ namespace sfge
 		return m_IsIsometric;
 	}
 
+#ifdef Opti1
+	void Tilemap::SetTileTypes(std::vector<TileTypeId> tileTypeIds)
+	{
+		m_TileTypeIds = tileTypeIds;
+	}
+
+	std::vector<TileTypeId>& Tilemap::GetTileTypes()
+	{
+		return m_TileTypeIds;
+	}
+
+	std::vector<Entity>& Tilemap::GetTiles()
+	{
+		return m_Tiles;
+	}
+#else
 	void Tilemap::SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds)
 	{
 		m_TileTypeIds = tileTypeIds;
@@ -143,37 +159,64 @@ namespace sfge
 	{
 		return m_Tiles;
 	}
+#endif
 
 	void Tilemap::AddTile(Vec2f pos, Entity entity)
 	{
-		if(pos.x < m_Tiles.size() && pos.y < m_Tiles[0].size())
+#ifdef Opti1
+		if(pos.x < m_TilemapSize.x && pos.y < m_TilemapSize.y)
+			m_Tiles[pos.x * m_TilemapSize.x + pos.y] = entity;
+#else
+		if (pos.x < m_Tiles.size() && pos.y < m_Tiles[0].size())
 			m_Tiles[pos.x][pos.y] = entity;
+#endif
 	}
 
 	Entity Tilemap::GetTileAt(Vec2f pos)
 	{
+#ifdef Opti1
+		if (pos.x >= 0 && pos.y >= 0 && m_TilemapSize.x > pos.x && m_TilemapSize.y > pos.y)
+			return m_Tiles[pos.x * m_TilemapSize.x + pos.y];
+#else
 		Vec2f size = GetSize();
-		if(pos.x >= 0 && pos.y >= 0 && size.x > pos.x && size.y > pos.y)
+		if (pos.x >= 0 && pos.y >= 0 && size.x > pos.x && size.y > pos.y)
 			return m_Tiles[pos.x][pos.y];
+#endif
 		return INVALID_ENTITY;
 	}
 
 	Vec2f Tilemap::GetTileAt(Entity tileEntity)
 	{
-		for (unsigned indexX = 0; indexX < GetSize().x; indexX++)
+#ifdef Opti1
+		for (unsigned indexX = 0; indexX < m_TilemapSize.x; indexX++)
 		{
-			for (unsigned indexY = 0; indexY < GetSize().y; indexY++)
+			for (unsigned indexY = 0; indexY < m_TilemapSize.y; indexY++)
+			{
+				if (m_Tiles[indexX * m_TilemapSize.x + indexY] == tileEntity)
+					return Vec2f(indexX, indexY);
+			}
+		}
+#else
+		Vec2f size = GetSize();
+		for (unsigned indexX = 0; indexX < size.x; indexX++)
+		{
+			for (unsigned indexY = 0; indexY < size.y; indexY++)
 			{
 				if (m_Tiles[indexX][indexY] == tileEntity)
 					return Vec2f(indexX, indexY);
 			}
 		}
+#endif
 		return Vec2f(0, 0);
 	}
 
 	void Tilemap::SetTileAt(Vec2f pos, TileTypeId newTileType)
 	{
+#ifdef Opti1
+		m_TileTypeIds[pos.x * m_TilemapSize.x + pos.y] = newTileType;
+#else
 		m_TileTypeIds[pos.x][pos.y] = newTileType;
+#endif
 	}
 
 	void Tilemap::SetTileAt(Entity entity, TileTypeId newTileType)

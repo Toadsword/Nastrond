@@ -36,6 +36,8 @@ SOFTWARE.
 #include <engine/tile.h>
 #include <engine/tile_asset.h>
 
+#define Opti1
+
 namespace sfge
 {
 /**
@@ -80,11 +82,17 @@ public:
 	void SetIsometric(bool newIso);
 	bool GetIsometric();
 
+#ifdef Opti1
+	void SetTileTypes(std::vector<TileTypeId> tileTypeIds);
+	std::vector<TileTypeId>& GetTileTypes();
+
+	std::vector<Entity>& GetTiles();
+#else
 	void SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds);
 	std::vector<std::vector<TileTypeId>>& GetTileTypes();
-	
-	std::vector<std::vector<Entity>>& GetTiles();
 
+	std::vector<std::vector<Entity>>& GetTiles();
+#endif
 	/**
 	 * \brief Assign a Tile entity to a position in the tilemap. If the position is out of bounds, does nothing.
 	 * \param pos Position of the tile.
@@ -119,11 +127,20 @@ protected:
 	/**
 	 * \brief Contains all the entities "tile" stored in the tilemap
 	 */
+#ifdef Opti1
+	std::vector<Entity> m_Tiles;
+	Vec2f m_TilemapSize = { 0, 0 };
+#else
 	std::vector<std::vector<Entity>> m_Tiles;
+#endif
 	/**
 	 * \brief Contians all the tiletypeIds of the tilemap
 	 */
+#ifdef Opti1
+	std::vector<TileTypeId> m_TileTypeIds;
+#else
 	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
+#endif
 	/**
 	 * \brief Scale of a tile in the tilemap
 	 */
@@ -181,7 +198,11 @@ public:
 	 * \param entity
 	 * \param tileTypeIds c++ data struct to construct the tilemap
 	 */
+#ifdef Opti1
+	void InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds);
+#else
 	void InitializeMap(Entity entity, std::vector<std::vector<TileTypeId>> tileTypeIds);
+#endif
 	
 	/**
 	 * \brief Set the position of all the tiles within the tilemap
