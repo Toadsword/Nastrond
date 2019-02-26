@@ -191,7 +191,6 @@ void Engine::Start()
 
 void Engine::Destroy() 
 {
-
 	m_SystemsContainer->pythonEngine.Destroy();
 	m_SystemsContainer->entityManager.Destroy();
 	m_SystemsContainer->graphics2dManager.Destroy();
@@ -200,8 +199,8 @@ void Engine::Destroy()
 	m_SystemsContainer->inputManager.Destroy();
 	m_SystemsContainer->editor.Destroy();
 	m_SystemsContainer->physicsManager.Destroy();
+	m_SystemsContainer->tilemapSystem.Destroy();
 	rmt_DestroyGlobalInstance(rmt);
-
 }
 
 void Engine::Clear() 
@@ -214,6 +213,7 @@ void Engine::Clear()
 	m_SystemsContainer->pythonEngine.Clear();
 	m_SystemsContainer->editor.Clear();
 	m_SystemsContainer->physicsManager.Clear();
+	m_SystemsContainer->tilemapSystem.Clear();
 }
 
 void Engine::Collect() 
@@ -226,6 +226,7 @@ void Engine::Collect()
 	m_SystemsContainer->pythonEngine.Collect();
 	m_SystemsContainer->editor.Collect();
 	m_SystemsContainer->physicsManager.Collect();
+	m_SystemsContainer->tilemapSystem.Collect();
 }
 
 void Engine::Save()

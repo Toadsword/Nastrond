@@ -178,7 +178,7 @@ namespace sfge
 	{
 #ifdef Opti1
 		if(pos.x < m_TilemapSize.x && pos.y < m_TilemapSize.y)
-			m_Tiles[pos.x * m_TilemapSize.x + pos.y] = entity;
+			m_Tiles[static_cast<int>(pos.x) * m_TilemapSize.x + static_cast<int>(pos.y)] = entity;
 #else
 		if (pos.x < m_Tiles.size() && pos.y < m_Tiles[0].size())
 			m_Tiles[pos.x][pos.y] = entity;
@@ -189,7 +189,7 @@ namespace sfge
 	{
 #ifdef Opti1
 		if (pos.x >= 0 && pos.y >= 0 && m_TilemapSize.x > pos.x && m_TilemapSize.y > pos.y)
-			return m_Tiles[pos.x * m_TilemapSize.x + pos.y];
+			return m_Tiles[static_cast<int>(pos.x) * m_TilemapSize.x + static_cast<int>(pos.y)];
 #else
 		Vec2f size = GetTilemapSize();
 		if (pos.x >= 0 && pos.y >= 0 && size.x > pos.x && size.y > pos.y)
@@ -244,7 +244,8 @@ namespace sfge
 		//std::vector<std::vector<TileTypeId>> oldTileTypes = m_TileTypeIds;
 		Vec2f oldSize = GetTilemapSize();
 
-		m_Tiles = std::vector<Entity>{ std::vector<Entity>(newSize.x *newSize.y)};
+		m_Tiles = std::vector<Entity>(newSize.x * newSize.y);
+		m_TilemapSize = newSize;
 
 		//m_TileTypeIds = std::vector<TileTypeId>{ std::vector<Entity>(newSize.x * newSize.y)};
 
@@ -472,7 +473,7 @@ namespace sfge
 			return;
 
 #ifdef Opti1
-		std::vector<TileTypeId> tiletypeIds = std::vector<TileTypeId>{static_cast<unsigned>(map.size()) * static_cast<unsigned>(map[0].size()) };
+		std::vector<TileTypeId> tiletypeIds = std::vector<TileTypeId>(map.size() * map[0].size());
 
 		for (unsigned indexX = 0; indexX < map.size(); indexX++)
 		{

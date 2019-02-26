@@ -36,7 +36,7 @@ SOFTWARE.
 #include <engine/tile.h>
 #include <engine/tile_asset.h>
 
-//#define Opti1
+#define Opti1
 
 namespace sfge
 {
@@ -68,7 +68,7 @@ public:
 	json Save();
 	
 	/**
-	 * \brief Calculate the size of the tilemap and returns it.
+	 * \brief Getter of the size of the tilemap.
 	 * \return the size of the tilemap.
 	 */
 	Vec2f GetTilemapSize();
