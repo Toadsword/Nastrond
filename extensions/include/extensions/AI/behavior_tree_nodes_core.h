@@ -77,16 +77,6 @@ namespace sfge::ext::behavior_tree
 		LENGTH
 	};
 
-	/**
-	 * \brief Status of nodes
-	 */
-	enum class NodeStatus : unsigned char
-	{
-		SUCCESS,
-		FAIL,
-		RUNNING
-	};
-
 #pragma region nodeDatas
 	struct NodeData {};
 

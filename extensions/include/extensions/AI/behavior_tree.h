@@ -98,10 +98,10 @@ public:
 #ifdef BT_SOA
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
-	std::vector<NodeStatus> previousStatus;
 
 	std::vector<char> repeaterCounter;
 	std::vector<char> sequenceActiveChild;
+	std::vector<bool> hasSucceeded;
 #endif
 
 	DwarfManager* dwarfManager;
