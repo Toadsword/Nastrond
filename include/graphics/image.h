@@ -43,17 +43,19 @@ namespace sfge
 		Image();
 		~Image();
 
-		void Init();
+		void Init(std::string spritePath, sf::Texture* texture, TextureId textureID);
 		void Update(Vec2f position);
 		void Draw(sf::RenderWindow& window);
 
 		void SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColor(sf::Color color);
 
-		std::string spritePath;
-		TextureId textureId;
+		sf::FloatRect GetDimension() const;
+	protected:
+		std::string spritePath = "";
+		TextureId textureId = 0U;
 		sf::Sprite sprite;
-		sf::Color color;
+		sf::Color color = { 0,0,0,0 };
 	};
 	namespace editor
 	{
@@ -80,6 +82,8 @@ namespace sfge
 		void Init() override;
 		void Update(float dt) override;
 		void DrawImages(sf::RenderWindow& window);
+
+		void OnResize(size_t newSize) override;
 	protected:
 		RectTransformManager* m_RectTransformManager;
 		TextureManager* m_TextureManager;

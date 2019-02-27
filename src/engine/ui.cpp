@@ -29,7 +29,6 @@ namespace  sfge
 	void UIManager::Init()
 	{
 		m_EntityManager = m_Engine.GetEntityManager();
-		m_RectTransformManager = m_Engine.GetRectTransformManager();
 		m_Graphics2dManager = m_Engine.GetGraphics2dManager();
 
 		m_Window = m_Graphics2dManager->GetWindow();

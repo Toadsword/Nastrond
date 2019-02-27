@@ -6,18 +6,17 @@ from SFGE import *
 
 
 class ButtonTest(Component):
-    mousePosition: Vec2f
+    mousePosition: Vector2i
 
     def init(self):
         self.Button = self.get_component(Component.Button)
         self.RectTransform = self.get_component(Component.RectTransform)
 
     def update(self, dt):
-        self.mousePosition = button_manager.get_local_mouse_position()
-
-        if input_manager.mouse.is_button_up(input_manager.mouse.MouseButton.Left) and \
-                self.RectTransform.contains(self.mousePosition.x, self.mousePosition.y):
-            self.action()
+        if input_manager.mouse.is_button_up(input_manager.mouse.MouseButton.Left):
+            self.mousePosition = input_manager.mouse.get_local_position()
+            if self.RectTransform.contains(self.mousePosition.x, self.mousePosition.y):
+                self.action()
 
     def action(self):
         print("Action launched")

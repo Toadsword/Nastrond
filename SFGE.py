@@ -140,14 +140,6 @@ class Physics2dManager(System):
     body2d_manager = None # type: Body2dManager
 
 
-class ButtonManager(System, ComponentManager):
-    def get_component(self, entity):
-        pass
-
-    def get_local_mouse_position(self):
-        pass
-
-
 class Engine:
     def __init__(self):
         pass
@@ -254,7 +246,7 @@ class MouseManager:
     def is_button_up(self, mbutton):
         pass
 
-    def get_local_position(self, window):
+    def get_local_position(self):
         pass
 
     def get_world_position(self):
@@ -293,4 +285,3 @@ body2d_manager = Body2dManager()
 graphics2d_manager = Graphics2dManager()
 python_engine = PythonEngine()
 navigation_graph_manager = NavigationGraphManager()
-button_manager = ButtonManager()

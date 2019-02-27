@@ -37,56 +37,69 @@ namespace sfge
 
 	RectTransform::~RectTransform() { }
 
+	void RectTransform::Init(Vec2f position)
+	{
+		basePosition = position;
+	}
+
 	void RectTransform::Update(Camera* camera)
 	{
 		if(camera == nullptr)
-		{
 			Position = basePosition;
-			rectAdjusted.left = rect.left + basePosition.x;
-			rectAdjusted.top = rect.top + basePosition.y;
-		}
 		else
-		{
 			Position = basePosition + camera->GetPosition();
-			rectAdjusted.left = rect.left + Position.x;
-			rectAdjusted.top = rect.top + Position.y;
-		}
+
+		rect.left = Position.x;
+		rect.top = Position.y;
 	}
 
 	bool RectTransform::Contains(float x, float y)
 	{
-		float minX = std::min(rectAdjusted.left, static_cast<float>(rectAdjusted.left + rectAdjusted.width));
-		float maxX = std::max(rectAdjusted.left, static_cast<float>(rectAdjusted.left + rectAdjusted.width));
-		float minY = std::min(rectAdjusted.top, static_cast<float>(rectAdjusted.top + rectAdjusted.height));
-		float maxY = std::max(rectAdjusted.top, static_cast<float>(rectAdjusted.top + rectAdjusted.height));
+		float minX = std::min(rect.left, static_cast<float>(rect.left + rect.width));
+		float maxX = std::max(rect.left, static_cast<float>(rect.left + rect.width));
+		float minY = std::min(rect.top, static_cast<float>(rect.top + rect.height));
+		float maxY = std::max(rect.top, static_cast<float>(rect.top + rect.height));
 
 		return (x >= minX) && (x < maxX) && (y >= minY) && (y < maxY);
 	}
 
+	void RectTransform::SetPosition(Vec2f position)
+	{
+		Position = position;
+	}
+
+	void RectTransform::SetPosition(float x, float y)
+	{
+		Position = { x, y };
+	}
+
+	void RectTransform::SetRectDimension(float width, float height)
+	{
+		rect.width = width;
+		rect.height = height;
+	}
+
+	Vec2f RectTransform::GetPosition() const
+	{
+		return Position;
+	}
+
+	sf::FloatRect RectTransform::GetRect() const
+	{
+		return rect;
+	}
 
 	void editor::RectTransformInfo::DrawOnInspector()
 	{
-		float pos[2] = { rectTransform->Position.x, rectTransform->Position.y };
-		float rectPos[4] = { rectTransform->rect.left, rectTransform->rect.top, rectTransform->rect.width, rectTransform->rect.height };
-		float rectPosAdjusted[4] = { rectTransform->rectAdjusted.left, rectTransform->rectAdjusted.top, rectTransform->rectAdjusted.width, rectTransform->rectAdjusted.height };
+		float pos[2] = { rectTransform->GetPosition().x, rectTransform->GetPosition().y };
+		float rectPos[4] = { rectTransform->GetRect().left, rectTransform->GetRect().top, rectTransform->GetRect().width, rectTransform->GetRect().height };
 		ImGui::Separator();
 		ImGui::Text("RectTransform");
 		ImGui::InputFloat2("Position", pos);
-		rectTransform->Position.x = pos[0];
-		rectTransform->Position.y = pos[1];
 		float scale[2] = { rectTransform->Scale.x, rectTransform->Scale.y };
 		ImGui::InputFloat2("Scale", scale);
 		ImGui::InputFloat("Angle", &rectTransform->EulerAngle);
 		ImGui::InputFloat4("Rect", rectPos);
-		rectTransform->rect.left = rectPos[0];
-		rectTransform->rect.top = rectPos[1];
-		rectTransform->rect.width = rectPos[2];
-		rectTransform->rect.height = rectPos[3];
-		ImGui::InputFloat4("Rect adjusted", rectPosAdjusted);
-		rectTransform->rectAdjusted.left = rectPosAdjusted[0];
-		rectTransform->rectAdjusted.top = rectPosAdjusted[1];
-		rectTransform->rectAdjusted.width = rectPosAdjusted[2];
-		rectTransform->rectAdjusted.height = rectPosAdjusted[3];
 	}
 
 	RectTransformManager::RectTransformManager(Engine& engine):SingleComponentManager(engine)
@@ -104,17 +117,19 @@ namespace sfge
 
 	void RectTransformManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		auto* rectTransform = AddComponent(entity);
+		auto& rectTransform = m_Components[entity - 1];
 		if (CheckJsonExists(componentJson, "position"))
-			rectTransform->Position = GetVectorFromJson(componentJson, "position");
+			rectTransform.Position = GetVectorFromJson(componentJson, "position");
 		if (CheckJsonExists(componentJson, "scale"))
-			rectTransform->Scale = GetVectorFromJson(componentJson, "scale");
+			rectTransform.Scale = GetVectorFromJson(componentJson, "scale");
 		if (CheckJsonExists(componentJson, "angle") && CheckJsonNumber(componentJson, "angle"))
-			rectTransform->EulerAngle = componentJson["angle"];
+			rectTransform.EulerAngle = componentJson["angle"];
 		if (CheckJsonExists(componentJson, "basePosition"))
 		{
-			rectTransform->basePosition.x = componentJson["basePosition"][0];
-			rectTransform->basePosition.y = componentJson["basePosition"][1];
+			Vec2f basePosition;
+			basePosition.x = componentJson["basePosition"][0];
+			basePosition.y = componentJson["basePosition"][1];
+			rectTransform.Init(basePosition);
 		}
 	}
 
@@ -147,6 +162,17 @@ namespace sfge
 			{
 				m_Components[i].Update(m_CameraManager->GetMainCamera());
 			}
+		}
+	}
+
+	void RectTransformManager::OnResize(size_t newSize)
+	{
+		m_Components.resize(newSize);
+		m_ComponentsInfo.resize(newSize);
+
+		for (size_t i = 0; i < newSize; ++i) {
+			m_ComponentsInfo[i].SetEntity(i + 1);
+			m_ComponentsInfo[i].rectTransform = &m_Components[i];
 		}
 	}
 }

@@ -27,7 +27,6 @@ SOFTWARE.
 
 #include <engine/entity.h>
 #include <engine/system.h>
-#include <engine/rect_transform.h>
 #include <graphics/graphics2d.h>
 #include <graphics/text.h>
 #include <graphics/button.h>
@@ -52,7 +51,6 @@ namespace sfge
 	private:
 		// Managers
 		EntityManager* m_EntityManager;
-		RectTransformManager* m_RectTransformManager;
 		Graphics2dManager* m_Graphics2dManager;
 		ButtonManager m_ButtonManager{ m_Engine };
 		TextManager m_TextManager{ m_Engine };
