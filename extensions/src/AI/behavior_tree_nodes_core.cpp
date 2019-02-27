@@ -243,138 +243,13 @@ void Node::SequenceComposite(const unsigned int index) const
 {
 	auto* nodeData = static_cast<CompositeData*>(data.get());
 
-#ifdef BT_AOS
 	//if last one returned fail => then it's a fail
-	if (m_BehaviorTree->dataBehaviorTree[index].previousStatus == NodeStatus::FAIL)
+	if (!m_BehaviorTree->hasSucceeded[index])
 	{
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
+		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		return;
 	}
 
-	//If last one is parent => first time entering the sequence
-	if (m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].sequenceActiveChild = 0;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->children[0];
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-		return;
-	}
-
-	//Else it means that the previous node is a children
-	for (size_t i = 0; i < nodeData->children.size(); i++)
-	{
-		if (i == m_BehaviorTree->dataBehaviorTree[index].sequenceActiveChild)
-		{
-			if (i == nodeData->children.size() - 1)
-			{
-				m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-				m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-				return;
-			}
-
-			m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoDown;
-			m_BehaviorTree->dataBehaviorTree[index].sequenceActiveChild++;
-			m_BehaviorTree->dataBehaviorTree[index].currentNode = static_cast<CompositeData*>(data.get())->children[i + 1];
-
-			m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-			return;
-		}
-	}
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-#endif
-
-#ifdef BT_SOA
-		//if last one returned fail => then it's a fail
-		if (!m_BehaviorTree->hasSucceeded[index])
-		{
-			m_BehaviorTree->currentNode[index] = m_ParentNode;
-			return;
-		}
-
-		//If last one is parent => first time entering the sequence
-		if (m_BehaviorTree->doesFlowGoDown[index])
-		{
-			m_BehaviorTree->sequenceActiveChild[index] = 0;
-			m_BehaviorTree->currentNode[index] = nodeData->children[0];
-			return;
-		}
-
-		//Else it means that the previous node is a children
-		for (size_t i = 0; i < nodeData->children.size(); i++)
-		{
-			if (i == m_BehaviorTree->sequenceActiveChild[index])
-			{
-				if (i == nodeData->children.size() - 1)
-				{
-					m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-					m_BehaviorTree->hasSucceeded[index] = true;
-					return;
-				}
-
-				m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
-				m_BehaviorTree->sequenceActiveChild[index]++;
-				m_BehaviorTree->currentNode[index] = nodeData->children[i + 1];
-				return;
-			}
-		}
-#endif
-}
-
-void Node::SelectorComposite(const unsigned int index) const
-{
-	auto* nodeData = static_cast<CompositeData*>(data.get());
-#ifdef BT_AOS
-	//If last one is parent => first time entering the sequence
-	if (m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].sequenceActiveChild = 0;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->children[0];
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-		return;
-	}
-
-	//Else it means that the previous node is a children
-	for (size_t i = 0; i < nodeData->children.size(); i++)
-	{
-		if (i == m_BehaviorTree->dataBehaviorTree[index].sequenceActiveChild)
-		{
-			//If last one is a success => going out of node
-			if (m_BehaviorTree->dataBehaviorTree[index].previousStatus == NodeStatus::SUCCESS)
-			{
-				m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-				m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-				return;
-			}
-
-			//Else if not last child => go next child
-			if (i < nodeData->children.size() - 1)
-			{
-				m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoDown;
-				m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->children[i + 1];
-				m_BehaviorTree->dataBehaviorTree[index].sequenceActiveChild++;
-
-				m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-				return;
-			}
-
-			//mean that they all failed => return fail
-			m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-			m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-			return;
-		}
-	}
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-#endif
-
-#ifdef BT_SOA
 	//If last one is parent => first time entering the sequence
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
@@ -385,6 +260,39 @@ void Node::SelectorComposite(const unsigned int index) const
 
 	//Else it means that the previous node is a children
 	for (size_t i = 0; i < nodeData->children.size(); i++)
+	{
+		if (i == m_BehaviorTree->sequenceActiveChild[index])
+		{
+			if (i == nodeData->children.size() - 1)
+			{
+				m_BehaviorTree->currentNode[index] = m_ParentNode;
+
+				m_BehaviorTree->hasSucceeded[index] = true;
+				return;
+			}
+
+			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
+			m_BehaviorTree->sequenceActiveChild[index]++;
+			m_BehaviorTree->currentNode[index] = nodeData->children[i + 1];
+			return;
+		}
+	}
+}
+
+void Node::SelectorComposite(const unsigned int index) const
+{
+	auto* nodeData = static_cast<CompositeData*>(data.get());
+
+	//If last one is parent => first time entering the sequence
+	if (m_BehaviorTree->doesFlowGoDown[index])
+	{
+		m_BehaviorTree->sequenceActiveChild[index] = 0;
+		m_BehaviorTree->currentNode[index] = nodeData->children[0];
+		return;
+	}
+
+	//Else it means that the previous node is a children
+	for (char i = 0; i < nodeData->children.size(); i++)
 	{
 		if (i == m_BehaviorTree->sequenceActiveChild[index])
 		{
@@ -410,41 +318,12 @@ void Node::SelectorComposite(const unsigned int index) const
 			return;
 		}
 	}
-#endif
 }
 
 void Node::RepeaterDecorator(const unsigned int index) const
 {
 	auto* nodeData = static_cast<RepeaterData*>(data.get());
-#ifdef BT_AOS
-	//If flow goes down => start counter 
-	if (m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].repeaterCounter = 0;
-	}
-	else
-	{
-		//If limit == 0 => infinity, if m_Counter == m_Limit it's over
-		if (nodeData->limit > 0 && ++m_BehaviorTree->dataBehaviorTree[index].repeaterCounter == nodeData->limit)
-		{
-			m_BehaviorTree->dataBehaviorTree[index].repeaterCounter = 0;
 
-			m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-			m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-			m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-			return;
-		}
-	}
-
-	//Switch current node to child
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoDown;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->child;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-#endif
-
-#ifdef BT_SOA
 	//If flow goes down => start counter 
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
@@ -452,6 +331,7 @@ void Node::RepeaterDecorator(const unsigned int index) const
 	}
 	else
 	{
+		
 		//If limit == 0 => infinity, if m_Counter == m_Limit it's over
 		if (nodeData->limit > 0 && ++m_BehaviorTree->repeaterCounter[index] == nodeData->limit)
 		{
@@ -468,36 +348,12 @@ void Node::RepeaterDecorator(const unsigned int index) const
 	//Switch current node to child
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
 	m_BehaviorTree->currentNode[index] = nodeData->child;
-#endif
 }
 
 void Node::RepeatUntilFailDecorator(const unsigned int index) const
 {
 	auto* nodeData = static_cast<DecoratorData*>(data.get());
 
-#ifdef BT_AOS
-	if (m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->child;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-	}
-	else
-	{
-		if (m_BehaviorTree->dataBehaviorTree[index].previousStatus == NodeStatus::FAIL)
-		{
-			m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-			m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-		}
-		else
-		{
-			m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->child;
-			m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-		}
-	}
-#endif
-
-#ifdef BT_SOA
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
 		m_BehaviorTree->currentNode[index] = nodeData->child;
@@ -514,45 +370,13 @@ void Node::RepeatUntilFailDecorator(const unsigned int index) const
 			m_BehaviorTree->currentNode[index] = nodeData->child;
 		}
 	}
-#endif
 }
 
 void Node::InverterDecorator(const unsigned int index) const
 {
-	auto* nodeData = static_cast<DecoratorData*>(data.get());
-#ifdef BT_AOS
-	if (m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->child;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-		return;
-	}
-
-	if (m_BehaviorTree->dataBehaviorTree[index].previousStatus == NodeStatus::SUCCESS)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-		return;
-	}
-
-	if (m_BehaviorTree->dataBehaviorTree[index].previousStatus == NodeStatus::FAIL)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-		return;
-	}
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-#endif
-
-#ifdef BT_SOA
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
+		auto* nodeData = static_cast<DecoratorData*>(data.get());
 		m_BehaviorTree->currentNode[index] = nodeData->child;
 		return;
 	}
@@ -576,55 +400,23 @@ void Node::InverterDecorator(const unsigned int index) const
 	}
 
 	m_BehaviorTree->hasSucceeded[index] = false;
-#endif
 }
 
 void Node::SucceederDecorator(const unsigned int index) const
 {
-	auto* nodeData = static_cast<DecoratorData*>(data.get());
-#ifdef BT_AOS
-	if (m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = nodeData->child;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-		return;
-	}
-
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
+		auto* nodeData = static_cast<DecoratorData*>(data.get());
 		m_BehaviorTree->currentNode[index] = nodeData->child;
 		return;
 	}
 
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::WaitForPath(const unsigned int index) const
 {
-#ifdef BT_AOS
-	const auto hasPath = m_BehaviorTree->dwarfManager->HasPath(index);
-
-	if (hasPath)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-		return;
-	}
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-#endif
-
-#ifdef BT_SOA
 	if (m_BehaviorTree->dwarfManager->HasPath(index))
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -632,29 +424,10 @@ void Node::WaitForPath(const unsigned int index) const
 
 		m_BehaviorTree->hasSucceeded[index] = true;
 	}
-#endif
 }
 
 void Node::MoveToLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	const auto isAtDestination = m_BehaviorTree->dwarfManager->IsDwarfAtDestination(index);
-
-	if (isAtDestination)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-		return;
-	}
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-
-	m_BehaviorTree->dwarfManager->AddPathFollowingBT(index);
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->AddPathFollowingBT(index);
 	m_BehaviorTree->sleepingEntity[index] = true;
 
@@ -662,27 +435,10 @@ void Node::MoveToLeaf(const unsigned int index) const
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::HasDwellingLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	const auto hasDwelling = m_BehaviorTree->dwarfManager->GetDwellingEntity(index);
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	if (hasDwelling == INVALID_ENTITY)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -694,27 +450,10 @@ void Node::HasDwellingLeaf(const unsigned int index) const
 	{
 		m_BehaviorTree->hasSucceeded[index] = true;
 	}
-#endif
 }
 
 void Node::SetDwellingLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	const auto hasBeenAssigned = m_BehaviorTree->dwarfManager->AssignDwellingToDwarf(index);
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	if (hasBeenAssigned)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -726,113 +465,50 @@ void Node::SetDwellingLeaf(const unsigned int index) const
 	{
 		m_BehaviorTree->hasSucceeded[index] = false;
 	}
-#endif
 }
 
 void Node::EnterDwellingLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->DwarfEnterDwelling(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->DwarfEnterDwelling(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::ExitDwellingLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->DwarfExitDwelling(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->DwarfExitDwelling(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::EnterWorkingPlaceLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->DwarfEnterWorkingPlace(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->DwarfEnterWorkingPlace(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::ExitWorkingPlaceLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->DwarfExitWorkingPlace(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->DwarfExitWorkingPlace(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::HasJobLeaf(const unsigned int index) const
 {
-	#ifdef BT_AOS
-	const auto hasJob = m_BehaviorTree->dwarfManager->HasJob(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	if (hasJob)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-
-	}
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -845,29 +521,10 @@ void Node::HasJobLeaf(const unsigned int index) const
 		m_BehaviorTree->hasSucceeded[index] = false;
 
 	}
-#endif
 }
 
 void Node::HasStaticJobLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	const auto hasStaticJob = m_BehaviorTree->dwarfManager->HasStaticJob(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	if (hasStaticJob)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-
-	}
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -880,28 +537,10 @@ void Node::HasStaticJobLeaf(const unsigned int index) const
 		m_BehaviorTree->hasSucceeded[index] = false;
 
 	}
-#endif
 }
 
 void Node::AssignJobLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	const auto jobAssigned = m_BehaviorTree->dwarfManager->AssignJob(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	if (jobAssigned)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-	}
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -913,26 +552,10 @@ void Node::AssignJobLeaf(const unsigned int index) const
 	{
 		m_BehaviorTree->hasSucceeded[index] = false;
 	}
-#endif
 }
 
 void Node::IsDayTimeLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	if (m_BehaviorTree->dwarfManager->IsDayTime())
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-	}
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -944,28 +567,10 @@ void Node::IsDayTimeLeaf(const unsigned int index) const
 	{
 		m_BehaviorTree->hasSucceeded[index] = false;
 	}
-#endif
 }
 
 void Node::IsNightTimeLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	const auto isNightTime = m_BehaviorTree->dwarfManager->IsNightTime();
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	if (isNightTime)
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::FAIL;
-	}
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -977,124 +582,56 @@ void Node::IsNightTimeLeaf(const unsigned int index) const
 	{
 		m_BehaviorTree->hasSucceeded[index] = false;
 	}
-#endif
 }
 
 void Node::WaitDayTimeLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	if (m_BehaviorTree->dwarfManager->IsDayTime())
-	{
-		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-	}
-#endif
-
-#ifdef BT_SOA
 	if (m_BehaviorTree->dwarfManager->IsDayTime())
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		m_BehaviorTree->hasSucceeded[index] = true;
 	}
-#endif
 }
 
 void Node::WaitNightTimeLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	if (m_BehaviorTree->dwarfManager->IsNightTime())
-	{
-		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-	}
-#endif
-
-#ifdef BT_SOA
 	if (m_BehaviorTree->dwarfManager->IsNightTime())
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		m_BehaviorTree->hasSucceeded[index] = true;
 	}
-#endif
 }
 
 void Node::AskInventoryTaskLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	if (m_BehaviorTree->dwarfManager->AddInventoryTaskBT(index))
-	{
-		m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-	}
-	else
-	{
-		m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::RUNNING;
-	}
-#endif
-
-#ifdef BT_SOA
 	if (m_BehaviorTree->dwarfManager->AddInventoryTaskBT(index))
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		m_BehaviorTree->hasSucceeded[index] = true;
 	}
-#endif
 }
 
 void Node::TakeResourcesLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->TakeResources(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->TakeResources(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::PutResourcesLeaf(const unsigned int index) const
 {
-#ifdef BT_AOS
-	m_BehaviorTree->dwarfManager->PutResources(index);
-
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->dwarfManager->PutResources(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 
 void Node::FindPathToLeaf(const unsigned int index) const
@@ -1120,18 +657,9 @@ void Node::FindPathToLeaf(const unsigned int index) const
 		;
 	}
 
-#ifdef BT_AOS
-	m_BehaviorTree->dataBehaviorTree[index].doesFlowGoDown = m_BehaviorTree->flowGoUp;
-	m_BehaviorTree->dataBehaviorTree[index].currentNode = m_ParentNode;
-
-	m_BehaviorTree->dataBehaviorTree[index].previousStatus = NodeStatus::SUCCESS;
-#endif
-
-#ifdef BT_SOA
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
 	m_BehaviorTree->hasSucceeded[index] = true;
-#endif
 }
 }

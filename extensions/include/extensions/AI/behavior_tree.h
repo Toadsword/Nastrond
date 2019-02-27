@@ -47,14 +47,11 @@ namespace sfge::ext::behavior_tree
 class BehaviorTree final : public System
 {
 public:
+	using dwarfIndex = int;
+
 	explicit BehaviorTree(Engine& engine);
 
-	~BehaviorTree()
-	{
-#ifdef AI_DEBUG_COUNT_TIME
-		std::cout << "[BehaviorTree]Update: " << m_TimerMilli / m_TimerCounter  << "," << m_TimerMicro / m_TimerCounter << "\n";
-#endif
-	}
+	~BehaviorTree();
 
 	void Init() override;
 
@@ -64,6 +61,11 @@ public:
 
 	void Draw() override;
 
+	/**
+	 * \brief Update range of entities
+	 * \param startIndex 
+	 * \param endIndex 
+	 */
 	void UpdateRange(int startIndex, int endIndex);
 
 	/**
@@ -78,37 +80,13 @@ public:
 	*/
 	void SetEntities(std::vector<Entity>* vectorEntities);
 
-	void WakeUpEntity(const int entityIndex)
-	{
-		sleepingEntity[entityIndex] = false;
-	}
-
-	void WakeUpEntities(std::vector<int> entitiesIndex, const int maxIndex)
-	{
-		for(auto i = 0; i < maxIndex; i++)
-		{
-			sleepingEntity[entitiesIndex[i]] = false;
-		}
-	}
-
-#ifdef BT_AOS
 	/**
-	 * \brief All data regarding flow in behavior tree
+	 * \brief Wake up all entities giver in the vector
+	 * \param entitiesIndex to wake up
+	 * \param maxIndex size of vector
 	 */
-	struct DataBehaviorTree final
-	{
-		Node::ptr currentNode; //4
+	void WakeUpEntities(std::vector<int>& entitiesIndex, const int maxIndex);
 
-		NodeStatus previousStatus; //1
-		bool doesFlowGoDown; // 1
-		unsigned char repeaterCounter; // 1
-		unsigned char sequenceActiveChild; // 1
-	};
-
-	std::vector<DataBehaviorTree> dataBehaviorTree;
-#endif
-
-#ifdef BT_SOA
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
 
@@ -116,10 +94,7 @@ public:
 	std::vector<char> sequenceActiveChild;
 	std::vector<bool> hasSucceeded;
 
-	std::vector<int> activeEntity;
-	int indexActiveEntity = 0;
 	std::vector<bool> sleepingEntity;
-#endif
 
 	DwarfManager* dwarfManager;
 
@@ -130,6 +105,9 @@ private:
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
+
+	std::vector<dwarfIndex> m_ActiveEntity;
+	int m_IndexActiveEntity = 0;
 
 #ifdef AI_DEBUG_COUNT_TIME
 	unsigned int m_TimerMilli = 0u;

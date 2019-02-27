@@ -29,6 +29,14 @@ namespace sfge::ext::behavior_tree
 {
 BehaviorTree::BehaviorTree(Engine& engine) : System(engine) {}
 
+BehaviorTree::~BehaviorTree()
+{
+#ifdef AI_DEBUG_COUNT_TIME
+		std::cout << "[BehaviorTree]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter
+			<< "\n";
+#endif
+}
+
 void BehaviorTree::Init()
 {
 	dwarfManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwarfManager>("DwarfManager");
@@ -37,45 +45,45 @@ void BehaviorTree::Init()
 void BehaviorTree::Update(float dt)
 {
 #ifdef AI_DEBUG_COUNT_TIME
-	auto t1 = std::chrono::high_resolution_clock::now();
+	const auto t1 = std::chrono::high_resolution_clock::now();
 #endif
 
-	//Pre batch active / sleeping entites
-	for(auto i = 0; i < m_Entities->size(); i++)
+	//Pre batch active / sleeping entities
+	for(size_t i = 0; i < m_Entities->size(); i++)
 	{
 		if(!sleepingEntity[i] && m_Entities->at(i) != INVALID_ENTITY){
-			activeEntity[indexActiveEntity] = i;
-			indexActiveEntity++;
+			m_ActiveEntity[m_IndexActiveEntity] = i;
+			m_IndexActiveEntity++;
 		}
 	}
 
 	auto& threadPool = m_Engine.GetThreadPool();
 	const auto coreNmb = threadPool.size();
 
-	if (indexActiveEntity < coreNmb) {
-		UpdateRange(0, indexActiveEntity - 1);
+	if (m_IndexActiveEntity < coreNmb) {
+		UpdateRange(0, m_IndexActiveEntity - 1);
 	}
 	else {
 
 		std::vector<std::future<void>> joinFutures(coreNmb);
 		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
 		{
-			int start = (threadIndex + 1)*indexActiveEntity / (coreNmb + 1);
-			int end = (threadIndex + 2)*indexActiveEntity / (coreNmb + 1) - 1;
+			auto start = (threadIndex + 1)*m_IndexActiveEntity / (coreNmb + 1);
+			auto end = (threadIndex + 2)*m_IndexActiveEntity / (coreNmb + 1) - 1;
 			auto updateFunction = std::bind(&BehaviorTree::UpdateRange, this, start, end);
 			joinFutures[threadIndex] = threadPool.push(updateFunction);
 		}
-		UpdateRange(0, indexActiveEntity / (coreNmb + 1) - 1);
-		for (int i = 0; i < coreNmb; i++)
+		UpdateRange(0, m_IndexActiveEntity / (coreNmb + 1) - 1);
+		for (auto i = 0; i < coreNmb; i++)
 		{
 			joinFutures[i].get();
 		}
 	}
 
-	indexActiveEntity = 0;
+	m_IndexActiveEntity = 0;
 
 #ifdef AI_DEBUG_COUNT_TIME
-	auto t2 = std::chrono::high_resolution_clock::now();
+	const auto t2 = std::chrono::high_resolution_clock::now();
 	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 	m_TimerMilli += timerDuration / 1000;
 	m_TimerMicro += timerDuration % 1000;
@@ -91,15 +99,9 @@ void BehaviorTree::UpdateRange(const int startIndex, const int endIndex)
 {
 	for (auto i = startIndex; i <= endIndex; i++)
 	{
-#ifdef BT_SOA
-		const auto index = activeEntity[i];
+		const auto index = m_ActiveEntity[i];
 		
 		currentNode[index]->executeFunction(index);
-#endif
-
-#ifdef BT_AOS
-		dataBehaviorTree[i].currentNode->Execute(i);
-#endif
 	}
 }
 
@@ -107,7 +109,7 @@ void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
 {
 	m_RootNode = rootNode;
 
-	for (auto i = 0; i < m_Entities->size(); i++) {
+	for (size_t i = 0; i < m_Entities->size(); i++) {
 		currentNode[i] = m_RootNode;
 	}
 }
@@ -115,7 +117,7 @@ void BehaviorTree::SetRootNode(const Node::ptr& rootNode)
 void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 {
 	m_Entities = vectorEntities;
-#ifdef BT_SOA
+
 	if (currentNode.size() < m_Entities->size())
 	{
 		currentNode.resize(m_Entities->size(), m_RootNode);
@@ -124,22 +126,16 @@ void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 		sequenceActiveChild.resize(m_Entities->size(), 0);
 		hasSucceeded.resize(m_Entities->size(), true);
 
-		activeEntity.resize(m_Entities->size(), true);
+		m_ActiveEntity.resize(m_Entities->size(), true);
 		sleepingEntity.resize(m_Entities->size(), false);
-#endif
+	}
+}
 
-#ifdef BT_AOS
-		if (dataBehaviorTree.size() < m_Entities->size())
-		{
-			int previousSize = dataBehaviorTree.size();
-			dataBehaviorTree.resize(m_Entities->size());
-
-			for (auto i = previousSize; i < dataBehaviorTree.size(); i++)
-			{
-				dataBehaviorTree[i].currentNode = m_RootNode;
-			}
-#endif
-
-		}
+void BehaviorTree::WakeUpEntities(std::vector<int>& entitiesIndex, const int maxIndex)
+{
+	for (auto i = 0; i < maxIndex; i++)
+	{
+		sleepingEntity[entitiesIndex[i]] = false;
+	}
 }
 }
