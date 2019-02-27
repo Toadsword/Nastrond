@@ -92,7 +92,11 @@ public:
 	 * \return list of all loaded tile type.
 	 */
 	std::vector<size_t> GetAllTileTypeIds();
-
+	
+	/**
+	 * \brief Add a new tiletype to the list.
+	 * \param filename Filename pointing to an image to load.
+	 */
 	void AddNewTileType(std::string filename);
 
 	void Clear() override;

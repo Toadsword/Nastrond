@@ -42,8 +42,8 @@ namespace sfge
 {
 /**
  * \author : Duncan Bourquard
- * \version : 1.0
- * \date : 30.01.2019
+ * \version : 1.1
+ * \date : 27.02.2019
  */
 
 class Tilemap
@@ -65,6 +65,10 @@ public:
 	 */
 	void Update();
 
+	/**
+	 * \brief Save the tilemap.
+	 * \return Json containing all the needed informations.
+	 */
 	json Save();
 	
 	/**
@@ -88,6 +92,7 @@ public:
 	 * \param tileTypeIds The datas containing the new tiletypes
 	 */
 	void SetTileTypes(std::vector<TileTypeId> tileTypeIds);
+
 	/**
 	 * \brief Get all the tiletypes datas of the tilemap
 	 * \return Vector of TileTypeId
@@ -111,6 +116,7 @@ public:
 	 * \return Vector of TileTypeId
 	 */
 	std::vector<std::vector<TileTypeId>>& GetTileTypes();
+
 	/**
 	 * \brief Get all the tileEntities of the tilemap, at their position
 	 * \return Vector of Entities, poiting to Tile entities of the tilemap
@@ -130,6 +136,7 @@ public:
 	 * \return Entity wanted
 	 */
 	Entity GetTileAt(Vec2f pos);
+
 	/**
 	 * \brief Returns the EntityId positionned at specified position
 	 * \param tileEntity Entity of the tile.
@@ -144,6 +151,7 @@ public:
 	 * \return Entity wanted
 	 */
 	void SetTileAt(Vec2f pos, TileTypeId newTileType);
+
 	/**
 	 * \brief Set a new tiletype at the specified position
 	 * \param entity Entity of the tile, contained by the tilemap.
@@ -168,6 +176,7 @@ protected:
 #else
 	std::vector<std::vector<Entity>> m_Tiles;
 #endif
+
 	/**
 	 * \brief Contains all the tiletypeIds of the tilemap
 	 */
@@ -176,18 +185,22 @@ protected:
 #else
 	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
 #endif
+
 	/**
 	 * \brief Size of a tile in the tilemap in pixel
 	 */
 	Vec2f m_TileSize = {1, 1};
+
 	/**
 	 * \brief Layer of the tilemap (Concerns the layer of drawing)
 	 */
 	int m_Layer = 0;
+
 	/**
 	 * \brief Pointer to the TileManager
 	 */
 	TileManager* m_TileManager;
+
 	/**
 	 * \brief Displays the tilemap as an isometric one or not
 	 */
@@ -228,6 +241,7 @@ public:
 	 * \param map Json tilemap data to construct the tilemap
 	 */
 	void InitializeMap(Entity entity, json& map);
+
 	/**
 	 * \brief Create a tilemap with the json passed
 	 * \param entity
@@ -252,7 +266,18 @@ public:
 	 */
 	void EmptyMap(Entity entity);
 
+	/**
+	 * \brief Calculate the tile the mouse currently pointes at and returns its position.
+	 * \param entity Entity containing the tilemap
+	 * \return Position in the tilemap
+	 */
 	Vec2f GetTilePositionFromMouse(Entity entity);
+
+	/**
+	 * \brief Calculate the tile the mouse currently pointes at and returns the tile entity.
+	 * \param entity Entity containing the tilemap
+	 * \return Entity of the tile
+	 */
 	Entity GetTileEntityFromMouse(Entity entity);
 protected:
 	Transform2dManager* m_Transform2dManager = nullptr;
