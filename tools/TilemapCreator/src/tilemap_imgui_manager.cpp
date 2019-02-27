@@ -134,7 +134,7 @@ namespace sfge::tools
 			{
 				Entity newTilemapEntity = m_TilemapCreator->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
 				m_TilemapCreator->GetTilemapManager()->AddComponent(newTilemapEntity);
-#ifdef Opti1
+#ifdef OptiVector
 				const Vec2f newTilemapSize = Vec2f(m_SizeNewTilemap[0], m_SizeNewTilemap[1]);
 				const std::vector<TileTypeId> newTiletypeIds = std::vector<TileTypeId>(m_SizeNewTilemap[0] * m_SizeNewTilemap[1], INVALID_TILE_TYPE);
 
@@ -280,7 +280,7 @@ namespace sfge::tools
 
 				if ((aSize[0] != currentSize.x || aSize[1] != currentSize.y) && aSize[0] > 0 && aSize[1] > 0)
 				{
-#ifdef Opti1
+#ifdef OptiVector
 					std::vector<TileTypeId> oldTileTypes = tilemap->GetTileTypes();
 					const Vec2f oldSize = tilemap->GetTilemapSize();
 

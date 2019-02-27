@@ -36,7 +36,7 @@ SOFTWARE.
 #include <engine/tile.h>
 #include <engine/tile_asset.h>
 
-#define Opti1
+#define OptiVector
 
 namespace sfge
 {
@@ -82,7 +82,7 @@ public:
 	void SetIsometric(bool newIso);
 	bool GetIsometric();
 
-#ifdef Opti1
+#ifdef OptiVector
 	/**
 	 * \brief Set all the tile types passed in parameter to the tilemap. Usually used to "paste" copies datas to the tilemap.
 	 * \param tileTypeIds The datas containing the new tiletypes
@@ -162,7 +162,7 @@ protected:
 	/**
 	 * \brief Contains all the entities "tile" stored in the tilemap
 	 */
-#ifdef Opti1
+#ifdef OptiVector
 	std::vector<Entity> m_Tiles;
 	Vec2f m_TilemapSize = { 0, 0 };
 #else
@@ -171,7 +171,7 @@ protected:
 	/**
 	 * \brief Contains all the tiletypeIds of the tilemap
 	 */
-#ifdef Opti1
+#ifdef OptiVector
 	std::vector<TileTypeId> m_TileTypeIds;
 #else
 	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
@@ -234,7 +234,7 @@ public:
 	 * \param tileTypeIds c++ data struct to construct the tilemap
 	 * \param tilemapSize Size of the tilemap
 	 */
-#ifdef Opti1
+#ifdef OptiVector
 	void InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds, Vec2f tilemapSize);
 #else
 	void InitializeMap(Entity entity, std::vector<std::vector<TileTypeId>> tileTypeIds);
