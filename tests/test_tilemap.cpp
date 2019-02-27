@@ -12,7 +12,7 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
+ 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,7 +31,11 @@ SOFTWARE.
 TEST(Tilemap, TestLoadTilemap)
 {
 	sfge::Engine engine;
-	engine.Init();
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
 	
 	json sceneJson;
 	json entityJson;
@@ -41,7 +45,7 @@ TEST(Tilemap, TestLoadTilemap)
 	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
 	tilemapJson["is_isometric"] = true;
 	tilemapJson["layer"] = 1;
-	tilemapJson["tile_scale"] = json::array({509, 254});
+	tilemapJson["tile_size"] = json::array({509, 254});
 	tilemapJson["map_size"] = json::array({10, 10});
 	tilemapJson["map"] = json::array({
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
