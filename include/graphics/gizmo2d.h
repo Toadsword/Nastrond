@@ -38,7 +38,7 @@ enum class GizmoType
 {
 	NONE,
 	CIRCLE,
-	RECTANGLE,
+	QUAD,
 	LINE,
 };
 
@@ -52,7 +52,8 @@ public:
     ~Gizmo();
 	void Draw(sf::RenderWindow& window) const;
 	void Update(float dt, Transform2d* transform) const;
-
+	void SetShape(std::unique_ptr<Gizmo> gizmo);
+	//Gizmo* GetShape();
 protected:
 	std::unique_ptr<Gizmo> m_Gizmo = nullptr;
 };

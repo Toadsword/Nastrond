@@ -64,7 +64,7 @@ TEST(Gizmos, GizmoUI)
 			window.clear(sf::Color::Black);
 
 			// c'est ici qu'on dessine tout
-			// window.draw(...);
+			 //window.draw(...);
 
 			sf::VertexArray quad(sf::Quads, 4);
 
@@ -84,30 +84,24 @@ TEST(Gizmos, GizmoUI)
 			// fin de la frame courante, affichage de tout ce qu'on a dessiné
 			window.display();
 		}
+		
 
-		/*
-		void PersonalDraw() {
+	json sceneJson = {
+	{ "name", "still testing and still having no clue of what I am doing" } };
 
-			auto window = m_Graphics2DManager->GetWindow();
+	//json systemJsonGizmoUIManager = {
+	//	{ "systemClassName", "GizmoUIManager" } };
 
-			window->draw(quad);
-		}
-		*/
+	//sceneJson["systems"] = json::array({ systemJsonGizmoUIManager });
 
-		/*json sceneJson = {
-		{ "name", "still testing and still having no clue of what I am doing" } };
-
-	json systemJsonGizmoUIManager = {
-		{ "systemClassName", "GizmoUIManager" } };
-
-	sceneJson["systems"] = json::array({ systemJsonGizmoUIManager });
+	json gizmoJson;
+	gizmoJson["type"] = static_cast<int>(sfge::ComponentType::GIZMO2D);
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
 	sceneManager->LoadSceneFromJson(sceneJson);
 
-	engine.Start();*/
-		
+	engine.Start();
 }
 
 TEST(Gizmos, GizmoBuilding)

@@ -39,36 +39,15 @@ Gizmo::Gizmo(Transform2d * transform, const sf::Vector2f offset) : Offsetable(of
 
 Gizmo::~Gizmo()
 {
-	//m_Gizmo = nullptr;
+	m_Gizmo = nullptr;
 }
 
 void Gizmo::Draw(sf::RenderWindow& window) const
 {
 
 		//window.draw(*m_Gizmo);
-		sf::VertexArray quad(sf::Quads, 4);
-
-		// on le définit comme un rectangle, placé en (10, 10) et de taille 100x100
-		quad[0].position = sf::Vector2f(40, 40);
-		quad[1].position = sf::Vector2f(140, 40);
-		quad[2].position = sf::Vector2f(140, 140);
-		quad[3].position = sf::Vector2f(40, 140);
-
-		quad[0].color = sf::Color::Green;
-		quad[0].color = sf::Color::Green;
-		quad[0].color = sf::Color::Green;
-		quad[0].color = sf::Color::Green;
-
-		window.draw(quad);
 }
 
-
-/*
-for circle, use : You approximate a circle with a polygon of many points. The points have the following positions:
-center.x + radius * cos(angle)
-center.y + radius * sin(angle)
-angle is increased stepwise, so it's uniformly distributed in [0, 2*pi[.
-*/
 void Gizmo::Update(float dt, Transform2d* transform) const
 {
 	(void) dt;
@@ -88,6 +67,15 @@ GizmoManager::GizmoManager(Engine &engine) : MultipleComponentManager(engine)
 {
 
 }
+void Gizmo::SetShape(std::unique_ptr<Gizmo> gizmo)
+{
+	m_Gizmo = std::move(gizmo);
+}
+
+/*Gizmo *Gizmo::GetShape()
+{
+	return m_Gizmo.get();
+}*/
 
 void editor::GizmoInfo::DrawOnInspector() {
 
@@ -178,7 +166,14 @@ void GizmoManager::CreateComponent(json& componentJson, Entity entity)
 		case GizmoType::CIRCLE:
 		{
 
-			float radius = 10.0f;
+/*
+for circle, use : You approximate a circle with a polygon of many points. The points have the following positions:
+center.x + radius * cos(angle)
+center.y + radius * sin(angle)
+angle is increased stepwise, so it's uniformly distributed in [0, 2*pi[.
+*/
+
+			/*float radius = 10.0f;
 			if (CheckJsonNumber(componentJson, "radius"))
 			{
 				radius = componentJson["radius"];
@@ -187,13 +182,29 @@ void GizmoManager::CreateComponent(json& componentJson, Entity entity)
 			auto circleShape = std::make_unique <sf::CircleShape>();
 			circleShape->setRadius(radius);
 			circleShape->setOrigin(radius, radius);
-			//gizmo.SetShape(std::move(circleShape));
+			gizmo.SetShape(std::move(circleShape));*/
 			gizmo.Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
 		}
 		break;
-		case GizmoType::RECTANGLE:
+		case GizmoType::QUAD:
 		{
-			sf::Vector2f offset;
+			sf::VertexArray quad(sf::Quads, 4);
+
+			// define here the vertex Array for a quad
+			
+			quad[0].position = sf::Vector2f(40, 40);
+			quad[1].position = sf::Vector2f(140, 40);
+			quad[2].position = sf::Vector2f(140, 140);
+			quad[3].position = sf::Vector2f(40, 140);
+
+			quad[0].color = sf::Color::Green;
+			quad[1].color = sf::Color::Green;
+			quad[2].color = sf::Color::Green;
+			quad[3].color = sf::Color::Green;
+			
+			//window.draw(quad);
+
+			/*sf::Vector2f offset;
 			if (CheckJsonExists(componentJson, "offset"))
 			{
 				offset = GetVectorFromJson(componentJson, "offset");
@@ -206,13 +217,19 @@ void GizmoManager::CreateComponent(json& componentJson, Entity entity)
 			auto rect = std::make_unique<sf::RectangleShape>();
 			rect->setSize(size);
 			rect->setOrigin(size.x / 2.0f, size.y / 2.0f);
-			//gizmo.SetShape(std::move(rect));
+			gizmo.SetShape(std::move(rect));*/
 			gizmo.Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
 
 		}
 		break;
+		case GizmoType::LINE: 
+		{
+			//lines for vertex Array gizmo
+			gizmo.Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
+		}
+		break;
 		default:
-			Log::GetInstance()->Error("Invalid shape type in ShapeManager Component Creation");
+			Log::GetInstance()->Error("Invalid shape type in GizmoManager Component Creation");
 			break;
 		}
 	}
