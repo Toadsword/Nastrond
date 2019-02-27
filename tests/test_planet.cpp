@@ -30,6 +30,7 @@ SOFTWARE.
 #include <engine/component.h>
 
 
+/*
 TEST(System, TestPlanetPyComponent)
 {
 	const int entityNmb = 10'000;
@@ -90,7 +91,6 @@ TEST(System, TestPlanetPyComponent)
 	engine.Start();
 
 }
-
 TEST(System, TestPlanetPySystem)
 {
 	sfge::Engine engine;
@@ -131,4 +131,4 @@ TEST(System, TestPlanetPySystemCpp)
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
-}
+}*/
