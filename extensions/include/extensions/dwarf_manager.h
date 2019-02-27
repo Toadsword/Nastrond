@@ -267,6 +267,7 @@ private:
 	//Dwarfs Holder
 	const size_t m_ContainersExtender = 100'000;
 	std::vector<Entity> m_DwarfsEntities;
+	int m_IndexDwarfsEntities = 0;
 
 	//State management
 	enum State

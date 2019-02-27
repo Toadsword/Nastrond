@@ -38,8 +38,6 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-#define BT_SOA
-//#define BT_AOS
 
 /**
 * author Nicolas Schneider

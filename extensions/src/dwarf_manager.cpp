@@ -94,6 +94,11 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 
 	const int indexNewDwarf = GetIndexForNewEntity();
 
+	if(indexNewDwarf > m_IndexDwarfsEntities)
+	{
+		m_IndexDwarfsEntities = indexNewDwarf;
+	}
+
 	//Update data for new dwarf in std::vectors
 	m_DwarfsEntities[indexNewDwarf] = newEntity;
 	m_States[indexNewDwarf] = State::IDLE;
@@ -120,7 +125,7 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 		-textureSize.x / 2.0f, textureSize.y / 2.0f);
 }
 
-void DwarfManager::DestroyDwarfByIndex(unsigned int index)
+void DwarfManager::DestroyDwarfByIndex(const unsigned int index)
 {
 	//Destroy entity
 	auto* entityManager = m_Engine.GetEntityManager();
@@ -145,10 +150,10 @@ void DwarfManager::DestroyDwarfByIndex(unsigned int index)
 	m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
 }
 
-void DwarfManager::DestroyDwarfByEntity(Entity entity)
+void DwarfManager::DestroyDwarfByEntity(const Entity entity)
 {
 	auto index = -1;
-	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
+	for (auto i = 0; i < m_IndexDwarfsEntities; i++)
 	{
 		if (m_DwarfsEntities[i] == entity)
 		{
@@ -415,12 +420,12 @@ void DwarfManager::AddDwarfToDraw(const unsigned int index)
 void DwarfManager::Update(float dt)
 {
 #ifdef AI_DEBUG_COUNT_TIME
-	auto t1 = std::chrono::high_resolution_clock::now();
+	const auto t1 = std::chrono::high_resolution_clock::now();
 #endif
 	//Sort array
 	//Path to destination
 	auto tmpIndex = 0;
-	for(auto i = 0; i < m_DwarfsEntities.size(); i++)
+	for(size_t i = 0; i < m_IndexDwarfsEntities; i++)
 	{
 		if (m_PathToIndexDwarfBTNotSorted[i]) {
 			m_PathFollowingBT[tmpIndex] = i;
@@ -433,7 +438,7 @@ void DwarfManager::Update(float dt)
 
 	//Path to random
 	tmpIndex = 0;
-	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
 	{
 		if (m_PathToRandomBTNotSorted[i]) {
 			m_PathToRandomBT[tmpIndex] = i;
@@ -468,7 +473,7 @@ void DwarfManager::Update(float dt)
 	}
 
 	//Follow path - prebatch
-	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
 	{
 		if (m_PathFollowingBTNotSorted[i]) {
 			m_PathFollowingBT[m_IndexPathFollowingBT] = i;
@@ -476,18 +481,22 @@ void DwarfManager::Update(float dt)
 		}
 	}
 
-	//Follow path - mouvement
+	//Follow path - mouvements
+	const auto vel = m_SpeedDwarf * dt;
 	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
 	{
 		const auto indexDwarf = m_PathFollowingBT[i];
 
-		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
+		const auto transformPtr = m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
 
 		auto dir = m_Paths[indexDwarf][m_Paths[indexDwarf].size() - 1] - transformPtr->Position;
 
-		transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
+		transformPtr->Position += dir.Normalized() * vel;
+	}
 
-		AddDwarfToDraw(indexDwarf);
+	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
+	{
+		const auto indexDwarf = m_PathFollowingBT[i];
 
 		//test if at destination
 		if (IsDwarfAtDestination(indexDwarf))
@@ -496,6 +505,7 @@ void DwarfManager::Update(float dt)
 			m_IndexToWakeUp++;
 			m_PathFollowingBTNotSorted[indexDwarf] = false;
 		}
+		AddDwarfToDraw(indexDwarf);
 	}
 
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
@@ -530,7 +540,7 @@ void DwarfManager::Update(float dt)
 	}
 
 #ifdef AI_DEBUG_COUNT_TIME
-	auto t2 = std::chrono::high_resolution_clock::now();
+	const auto t2 = std::chrono::high_resolution_clock::now();
 	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 	m_TimerMilli += timerDuration / 1000;
 	m_TimerMicro += timerDuration % 1000;
