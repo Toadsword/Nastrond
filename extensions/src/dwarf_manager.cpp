@@ -385,6 +385,8 @@ void DwarfManager::ResizeContainers()
 	m_PathToRandomBT.resize(newSize);
 
 	m_InventoryTaskBT.resize(newSize);
+
+	m_EntitiesToWakeUp.resize(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()
@@ -487,32 +489,24 @@ void DwarfManager::Update(float dt)
 
 		AddDwarfToDraw(indexDwarf);
 
+		//test if at destination
+		if (IsDwarfAtDestination(indexDwarf))
+		{
+			m_EntitiesToWakeUp[m_IndexToWakeUp] = indexDwarf;
+			m_IndexToWakeUp++;
+			m_PathFollowingBTNotSorted[indexDwarf] = false;
+		}
 	}
 
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
 		"BehaviorTree");
 
-	//Test if is at destination
-	std::vector<int> indexToWakeUp;
-	indexToWakeUp.reserve(m_IndexPathFollowingBT);
-	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
-	{
-		const auto indexDwarf = m_PathFollowingBT[i];
-
-		if(IsDwarfAtDestination(indexDwarf))
-		{
-			indexToWakeUp.emplace_back(indexDwarf);
-			m_PathFollowingBTNotSorted[indexDwarf] = false;
-		}
-		
-	}
-
-	for(int i = 0; i < indexToWakeUp.size(); i++)
-	{
-		behaviorTree->WakeUpEntity(indexToWakeUp[i]);
-	}
-
 	m_IndexPathFollowingBT = 0;
+
+	//Wake up
+	behaviorTree->WakeUpEntities(m_EntitiesToWakeUp, m_IndexToWakeUp);
+
+	m_IndexToWakeUp = 0;
 
 	//Update current time
 	m_CurrentTime += dt;

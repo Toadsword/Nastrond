@@ -83,6 +83,14 @@ public:
 		sleepingEntity[entityIndex] = false;
 	}
 
+	void WakeUpEntities(std::vector<int> entitiesIndex, const int maxIndex)
+	{
+		for(auto i = 0; i < maxIndex; i++)
+		{
+			sleepingEntity[entitiesIndex[i]] = false;
+		}
+	}
+
 #ifdef BT_AOS
 	/**
 	 * \brief All data regarding flow in behavior tree

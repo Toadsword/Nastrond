@@ -336,6 +336,9 @@ private:
 	std::vector<int> m_PathFollowingBT;
 	unsigned int m_IndexPathFollowingBT = 0;
 
+	std::vector<int> m_EntitiesToWakeUp;
+	int m_IndexToWakeUp = 0;
+
 	//Inventory task
 	std::vector<BuildingManager::InventoryTask> m_InventoryTaskBT;
 
