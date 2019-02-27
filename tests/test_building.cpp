@@ -179,7 +179,7 @@ TEST(Building, WarehouseTest)
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
-}
+}*/
 
 TEST(Building, BuildingConstructorTest)
 {
