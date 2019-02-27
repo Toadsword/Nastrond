@@ -31,7 +31,11 @@ SOFTWARE.
 TEST(Tilemap, TestLoadTilemap)
 {
 	sfge::Engine engine;
-	engine.Init();
+
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
 	
 	json sceneJson;
 	json entityJson;

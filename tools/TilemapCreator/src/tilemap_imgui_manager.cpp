@@ -132,10 +132,8 @@ namespace sfge::tools
 
 			if (ImGui::Button("Add a tilemap"))
 			{
-				Entity newTilemapEntity = m_TilemapCreator
-				                          ->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
+				Entity newTilemapEntity = m_TilemapCreator->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
 				m_TilemapCreator->GetTilemapManager()->AddComponent(newTilemapEntity);
-
 #ifdef Opti1
 				const Vec2f newTilemapSize = Vec2f(m_SizeNewTilemap[0], m_SizeNewTilemap[1]);
 				const std::vector<TileTypeId> newTiletypeIds = std::vector<TileTypeId>(m_SizeNewTilemap[0] * m_SizeNewTilemap[1], INVALID_TILE_TYPE);

@@ -150,7 +150,7 @@ TEST(Building, BuildingManager)
 
 	engine.Start();
 }
-
+/*
 TEST(Building, BuildingNoEntityManager)
 {
 	sfge::Engine engine;
@@ -176,4 +176,4 @@ TEST(Building, BuildingNoEntityManager)
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
-}
+}*/
