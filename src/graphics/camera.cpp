@@ -78,7 +78,7 @@ namespace sfge
 
 	Camera* CameraManager::GetMainCamera()
 	{
-		return &(*m_cameras.begin());
+		return m_cameras.begin()._Ptr;
 	}
 
 	Camera* CameraManager::AddComponent(Entity entity)
