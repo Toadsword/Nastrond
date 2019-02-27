@@ -78,6 +78,11 @@ public:
 	*/
 	void SetEntities(std::vector<Entity>* vectorEntities);
 
+	void WakeUpEntity(const int entityIndex)
+	{
+		sleepingEntity[entityIndex] = false;
+	}
+
 #ifdef BT_AOS
 	/**
 	 * \brief All data regarding flow in behavior tree
@@ -102,6 +107,10 @@ public:
 	std::vector<char> repeaterCounter;
 	std::vector<char> sequenceActiveChild;
 	std::vector<bool> hasSucceeded;
+
+	std::vector<int> activeEntity;
+	int indexActiveEntity = 0;
+	std::vector<bool> sleepingEntity;
 #endif
 
 	DwarfManager* dwarfManager;

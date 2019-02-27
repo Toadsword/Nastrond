@@ -40,22 +40,39 @@ void BehaviorTree::Update(float dt)
 	auto t1 = std::chrono::high_resolution_clock::now();
 #endif
 
+	//Pre batch active / sleeping entites
+	for(auto i = 0; i < m_Entities->size(); i++)
+	{
+		if(!sleepingEntity[i] && m_Entities->at(i) != INVALID_ENTITY){
+			activeEntity[indexActiveEntity] = i;
+			indexActiveEntity++;
+		}
+	}
+
 	auto& threadPool = m_Engine.GetThreadPool();
 	const auto coreNmb = threadPool.size();
 
-	std::vector<std::future<void>> joinFutures(coreNmb);
-	for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
-	{
-		int start = (threadIndex + 1)*m_Entities->size() / (coreNmb + 1);
-		int end = (threadIndex + 2)*m_Entities->size() / (coreNmb + 1) - 1;
-		auto updateFunction = std::bind(&BehaviorTree::UpdateRange, this, start, end);
-		joinFutures[threadIndex] = threadPool.push(updateFunction);
+	if (indexActiveEntity < coreNmb) {
+		UpdateRange(0, indexActiveEntity - 1);
 	}
-	UpdateRange(0, m_Entities->size() / (coreNmb + 1) - 1);
-	for (int i = 0; i < coreNmb; i++)
-	{
-		joinFutures[i].get();
+	else {
+
+		std::vector<std::future<void>> joinFutures(coreNmb);
+		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
+		{
+			int start = (threadIndex + 1)*indexActiveEntity / (coreNmb + 1);
+			int end = (threadIndex + 2)*indexActiveEntity / (coreNmb + 1) - 1;
+			auto updateFunction = std::bind(&BehaviorTree::UpdateRange, this, start, end);
+			joinFutures[threadIndex] = threadPool.push(updateFunction);
+		}
+		UpdateRange(0, indexActiveEntity / (coreNmb + 1) - 1);
+		for (int i = 0; i < coreNmb; i++)
+		{
+			joinFutures[i].get();
+		}
 	}
+
+	indexActiveEntity = 0;
 
 #ifdef AI_DEBUG_COUNT_TIME
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -72,14 +89,12 @@ void BehaviorTree::Draw() { }
 
 void BehaviorTree::UpdateRange(const int startIndex, const int endIndex)
 {
-	for (auto i = startIndex; i < endIndex; i++)
+	for (auto i = startIndex; i <= endIndex; i++)
 	{
-		if (m_Entities->at(i) == INVALID_ENTITY)
-		{
-			continue;
-		}
 #ifdef BT_SOA
-		currentNode[i]->executeFunction(i);
+		const auto index = activeEntity[i];
+		
+		currentNode[index]->executeFunction(index);
 #endif
 
 #ifdef BT_AOS
@@ -108,6 +123,9 @@ void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 		repeaterCounter.resize(m_Entities->size(), 0);
 		sequenceActiveChild.resize(m_Entities->size(), 0);
 		hasSucceeded.resize(m_Entities->size(), true);
+
+		activeEntity.resize(m_Entities->size(), true);
+		sleepingEntity.resize(m_Entities->size(), false);
 #endif
 
 #ifdef BT_AOS

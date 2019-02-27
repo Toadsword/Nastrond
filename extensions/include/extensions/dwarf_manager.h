@@ -265,7 +265,7 @@ private:
 	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
-	const size_t m_ContainersExtender = 200'000;
+	const size_t m_ContainersExtender = 100'000;
 	std::vector<Entity> m_DwarfsEntities;
 
 	//State management
@@ -281,11 +281,11 @@ private:
 
 	//Path management
 	std::vector<std::vector<Vec2f>> m_Paths;
-	const float m_StoppingDistance = 20;
+	const float m_StoppingDistance = 5;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
-	const float m_SpeedDwarf = 20;
+	const float m_SpeedDwarf = 30;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{

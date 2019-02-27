@@ -251,22 +251,16 @@ void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Ve
 {
 	m_PathToIndexDwarfBTNotSorted[index] = true;
 	m_PathToDestinationBT[index] = destination;
-
-	m_IndexPathToDestinationBT++;
 }
 
 void DwarfManager::AddFindRandomPathBT(unsigned int index)
 {
 	m_PathToRandomBTNotSorted[index] = true;
-
-	m_IndexPathToRandomBT++;
 }
 
 void DwarfManager::AddPathFollowingBT(unsigned int index)
 {
 	m_PathFollowingBTNotSorted[index] = true;
-
-	m_IndexPathFollowingBT++;
 }
 
 void DwarfManager::AddInventoryTaskPathToGiver(const unsigned int index)
@@ -421,7 +415,6 @@ void DwarfManager::Update(float dt)
 #ifdef AI_DEBUG_COUNT_TIME
 	auto t1 = std::chrono::high_resolution_clock::now();
 #endif
-
 	//Sort array
 	//Path to destination
 	auto tmpIndex = 0;
@@ -435,19 +428,6 @@ void DwarfManager::Update(float dt)
 		}
 	}
 	m_IndexPathToDestinationBT = tmpIndex;
-
-	//Follow path
-	tmpIndex = 0;
-	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
-	{
-		if (m_PathFollowingBTNotSorted[i]) {
-			m_PathFollowingBT[tmpIndex] = i;
-			tmpIndex++;
-
-			m_PathFollowingBTNotSorted[i] = false;
-		}
-	}
-	m_IndexPathFollowingBT = tmpIndex;
 
 	//Path to random
 	tmpIndex = 0;
@@ -474,6 +454,7 @@ void DwarfManager::Update(float dt)
 			const auto indexDwarf = m_PathToRandomBT[i];
 
 			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
+
 			m_NavigationGraphManager->AskForPath(&m_Paths[indexDwarf], transformPtr->Position,
 				Vec2f(std::rand() % static_cast<int>(screenSize.x),
 					std::rand() % static_cast<int>(screenSize.y
@@ -484,23 +465,54 @@ void DwarfManager::Update(float dt)
 		m_IndexPathToRandomBT = 0;
 	}
 
-	//Follow path
-	if (m_IndexPathFollowingBT != 0) {
-		for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
-		{
-			const auto indexDwarf = m_PathFollowingBT[i];
-
-			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
-
-			auto dir = m_Paths[indexDwarf][m_Paths[indexDwarf].size() - 1] - transformPtr->Position;
-
-			transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
-
-			AddDwarfToDraw(indexDwarf);
-
+	//Follow path - prebatch
+	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
+	{
+		if (m_PathFollowingBTNotSorted[i]) {
+			m_PathFollowingBT[m_IndexPathFollowingBT] = i;
+			m_IndexPathFollowingBT++;
 		}
-		m_IndexPathFollowingBT = 0;
 	}
+
+	//Follow path - mouvement
+	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
+	{
+		const auto indexDwarf = m_PathFollowingBT[i];
+
+		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
+
+		auto dir = m_Paths[indexDwarf][m_Paths[indexDwarf].size() - 1] - transformPtr->Position;
+
+		transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
+
+		AddDwarfToDraw(indexDwarf);
+
+	}
+
+	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
+		"BehaviorTree");
+
+	//Test if is at destination
+	std::vector<int> indexToWakeUp;
+	indexToWakeUp.reserve(m_IndexPathFollowingBT);
+	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
+	{
+		const auto indexDwarf = m_PathFollowingBT[i];
+
+		if(IsDwarfAtDestination(indexDwarf))
+		{
+			indexToWakeUp.emplace_back(indexDwarf);
+			m_PathFollowingBTNotSorted[indexDwarf] = false;
+		}
+		
+	}
+
+	for(int i = 0; i < indexToWakeUp.size(); i++)
+	{
+		behaviorTree->WakeUpEntity(indexToWakeUp[i]);
+	}
+
+	m_IndexPathFollowingBT = 0;
 
 	//Update current time
 	m_CurrentTime += dt;
@@ -553,23 +565,21 @@ void DwarfManager::Draw()
 		window->draw(lines);
 	}
 #endif
-
 	//Draw dwarf
-	if (m_IndexToDraw != 0) {
-		const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
-		for (size_t i = 0; i < m_IndexToDraw; i++)
-		{
-			const auto indexDwarf = m_IndexesToDraw[i];
-			const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position;
-			const auto indexVertex = 4 * i;
-
-			m_VertexArray[indexVertex].position = position - halfTextureSize;
-			m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(halfTextureSize.x, -halfTextureSize.y);
-			m_VertexArray[indexVertex + 2].position = position + halfTextureSize;
-			m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(-halfTextureSize.x, halfTextureSize.y);
-		}
-		m_IndexToDraw = 0;
+	const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
+	for (size_t i = 0; i < m_IndexToDraw; i++)
+	{
+		const auto indexDwarf = m_IndexesToDraw[i];
+		const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position;
+		const auto indexVertex = 4 * i;
+		
+		m_VertexArray[indexVertex].position = position - halfTextureSize;
+		m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(halfTextureSize.x, -halfTextureSize.y);
+		m_VertexArray[indexVertex + 2].position = position + halfTextureSize;
+		m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(-halfTextureSize.x, halfTextureSize.y);
 	}
+	m_IndexToDraw = 0;
+
 	window->draw(m_VertexArray, m_Texture);
 }
 }

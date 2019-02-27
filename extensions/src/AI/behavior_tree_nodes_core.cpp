@@ -655,16 +655,13 @@ void Node::MoveToLeaf(const unsigned int index) const
 #endif
 
 #ifdef BT_SOA
-	if (m_BehaviorTree->dwarfManager->IsDwarfAtDestination(index))
-	{
-		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-		m_BehaviorTree->hasSucceeded[index] = true;
-		return;
-	}
-
 	m_BehaviorTree->dwarfManager->AddPathFollowingBT(index);
+	m_BehaviorTree->sleepingEntity[index] = true;
+
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviorTree->hasSucceeded[index] = true;
 #endif
 }
 
