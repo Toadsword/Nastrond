@@ -48,9 +48,9 @@ namespace sfge::ext
 
 		void Draw() override;
 		
-		void SpawnRoad(Vec2f position, std::vector<bool> roadAround);
+		void SpawnRoad(Vec2f position, int roadBitMask);
 
-		void SpawnRoad(std::vector<int> tilesTypeVector, int Length, Vec2f positionFirstTile, Vec2f size, int targetType, const int groundType);
+		void SpawnRoad(std::vector<int> tilesTypeVector, const int LengthX, const int LengthY, Vec2f positionFirstTile, Vec2f size, int targetType);
 
 		void DestroyRoad(const Entity entity);
 
@@ -58,9 +58,9 @@ namespace sfge::ext
 
 
 	private:
-		bool CheckEmptySlot(const Entity entity, Transform2d* transform2d, std::vector<bool> roadAround);
+		bool CheckEmptySlot(const Entity entity, Transform2d* transform2d, int roadBitMask);
 
-		void RoadTextureSelection(const Entity entity, Transform2d* transform2d, std::vector<bool> roadAround);
+		void RoadTextureSelection(const Entity entity, Transform2d* transform2d, int roadBitMask);
 
 		void SetupTexture(const Entity entity, sf::Texture* texture, const TextureId textureId, const std::string texturePath);
 

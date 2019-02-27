@@ -59,28 +59,32 @@ namespace sfge::ext
 	{
 		m_TmpTileMapJson["map"] = json::array(
 			{
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1}),
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1}),
-			json::array({1, 3, 3, 1, 5, 1, 1, 3, 1, 1, 1, 3, 3, 1, 5, 1, 1, 3, 1, 1}),
-			json::array({1, 3, 3, 1, 3, 3, 3, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 1, 1, 1}),
-			json::array({1, 1, 5, 1, 3, 3, 3, 1, 1, 1, 1, 1, 5, 1, 3, 1, 1, 1, 1, 1}),
-			json::array({1, 1, 3, 3, 3, 1, 3, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1}),
-			json::array({1, 1, 3, 1, 3, 3, 3, 6, 1, 1, 1, 1, 3, 1, 1, 3, 1, 6, 1, 1}),
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 1, 3, 3, 3, 1}),
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 1}),
 			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1}),
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1}),
-			json::array({1, 3, 3, 1, 5, 1, 1, 3, 1, 1, 1, 3, 3, 1, 5, 1, 1, 3, 1, 1}),
-			json::array({1, 3, 3, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 1, 1, 1}),
-			json::array({1, 1, 5, 1, 3, 1, 1, 1, 1, 1, 1, 1, 5, 1, 3, 1, 1, 1, 1, 1}),
-			json::array({1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1}),
-			json::array({1, 1, 3, 1, 1, 1, 1, 6, 1, 1, 1, 1, 3, 1, 1, 1, 1, 6, 1, 1}),
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1}),
-			json::array({1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 6, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
 			json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
 			});
+
 		std::vector<int> jsonArray;
+		const Vec2f TILE_SIZE = Vec2f(64, 32);
+		Vec2f offset = Vec2f(0, 0);
+
 		for (int y = 0; y < m_TmpTileMapJson["map"].size(); ++y)
 		{
 			for (int x = 0; x < m_TmpTileMapJson["map"][y].size(); ++x)
@@ -89,39 +93,42 @@ namespace sfge::ext
 			}
 		}
 
-		m_RoadManager->SpawnRoad(jsonArray, m_TmpTileMapJson["map"][0].size(), Vec2f(0, 0), Vec2f(64, 32), 1, 3);
-
+		m_RoadManager->SpawnRoad(jsonArray, m_TmpTileMapJson["map"][0].size(), m_TmpTileMapJson["map"].size(), Vec2f(0, 0), Vec2f(64, 32), 1);
 
 		for (int y = 0; y < m_TmpTileMapJson["map"].size(); y++)
 		{
 			for (int x = 0; x < m_TmpTileMapJson["map"][y].size(); x++)
 			{
-				float decalX = 64;
-				float decalY = 16;
+				Vec2f xPos = { TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
+				Vec2f yPos = { -TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 
-				
-				if(y % 2 == 1)
-				{
-					decalX = x * decalX - (decalX / 2);
-					std::cout << std::to_string(decalX) + " \n";
-				}
-				else
-				{
-					decalX = x * decalX;
-				}
+				offset = xPos * x + yPos * y;
 
 				if(m_TmpTileMapJson["map"][y][x] == 4)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(decalX, y * decalY));
+					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, offset);
 				}
 				else if(m_TmpTileMapJson["map"][y][x] == 5)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, Vec2f(decalX, y * decalY));
+					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, offset);
 				}
 				else if(m_TmpTileMapJson["map"][y][x] == 6)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, Vec2f(decalX, y * decalY));
+					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, offset);
 				}
+				else if (m_TmpTileMapJson["map"][y][x] == 7)
+				{
+					m_BuildingManager->SpawnBuilding(BuildingType::MINE, offset);
+				}
+				else if (m_TmpTileMapJson["map"][y][x] == 8)
+				{
+					m_BuildingManager->SpawnBuilding(BuildingType::EXCAVATION_POST, offset);
+				}
+				else if (m_TmpTileMapJson["map"][y][x] == 9)
+				{
+					m_BuildingManager->SpawnBuilding(BuildingType::MUSHROOM_FARM, offset);
+				}
+
 			}
 
 		}
