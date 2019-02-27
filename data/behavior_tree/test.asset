@@ -1,0 +1,25 @@
+{
+	"rootNode": [{
+			"name": "Repeater",
+			"limit": 0,
+			"type": 4,
+			"childs": [{
+					"name": "Sequence",
+					"type": 2,
+					"childs": [{
+							"name": "Find path to",
+							"destination": 0,
+							"type": 1
+						}, {
+							"name": "Wait for path",
+							"type": 1
+						}, {
+							"name": "Move to",
+							"type": 1
+						}
+					]
+				}
+			]
+		}
+	]
+}
