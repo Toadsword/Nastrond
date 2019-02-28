@@ -135,6 +135,13 @@ public:
 	bool HasPath(unsigned int index);
 
 	/**
+	 * \brief 
+	 * \param index 
+	 * \param path 
+	 */
+	void SetPath(unsigned int index, std::vector<Vec2f> path);
+
+	/**
 	 * \brief call from the behaviour tree to add a request for a new path
 	 * \param index of the dwarf
 	 * \param destination position of the destination
@@ -290,6 +297,8 @@ private:
 	//Path management
 	std::vector<std::vector<Vec2f>> m_Paths;
 	const float m_StoppingDistance = 5;
+	std::vector<Vec2f> m_DestinationForPathFinding;
+	std::vector<Vec2f> m_VelocitiesComponents;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
@@ -332,12 +341,9 @@ private:
 	//Data filed by the behaviourTree
 	std::vector<bool> m_PathToIndexDwarfBTNotSorted;
 	std::vector<int> m_PathToIndexDwarfBT;
-	std::vector<Vec2f> m_PathToDestinationBT;
 	unsigned int m_IndexPathToDestinationBT = 0;
 
-	std::vector<bool> m_PathToRandomBTNotSorted;
-	std::vector<int> m_PathToRandomBT;
-	unsigned int m_IndexPathToRandomBT = 0;
+	std::vector<int> m_PathFindingDwarfIndexes;
 
 
 	std::vector<bool> m_PathFollowingBTNotSorted;
@@ -378,6 +384,11 @@ private:
 
 	unsigned int m_Other_Ms = 0u;
 	unsigned int m_Other_Mc = 0u;
+#endif
+
+#ifdef DEBUG_RANDOM_PATH
+	Configuration* m_Config;
+	Vec2f m_ScreenSize;
 #endif
 };
 }

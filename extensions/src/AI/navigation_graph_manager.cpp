@@ -27,6 +27,8 @@ SOFTWARE.
 
 #include <extensions/AI/navigation_graph_manager.h>
 
+#include <extensions/dwarf_manager.h>
+
 namespace sfge::ext
 {
 NavigationGraphManager::NavigationGraphManager(Engine& engine) :
@@ -35,6 +37,8 @@ NavigationGraphManager::NavigationGraphManager(Engine& engine) :
 void NavigationGraphManager::Init()
 {
 	m_Graphics2DManager = m_Engine.GetGraphics2dManager();
+	m_DwarfManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwarfManager>(
+		"DwarfManager");
 
 #ifdef DEBUG_MAP
 	std::vector<std::vector<int>> map;
@@ -93,8 +97,8 @@ void NavigationGraphManager::Update(float dt)
 		auto waitingPath = m_WaitingPaths.front();
 		m_WaitingPaths.pop();
 
-		auto tmp = GetPathFromTo(waitingPath.origin, waitingPath.destination);
-		waitingPath.path->assign(tmp.begin(), tmp.end());
+		const auto path = GetPathFromTo(waitingPath.origin, waitingPath.destination);
+		m_DwarfManager->SetPath(waitingPath.index, path);
 	}
 }
 
@@ -109,9 +113,9 @@ void NavigationGraphManager::Draw()
 	window->draw(m_VertexArray);
 }
 
-void NavigationGraphManager::AskForPath(std::vector<Vec2f>* path, const Vec2f origin, const Vec2f destination)
+void NavigationGraphManager::AskForPath(const unsigned int index, const Vec2f origin, const Vec2f destination)
 {
-	const WaitingPath waitingPath{path, destination, origin};
+	const WaitingPath waitingPath{index, destination, origin};
 	m_WaitingPaths.push(waitingPath);
 }
 
