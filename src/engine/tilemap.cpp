@@ -49,21 +49,25 @@ namespace sfge
 	void Tilemap::Update()
 	{
 		Tile* tile;
-		Vec2f size = GetTilemapSize();
+		const Vec2f size = GetTilemapSize();
+#ifdef OptiVector
+		for (int index = 0; index < size.x * size.y; index++)
+		{
+			tile = m_TileManager->GetComponentPtr(m_Tiles[index]);
+#else
 		for (int indexX = 0; indexX < size.x; indexX++)
 		{
 			for (int indexY = 0; indexY < size.y; indexY++)
 			{
-#ifdef OptiVector
-				tile = m_TileManager->GetComponentPtr(m_Tiles[indexX * size.y + indexY]);
-#else
 				tile = m_TileManager->GetComponentPtr(m_Tiles[indexX][indexY]);
 #endif
 				if (tile != nullptr)
 				{
 					tile->Update();
 				}
+#ifndef OptiVector
 			}
+#endif
 		}
 	}
 
@@ -251,22 +255,9 @@ namespace sfge
 
 		if (newSize.x > 0 && newSize.y > 0)
 		{
-			for (unsigned indexX = 0; indexX < newSize.x; indexX++)
-			{
-				for (unsigned indexY = 0; indexY < newSize.y; indexY++)
-				{
-					if (indexX < oldSize.x && indexY < oldSize.y)
-					{
-						m_Tiles[indexX * newSize.y + indexY] = oldTiles[indexX * oldSize.y + indexY];
-						//m_TileTypeIds[indexX][indexY] = oldTileTypes[indexX][indexY];
-					}
-					/*else
-					{
-						m_Tiles[indexX * newSize.x + indexY] = INVALID_ENTITY;
-						//m_TileTypeIds[indexX][indexY] = INVALID_TILE_TYPE;						
-					}*/
-				}
-			}
+			unsigned size = std::min(newSize.x * newSize.y, oldSize.x * oldSize.y);
+			for (unsigned i = 0; i < size; i++)
+				m_Tiles[i] = oldTiles[i];			
 		}
 #else
 		std::vector<std::vector<Entity>> oldTiles = m_Tiles;
@@ -475,14 +466,15 @@ namespace sfge
 #ifdef OptiVector
 		std::vector<TileTypeId> tiletypeIds = std::vector<TileTypeId>(map.size() * map[0].size(), INVALID_TILE_TYPE);
 
-		for (unsigned indexX = 0; indexX < map.size(); indexX++)
+		Vec2f mapSize = Vec2f(map.size(), map[0].size());
+		for (unsigned indexX = 0; indexX < mapSize.x; indexX++)
 		{
-			for (unsigned indexY = 0; indexY < map[indexX].size(); indexY++)
+			for (unsigned indexY = 0; indexY < mapSize.y; indexY++)
 			{
-				tiletypeIds[indexX * map[0].size() + indexY] = map[indexX][indexY].get<int>();
+				tiletypeIds[indexX * mapSize.x + indexY] = map[indexX][indexY].get<int>();
 			}
 		}
-		InitializeMap(entity, tiletypeIds, Vec2f(map.size(), map[0].size()));
+		InitializeMap(entity, tiletypeIds, mapSize);
 #else
 		std::vector<std::vector<TileTypeId>> tiletypeIds = std::vector<std::vector<TileTypeId>>{
 			map.size(),
@@ -596,26 +588,29 @@ namespace sfge
 
 		EntityManager* entityManager = m_Engine.GetEntityManager();
 
+#ifdef OptiVector
+		const unsigned size = mapSize.x * mapSize.y;
+		for (int i = 0; i < size; i++)
+		{
+			if(map[i] != INVALID_ENTITY)
+			{
+				entityManager->DestroyEntity(map[i]);
+				map[i] = INVALID_ENTITY;
+				map[i] = INVALID_TILE_TYPE;
+			}
+#else
 		for (int i = 0; i < mapSize.x; i++)
 		{
 			for (int j = 0; j < mapSize.y; j++)
 			{
-#ifdef OptiVector
-				if(map[i * mapSize.y + j] != INVALID_ENTITY)
-				{
-					entityManager->DestroyEntity(map[i * mapSize.y + j]);
-					map[i * mapSize.y + j] = INVALID_ENTITY;
-					map[i * mapSize.y + j] = INVALID_TILE_TYPE;
-				}
-#else
 				if (map[i][j] != INVALID_ENTITY)
 				{
 					entityManager->DestroyEntity(map[i][j]);
 					map[i][j] = INVALID_ENTITY;
 					map[i][j] = INVALID_TILE_TYPE;
 				}
-#endif
 			}
+#endif
 		}
 	}
 
@@ -635,7 +630,7 @@ namespace sfge
 
 		if (tilemap.GetIsometric())
 		{
-			// -1 car l'index commence dans tous les cas à 1, alors que nous on veut à 0
+			// -1 car l'index commence dans tous les cas ï¿½ 1, alors que nous on veut ï¿½ 0
 			// 0.4 parce que la magie
 			indexToFind.x = (deltaPos.x / tileSize.x + deltaPos.y / tileSize.y) - 1.0f;  
 			indexToFind.y = (deltaPos.y / tileSize.y - deltaPos.x / tileSize.x) + 0.4f;
