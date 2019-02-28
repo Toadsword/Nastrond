@@ -30,7 +30,7 @@
 #include <physics/physics2d.h>
 #include <graphics/graphics2d.h>
 #include <engine/engine.h>
-#include <engine/ui.h>
+#include <graphics/ui.h>
 #include <audio/audio.h>
 #include <utility/python_utility.h>
 #include <imgui.h>

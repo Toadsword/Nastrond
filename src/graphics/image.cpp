@@ -38,7 +38,12 @@ namespace sfge
 
 	Image::~Image() { }
 
-	void Image::Init() { }
+	void Image::Init(std::string spritePath, sf::Texture* texture, TextureId textureID)
+	{
+		this->sprite.setTexture(*texture);
+		this->textureId = textureID;
+		this->spritePath = spritePath;
+	}
 
 	void Image::Update(Vec2f position)
 	{
@@ -67,6 +72,11 @@ namespace sfge
 		sprite.setColor(color);
 	}
 
+	sf::FloatRect Image::GetDimension() const
+	{
+		return sprite.getGlobalBounds();
+	}
+
 	void editor::ImageInfo::DrawOnInspector()
 	{
 		ImGui::Separator();
@@ -75,22 +85,27 @@ namespace sfge
 
 	void ImageManager::CreateComponent(json& componentJson, Entity entity)
 	{
+		auto& image = m_Components[entity - 1];
+
 		if (CheckJsonParameter(componentJson, "spritePath", json::value_t::string))
-		{
-			std::string path = componentJson["spritePath"].get<std::string>();
-			m_Components[entity].spritePath = path;
-			sf::Texture* texture = nullptr;
+		{			
+			const auto path = componentJson["spritePath"].get<std::string>();
+			
 			if (FileExists(path))
 			{
+				sf::Texture* texture = nullptr;
 				const TextureId textureId = m_TextureManager->LoadTexture(path);
 				if (textureId != INVALID_TEXTURE)
 				{
 					texture = m_TextureManager->GetTexture(textureId);
-					m_Components[entity].sprite.setTexture(*texture);
-					m_Components[entity].textureId = textureId;
+
+					image.Init(path, texture, textureId);
 
 					if (CheckJsonExists(componentJson, "color"))
-						m_Components[entity].SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
+						image.SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
+
+					if (m_EntityManager->HasComponent(entity, ComponentType::RECTTRANSFORM))
+						m_RectTransformManager->GetComponentPtr(entity)->SetRectDimension(image.GetDimension().width, image.GetDimension().height);
 				}
 				else
 				{
@@ -109,11 +124,7 @@ namespace sfge
 		else
 		{
 			Log::GetInstance()->Error("[Error] No Path for Sprite");
-		}
-
-
-		m_RectTransformManager->GetComponentPtr(entity)->rect = m_Components[entity].sprite.getGlobalBounds();
-		m_RectTransformManager->GetComponentPtr(entity)->rectAdjusted = m_Components[entity].sprite.getGlobalBounds();
+		}		
 	}
 
 	Image* ImageManager::AddComponent(Entity entity)
@@ -158,7 +169,7 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				m_Components[i + 1].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
+				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
 			}
 		}
 	}
@@ -169,8 +180,19 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE))
 			{
-				m_Components[i + 1].Draw(window);
+				m_Components[i].Draw(window);
 			}
+		}
+	}
+
+	void ImageManager::OnResize(size_t newSize)
+	{
+		m_Components.resize(newSize);
+		m_ComponentsInfo.resize(newSize);
+
+		for (size_t i = 0; i < newSize; ++i) {
+			m_ComponentsInfo[i].SetEntity(i + 1);
+			m_ComponentsInfo[i].image = &m_Components[i];
 		}
 	}
 }

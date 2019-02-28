@@ -37,9 +37,36 @@ namespace sfge
 
 	Text::~Text() { }
 
-	void Text::Init() { }
+	void Text::Init(const std::string text, const std::string fontPath, const sf::Uint8 color[4], const unsigned characterSize)
+	{
+		if (FileExists(fontPath))
+		{
+			if (this->font.loadFromFile(fontPath))
+			{
+				sf::Text iText(text, this->font);
 
-	void Text::Update(Vec2f position)
+				this->text = iText;
+
+				this->SetColor(color[0], color[1], color[2], color[3]);
+
+				this->SetSize(characterSize);
+			}
+			else
+			{
+				std::ostringstream oss;
+				oss << "Font file " << fontPath << " cannot be loaded";
+				Log::GetInstance()->Error(oss.str());
+			}
+		}
+		else
+		{
+			std::ostringstream oss;
+			oss << "Font file " << fontPath << " does not exist";
+			Log::GetInstance()->Error(oss.str());
+		}
+	}
+
+	void Text::Update(const Vec2f position)
 	{
 		text.setPosition(position);
 	}
@@ -49,17 +76,17 @@ namespace sfge
 		window.draw(text);
 	}
 
-	void Text::SetString(std::string newText)
+	void Text::SetTextString(const std::string newText)
 	{
 		text.setString(newText);
 	}
 
-	void Text::SetSize(unsigned newSize)
+	void Text::SetSize(const unsigned newSize)
 	{
 		text.setCharacterSize(newSize);
 	}
 
-	std::string Text::GetString() const
+	std::string Text::GetTextString() const
 	{
 		return text.getString();
 	}
@@ -112,45 +139,35 @@ namespace sfge
 
 	void TextManager::CreateComponent(json& componentJson, Entity entity)
 	{
+		auto& text = m_Components[entity - 1];
+
 		if (CheckJsonParameter(componentJson, "font", json::value_t::string))
 		{
+			// Prepare default values			
+			std::string strText = "Empty text";
+			sf::Uint8 color[4] = { 255,255,255,255 };
+			unsigned size = 32;
+
+			// Get values
 			std::string path = m_Engine.GetConfig()->dataDirname + componentJson["font"].get<std::string>();
-
-			if (FileExists(path))
+			if (CheckJsonExists(componentJson, "text"))
+				strText = componentJson["text"].get<std::string>();
+			if(CheckJsonExists(componentJson, "color"))
 			{
-				if (m_Components[entity].font.loadFromFile(path))
-				{
-					std::string strText = "Empty text";
-
-					if (CheckJsonExists(componentJson, "text"))
-						strText = componentJson["text"].get<std::string>();
-
-					sf::Text text(strText, m_Components[entity].font);
-
-					m_Components[entity].text = text;
-
-					if (CheckJsonExists(componentJson, "color"))
-						m_Components[entity].SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
-					if (CheckJsonExists(componentJson, "size"))
-						m_Components[entity].SetSize(componentJson["size"]);
-				}
-				else
-				{
-					std::ostringstream oss;
-					oss << "Font file " << path << " cannot be loaded";
-					Log::GetInstance()->Error(oss.str());
-				}
+				color[0] = componentJson["color"][0];
+				color[1] = componentJson["color"][1];
+				color[2] = componentJson["color"][2];
+				color[3] = componentJson["color"][3];
 			}
-			else
-			{
-				std::ostringstream oss;
-				oss << "Font file " << path << " does not exist";
-				Log::GetInstance()->Error(oss.str());
-			}
+			if (CheckJsonExists(componentJson, "size"))
+				size = componentJson["size"];
+
+			// Initialize text
+			text.Init(strText, path, color, size);
 		}
 		else
 		{
-			Log::GetInstance()->Error("[Error] No font for Sprite");
+			Log::GetInstance()->Error("[Error] No font for text");
 		}
 	}
 
@@ -181,7 +198,7 @@ namespace sfge
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
-				m_Components[i + 1].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
+				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
 			}
 		}
 	}
@@ -191,7 +208,18 @@ namespace sfge
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT))
-				m_Components[i + 1].Draw(window);
+				m_Components[i].Draw(window);
+		}
+	}
+
+	void TextManager::OnResize(size_t newSize)
+	{
+		m_Components.resize(newSize);
+		m_ComponentsInfo.resize(newSize);
+
+		for (size_t i = 0; i < newSize; ++i) {
+			m_ComponentsInfo[i].SetEntity(i + 1);
+			m_ComponentsInfo[i].text = &m_Components[i];
 		}
 	}
 }

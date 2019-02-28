@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <graphics/button.h>
 #include <imgui.h>
-#include <engine/ui.h>
+#include <graphics/ui.h>
 
 namespace sfge
 {
@@ -43,14 +43,16 @@ namespace sfge
 	ButtonManager::ButtonManager(Engine& engine):SingleComponentManager(engine)
 	{
 		m_RectTransformManager = m_Engine.GetRectTransformManager();
-		m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
 	}
 
 	ButtonManager::~ButtonManager()
 	= default;
 
 
-	void ButtonManager::CreateComponent(json& componentJson, Entity entity) { }
+	void ButtonManager::CreateComponent(json& componentJson, Entity entity)
+	{
+
+	}
 
 	Button* ButtonManager::AddComponent(Entity entity)
 	{
@@ -69,19 +71,17 @@ namespace sfge
 	void ButtonManager::Init()
 	{
 		SingleComponentManager::Init();
-		m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
 		m_RectTransformManager = m_Engine.GetRectTransformManager();
 	}
 
-	Vec2f ButtonManager::GetLocalMousePosition()
+	void ButtonManager::OnResize(size_t newSize)
 	{
-		Vec2f mousePosition = { 0,0 };
+		m_Components.resize(newSize);
+		m_ComponentsInfo.resize(newSize);
 
-		mousePosition.x = m_MouseManager->GetLocalPosition(*m_Engine.GetGraphics2dManager()->GetWindow()).x;
-		mousePosition.y = m_MouseManager->GetLocalPosition(*m_Engine.GetGraphics2dManager()->GetWindow()).y;
-		
-		return mousePosition;
+		for (size_t i = 0; i < newSize; ++i) {
+			m_ComponentsInfo[i].SetEntity(i + 1);
+			m_ComponentsInfo[i].button = &m_Components[i];
+		}
 	}
-
-
 }

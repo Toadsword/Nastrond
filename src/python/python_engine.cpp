@@ -96,12 +96,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("add_component", &CameraManager::AddComponent, py::return_value_policy::reference)
 		.def("get_component", &CameraManager::GetComponentRef, py::return_value_policy::reference);
 
-	py::class_<ButtonManager> buttonManager(m, "ButtonManager");
-	buttonManager
-		.def(py::init<Engine&>(), py::return_value_policy::reference)
-		.def("get_component", &ButtonManager::GetComponentRef, py::return_value_policy::reference)
-		.def("get_local_mouse_position", &ButtonManager::GetLocalMousePosition, py::return_value_policy::reference);
-
 	py::class_<InputManager> inputManager(m, "InputManager");
 	inputManager
 		.def(py::init<Engine&>(), py::return_value_policy::reference)
@@ -464,8 +458,6 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 	py::class_<RectTransform> rectTransform(m, "RectTransform");
 	rectTransform
 		.def(py::init<>())
-		.def_readwrite("rect", &RectTransform::rect)
-		.def_readwrite("rectAdjusted", &RectTransform::rectAdjusted)
 		.def("contains", &RectTransform::Contains, py::return_value_policy::reference);
 
 	ext::ExtendPython(m);

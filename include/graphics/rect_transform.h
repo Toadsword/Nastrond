@@ -41,18 +41,25 @@ namespace sfge
 		RectTransform();
 		~RectTransform();
 
+		void Init(Vec2f position);
+
 		void Update(Camera* camera);
 
 		bool Contains(float x, float y);
 
+		void SetPosition(Vec2f position);
+		void SetPosition(float x, float y);
+		void SetRectDimension(float width, float height);
+
+		Vec2f GetPosition() const;
+		sf::FloatRect GetRect() const;
+
+	protected:
 		// Position on which the component follow the camera movement
 		Vec2f basePosition = { 0, 0 };
 
 		// Rectangle of the sprite contained by the entity
 		sf::FloatRect rect = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-		// Adjusted rectangle with the current position
-		sf::FloatRect rectAdjusted = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
 	namespace editor
 	{
@@ -79,6 +86,7 @@ namespace sfge
 		void Init();
 		void Update(float dt) override;
 
+		void OnResize(size_t newSize) override;
 	protected:
 		CameraManager* m_CameraManager;
 	};

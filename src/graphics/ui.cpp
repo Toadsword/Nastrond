@@ -22,43 +22,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SFGE_UI_H
-#define SFGE_UI_H
+#include <graphics/ui.h>
 
-#include <engine/entity.h>
-#include <engine/system.h>
-#include <engine/rect_transform.h>
-#include <graphics/graphics2d.h>
-#include <graphics/text.h>
-#include <graphics/button.h>
-#include <graphics/image.h>
+namespace  sfge
+{
+	void UIManager::Init()
+	{
+		m_EntityManager = m_Engine.GetEntityManager();
+		m_Graphics2dManager = m_Engine.GetGraphics2dManager();
 
-namespace sfge
-{	
-	/*
-	 * Author: Cédric Chambaz
-	 */
-	class UIManager : public System {
-	public:
-		using System::System;
+		m_Window = m_Graphics2dManager->GetWindow();
 
-		void Init() override;
-		void Update(float dt) override;
-		void Draw() override;
+		m_ButtonManager.Init();
+		m_TextManager.Init();
+		m_ImageManager.Init();
+	}
 
-		ButtonManager* GetButtonManager();
-		TextManager* GetTextManager();
-		ImageManager* GetImageManager();
-	private:
-		// Managers
-		EntityManager* m_EntityManager;
-		RectTransformManager* m_RectTransformManager;
-		Graphics2dManager* m_Graphics2dManager;
-		ButtonManager m_ButtonManager{ m_Engine };
-		TextManager m_TextManager{ m_Engine };
-		ImageManager m_ImageManager{ m_Engine };
+	void UIManager::Update(float dt)
+	{
+		m_TextManager.Update(dt);
+		m_ImageManager.Update(dt);
+	}
 
-		sf::RenderWindow* m_Window;
-	};
+	void UIManager::Draw()
+	{
+		m_ImageManager.DrawImages(*m_Window);
+		m_TextManager.DrawTexts(*m_Window);
+	}
+
+	ButtonManager* UIManager::GetButtonManager()
+	{
+		return &m_ButtonManager;
+	}
+
+	TextManager* UIManager::GetTextManager()
+	{
+		return &m_TextManager;
+	}
+
+	ImageManager* UIManager::GetImageManager()
+	{
+		return &m_ImageManager;
+	}
 }
-#endif

@@ -28,7 +28,7 @@ SOFTWARE.
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <engine/component.h>
-#include <engine/rect_transform.h>
+#include <graphics/rect_transform.h>
 
 namespace sfge
 {
@@ -43,22 +43,23 @@ namespace sfge
 		Text();
 		~Text();
 
-		void Init();
-		void Update(Vec2f position);
+		void Init(const std::string text, const std::string fontPath, const sf::Uint8 color[4], const unsigned characterSize);
+		void Update(const Vec2f position);
 		void Draw(sf::RenderWindow& window) const;
 
-		void SetString(std::string newText);
+		void SetTextString(const std::string newText);
 		void SetSize(unsigned newSize);
 		void SetColor(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a);
 		void SetColor(sf::Color newColor);
 
-		std::string GetString() const;
+		std::string GetTextString() const;
 		std::string GetFont() const;
 		unsigned GetSize() const;
 
+	protected:
 		sf::Text text;
 		sf::Font font;
-		sf::Color color;
+		sf::Color color = { 0,0,0,0 };
 	};
 
 	namespace editor
@@ -86,6 +87,8 @@ namespace sfge
 		void Init() override;
 		void Update(float dt) override;
 		void DrawTexts(sf::RenderWindow& window);
+
+		void OnResize(size_t newSize) override;
 	protected:
 		RectTransformManager* m_RectTransformManager;
 	};
