@@ -445,8 +445,9 @@ void DwarfManager::Update(const float dt)
 
 			m_IndexPathFollowingBT++;
 
-			m_Positions[i] = &m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[i])->Position;
 		}
+		
+		m_Positions[i] = &m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[i])->Position;
 	}
 
 #ifdef AI_DEBUG_COUNT_TIME_PRECISE
@@ -466,11 +467,9 @@ void DwarfManager::Update(const float dt)
 	//Random path
 	for (size_t i = 0; i < m_IndexPathToDestinationBT; ++i)
 	{
-		const auto indexDwarf = m_PathFindingDwarfIndexes[i];
-
-		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
+		const auto indexDwarf = m_PathFindingDwarfIndexes[i]; 
 		
-		m_NavigationGraphManager->AskForPath(indexDwarf, transformPtr->Position, m_DestinationForPathFinding[indexDwarf]);
+		m_NavigationGraphManager->AskForPath(indexDwarf, *m_Positions[indexDwarf], m_DestinationForPathFinding[indexDwarf]);
 	}
 	m_IndexPathToDestinationBT = 0;
 #ifdef AI_DEBUG_COUNT_TIME_PRECISE
