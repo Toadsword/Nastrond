@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include <extensions/Building/building_manager.h>
 #include <extensions/Building/road_manager.h>
-
+#include "engine/tilemap.h"
 
 
 namespace sfge::ext
@@ -56,8 +56,17 @@ namespace sfge::ext
 
 		void SetupTileMap();
 
+		Configuration* m_Configuration;
+		Transform2dManager* m_TransformManager;
 		BuildingManager* m_BuildingManager;
 		RoadManager* m_RoadManager;
+
+		Tilemap* m_Tilemap;
+		Vec2f m_SizeTile;
+		TilemapManager* m_TilemapManager;
+		TilemapSystem* m_TilemapSystem;
+
+
 	};
 }
 #endif

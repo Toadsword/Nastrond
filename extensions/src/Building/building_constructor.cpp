@@ -33,10 +33,28 @@ namespace sfge::ext
 	{
 		m_BuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<BuildingManager>(
 			"BuildingManager");
+		m_TransformManager = m_Engine.GetTransform2dManager();
 		m_RoadManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<RoadManager>(
 			"RoadManager");
 
-		SetupTileMap();
+		m_Configuration = m_Engine.GetConfig();
+
+		m_TilemapSystem = m_Engine.GetTilemapSystem();
+
+		m_TilemapManager = m_TilemapSystem->GetTilemapManager();
+
+		for(int i = 1; i <= m_Configuration->currentEntitiesNmb; i++)
+		{
+			m_Tilemap = m_TilemapManager->GetComponentPtr(i);
+			if(m_Tilemap != nullptr)
+				break;
+		}
+
+		if (m_Tilemap != nullptr)
+		{
+			m_SizeTile = m_Tilemap->GetTileSize();
+			SetupTileMap();
+		}
 
 		Log::GetInstance()->Msg("Building Constructor initialized");
 	}
@@ -57,66 +75,47 @@ namespace sfge::ext
 	}
 	void BuildingConstructor::SetupTileMap()
 	{
-		m_TmpTileMapJson["map"] = json::array(
-			{
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
-			});
-
+		Vec2f tilemapSize = m_Tilemap->GetTilemapSize();
+		std::vector<TileTypeId> tileTypes = m_Tilemap->GetTileTypes();
 		std::vector<int> jsonArray;
 		const Vec2f TILE_SIZE = Vec2f(64, 32);
 		Vec2f offset = Vec2f(0, 0);
 
-		for (int y = 0; y < m_TmpTileMapJson["map"].size(); ++y)
-		{
-			for (int x = 0; x < m_TmpTileMapJson["map"][y].size(); ++x)
-			{
-				jsonArray.push_back(m_TmpTileMapJson["map"][y][x]);
-			}
-		}
+		m_RoadManager->SpawnRoad(m_Tilemap->GetTileTypes(), tilemapSize.x, tilemapSize.y, m_TransformManager->GetComponentPtr(m_Tilemap->GetTileAt(Vec2f(0, 0)))->Position, m_SizeTile, 2);
 
-		m_RoadManager->SpawnRoad(jsonArray, m_TmpTileMapJson["map"][0].size(), m_TmpTileMapJson["map"].size(), Vec2f(0, 0), Vec2f(64, 32), 2);
-
-		for (int y = 0; y < m_TmpTileMapJson["map"].size(); y++)
+		for (int y = 0; y < tilemapSize.y; y++)
 		{
-			for (int x = 0; x < m_TmpTileMapJson["map"][y].size(); x++)
+			for (int x = 0; x < tilemapSize.x; x++)
 			{
+				TileTypeId currentTileId = tileTypes[y * tilemapSize.y + x];
 				Vec2f xPos = { TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 				Vec2f yPos = { -TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 
 				offset = xPos * x + yPos * y;
 
-				if(m_TmpTileMapJson["map"][y][x] == 3)
+				if(currentTileId == 3)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, offset);
 				}
-				else if(m_TmpTileMapJson["map"][y][x] == 4)
-				{
-					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, offset);
-				}
-				else if(m_TmpTileMapJson["map"][y][x] == 5)
+				else if(currentTileId == 4)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, offset);
 				}
-				else if (m_TmpTileMapJson["map"][y][x] == 6)
+				else if (currentTileId == 5)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::MINE, offset);
 				}
-				else if (m_TmpTileMapJson["map"][y][x] == 7)
+				else if (currentTileId == 6)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::EXCAVATION_POST, offset);
 				}
-				else if (m_TmpTileMapJson["map"][y][x] == 8)
+				else if (currentTileId == 7)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::MUSHROOM_FARM, offset);
+				}
+				else if (currentTileId == 8)
+				{
+					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, offset);
 				}
 
 			}

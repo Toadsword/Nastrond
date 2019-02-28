@@ -133,7 +133,7 @@ namespace sfge::ext
 		RoadTextureSelection(newEntity, transformPtr, roadBitMask);
 	}
 
-	void RoadManager::SpawnRoad(const std::vector<int> tilesTypeVector, const int LengthX, const int LengthY, const Vec2f positionFirstTile, const Vec2f size, const int targetType)
+	void RoadManager::SpawnRoad(const std::vector<TileTypeId> tilesTypeVector, const int LengthX, const int LengthY, const Vec2f positionFirstTile, const Vec2f size, const int targetType)
 	{
 		int x = 0;
 		int y = 0;

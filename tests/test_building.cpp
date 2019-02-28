@@ -253,22 +253,21 @@ TEST(Building, TestScene)
 	json tilemapJson;
 
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
-	tilemapJson["reference_path"] = "./data/tilemap/nastrond_buildingTiles.asset";
 	tilemapJson["is_isometric"] = true;
 	tilemapJson["layer"] = 1;
 	tilemapJson["tile_size"] = json::array({ 64, 32 });
 	tilemapJson["map_size"] = json::array({ 10, 10 });
 	tilemapJson["map"] = json::array({
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
-		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
+		json::array({1, 2, 2, 2, 2, 6, 9, 2, 2, 2}),
+		json::array({1, 2, 3, 9, 2, 9, 9, 8, 9, 2}),
+		json::array({1, 2, 9, 9, 2, 2, 1, 9, 9, 2}),
+		json::array({2, 2, 2, 8, 9, 2, 2, 2, 2, 2}),
+		json::array({2, 1, 1, 9, 9, 2, 8, 9, 1, 1}),
+		json::array({2, 4, 9, 1, 1, 2, 9, 9, 1, 1}),
+		json::array({2, 9, 9, 2, 2, 2, 2, 2, 2, 1}),
+		json::array({2, 2, 2, 8, 9, 2, 1, 1, 2, 1}),
+		json::array({7, 9, 1, 9, 9, 5, 9, 1, 8, 9}),
+		json::array({9, 9, 1, 1, 1, 9, 9, 1, 9, 9})
 		});
 	entityJson["components"] = json::array({ tilemapJson });
 	entityJson["name"] = "Tilemap";
@@ -307,10 +306,6 @@ TEST(Building, TestScene)
 	sceneJson["entities"] = json::array({ entityJson });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
 
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 

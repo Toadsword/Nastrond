@@ -29,6 +29,7 @@ SOFTWARE.
 #include <graphics/graphics2d.h>
 
 #include <extensions/Building/building_utilities.h>
+#include "engine/tile_asset.h"
 
 namespace sfge::ext
 {
@@ -50,7 +51,7 @@ namespace sfge::ext
 		
 		void SpawnRoad(Vec2f position, int roadBitMask);
 
-		void SpawnRoad(std::vector<int> tilesTypeVector, const int LengthX, const int LengthY, Vec2f positionFirstTile, Vec2f size, int targetType);
+		void SpawnRoad(std::vector<TileTypeId> tilesTypeVector, const int LengthX, const int LengthY, Vec2f positionFirstTile, Vec2f size, int targetType);
 
 		void DestroyRoad(const Entity entity);
 
