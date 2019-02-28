@@ -145,6 +145,7 @@ void TileManager::CreateComponent(json& componentJson, Entity entity)
 
 void TileManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
 	(void)entity;
 }
 

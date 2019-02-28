@@ -335,13 +335,17 @@ namespace sfge
 	{
 		(void)dt;
 		rmt_ScopedCPUSample(TilemapUpdate, 0)
-		for (auto i = 0u; i < m_Components.size(); i++)
+		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+		{
+			m_Components[m_ConcernedEntities[i] - 1].Update();
+		}
+		/*for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
 			{
 				m_Components[i].Update();
 			}
-		}
+		}*/
 	}
 
 	void TilemapManager::Clear()
@@ -374,7 +378,10 @@ namespace sfge
 			m_Engine.GetTransform2dManager()->AddComponent(entity);
 
 		tilemapInfo.tilemap = &tilemap;
-
+		/*
+		* Component optimisation addition
+		*/
+		m_ConcernedEntities.push_back(entity);
 		m_EntityManager->AddComponentType(entity, ComponentType::TILEMAP);
 		return &tilemap;
 	}
@@ -458,6 +465,7 @@ namespace sfge
 
 	void TilemapManager::DestroyComponent(Entity entity)
 	{
+		RemoveConcernedEntity(entity);
 		(void) entity;
 	}
 

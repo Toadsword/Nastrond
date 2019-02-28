@@ -208,28 +208,28 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 			return;
 		}
 
-		auto & newAnimation = m_Components[entity - 1];
-		auto & newAnimationInfo = m_ComponentsInfo[entity - 1];
+		auto* newAnimation = AddComponent(entity);
+		//auto & newAnimationInfo = m_ComponentsInfo[entity - 1];
 		
 		std::string name = "";
 		if (CheckJsonParameter(*framesInfosPtr, "name", json::value_t::string))
 		{
 			name = (*framesInfosPtr)["name"].get<std::string>();
-			newAnimationInfo.name = name;
+			//newAnimationInfo.name = name;
 		}
 
 		float speed = 0.1f;
 		if (CheckJsonParameter(*framesInfosPtr, "speed", json::value_t::number_unsigned))
 		{
 			speed = (*framesInfosPtr)["speed"].get<float>();
-			newAnimationInfo.speed = speed;
+			//newAnimationInfo.speed = speed;
 		}
 
 		bool isLooped = false;
 		if (CheckJsonParameter(*framesInfosPtr, "isLooped", json::value_t::boolean))
 		{
 			isLooped = (*framesInfosPtr)["isLooped"].get<bool>();
-			newAnimationInfo.isLooped = isLooped;
+			//newAnimationInfo.isLooped = isLooped;
 		}
 
 		if(CheckJsonParameter((*framesInfosPtr), "frames", json::value_t::array))
@@ -273,11 +273,11 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 
 				newFrameList.push_back(newFrame);
 			}
-			newAnimation.SetAnimation(newFrameList, speed, isLooped);
+			newAnimation->SetAnimation(newFrameList, speed, isLooped);
 		}
 		if (CheckJsonParameter(componentJson, "layer", json::value_t::number_integer))
 		{
-			newAnimation.SetLayer(componentJson["layer"]);
+			newAnimation->SetLayer(componentJson["layer"]);
 		}
 	}
 	else
@@ -289,7 +289,11 @@ void AnimationManager::CreateComponent(json& componentJson, Entity entity)
 
 void AnimationManager::DestroyComponent(Entity entity)
 {
-	(void) entity;
+	if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::ANIMATION2D))
+	{
+		RemoveConcernedEntity(entity);
+		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::ANIMATION2D);
+	}
 }
 
 void AnimationManager::OnResize(size_t newSize) {

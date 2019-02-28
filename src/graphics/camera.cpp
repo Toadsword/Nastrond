@@ -155,7 +155,11 @@ namespace sfge
 
 	void CameraManager::DestroyComponent(Entity entity)
 	{
-		(void)entity;
+		if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::CAMERA))
+		{
+			RemoveConcernedEntity(entity);
+			m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::CAMERA);
+		}
 	}
 
 	void editor::CameraInfo::DrawOnInspector()

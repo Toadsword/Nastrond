@@ -34,6 +34,8 @@ namespace sfge
 
 struct Transform2d
 {
+	void Update();
+
 	Vec2f Position;
 	Vec2f Scale{1.0f,1.0f};
 	float EulerAngle = 0.0f;

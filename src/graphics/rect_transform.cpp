@@ -138,13 +138,21 @@ namespace sfge
 		auto& rectTransform = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].rectTransform = &rectTransform;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
+		/*
+		* Component optimisation addition
+		*/
+		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::RECTTRANSFORM);
 		return &rectTransform;
 	}
 
 	void RectTransformManager::DestroyComponent(Entity entity)
 	{
-		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::RECTTRANSFORM);
+		if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::RECTTRANSFORM))
+		{
+			RemoveConcernedEntity(entity);
+			m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::RECTTRANSFORM);
+		}
 	}
 
 	void RectTransformManager::Init()
@@ -156,13 +164,17 @@ namespace sfge
 	void RectTransformManager::Update(float dt)
 	{
 		System::Update(dt);
-		for (auto i = 0u; i < m_Components.size(); i++)
+		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+		{
+			m_Components[m_ConcernedEntities[i] - 1].Update(m_CameraManager->GetMainCamera());
+		}
+		/*for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
 				m_Components[i].Update(m_CameraManager->GetMainCamera());
 			}
-		}
+		}*/
 	}
 
 	void RectTransformManager::OnResize(size_t newSize)

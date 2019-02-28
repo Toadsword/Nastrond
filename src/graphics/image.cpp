@@ -132,13 +132,21 @@ namespace sfge
 		auto& image = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].image = &image;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
+		/*
+		* Component optimisation addition
+		*/
+		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::IMAGE);
 		return &image;
 	}
 
 	void ImageManager::DestroyComponent(Entity entity)
 	{
-		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::IMAGE);
+		if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::IMAGE))
+		{
+			RemoveConcernedEntity(entity);
+			m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::IMAGE);
+		}
 	}
 
 	ImageManager::ImageManager(Engine& engine):SingleComponentManager(engine)
@@ -165,13 +173,18 @@ namespace sfge
 	void ImageManager::Update(float dt)
 	{
 		System::Update(dt);
-		for (auto i = 0u; i < m_Components.size(); i++)
+		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+		{
+			m_Components[m_ConcernedEntities[i] - 1].Update(m_RectTransformManager->GetComponentPtr(m_ConcernedEntities[i])->Position);
+		}
+
+		/*for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
 			{
 				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
 			}
-		}
+		}*/
 	}
 
 	void ImageManager::DrawImages(sf::RenderWindow& window)

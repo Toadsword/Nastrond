@@ -177,8 +177,8 @@ namespace sfge
 		m_ComponentsInfo[entity - 1].text = &text;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
 		/*
-	 * Component optimisation addition
-	 */
+		* Component optimisation addition
+		*/
 		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TEXT);
 		return &text;
@@ -186,6 +186,7 @@ namespace sfge
 
 	void TextManager::DestroyComponent(Entity entity)
 	{
+		RemoveConcernedEntity(entity);
 		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::TEXT);
 	}
 

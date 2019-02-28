@@ -465,12 +465,13 @@ void PyComponentManager::OnCollisionExit(Entity entity, ColliderData * colliderD
 
 void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 {
-	for(auto i = 0u; i < m_Components.size();i++)
+	for(auto i = 0u; i < m_ConcernedEntities.size();i++)
 	{
 		auto& pyComponent = m_Components[i];
 		if(pyComponent != nullptr && entity == pyComponent->GetEntity())
 		{
 			pyComponent = nullptr;
+			m_ConcernedEntities.erase(m_ConcernedEntities.begin() + i);
 		}
 	}
 	for(auto i = 0u; i < m_PythonInstances.size();i++)
@@ -504,7 +505,7 @@ int PyComponentManager::GetFreeComponentIndex()
 }
 void PyComponentManager::Init()
 {
-	MultipleComponentManager::Init();
+	SingleComponentManager::Init();
 	m_PythonEngine = m_Engine.GetPythonEngine();
 }
 
@@ -519,12 +520,17 @@ void PyComponentManager::CreateComponent(json &componentJson, Entity entity)
 		{
 			const InstanceId instanceId = LoadPyComponent(moduleId, entity);
 			(void) instanceId;
+			/*
+		* Component optimisation addition
+		*/
+			m_ConcernedEntities.push_back(entity);
 		}
 	}
 }
 
 void PyComponentManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
 	RemovePyComponentsFrom(entity);
 }
 
@@ -541,11 +547,14 @@ PyBehavior **PyComponentManager::GetComponentPtr(Entity entity)
 }
 void PyComponentManager::InitPyComponents()
 {
-	for (auto* pyComponent : m_Components)
+	for (int i = 0; i < m_ConcernedEntities.size(); i++)
+		m_Components[i]->Init();
+
+	/*for (auto* pyComponent : m_Components)
 	{
 		if(pyComponent != nullptr)
 			pyComponent->Init();
-	}
+	}*/
 
 }
 void PyComponentManager::Destroy()
@@ -553,6 +562,7 @@ void PyComponentManager::Destroy()
 	System::Destroy();
 	m_Components.clear();
 	m_ComponentsInfo.clear();
+	m_ConcernedEntities.clear();
 	m_PythonInstances.clear();
 }
 
@@ -571,6 +581,9 @@ json PyComponentManager::Save()
 	return j;
 }
 
+/*
+ * Viré?
+ */
 void PyComponentManager::FixedUpdate()
 {
 	System::FixedUpdate();
@@ -578,32 +591,21 @@ void PyComponentManager::FixedUpdate()
 	rmt_ScopedCPUSample(PyComponentFixedUpdate,0);
 
 	auto config = m_Engine.GetConfig();
-	for(auto* pyComponent:m_Components)
-	{
-		if(pyComponent != nullptr)
-		{
-			pyComponent->FixedUpdate(config->fixedDeltaTime);
-		}
-	}
+
+	for (int i = 0; i < m_ConcernedEntities.size(); i++)
+		m_Components[i]->FixedUpdate(config->fixedDeltaTime);
 }
 void PyComponentManager::Update(float dt)
 {
 	System::Update(dt);
 
-
 	rmt_ScopedCPUSample(PyComponentUpdate,0);
-
-	for(auto* pyComponent:m_Components)
-	{
-		if(pyComponent != nullptr)
-		{
-			pyComponent->Update(dt);
-		}
-	}
+	for (int i = 0; i < m_ConcernedEntities.size(); i++)
+		m_Components[i]->Update(dt);
 }
 void PyComponentManager::OnResize(size_t newSize)
 {
-	MultipleComponentManager::OnResize(newSize);
+	SingleComponentManager::OnResize(newSize);
 	m_PythonInstances.resize(newSize);
 }
 }

@@ -133,13 +133,17 @@ void SpriteManager::Update(float dt)
 {
 	(void) dt;
 	rmt_ScopedCPUSample(SpriteUpdate,0)
-	for(auto i = 0u; i < m_Components.size();i++)
+	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+	{
+		m_Components[m_ConcernedEntities[i] - 1].Update(m_Transform2dManager->GetComponentPtr(m_ConcernedEntities[i]));
+	}
+	/*for(auto i = 0u; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
 		{
 			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1));
 		}
-	}
+	}*/
 }
 
 void SpriteManager::DrawSprites(sf::RenderWindow &window)
@@ -164,12 +168,12 @@ void SpriteManager::Collect()
 
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 {
-	auto & newSprite = m_Components[entity - 1];
-	auto & newSpriteInfo = m_ComponentsInfo[entity - 1];
+	auto* newSprite = AddComponent(entity);
+	//auto & newSpriteInfo = m_ComponentsInfo[entity - 1];
 	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		std::string path = componentJson["path"].get<std::string>();
-		newSpriteInfo.texturePath = path;
+		//newSpriteInfo.texturePath = path;
 		sf::Texture* texture = nullptr;
 		if (FileExists(path))
 		{
@@ -183,9 +187,9 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}*/
 				texture = textureManager->GetTexture(textureId);
-				newSprite.SetTexture(texture);
-				newSpriteInfo.textureId = textureId;
-				newSpriteInfo.sprite = &newSprite;
+				newSprite->SetTexture(texture);
+				//newSpriteInfo.textureId = textureId;
+				//newSpriteInfo.sprite = &newSprite;
 			}
 			else
 			{
@@ -207,13 +211,17 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 	}
 	if (CheckJsonParameter(componentJson, "layer", json::value_t::number_integer))
 	{
-		newSprite.SetLayer(componentJson["layer"]);
+		newSprite->SetLayer(componentJson["layer"]);
 	}
 }
 
 void SpriteManager::DestroyComponent(Entity entity)
 {
-	(void) entity;
+	if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::SPRITE2D))
+	{
+		RemoveConcernedEntity(entity);
+		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::SPRITE2D);
+	}
 }
 
 json SpriteManager::Save()
