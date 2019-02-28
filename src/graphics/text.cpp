@@ -176,6 +176,10 @@ namespace sfge
 		auto& text = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].text = &text;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
+		/*
+	 * Component optimisation addition
+	 */
+		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TEXT);
 		return &text;
 	}

@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <string>
 #include <engine/engine.h>
 #include <engine/scene.h>
 #include <engine/component.h>
@@ -29,6 +30,7 @@ SOFTWARE.
 #include <gtest/gtest.h>
 #include <iostream>
 #include <fstream>
+#include <random>
 
 json CreateScene(float mapSize, float buildingFactor, float dwarfFactor, float uiElement)
 {
@@ -173,7 +175,61 @@ json CreateScene(float mapSize, float buildingFactor, float dwarfFactor, float u
 	return scene;
 }
 
-/*TEST(Charge, TestChargeLight)
+/*void VectorPushAndErase(size_t size, int eraseNumber)
+{
+	::testing::internal::TimeInMillis elapsed(
+		::testing::UnitTest::GetInstance()->elapsed_time());
+
+	std::vector<unsigned> vector;
+
+	//vector.reserve(size);
+
+	for (unsigned i = 0; i < size; i++)
+		vector.push_back(i);
+
+	for (int i = 0; i < eraseNumber; i++)
+	{
+		//int randValue = rand() % eraseNumber;
+		vector.erase(vector.begin());
+	}
+
+	sfge::Log::GetInstance()->Msg("P " + std::to_string(size) + " : " + std::to_string(elapsed) + "\n");
+	//std::cout << "P " << size << " : " << elapsed << "\n";
+}
+
+void VectorReserveAndErase(size_t size, int eraseNumber)
+{
+	::testing::internal::TimeInMillis elapsed(
+		::testing::UnitTest::GetInstance()->elapsed_time());
+
+	std::vector<unsigned> vector;
+
+	vector.reserve(size);
+
+	for (unsigned i = 0; i < size; i++)
+		vector[i] = i;
+
+	for (int i = 0; i < eraseNumber; i++)
+	{
+		//int randValue = rand() % eraseNumber;
+		//vector.erase(vector.begin());
+	}
+
+	sfge::Log::GetInstance()->Msg("R " + std::to_string(size) + " : " + std::to_string(elapsed) + "\n");
+	//std::cout << "R " << size << " : " << elapsed << "\n";
+}
+
+TEST(Vector, VectorFunction)
+{
+	VectorPushAndErase(1000, 25);
+	VectorReserveAndErase(1000, 25);
+	VectorPushAndErase(10000, 250);
+	VectorReserveAndErase(10000, 250);
+	VectorPushAndErase(50000, 1250);
+	VectorReserveAndErase(50000, 1250);
+}*/
+
+TEST(Charge, TestChargeLight)
 {
 	float mapSize = 250.0f;
 	float buildingFactor = 0.05f;

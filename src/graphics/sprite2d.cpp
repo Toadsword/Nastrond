@@ -117,6 +117,11 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 
 	m_Components[entity - 1] = sprite;
 
+	/*
+	 * Component optimisation addition
+	 */
+	m_ConcernedEntities.push_back(entity);
+
 	spriteInfo.sprite = &sprite;
 	spriteInfo.SetEntity(entity);
 
