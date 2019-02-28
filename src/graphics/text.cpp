@@ -139,7 +139,7 @@ namespace sfge
 
 	void TextManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		auto& text = m_Components[entity - 1];
+		auto* text = AddComponent(entity);
 
 		if (CheckJsonParameter(componentJson, "font", json::value_t::string))
 		{
@@ -163,7 +163,7 @@ namespace sfge
 				size = componentJson["size"];
 
 			// Initialize text
-			text.Init(strText, path, color, size);
+			text->Init(strText, path, color, size);
 		}
 		else
 		{

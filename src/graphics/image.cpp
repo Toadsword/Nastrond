@@ -85,7 +85,7 @@ namespace sfge
 
 	void ImageManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		auto& image = m_Components[entity - 1];
+		auto* image = AddComponent(entity);
 
 		if (CheckJsonParameter(componentJson, "spritePath", json::value_t::string))
 		{			
@@ -99,13 +99,13 @@ namespace sfge
 				{
 					texture = m_TextureManager->GetTexture(textureId);
 
-					image.Init(path, texture, textureId);
+					image->Init(path, texture, textureId);
 
 					if (CheckJsonExists(componentJson, "color"))
-						image.SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
+						image->SetColor(componentJson["color"][0], componentJson["color"][1], componentJson["color"][2], componentJson["color"][3]);
 
 					if (m_EntityManager->HasComponent(entity, ComponentType::RECTTRANSFORM))
-						m_RectTransformManager->GetComponentPtr(entity)->SetRectDimension(image.GetDimension().width, image.GetDimension().height);
+						m_RectTransformManager->GetComponentPtr(entity)->SetRectDimension(image->GetDimension().width, image->GetDimension().height);
 				}
 				else
 				{
