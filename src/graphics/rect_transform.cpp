@@ -117,19 +117,19 @@ namespace sfge
 
 	void RectTransformManager::CreateComponent(json& componentJson, Entity entity)
 	{
-		auto& rectTransform = m_Components[entity - 1];
+		auto* rectTransform = AddComponent(entity);
 		if (CheckJsonExists(componentJson, "position"))
-			rectTransform.Position = GetVectorFromJson(componentJson, "position");
+			rectTransform->Position = GetVectorFromJson(componentJson, "position");
 		if (CheckJsonExists(componentJson, "scale"))
-			rectTransform.Scale = GetVectorFromJson(componentJson, "scale");
+			rectTransform->Scale = GetVectorFromJson(componentJson, "scale");
 		if (CheckJsonExists(componentJson, "angle") && CheckJsonNumber(componentJson, "angle"))
-			rectTransform.EulerAngle = componentJson["angle"];
+			rectTransform->EulerAngle = componentJson["angle"];
 		if (CheckJsonExists(componentJson, "basePosition"))
 		{
 			Vec2f basePosition;
 			basePosition.x = componentJson["basePosition"][0];
 			basePosition.y = componentJson["basePosition"][1];
-			rectTransform.Init(basePosition);
+			rectTransform->Init(basePosition);
 		}
 	}
 

@@ -51,7 +51,7 @@ namespace sfge
 
 	void ButtonManager::CreateComponent(json& componentJson, Entity entity)
 	{
-
+		auto* button = AddComponent(entity);
 	}
 
 	Button* ButtonManager::AddComponent(Entity entity)
