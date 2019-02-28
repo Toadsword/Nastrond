@@ -247,7 +247,7 @@ bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 	return true;
 }
 
-bool DwarfManager::HasPath(unsigned int index)
+bool DwarfManager::HasPath(const unsigned int index)
 {
 	return !m_Paths[index].empty();
 }
@@ -258,12 +258,12 @@ void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Ve
 	m_PathToDestinationBT[index] = destination;
 }
 
-void DwarfManager::AddFindRandomPathBT(unsigned int index)
+void DwarfManager::AddFindRandomPathBT(const unsigned int index)
 {
 	m_PathToRandomBTNotSorted[index] = true;
 }
 
-void DwarfManager::AddPathFollowingBT(unsigned int index)
+void DwarfManager::AddPathFollowingBT(const unsigned int index)
 {
 	m_PathFollowingBTNotSorted[index] = true;
 }
@@ -417,39 +417,54 @@ void DwarfManager::AddDwarfToDraw(const unsigned int index)
 	m_IndexToDraw++;
 }
 
-void DwarfManager::Update(float dt)
+void DwarfManager::Update(const float dt)
 {
 #ifdef AI_DEBUG_COUNT_TIME
 	const auto t1 = std::chrono::high_resolution_clock::now();
 #endif
+
+#pragma region prebatching data
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t3 = std::chrono::high_resolution_clock::now();
+#endif
 	//Sort array
 	//Path to destination
-	auto tmpIndex = 0;
 	for(size_t i = 0; i < m_IndexDwarfsEntities; i++)
 	{
 		if (m_PathToIndexDwarfBTNotSorted[i]) {
-			m_PathFollowingBT[tmpIndex] = i;
-			tmpIndex++;
+			m_PathFollowingBT[m_IndexPathToDestinationBT] = i;
+			m_IndexPathToDestinationBT++;
 
 			m_PathToIndexDwarfBTNotSorted[i] = false;
 		}
-	}
-	m_IndexPathToDestinationBT = tmpIndex;
 
-	//Path to random
-	tmpIndex = 0;
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
 		if (m_PathToRandomBTNotSorted[i]) {
-			m_PathToRandomBT[tmpIndex] = i;
-			tmpIndex++;
+			m_PathToRandomBT[m_IndexPathToRandomBT] = i;
+			m_IndexPathToRandomBT++;
 
 			m_PathToRandomBTNotSorted[i] = false;
 		}
+
+		if (m_PathFollowingBTNotSorted[i]) {
+			m_PathFollowingBT[m_IndexPathFollowingBT] = i;
+			m_IndexPathFollowingBT++;
+		}
 	}
-	m_IndexPathToRandomBT = tmpIndex;
 
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t4 = std::chrono::high_resolution_clock::now();
+	{
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
+		m_Prebatch_Ms += timerDuration2 / 1000;
+		m_Prebatch_Mc += timerDuration2 % 1000;
+	}
+#endif
+#pragma endregion 
 
+#pragma region ask for path
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t5 = std::chrono::high_resolution_clock::now();
+#endif
 #ifdef DEBUG_RANDOM_PATH
 	const auto config = m_Engine.GetConfig();
 	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
@@ -471,16 +486,20 @@ void DwarfManager::Update(float dt)
 		}
 		m_IndexPathToRandomBT = 0;
 	}
-
-	//Follow path - prebatch
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t6 = std::chrono::high_resolution_clock::now();
 	{
-		if (m_PathFollowingBTNotSorted[i]) {
-			m_PathFollowingBT[m_IndexPathFollowingBT] = i;
-			m_IndexPathFollowingBT++;
-		}
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t6 - t5).count();
+		m_AskPath_Ms += timerDuration2 / 1000;
+		m_AskPath_Mc += timerDuration2 % 1000;
 	}
+#endif
+#pragma endregion 
 
+#pragma region movement
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t7 = std::chrono::high_resolution_clock::now();
+#endif
 	//Follow path - mouvements
 	const auto vel = m_SpeedDwarf * dt;
 	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
@@ -492,11 +511,6 @@ void DwarfManager::Update(float dt)
 		auto dir = m_Paths[indexDwarf][m_Paths[indexDwarf].size() - 1] - transformPtr->Position;
 
 		transformPtr->Position += dir.Normalized() * vel;
-	}
-
-	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
-	{
-		const auto indexDwarf = m_PathFollowingBT[i];
 
 		//test if at destination
 		if (IsDwarfAtDestination(indexDwarf))
@@ -507,7 +521,20 @@ void DwarfManager::Update(float dt)
 		}
 		AddDwarfToDraw(indexDwarf);
 	}
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t8 = std::chrono::high_resolution_clock::now();
+	{
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t8 - t7).count();
+		m_Movement_Ms += timerDuration2 / 1000;
+		m_Movement_Mc += timerDuration2 % 1000;
+	}
+#endif
+#pragma endregion 
 
+#pragma region other
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t9 = std::chrono::high_resolution_clock::now();
+#endif
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
 		"BehaviorTree");
 
@@ -538,6 +565,15 @@ void DwarfManager::Update(float dt)
 		break;
 	default: ;
 	}
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t10 = std::chrono::high_resolution_clock::now();
+	{
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t10 - t9).count();
+		m_Other_Ms += timerDuration2 / 1000;
+		m_Other_Mc += timerDuration2 % 1000;
+	}
+#endif
+#pragma endregion
 
 #ifdef AI_DEBUG_COUNT_TIME
 	const auto t2 = std::chrono::high_resolution_clock::now();
