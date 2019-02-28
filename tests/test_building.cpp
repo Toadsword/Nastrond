@@ -179,7 +179,7 @@ TEST(Building, WarehouseTest)
 	sceneManager->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
-}*/
+}
 
 TEST(Building, BuildingConstructorTest)
 {
@@ -234,6 +234,85 @@ TEST(Building, BuildingConstructorTest)
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
 	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}
+
+
+TEST(Building, TestScene)
+{
+	sfge::Engine engine;
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	json sceneJson;
+	json entityJson;
+	json tilemapJson;
+
+	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
+	tilemapJson["reference_path"] = "./data/tilemap/nastrond_buildingTiles.asset";
+	tilemapJson["is_isometric"] = true;
+	tilemapJson["layer"] = 1;
+	tilemapJson["tile_size"] = json::array({ 64, 32 });
+	tilemapJson["map_size"] = json::array({ 10, 10 });
+	tilemapJson["map"] = json::array({
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),
+		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
+		});
+	entityJson["components"] = json::array({ tilemapJson });
+	entityJson["name"] = "TilemapTest";
+
+	const auto config = engine.GetConfig();
+
+	sceneJson = {
+		{ "name", "Test Tilemap Building" } };
+
+	json systemJsonDwellingManager = {
+		{ "systemClassName", "DwellingManager" } };
+
+	json systemJsonProductionBuildingManager = {
+		{ "systemClassName", "ProductionBuildingManager" } };
+
+	json systemJsonForgeManager = {
+		{ "systemClassName", "ForgeManager" } };
+
+	json systemJsonWarehouseManager = {
+		{ "systemClassName", "WarehouseManager" } };
+
+	json systemJsonRoadgManager = {
+		{ "systemClassName", "RoadManager" } };
+
+	json systemJsonBuildingManager = {
+		{ "systemClassName", "BuildingManager" } };
+
+	json systemJsonBuildingConstructor = {
+		{ "systemClassName", "BuildingConstructor" } };
+
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehouseManager, systemJsonRoadgManager, systemJsonBuildingManager, systemJsonBuildingConstructor });
+
+
+
+
+	sceneJson["entities"] = json::array({ entityJson });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	sceneManager->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }

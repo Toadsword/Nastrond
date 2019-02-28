@@ -141,14 +141,14 @@ namespace sfge::ext
 
 
 		int roadBitMask = 0;
+
 		for (int i = 0; i < tilesTypeVector.size(); i++)
 		{
 			roadBitMask = 0;
 
 			if (tilesTypeVector[i] != targetType)
 			{
-				if (y % 2 == 0)
-					SpawnRoad(positionFirstTile + xPos * x + yPos * y, roadBitMask);
+				SpawnRoad(positionFirstTile + xPos * x + yPos * y, roadBitMask);
 
 				x++;
 				if (x >= LengthX)

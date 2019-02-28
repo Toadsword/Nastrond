@@ -50,14 +50,14 @@ namespace sfge::ext
 		Log::GetInstance()->Msg("Building Manager initialized");
 
 		////////////////////////Debug////////////////////////
-		//for(int i = 0; i < 100; i++)
+		//for(int i = 0; i < 1200; i++)
 		//{
 		//	SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
 		//	SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
 		//	SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
 		//	SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
 		//	SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
-		//	SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));			
+		//	SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));
 		//}
 	}
 
@@ -90,9 +90,6 @@ namespace sfge::ext
 			break;
 		case BuildingType::DWELLING:
 			m_DwellingManager->SpawnBuilding(position);
-			break;
-		case BuildingType::ROAD:
-			//m_RoadManager->SpawnRoad(position);
 			break;
 		}
 	}
