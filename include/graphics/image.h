@@ -28,7 +28,7 @@ SOFTWARE.
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <engine/component.h>
-#include <engine/rect_transform.h>
+#include <graphics/rect_transform.h>
 
 namespace sfge
 {

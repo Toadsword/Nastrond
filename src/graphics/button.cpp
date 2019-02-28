@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <graphics/button.h>
 #include <imgui.h>
-#include <engine/ui.h>
+#include <graphics/ui.h>
 
 namespace sfge
 {

@@ -26,8 +26,7 @@ SOFTWARE.
 #define SFGE_BUTTON_H
 
 #include <engine/component.h>
-//#include <input/input.h>
-#include <engine/rect_transform.h>
+#include <graphics/rect_transform.h>
 #include <python/pycomponent.h>
 
 namespace sfge

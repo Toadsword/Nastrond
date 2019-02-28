@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <engine/rect_transform.h>
+#include <graphics/rect_transform.h>
 #include <imgui.h>
 
 namespace sfge

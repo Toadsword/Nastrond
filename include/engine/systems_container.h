@@ -33,8 +33,8 @@
 #include <physics/physics2d.h>
 #include <engine/entity.h>
 #include <engine/transform2d.h>
-#include <engine/rect_transform.h>
-#include <engine/ui.h>
+#include <graphics/rect_transform.h>
+#include <graphics/ui.h>
 #include <editor/editor.h>
 #include <engine/tilemap.h>
 
