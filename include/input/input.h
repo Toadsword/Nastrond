@@ -31,6 +31,9 @@ SOFTWARE.
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/System/Time.hpp>
+#include <engine/vector.h>
+#include <engine/engine.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge
 {
@@ -55,12 +58,12 @@ class MouseManager : public System
 public:
 	using System::System;
 	void Update(float dt) override;
-	sf::Vector2i GetLocalPosition(sf::Window& window) const;
+	sf::Vector2i GetLocalPosition() const;
 	sf::Vector2i GetWorldPosition() const;
 	bool IsButtonHeld(sf::Mouse::Button button) const;
 	bool IsButtonDown(sf::Mouse::Button button) const;
 	bool IsButtonUp(sf::Mouse::Button button) const;
-
+	
 private:
 	std::array<KeyPressedStatus, sf::Mouse::Button::ButtonCount> buttonPressedStatusArray = {};
 };
