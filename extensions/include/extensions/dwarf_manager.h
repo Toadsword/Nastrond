@@ -119,14 +119,6 @@ public:
 #pragma endregion 
 
 #pragma region Path
-	
-	/**
-	 * \brief test if dwarf is at destination
-	 * \param index of the dwarf
-	 * \return true if at destination
-	 */
-	bool IsDwarfAtDestination(unsigned int index);
-
 	/**
 	 * \brief test if dwarf has a assigned path
 	 * \param index of the dwarf
@@ -271,6 +263,13 @@ private:
 
 	void AddDwarfToDraw(unsigned int index);
 
+	/**
+	* \brief test if dwarf is at destination
+	* \param index of the dwarf
+	* \return true if at destination
+	*/
+	bool IsDwarfAtDestination(unsigned int index);
+
 	//System
 	Transform2dManager* m_Transform2DManager;
 	TextureManager* m_TextureManager;
@@ -296,9 +295,11 @@ private:
 
 	//Path management
 	std::vector<std::vector<Vec2f>> m_Paths;
-	const float m_StoppingDistance = 5;
+	const float m_StoppingDistance = 10;
 	std::vector<Vec2f> m_DestinationForPathFinding;
 	std::vector<Vec2f> m_VelocitiesComponents;
+
+	std::vector<Vec2f*> m_Positions;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;

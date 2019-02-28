@@ -64,6 +64,13 @@ void BehaviorTree::Update(float dt)
 		UpdateRange(0, m_IndexActiveEntity - 1);
 	}
 	else {
+		/*std::cout << 0 << " -> " << (m_IndexActiveEntity / (coreNmb + 1) - 1) << "\n";
+		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
+		{
+			auto start = (threadIndex + 1)*m_IndexActiveEntity / (coreNmb + 1);
+			auto end = (threadIndex + 2)*m_IndexActiveEntity / (coreNmb + 1) - 1;
+			std::cout << start << " -> " << end << "\n";
+		}*/
 
 		std::vector<std::future<void>> joinFutures(coreNmb);
 		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)

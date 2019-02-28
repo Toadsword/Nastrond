@@ -83,21 +83,20 @@ void DwarfManager::Init()
 void DwarfManager::InstantiateDwarf(const Vec2f pos)
 {
 	auto* entityManager = m_Engine.GetEntityManager();
-	Configuration* configuration = m_Engine.GetConfig();
 
 	auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 
 	if (newEntity == INVALID_ENTITY)
 	{
-		entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + m_ContainersExtender);
+		entityManager->ResizeEntityNmb(m_Config->currentEntitiesNmb + m_ContainersExtender);
 		newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 	}
 
-	const int indexNewDwarf = GetIndexForNewEntity();
+	auto indexNewDwarf = GetIndexForNewEntity();
 
-	if(indexNewDwarf > m_IndexDwarfsEntities)
+	if(indexNewDwarf + 1 > m_IndexDwarfsEntities)
 	{
-		m_IndexDwarfsEntities = indexNewDwarf;
+		m_IndexDwarfsEntities = indexNewDwarf + 1;
 	}
 
 	//Update data for new dwarf in std::vectors
@@ -107,22 +106,24 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 	m_AssociatedDwelling[indexNewDwarf] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[indexNewDwarf] = INVALID_ENTITY;
 
-	sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+	const auto textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 
-	m_VertexArray[4 * indexNewDwarf].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * indexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-	m_VertexArray[4 * indexNewDwarf + 2].texCoords = textureSize;
-	m_VertexArray[4 * indexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
+	indexNewDwarf *= 4;
+
+	m_VertexArray[indexNewDwarf].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[indexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+	m_VertexArray[indexNewDwarf + 2].texCoords = textureSize;
+	m_VertexArray[indexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
 
 	//Add transform
 	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = pos;
 
-	m_VertexArray[4 * indexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
-	m_VertexArray[4 * indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(
+	m_VertexArray[indexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
+	m_VertexArray[indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(
 		textureSize.x / 2.0f, -textureSize.y / 2.0f);
-	m_VertexArray[4 * indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
-	m_VertexArray[4 * indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(
+	m_VertexArray[indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
+	m_VertexArray[indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(
 		-textureSize.x / 2.0f, textureSize.y / 2.0f);
 }
 
@@ -222,7 +223,7 @@ bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
 
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
-	const auto position = m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[index])->Position;
+	auto& position = *m_Positions.at(index);
 
 	auto dir = m_Paths[index].back() - position;
 
@@ -246,7 +247,7 @@ bool DwarfManager::HasPath(const unsigned int index)
 	return !m_Paths[index].empty();
 }
 
-void DwarfManager::SetPath(const unsigned index, std::vector<Vec2f> path)
+void DwarfManager::SetPath(const unsigned int index, std::vector<Vec2f> path)
 {
 	m_Paths[index] = path;
 	m_VelocitiesComponents[index] = path.back() - m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[index])->Position;
@@ -392,6 +393,7 @@ void DwarfManager::ResizeContainers()
 
 	//Velocities
 	m_VelocitiesComponents.resize(newSize);
+	m_Positions.resize(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()
@@ -442,6 +444,8 @@ void DwarfManager::Update(const float dt)
 			m_PathFollowingBT[m_IndexPathFollowingBT] = i;
 
 			m_IndexPathFollowingBT++;
+
+			m_Positions[i] = &m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[i])->Position;
 		}
 	}
 
@@ -490,7 +494,12 @@ void DwarfManager::Update(const float dt)
 	{
 		const auto indexDwarf = m_PathFollowingBT[i];
 
-		m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position += m_VelocitiesComponents[indexDwarf] * vel;
+		*m_Positions[indexDwarf] += m_VelocitiesComponents[indexDwarf] * vel;
+	}
+
+	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
+	{
+		const auto indexDwarf = m_PathFollowingBT[i];
 
 		if (IsDwarfAtDestination(indexDwarf))
 		{
