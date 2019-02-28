@@ -30,6 +30,7 @@ namespace sfge::ext
 
 	void RoadManager::Init()
 	{
+		m_EntityManager = m_Engine.GetEntityManager();
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
@@ -93,9 +94,6 @@ namespace sfge::ext
 
 	void RoadManager::SpawnRoad(Vec2f position, int roadBitMask)
 	{
-		m_EntityManager = m_Engine.GetEntityManager();
-
-
 		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if (newEntity == INVALID_ENTITY)
@@ -114,6 +112,10 @@ namespace sfge::ext
 		}
 
 		m_BuildingIndexCount++;
+
+		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+
+		entityInfo.name = "Road " + std::to_string(m_BuildingIndexCount);
 
 
 		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
@@ -195,6 +197,12 @@ namespace sfge::ext
 			if(m_EntityIndex[i] == INVALID_ENTITY)
 			{
 				m_EntityIndex[i] = entity;
+
+				auto& entityInfo = m_EntityManager->GetEntityInfo(entity);
+
+				entityInfo.name = "Road " + std::to_string(i + 1);
+
+
 				RoadTextureSelection(entity, transform2d, roadBitMask);
 				return true;
 			}
@@ -302,18 +310,6 @@ namespace sfge::ext
 		spriteInfo.sprite = sprite;
 		spriteInfo.textureId = textureId;
 		spriteInfo.texturePath = texturePath;
-	}
-
-	void RoadManager::SetupTextureGround(const Entity entity)
-	{
-		Sprite* sprite = m_SpriteManager->AddComponent(entity);
-		sprite->SetTexture(m_GroundTexture);
-
-		auto& spriteInfo = m_SpriteManager->GetComponentInfo(entity);
-		spriteInfo.name = "Sprite";
-		spriteInfo.sprite = sprite;
-		spriteInfo.textureId = m_GroundTextureId;
-		spriteInfo.texturePath = m_GroundTexturePath;
 	}
 
 }

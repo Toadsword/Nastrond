@@ -129,6 +129,7 @@ namespace sfge::ext
 		 */
 		void DecreaseHappiness();
 
+		EntityManager* m_EntityManager;
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;

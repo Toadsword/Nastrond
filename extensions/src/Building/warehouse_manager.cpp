@@ -30,6 +30,7 @@ namespace sfge::ext
 
 	void WarehouseManager::Init()
 	{
+		m_EntityManager = m_Engine.GetEntityManager();
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
@@ -59,15 +60,13 @@ namespace sfge::ext
 
 	void WarehouseManager::SpawnBuilding(Vec2f position)
 	{
-		auto* entityManager = m_Engine.GetEntityManager();
 
-
-		auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if (newEntity == INVALID_ENTITY)
 		{
-			entityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + CONTAINER_RESERVATION);
-			newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + CONTAINER_RESERVATION);
+			newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 		}
 
 		//add transform
@@ -80,6 +79,10 @@ namespace sfge::ext
 		}
 
 		m_BuildingIndexCount++;
+
+		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+
+		entityInfo.name = "Warehouse " + std::to_string(m_BuildingIndexCount);
 
 
 		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
@@ -104,8 +107,9 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_EntityIndex[i] = INVALID_ENTITY;
-				EntityManager* entityManager = m_Engine.GetEntityManager();
-				entityManager->DestroyEntity(entity);
+
+				
+				m_EntityManager->DestroyEntity(entity);
 				return true;
 			}
 		}
@@ -418,6 +422,10 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == NULL)
 			{
 				m_EntityIndex[i] = newEntity;
+				auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+
+				entityInfo.name = "Warehouse " + std::to_string(i + 1);
+
 				m_DwarfSlots[i] = DwarfSlots();
 
 				m_IronInventories[i] = 0;

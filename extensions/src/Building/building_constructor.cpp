@@ -83,7 +83,7 @@ namespace sfge::ext
 			}
 		}
 
-		m_RoadManager->SpawnRoad(jsonArray, m_TmpTileMapJson["map"][0].size(), m_TmpTileMapJson["map"].size(), Vec2f(0, 0), Vec2f(64, 32), 1);
+		m_RoadManager->SpawnRoad(jsonArray, m_TmpTileMapJson["map"][0].size(), m_TmpTileMapJson["map"].size(), Vec2f(0, 0), Vec2f(64, 32), 2);
 
 		for (int y = 0; y < m_TmpTileMapJson["map"].size(); y++)
 		{
@@ -94,27 +94,27 @@ namespace sfge::ext
 
 				offset = xPos * x + yPos * y;
 
-				if(m_TmpTileMapJson["map"][y][x] == 4)
+				if(m_TmpTileMapJson["map"][y][x] == 3)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, offset);
 				}
-				else if(m_TmpTileMapJson["map"][y][x] == 5)
+				else if(m_TmpTileMapJson["map"][y][x] == 4)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, offset);
 				}
-				else if(m_TmpTileMapJson["map"][y][x] == 6)
+				else if(m_TmpTileMapJson["map"][y][x] == 5)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, offset);
 				}
-				else if (m_TmpTileMapJson["map"][y][x] == 7)
+				else if (m_TmpTileMapJson["map"][y][x] == 6)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::MINE, offset);
 				}
-				else if (m_TmpTileMapJson["map"][y][x] == 8)
+				else if (m_TmpTileMapJson["map"][y][x] == 7)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::EXCAVATION_POST, offset);
 				}
-				else if (m_TmpTileMapJson["map"][y][x] == 9)
+				else if (m_TmpTileMapJson["map"][y][x] == 8)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::MUSHROOM_FARM, offset);
 				}

@@ -119,7 +119,7 @@ namespace sfge::ext
 
 		void AttributeContainer();
 
-
+		EntityManager * m_EntityManager;
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;

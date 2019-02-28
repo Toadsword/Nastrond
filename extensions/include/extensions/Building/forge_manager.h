@@ -134,6 +134,7 @@ namespace sfge::ext
 
 		void SetupTexture(const unsigned int forgeIndex);
 
+		EntityManager* m_EntityManager;
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;

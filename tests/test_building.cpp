@@ -271,7 +271,7 @@ TEST(Building, TestScene)
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1})
 		});
 	entityJson["components"] = json::array({ tilemapJson });
-	entityJson["name"] = "TilemapTest";
+	entityJson["name"] = "Tilemap";
 
 	const auto config = engine.GetConfig();
 

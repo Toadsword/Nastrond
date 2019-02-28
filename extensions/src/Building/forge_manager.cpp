@@ -32,6 +32,8 @@ namespace sfge::ext
 
 	void ForgeManager::Init()
 	{
+		m_EntityManager = m_Engine.GetEntityManager();
+
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
@@ -66,15 +68,12 @@ namespace sfge::ext
 
 	void ForgeManager::SpawnBuilding(Vec2f pos)
 	{
-		auto* entityManager = m_Engine.GetEntityManager();
-
-
-		auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if(newEntity == INVALID_ENTITY)
 		{
-			entityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
-			newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
+			newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 		}
 
 		//add transform
@@ -87,6 +86,10 @@ namespace sfge::ext
 		}
 
 		m_BuildingIndexCount++;
+
+		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+
+		entityInfo.name = "Forge " + std::to_string(m_BuildingIndexCount);
 
 		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
 		{
@@ -270,9 +273,14 @@ namespace sfge::ext
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == NULL)
+			if (m_EntityIndex[i] == INVALID_ENTITY)
 			{
 				m_EntityIndex[i] = newEntity;
+
+				auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+
+				entityInfo.name = "Forge " + std::to_string(i + 1);
+
 				m_DwarfSlots[i] = DwarfSlots();
 
 				m_ResourcesInventoriesReceiver[i] = 0;

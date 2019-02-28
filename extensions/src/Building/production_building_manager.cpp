@@ -33,6 +33,7 @@ namespace sfge::ext
 
 	void ProductionBuildingManager::Init()
 	{
+		m_EntityManager = m_Engine.GetEntityManager();
 		m_Transform2DManager = m_Engine.GetTransform2dManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
@@ -82,19 +83,19 @@ namespace sfge::ext
 
 	void ProductionBuildingManager::SpawnBuilding(Vec2f position, BuildingType buildingType)
 	{
-		auto* entityManager = m_Engine.GetEntityManager();
-
-		auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if (newEntity == INVALID_ENTITY)
 		{
-			entityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
-			newEntity = entityManager->CreateEntity(INVALID_ENTITY);
+			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
+			newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 		}
+
 		
 		//add transform
 		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
+
 
 		if (CheckEmptySlot(newEntity, buildingType))
 		{
@@ -102,6 +103,20 @@ namespace sfge::ext
 		}
 
 		m_BuildingIndexCount++;
+
+		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+		switch (buildingType)
+		{
+		case BuildingType::MINE:
+			entityInfo.name = "Mine " + std::to_string(m_BuildingIndexCount);
+			break;
+		case BuildingType::EXCAVATION_POST:
+			entityInfo.name = "ExcavationPost " + std::to_string(m_BuildingIndexCount);
+			break;
+		case BuildingType::MUSHROOM_FARM:
+			entityInfo.name = "MushroomFarm " + std::to_string(m_BuildingIndexCount);
+			break;
+		}
 
 		if (m_BuildingIndexCount >= m_EntityIndex.size())
 		{
@@ -285,6 +300,23 @@ namespace sfge::ext
 			{
 				continue;
 			}
+
+			auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+
+
+			switch (buildingType)
+			{
+			case BuildingType::MINE:
+				entityInfo.name = "Mine " + std::to_string(i + 1);
+				break;
+			case BuildingType::EXCAVATION_POST:
+				entityInfo.name = "ExcavationPost " + std::to_string(i + 1);
+				break;
+			case BuildingType::MUSHROOM_FARM:
+				entityInfo.name = "MushroomFarm " + std::to_string(i + 1);
+				break;
+			}
+
 			m_EntityIndex[i] = newEntity;
 			const DwarfSlots newDwarfSlot;
 			m_DwarfSlots[i] = newDwarfSlot;

@@ -64,8 +64,6 @@ namespace sfge::ext
 
 		void SetupTexture(const Entity entity, sf::Texture* texture, const TextureId textureId, const std::string texturePath);
 
-		void SetupTextureGround(const Entity entity);
-
 
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
