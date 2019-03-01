@@ -57,6 +57,8 @@ class PythonEngine;
 class Physics2dManager;
 class EntityManager;
 class Transform2dManager;
+class RectTransformManager;
+class UIManager;
 class Editor;
 class TilemapSystem;
 struct SystemsContainer;
@@ -116,6 +118,8 @@ public:
 	Physics2dManager* GetPhysicsManager();
 	EntityManager* GetEntityManager();
 	Transform2dManager* GetTransform2dManager();
+	RectTransformManager* GetRectTransformManager();
+	UIManager* GetUIManager();
 	Editor* GetEditor();
 	TilemapSystem* GetTilemapSystem();
 

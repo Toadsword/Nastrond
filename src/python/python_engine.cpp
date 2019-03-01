@@ -124,6 +124,14 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("get_local_position", &MouseManager::GetLocalPosition)
 		.def("get_world_position", &MouseManager::GetWorldPosition);
 
+	py::enum_<sf::Mouse::Button>(mouseManager, "MouseButton")
+		.value("Left", sf::Mouse::Left)
+		.value("Right", sf::Mouse::Right)
+		.value("Middle", sf::Mouse::Middle)
+		.value("ExtraOne", sf::Mouse::XButton1)
+		.value("ExtraTwo", sf::Mouse::XButton2)
+		.export_values();
+
 	//Todo Fix
 	//py::enum_<sf::Mouse::Button>(mouseManager, "Button")
 	//.value("Middle", sf::Mouse::Middle)
@@ -237,6 +245,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.value("Sound", ComponentType::SOUND)
 		.value("Transform2d", ComponentType::TRANSFORM2D)
 		.value("Camera", ComponentType::CAMERA)
+		.value("RectTransform", ComponentType::RECTTRANSFORM)
+		.value("Image", ComponentType::IMAGE)
+		.value("Button", ComponentType::BUTTON)
+		.value("Text", ComponentType::TEXT)
 		.export_values();
 
 	py::class_<Transform2d> transform(m, "Transform2d");
@@ -280,6 +292,10 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 		.def("get_position", &Camera::GetPosition, py::return_value_policy::reference)
 		.def("set_position", &Camera::SetPosition, py::return_value_policy::reference)
 		.def("on_resize", &Camera::OnResize, py::return_value_policy::reference);
+
+	py::class_<Button> button(m, "Button");
+	button
+		.def(py::init());
 
 	py::class_<Shape> shape(m, "Shape");
 	shape
@@ -439,6 +455,11 @@ PYBIND11_EMBEDDED_MODULE(SFGE, m)
 			return oss.str();
 		});
 
+	py::class_<RectTransform> rectTransform(m, "RectTransform");
+	rectTransform
+		.def(py::init<>())
+		.def("contains", &RectTransform::Contains, py::return_value_policy::reference);
+
 	ext::ExtendPython(m);
 	
 }
@@ -465,6 +486,7 @@ void PythonEngine::Init()
 		sfgeModule.attr("entity_manager") = py::cast(m_Engine.GetEntityManager(), py::return_value_policy::reference);
 		sfgeModule.attr("python_engine") = py::cast(m_Engine.GetPythonEngine(), py::return_value_policy::reference);
 		sfgeModule.attr("graphics2d_manager") = py::cast(m_Engine.GetGraphics2dManager(), py::return_value_policy::reference);
+		sfgeModule.attr("button_manager") = py::cast(m_Engine.GetUIManager()->GetButtonManager(), py::return_value_policy::reference);
 	}
 	catch (py::error_already_set& e)
 	{
