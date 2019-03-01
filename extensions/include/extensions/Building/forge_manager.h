@@ -29,10 +29,13 @@ SOFTWARE.
 #include <engine/transform2d.h>
 #include <graphics/graphics2d.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_utilities.h>
+
 
 namespace sfge::ext
 {
+
+	class BuildingManager;
 	/**
 	 * \author Robin Alves
 	 */
@@ -53,7 +56,7 @@ namespace sfge::ext
 		 * \brief Spawn a forge entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f position);
+		void SpawnBuilding(Vec2f position);
 
 		/**
 		 * \brief Destroy the forge at the given index.
@@ -95,44 +98,17 @@ namespace sfge::ext
 		Entity GetFreeSlotInBuilding();
 
 		/**
-		 * \brief get a forge that have resources ready to be taken.
-		 * \return a forge entity with resources.
-		 */
-		Entity GetBuildingWithResources();
-
-		/**
-		 * \brief get the type of resources that a forge produce.
-		 * \return a resource type.
-		 */
-		ResourceType GetProducedResourceType();
-
-		/**
-		 * \brief Get all resources that the building need to do his work.
-		 * \return a vector with all the type of resources that the forge need.
-		 */
-		ResourceType GetNeededResourceType();
-
-		unsigned char GetAmountOfResources();
-
-		Entity GetBuildingWithNeed();
-
-		Entity GetBuildingWithProduction();
-
-		/**
 		 * \brief get a certain amount of resources that a forge have produce.
 		 * \param forgeEntity : an entity that is a forge.
 		 * \return an int of an amount of resources.
 		 */
-		int GetResourcesBack(Entity forgeEntity);
+		void DwarfTakesResources(Entity forgeEntity);
 
 		/**
 		 * \brief give resources that the forge need to produce.
 		 * \param forgeEntity : an entity that is a forge.
-		 * \param nmbResources : the number of resources that needed to be deposit.
-		 * \param resourceType : the type of resources that want to be deposit.
-		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
 		 */
-		float GiveResources(Entity forgeEntity, int nmbResources, ResourceType resourceType);
+		void DwarfPutsResources(Entity forgeEntity);
 
 	private:
 		/**
@@ -144,43 +120,62 @@ namespace sfge::ext
 		 * \brief Resize all vector in one go to keep the synchronize all index.
 		 * \param newSize : the size with the new number of building.
 		 */
-		void ResizeContainer(const size_t newSize);
+		void ReserveContainer(const size_t newSize);
 
 
 		/**
-		 * \brief check if a slot already setup is empty and fill it.
+		 * \brief check if a slot of a building already setup is empty and fill it.
 		 * \param newEntity : the entity that is newly created.
-		 * \param transformPtr : the transform of the newly created.
 		 * \return true if a slot was empty and has been fill.
 		 */
-		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+		bool CheckEmptySlot(Entity newEntity);
 
+		void AttributeContainer();
+
+		void SetupTexture(const unsigned int forgeIndex);
+
+		EntityManager* m_EntityManager;
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
+		SpriteManager* m_SpriteManager;
+		Configuration* m_Configuration;
+		BuildingManager* m_BuildingManager;
+
+		bool m_Init = false;
+
+		sf::RenderWindow* m_Window;
+
+		unsigned int m_NmbReservation = 0u;
+
+		unsigned short m_CoolDown = 100;
+		unsigned short m_ConsumptionGoal = 20;
+
+		unsigned short m_MaxCapacityGiver = 200;
+		unsigned short m_MaxCapacityReceiver = 100;
+
+		unsigned int m_BuildingIndexCount = 0;
 
 		std::vector<Entity> m_EntityIndex;
 
 		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<GiverInventory> m_ToolsInventories;
-		std::vector<ReceiverInventory> m_IronsInventories;
-		std::vector<ProgressionProduction> m_ProgressionProdTool;
+
+		std::vector<unsigned short> m_ResourcesInventoriesGiver;
+		std::vector<unsigned short> m_ResourcesInventoriesReceiver;
+
+		std::vector<unsigned char> m_ProgressionConsumption;
+		std::vector<unsigned short> m_ProgressionCoolDown;
 
 
-		const int m_StackSize = 5;
+		std::vector<unsigned char> m_ReservedExportStackNumber;
+		std::vector<unsigned char> m_ReservedImportStackNumber;
 
-		const int m_CoolDownFrames = 20;
+		const ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
+		const ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
 
-		ResourceType m_ResourceTypeNeeded = ResourceType::IRON;
-		ResourceType m_ResourceTypeProduced = ResourceType::TOOL;
-
-
-		//Building texture
+		//Forge texture
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
-
-		//Vertex array
-		sf::VertexArray m_VertexArray;
 	};
 }
 #endif

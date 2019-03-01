@@ -22,68 +22,61 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/warehouse_manager.h>
+#ifndef BUILDING_CONSTRUCTOR_H
+#define BUILDING_CONSTRUCTOR_H
+
+#include <engine/system.h>
+#include <python/python_engine.h>
+
+#include <extensions/Building/building_manager.h>
+#include <extensions/Building/road_manager.h>
+#include "engine/tilemap.h"
+
 
 namespace sfge::ext
 {
-	WarehouseManager::WarehouseManager(Engine& engine) : System(engine){}
-
-	void WarehouseManager::Init()
+	/**
+	 * \author Robin Alves
+	 */
+	class BuildingConstructor : public System
 	{
-		std::cout << "Warehouse Manager \n";
+	public:
+		BuildingConstructor(Engine& engine);
 
-	}
+		void Init() override;
 
-	void WarehouseManager::Update(float dt)
-	{
-	}
+		void Update(float dt) override;
 
-	void WarehouseManager::FixedUpdate()
-	{
-	}
+		void FixedUpdate() override;
 
-	void WarehouseManager::AddNewBuilding(Vec2f position)
-	{
-	}
+		void Draw() override;
 
-	bool WarehouseManager::DestroyBuilding(Entity warehouseEntity)
-	{
-		return false;
-	}
+		enum BuildingId : TileTypeId
+		{
+			WAREHOUSE = 3,
+			FORGE = 4,
+			MINE = 5,
+			EXCAVATION_POST = 6,
+			MUSHROOM_FARM = 7,
+			DWELLING = 8
+		};
 
-	bool WarehouseManager::AddDwarfToBuilding(Entity warehouseEntity)
-	{
-		return false;
-	}
+	private:
+		json m_TmpTileMapJson;
 
-	bool WarehouseManager::RemoveDwarfToBuilding(Entity warehouseEntity)
-	{
-		return false;
-	}
+		void SetupTileMap();
 
-	void WarehouseManager::DwarfEnterBuilding(Entity warehouseEntity)
-	{
-	}
+		Configuration* m_Configuration = nullptr;
+		Transform2dManager* m_TransformManager = nullptr;
+		BuildingManager* m_BuildingManager = nullptr;
+		RoadManager* m_RoadManager = nullptr;
 
-	void WarehouseManager::DwarfExitBuilding(Entity warehouseEntity)
-	{
-	}
+		Tilemap* m_Tilemap = nullptr;
+		Vec2f m_SizeTile;
+		TilemapManager* m_TilemapManager = nullptr;
+		TilemapSystem* m_TilemapSystem = nullptr;
 
-	Entity WarehouseManager::GetFreeSlotInBuilding()
-	{
-		return Entity();
-	}
-
-	Entity WarehouseManager::GetWarehouseWithResources(ResourceType resourceType)
-	{
-		return Entity();
-	}
-
-	Entity WarehouseManager::GetWarehouseWithFreeSpaceAvailable(ResourceType resourceType)
-	{
-		return Entity();
-	}
-
-
-
+		bool m_Init = false;
+	};
 }
+#endif

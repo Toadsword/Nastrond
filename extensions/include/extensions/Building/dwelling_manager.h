@@ -28,11 +28,12 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_utilities.h>
 
 
 namespace sfge::ext
 {
+	class BuildingManager;
 
 	/**
 	 * \author Robin Alves
@@ -54,7 +55,7 @@ namespace sfge::ext
 		 * \brief Spawn a dwelling entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f position);
+		void SpawnBuilding(Vec2f position);
 
 		/**
 		 * \brief Destroy the dwelling at the given index.
@@ -96,19 +97,10 @@ namespace sfge::ext
 		void DwarfExitBuilding(Entity dwellingEntity);
 
 		/**
-		 * \brief Get all resources that the building need to do his work.
-		 * \return a vector with all the type of resources that the dwelling need.
-		 */
-		std::vector<ResourceType> GetNeededResourceType();
-
-		/**
 		 * \brief give resources that the dwelling need.
 		 * \param dwellingEntity : an entity that is a dwelling.
-		 * \param nmbResources : the number of resources that needed to be deposit.
-		 * \param resourceType : the type of resources that want to be deposit.
-		 * \return the rest of resources if all the resources can't be taken or if the type doesn't match.
 		 */
-		float GiveResources(Entity dwellingEntity, int nmbResources, ResourceType resourceType);
+		void DwarfPutsResources(Entity dwellingEntity);
 
 	private:
 
@@ -121,39 +113,54 @@ namespace sfge::ext
 		 * \brief Resize all vector in one go to keep the synchronize all index.
 		 * \param newSize : the size with the new number of building.
 		 */
-		void ResizeContainer(const size_t newSize);
+		void ReserveContainer(const size_t newSize);
+
+		void AttributeContainer();
 
 		/**
 		 * \brief return true if a slot in the index is empty then take this slot.
 		 */
-		bool CheckEmptySlot(Entity newEntity, Transform2d* transformPtr);
+		bool CheckEmptySlot(Entity newEntity);
+
+		void SetupTexture(const unsigned int dwellingIndex);
 
 		/**
 		 * \brief Decrease happiness when call.
 		 */
 		void DecreaseHappiness();
 
+		EntityManager* m_EntityManager;
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
 		SpriteManager* m_SpriteManager;
+		Configuration* m_Configuration;
+		BuildingManager* m_BuildingManager;
+
+		bool m_Init = false;
+
+		sf::RenderWindow* m_Window;
+
+		unsigned int m_NmbReservation = 0u;
+
+		const unsigned short m_MaxCapacity = 200;
+		const unsigned short m_CoolDown = 600;
+
+		unsigned int m_BuildingIndexCount = 0;
 
 		std::vector<Entity> m_EntityIndex;
-
-
 		std::vector<DwarfSlots> m_DwarfSlots;
-		std::vector<ReceiverInventory> m_FoodInventories;
-		std::vector<unsigned int> m_CoolDownFramesProgression;
+
+		std::vector<unsigned short> m_ResourcesInventories;
+		std::vector<unsigned char> m_ReservedImportStackNumber;
+
+		std::vector<unsigned short> m_ProgressionCoolDown;
 
 		const ResourceType m_ResourceTypeNeeded = ResourceType::FOOD;
-		const unsigned int m_CoolDownFrames = 2000;
 
 		//Building texture
 		std::string m_TexturePath;
 		TextureId m_TextureId;
 		sf::Texture* m_Texture;
-
-		//Vertex array
-		sf::VertexArray m_VertexArray;
 	};
 }
 

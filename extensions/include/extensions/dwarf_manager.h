@@ -27,8 +27,8 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 #include <extensions/AI/navigation_graph_manager.h>
-#include <extensions/building_utilities.h>
-#include <extensions/building_manager.h>
+#include <extensions/Building/building_utilities.h>
+#include <extensions/Building/building_manager.h>
 
 namespace sfge::ext
 {
@@ -291,7 +291,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100;
+	const size_t m_DwarfToSpawn = 10000;
 #endif
 
 	//Dwarfs texture

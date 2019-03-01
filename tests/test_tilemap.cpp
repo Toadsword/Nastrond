@@ -70,7 +70,7 @@ TEST(Tilemap, TestLoadTilemap)
 	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
 	entityJson2["components"] = json::array({ CameraJson, pyCameraJson });
 
-	sceneJson["entities"] = json::array({ entityJson, entityJson2 });
+	sceneJson["entities"] = json::array({ entityJson2, entityJson });
 	sceneJson["name"] = "Test Tilemap";
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 	
