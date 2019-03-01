@@ -258,10 +258,17 @@ public:
 #pragma endregion 
 
 private:
+	void UpdateBatch();
+	void BatchPathFindingRequest();
+	void BatchPathFollowing();
+	void BatchPosition();
+
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
 	void AddDwarfToDraw(unsigned int index);
+
+	void UpdatePositionRange(int startIndex, int endIndex, float vel);
 
 	/**
 	* \brief test if dwarf is at destination
@@ -391,6 +398,8 @@ private:
 	Configuration* m_Config;
 	Vec2f m_ScreenSize;
 #endif
+
+	ctpl::thread_pool* m_ThreadPool;
 };
 }
 
