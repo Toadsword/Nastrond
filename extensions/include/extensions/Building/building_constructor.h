@@ -56,15 +56,15 @@ namespace sfge::ext
 
 		void SetupTileMap();
 
-		Configuration* m_Configuration;
-		Transform2dManager* m_TransformManager;
-		BuildingManager* m_BuildingManager;
-		RoadManager* m_RoadManager;
+		Configuration* m_Configuration = nullptr;
+		Transform2dManager* m_TransformManager = nullptr;
+		BuildingManager* m_BuildingManager = nullptr;
+		RoadManager* m_RoadManager = nullptr;
 
-		Tilemap* m_Tilemap;
+		Tilemap* m_Tilemap = nullptr;
 		Vec2f m_SizeTile;
-		TilemapManager* m_TilemapManager;
-		TilemapSystem* m_TilemapSystem;
+		TilemapManager* m_TilemapManager = nullptr;
+		TilemapSystem* m_TilemapSystem = nullptr;
 
 
 	};

@@ -43,12 +43,17 @@ namespace sfge::ext
 
 		m_TilemapManager = m_TilemapSystem->GetTilemapManager();
 
-		for(int i = 1; i <= m_Configuration->currentEntitiesNmb; i++)
-		{
-			m_Tilemap = m_TilemapManager->GetComponentPtr(i);
-			if(m_Tilemap != nullptr)
-				break;
-		}
+
+		// TODO : Crash if the entity checked haven't a tilemap component
+		//for(int i = 1; i <= m_Configuration->currentEntitiesNmb; i++)
+		//{
+		//	m_Tilemap = m_TilemapManager->GetComponentPtr(i);
+		//	if(m_Tilemap != nullptr)
+		//		break;
+		//}
+
+		//Get directly the tilemap (only way it worked)
+		m_Tilemap = m_TilemapManager->GetComponentPtr(2);
 
 		if (m_Tilemap != nullptr)
 		{
