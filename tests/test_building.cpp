@@ -27,153 +27,85 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/scene.h>
 #include <engine/component.h>
-#include <iostream>
+
+#include <fstream>
 
 
-TEST(Building, ProductionBuilding)
+TEST(Building, TestScene)
 {
 	sfge::Engine engine;
-
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
 	initConfig->gravity.SetZero();
 	initConfig->devMode = false;
 	initConfig->maxFramerate = 0;
 	engine.Init(std::move(initConfig));
 
-	const auto config = engine.GetConfig();
+	json sceneJson;
+	json entityJsonTilemap;
+	json tilemapJson;
 
-	json sceneJson = {
-		{ "name", "Spawn production building and produce" } };
-
-	json systemJsonProductionBuildingManager = {
-		{ "systemClassName", "ProductionBuildingManager" } };
-
-	sceneJson["systems"] = json::array({ systemJsonProductionBuildingManager });
-
-	sfge::SceneManager* sceneManager = engine.GetSceneManager();
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
-TEST(Building, ForgeProduction)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
+	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
+	tilemapJson["is_isometric"] = true;
+	tilemapJson["layer"] = 1;
+	tilemapJson["tile_size"] = json::array({ 64, 32 });
+	tilemapJson["map_size"] = json::array({ 10, 10 });
+	tilemapJson["map"] = json::array({
+		json::array({1, 2, 2, 2, 2, 6, 9, 2, 2, 2}),
+		json::array({1, 2, 3, 9, 2, 9, 9, 8, 9, 2}),
+		json::array({1, 2, 9, 9, 2, 2, 1, 9, 9, 2}),
+		json::array({2, 2, 2, 8, 9, 2, 2, 2, 2, 2}),
+		json::array({2, 1, 1, 9, 9, 2, 8, 9, 1, 1}),
+		json::array({2, 4, 9, 1, 1, 2, 9, 9, 1, 1}),
+		json::array({2, 9, 9, 2, 2, 2, 2, 2, 2, 1}),
+		json::array({2, 2, 2, 8, 9, 2, 1, 1, 2, 1}),
+		json::array({7, 9, 1, 9, 9, 5, 9, 1, 8, 9}),
+		json::array({9, 9, 1, 1, 1, 9, 9, 1, 9, 9})
+		});
+	entityJsonTilemap["components"] = json::array({ tilemapJson });
+	entityJsonTilemap["name"] = "Tilemap";
 
 	const auto config = engine.GetConfig();
 
-	json sceneJson = {
-		{ "name", "Spawn Forge and produce" } };
-
-	json systemJsonMineManager = {
-		{ "systemClassName", "ForgeManager" } };
-
-	sceneJson["systems"] = json::array({ systemJsonMineManager });
-
-	sfge::SceneManager* sceneManager = engine.GetSceneManager();
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
-TEST(Building, DwellingSpawn)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-
-	const auto config = engine.GetConfig();
-
-	json sceneJson = {
-		{ "name", "Spawn Dwelling" } };
+	sceneJson = {
+		{ "name", "Test Tilemap Building" } };
 
 	json systemJsonDwellingManager = {
 		{ "systemClassName", "DwellingManager" } };
 
-	sceneJson["systems"] = json::array({ systemJsonDwellingManager });
-
-	sfge::SceneManager* sceneManager = engine.GetSceneManager();
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
-TEST(Building, BuildingManager)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-
-	const auto config = engine.GetConfig();
-
-	json sceneJson = {
-		{ "name", "Building Manager Test" } };
-
-	json systemJsonBuildingManager = {
-		{ "systemClassName", "BuildingManager" } };
-
-	json systemJsonDwellingManager = {
-		{ "systemClassName", "DwellingManager" } };
-		
 	json systemJsonProductionBuildingManager = {
 		{ "systemClassName", "ProductionBuildingManager" } };
 
 	json systemJsonForgeManager = {
 		{ "systemClassName", "ForgeManager" } };
 
-	json systemJsonWarehousegManager = {
+	json systemJsonWarehouseManager = {
 		{ "systemClassName", "WarehouseManager" } };
 
+	json systemJsonRoadgManager = {
+		{ "systemClassName", "RoadManager" } };
 
-	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehousegManager, systemJsonBuildingManager });
+	json systemJsonBuildingManager = {
+		{ "systemClassName", "BuildingManager" } };
+
+	json systemJsonBuildingConstructor = {
+		{ "systemClassName", "BuildingConstructor" } };
+
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehouseManager, systemJsonRoadgManager, systemJsonBuildingManager, systemJsonBuildingConstructor });
+
+	json entityJsonCamera;
+	entityJsonCamera["name"] = "Camera";
+	json CameraJson;
+	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
+	json pyCameraJson;
+	pyCameraJson["script_path"] = "scripts/camera_manager.py";
+	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
+	entityJsonCamera["components"] = json::array({ CameraJson, pyCameraJson });
+
+	sceneJson["entities"] = json::array({ entityJsonCamera, entityJsonTilemap });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
-	sceneManager->LoadSceneFromJson(sceneJson);
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
 
 	engine.Start();
 }
-/*
-TEST(Building, BuildingNoEntityManager)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-
-	const auto config = engine.GetConfig();
-
-	json sceneJson = {
-		{ "name", "Building with no entity" } };
-
-	json systemJsonBuildingNoEntityManager = {
-		{ "systemClassName", "BuildingNoEntityManager" } };
-
-	sceneJson["systems"] = json::array({ systemJsonBuildingNoEntityManager });
-
-	sfge::SceneManager* sceneManager = engine.GetSceneManager();
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}*/

@@ -32,13 +32,14 @@ SOFTWARE.
 #include <extensions/planet_system.h>
 #include <extensions/AI/navigation_graph_manager.h>
 #include <extensions/dwarf_manager.h>
-#include <extensions/forge_manager.h>
-#include <extensions/dwelling_manager.h>
-#include <extensions/building_noentity_manager.h>
-#include <extensions/production_building_manager.h>
+#include <extensions/Building/forge_manager.h>
+#include <extensions/Building/dwelling_manager.h>
+#include <extensions/Building/production_building_manager.h>
+#include <extensions/Building/building_constructor.h>
+#include <extensions/Building/road_manager.h>
 
 #include <tools/tools_pch.h>
-#include <extensions/building_manager.h>
+#include <extensions/Building/building_manager.h>
 #include <extensions/AI/behavior_tree.h>
 
 
@@ -81,12 +82,16 @@ void ExtendPython(py::module& m)
 	buildingManager
 		.def(py::init<Engine&>());
 
-	py::class_<BuildingNoEntityManager, System> buildingNoEntityManager(m, "BuildingNoEntityManager");
-	buildingNoEntityManager
-		.def(py::init<Engine&>());
-
 	py::class_<behavior_tree::BehaviorTree, System> behaviourTree(m, "BehaviorTree");
 	behaviourTree
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingConstructor, System> buildingConstructor(m, "BuildingConstructor");
+	buildingConstructor
+		.def(py::init<Engine&>());
+
+	py::class_<RoadManager, System> roadManager(m, "RoadManager");
+	roadManager
 		.def(py::init<Engine&>());
 
 	tools::ExtendPythonTools(m);

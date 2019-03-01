@@ -28,10 +28,11 @@ SOFTWARE.
 #include <engine/system.h>
 #include <python/python_engine.h>
 
-#include <extensions/dwelling_manager.h>
-#include <extensions/forge_manager.h>
-#include <extensions/production_building_manager.h>
-#include <extensions/warehouse_manager.h>
+#include <extensions/Building/dwelling_manager.h>
+#include <extensions/Building/forge_manager.h>
+#include <extensions/Building/production_building_manager.h>
+#include <extensions/Building/warehouse_manager.h>
+#include <extensions/Building/road_manager.h>
 
 
 namespace sfge::ext
@@ -74,29 +75,34 @@ namespace sfge::ext
 
 		InventoryTask INVALID_INVENTORY_TASK = InventoryTask();
 
-		void SpawnBuilding(BuildingType buildingType, Vec2f position);
+		void SpawnBuilding(const BuildingType buildingType, const Vec2f position);
 
-		void DestroyBuilding(BuildingType buildingType, Entity entity);
+		void DestroyBuilding(const BuildingType buildingType, const Entity entity);
 
-		Entity AttributeDwarfToWorkingPlace(BuildingType buildingType);
+		Entity AttributeDwarfToWorkingPlace(const BuildingType buildingType);
 
-		void DeallocateDwarfToWorkingPlace(BuildingType buildingType, Entity entity);
+		void DeallocateDwarfToWorkingPlace(const BuildingType buildingType, const Entity entity);
 
-		void DwarfEnterBuilding(BuildingType buildingType, Entity entity);
+		void DwarfEnterBuilding(const BuildingType buildingType, const Entity entity);
 
-		void DwarfExitBuilding(BuildingType buildingType, Entity entity);
+		void DwarfExitBuilding(const BuildingType buildingType, const Entity entity);
 
-		void DwarfTakesResources(BuildingType buildingType, Entity entity, ResourceType resourceType);
+		void DwarfTakesResources(const BuildingType buildingType, const Entity entity, const ResourceType resourceType);
 
-		void DwarfPutsResources(BuildingType buildingType, Entity entity, ResourceType resourceType, unsigned int resourceQuantity);
+		void DwarfPutsResources(const BuildingType buildingType, const Entity entity, const ResourceType resourceType, const unsigned int resourceQuantity);
 
 		InventoryTask ConveyorLookForTask();
 
+#pragma region Move resources section
+		void RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
+
+		void RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
+#pragma endregion
 
 		//for dwellings
-		Entity AttributeDwarfToDwelling() { return INVALID_ENTITY; };
+		Entity AttributeDwarfToDwelling();
 
-		void DeallocateDwarfToDwelling(Entity entity) {};
+		void DeallocateDwarfToDwelling(const Entity entity);
 
 
 	private:
@@ -104,6 +110,14 @@ namespace sfge::ext
 		ForgeManager* m_ForgeManager;
 		ProductionBuildingManager* m_ProductionBuildingManager;
 		WarehouseManager* m_WarehouseManager;
+		RoadManager* m_RoadManager;
+
+		bool m_Init = false;
+
+		std::vector<InventoryTask> m_BuildingsNeedToBeEmptied;
+		std::vector<InventoryTask> m_BuildingsNeedToBeFill;
+
+		std::vector<InventoryTask> m_InventoryTasks;
 	};
 }
 #endif
