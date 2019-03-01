@@ -61,12 +61,16 @@ namespace sfge::ext
 			SetupTileMap();
 		}
 
+		m_Init = true;
 		Log::GetInstance()->Msg("Building Constructor initialized");
 	}
 
 	void BuildingConstructor::Update(float dt)
 	{
-
+		if (!m_Init)
+		{
+			Init();
+		}
 	}
 
 	void BuildingConstructor::FixedUpdate()
@@ -81,7 +85,9 @@ namespace sfge::ext
 	void BuildingConstructor::SetupTileMap()
 	{
 		Vec2f tilemapSize = m_Tilemap->GetTilemapSize();
+
 		std::vector<TileTypeId> tileTypes = m_Tilemap->GetTileTypes();
+
 		std::vector<int> jsonArray;
 		const Vec2f TILE_SIZE = Vec2f(64, 32);
 		Vec2f offset = Vec2f(0, 0);
@@ -98,27 +104,27 @@ namespace sfge::ext
 
 				offset = xPos * x + yPos * y;
 
-				if(currentTileId == 3)
+				if(currentTileId == BuildingId::WAREHOUSE)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, offset);
 				}
-				else if(currentTileId == 4)
+				else if(currentTileId == BuildingId::FORGE)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, offset);
 				}
-				else if (currentTileId == 5)
+				else if (currentTileId == BuildingId::MINE)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::MINE, offset);
 				}
-				else if (currentTileId == 6)
+				else if (currentTileId == BuildingId::EXCAVATION_POST)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::EXCAVATION_POST, offset);
 				}
-				else if (currentTileId == 7)
+				else if (currentTileId == BuildingId::MUSHROOM_FARM)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::MUSHROOM_FARM, offset);
 				}
-				else if (currentTileId == 8)
+				else if (currentTileId == BuildingId::DWELLING)
 				{
 					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, offset);
 				}

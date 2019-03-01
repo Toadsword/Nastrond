@@ -51,6 +51,16 @@ namespace sfge::ext
 
 		void Draw() override;
 
+		enum BuildingId : TileTypeId
+		{
+			WAREHOUSE = 3,
+			FORGE = 4,
+			MINE = 5,
+			EXCAVATION_POST = 6,
+			MUSHROOM_FARM = 7,
+			DWELLING = 8
+		};
+
 	private:
 		json m_TmpTileMapJson;
 
@@ -66,7 +76,7 @@ namespace sfge::ext
 		TilemapManager* m_TilemapManager = nullptr;
 		TilemapSystem* m_TilemapSystem = nullptr;
 
-
+		bool m_Init = false;
 	};
 }
 #endif

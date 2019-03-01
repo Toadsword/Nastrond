@@ -47,21 +47,18 @@ namespace sfge::ext
 		m_RoadManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<RoadManager>(
 			"RoadManager");
 
-		Log::GetInstance()->Msg("Building Manager initialized");
+		m_Init = true;
 
-		////////////////////////Debug////////////////////////
-		//for(int i = 0; i < 1200; i++)
-		//{
-		//	SpawnBuilding(BuildingType::DWELLING, Vec2f(100, 600));
-		//	SpawnBuilding(BuildingType::FORGE, Vec2f(100, 200));
-		//	SpawnBuilding(BuildingType::WAREHOUSE, Vec2f(100, 300));
-		//	SpawnBuilding(BuildingType::MINE, Vec2f(100, 100));
-		//	SpawnBuilding(BuildingType::MUSHROOM_FARM, Vec2f(100, 400));
-		//	SpawnBuilding(BuildingType::EXCAVATION_POST, Vec2f(100, 500));
-		//}
+		Log::GetInstance()->Msg("Building Manager initialized");
 	}
 
-	void BuildingManager::Update(float dt) {}
+	void BuildingManager::Update(float dt)
+	{
+		if (!m_Init)
+		{
+			Init();
+		}
+	}
 
 	void BuildingManager::FixedUpdate()
 	{

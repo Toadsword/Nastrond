@@ -77,11 +77,17 @@ namespace sfge::ext
 		m_GroundTextureId = m_TextureManager->LoadTexture(m_GroundTexturePath);
 		m_GroundTexture = m_TextureManager->GetTexture(m_GroundTextureId);
 
+		m_Init = true;
+
 		Log::GetInstance()->Msg("Road Manager initialized");
 	}
 
 	void RoadManager::Update(float dt)
 	{
+		if (!m_Init)
+		{
+			Init();
+		}
 	}
 
 	void RoadManager::FixedUpdate()

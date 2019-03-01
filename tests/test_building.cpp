@@ -27,8 +27,6 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <engine/scene.h>
 #include <engine/component.h>
-#include <iostream>
-
 
 #include <fstream>
 

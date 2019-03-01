@@ -125,6 +125,7 @@ namespace sfge::ext
 		SpriteManager* m_SpriteManager;
 		Configuration* m_Configuration;
 
+		bool m_Init = false;
 
 		sf::RenderWindow* m_Window;
 
@@ -137,7 +138,7 @@ namespace sfge::ext
 
 		std::vector<DwarfSlots> m_DwarfSlots;
 
-#pragma region All inventories
+#pragma region Inventories section
 		std::vector<unsigned short> m_IronInventories;
 		std::vector<unsigned short> m_StoneInventories;
 		std::vector<unsigned short> m_ToolInventories;

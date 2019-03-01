@@ -47,12 +47,17 @@ namespace sfge::ext
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
-		Log::GetInstance()->Msg("Dwelling Manager initialized");
+		m_Init = true;
 
+		Log::GetInstance()->Msg("Dwelling Manager initialized");
 	}
 
 	void DwellingManager::Update(float dt)
 	{
+		if (!m_Init)
+		{
+			Init();
+		}
 	}
 
 	void DwellingManager::FixedUpdate()
@@ -210,13 +215,14 @@ namespace sfge::ext
 			{
 				continue;
 			}
-
+			
 			if (m_ResourcesInventories[i] <= 0)
 			{
 				DecreaseHappiness();
 				continue;
 			}
-			else if(m_DwarfSlots[i].dwarfIn <= 0)
+			
+			if(m_DwarfSlots[i].dwarfIn <= 0)
 			{
 				continue;
 			}

@@ -49,12 +49,17 @@ namespace sfge::ext
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
+		m_Init = true;
+
 		Log::GetInstance()->Msg("Forge Manager initialized");
 	}
 
 	void ForgeManager::Update(float dt)
 	{
-		(void) dt;
+		if (!m_Init)
+		{
+			Init();
+		}
 	}
 
 	void ForgeManager::FixedUpdate()

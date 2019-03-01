@@ -109,7 +109,7 @@ namespace sfge::ext
 	const DwarfSlots RESET_DWARF_SLOTS;
 
 	const unsigned int EMPTY_INVENTORY = 0U;
-	const unsigned short CONTAINER_RESERVATION = 100000;
+	const unsigned short CONTAINER_RESERVATION = 2000;
 	
 }
 #endif

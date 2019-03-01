@@ -112,6 +112,8 @@ namespace sfge::ext
 		WarehouseManager* m_WarehouseManager;
 		RoadManager* m_RoadManager;
 
+		bool m_Init = false;
+
 		std::vector<InventoryTask> m_BuildingsNeedToBeEmptied;
 		std::vector<InventoryTask> m_BuildingsNeedToBeFill;
 

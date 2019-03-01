@@ -43,11 +43,16 @@ namespace sfge::ext
 		m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
+		m_Init = true;
 		Log::GetInstance()->Msg("Warehouse Manager initialized");
 	}
 
 	void WarehouseManager::Update(float dt)
 	{
+		if (!m_Init)
+		{
+			Init();
+		}
 	}
 
 	void WarehouseManager::FixedUpdate()

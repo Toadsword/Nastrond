@@ -141,6 +141,8 @@ namespace sfge::ext
 		Configuration* m_Configuration;
 		BuildingManager* m_BuildingManager;
 
+		bool m_Init = false;
+
 		sf::RenderWindow* m_Window;
 
 		unsigned int m_NmbReservation = 0u;

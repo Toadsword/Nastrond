@@ -72,11 +72,14 @@ namespace sfge::ext
 		EntityManager* m_EntityManager;
 		Configuration* m_Configuration;
 
+		bool m_Init = false;
+
 		std::vector<Entity> m_EntityIndex;
 
 		unsigned int m_BuildingIndexCount = 0;
 		unsigned int m_NmbReservation = 0;
 
+#pragma region Graphics section
 		// Road cross 4 texture
 		std::string m_CrossTexturePath;
 		TextureId m_CrossTextureId;
@@ -116,6 +119,7 @@ namespace sfge::ext
 		std::string m_GroundTexturePath;
 		TextureId m_GroundTextureId;
 		sf::Texture* m_GroundTexture;
+#pragma endregion 
 	};
 }
 #endif
