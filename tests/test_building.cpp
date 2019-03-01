@@ -101,7 +101,6 @@ TEST(Building, TestScene)
 	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
 	entityJsonCamera["components"] = json::array({ CameraJson, pyCameraJson });
 
-
 	sceneJson["entities"] = json::array({ entityJsonCamera, entityJsonTilemap });
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
