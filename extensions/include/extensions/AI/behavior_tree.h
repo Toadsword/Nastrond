@@ -24,6 +24,8 @@ SOFTWARE.
 #ifndef SFGE_EXT_BEHAVIOR_TREE_H
 #define SFGE_EXT_BEHAVIOR_TREE_H
 
+#define AI_DEBUG_COUNT_TIME
+
 #include <vector>
 #include <memory>
 
@@ -36,15 +38,18 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-//#define BT_SOA
-#define BT_AOS
+
 /**
 * author Nicolas Schneider
 */
 class BehaviorTree final : public System
 {
 public:
+	using dwarfIndex = int;
+
 	explicit BehaviorTree(Engine& engine);
+
+	~BehaviorTree();
 
 	void Init() override;
 
@@ -53,6 +58,13 @@ public:
 	void FixedUpdate() override;
 
 	void Draw() override;
+
+	/**
+	 * \brief Update range of entities
+	 * \param startIndex 
+	 * \param endIndex 
+	 */
+	void UpdateRange(int startIndex, int endIndex);
 
 	/**
 	* \brief Set root node of the behaviour tree
@@ -66,31 +78,21 @@ public:
 	*/
 	void SetEntities(std::vector<Entity>* vectorEntities);
 
-#ifdef BT_AOS
 	/**
-	 * \brief All data regarding flow in behavior tree
+	 * \brief Wake up all entities giver in the vector
+	 * \param entitiesIndex to wake up
+	 * \param maxIndex size of vector
 	 */
-	struct DataBehaviorTree final
-	{
-		Node::ptr currentNode; //4
+	void WakeUpEntities(std::vector<int>& entitiesIndex, const int maxIndex);
 
-		NodeStatus previousStatus; //1
-		bool doesFlowGoDown; // 1
-		unsigned char repeaterCounter; // 1
-		unsigned char sequenceActiveChild; // 1
-	};
-
-	std::vector<DataBehaviorTree> dataBehaviorTree;
-#endif
-
-#ifdef BT_SOA
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
-	std::vector<Node::Status> previousStatus;
 
 	std::vector<char> repeaterCounter;
 	std::vector<char> sequenceActiveChild;
-#endif
+	std::vector<bool> hasSucceeded;
+
+	std::vector<bool> sleepingEntity;
 
 	DwarfManager* dwarfManager;
 
@@ -101,6 +103,15 @@ private:
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
+
+	std::vector<dwarfIndex> m_ActiveEntity;
+	int m_IndexActiveEntity = 0;
+
+#ifdef AI_DEBUG_COUNT_TIME
+	unsigned int m_TimerMilli = 0u;
+	unsigned int m_TimerMicro = 0u;
+	int m_TimerCounter = 0;
+#endif
 };
 }
 
