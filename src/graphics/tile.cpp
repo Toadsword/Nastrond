@@ -29,9 +29,9 @@ SOFTWARE.
 
 #include <imgui.h>
 
-#include <engine/tile.h>
-#include <engine/tilemap.h>
-#include <engine/tile_asset.h>
+#include <graphics/tile.h>
+#include <graphics/tilemap.h>
+#include <graphics/tile_asset.h>
 #include <graphics/texture.h>
 #include <graphics/graphics2d.h>
 

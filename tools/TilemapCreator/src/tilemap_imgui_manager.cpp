@@ -47,7 +47,8 @@ namespace sfge::tools
 
 		m_TileEditorId = m_EntityManager->CreateEntity(INVALID_ENTITY);
 		m_EntityManager->GetEntityInfo(m_TileEditorId).name = "EditorTile";
-		m_TileEditor = m_TilemapCreator->GetEngine().GetTilemapSystem()->GetTileManager()->AddComponent(m_TileEditorId);
+		if(!m_TileEditor)
+			m_TileEditor = m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTilemapSystem()->GetTileManager()->AddComponent(m_TileEditorId);
 	}
 
 	void TilemapImguiManager::Update(float dt)
@@ -107,8 +108,7 @@ namespace sfge::tools
 				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
-					//m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
-					//m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
+					m_TilemapCreator->GetEngine().Save();
 				}
 				ImGui::EndMenu();
 			}

@@ -250,6 +250,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -masm=intel" )
 endif()
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 #SFGE
 add_executable(SFGE src/main.cpp)
 

@@ -32,7 +32,7 @@ SOFTWARE.
 
 #include <engine/component.h>
 #include <engine/transform2d.h>
-#include <engine/tile_asset.h>
+#include <graphics/tile_asset.h>
 
 namespace sfge
 {

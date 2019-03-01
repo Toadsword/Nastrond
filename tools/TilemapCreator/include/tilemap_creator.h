@@ -27,11 +27,13 @@ SOFTWARE.
 #define SFGE_TOOLS_TILEMAP_CREATOR_H
 
 #include <engine/system.h>
-#include <engine/tilemap.h>
 #include <tilemap_imgui_manager.h>
 
 namespace sfge::tools
 {
+
+class TilemapManager;
+class TileTypeManager;
 
 class TilemapCreator : public System
 {

@@ -33,10 +33,8 @@ SOFTWARE.
  //tool_engine
 #include <engine/component.h>
 #include <engine/transform2d.h>
-#include <engine/tile.h>
-#include <engine/tile_asset.h>
-
-#define OptiVector
+#include <graphics/tile.h>
+#include <graphics/tile_asset.h>
 
 namespace sfge
 {
@@ -86,7 +84,6 @@ public:
 	void SetIsometric(bool newIso);
 	bool GetIsometric();
 
-#ifdef OptiVector
 	/**
 	 * \brief Set all the tile types passed in parameter to the tilemap. Usually used to "paste" copies datas to the tilemap.
 	 * \param tileTypeIds The datas containing the new tiletypes
@@ -104,25 +101,7 @@ public:
 	 * \return Vector of Entities, poiting to Tile entities of the tilemap
 	 */
 	std::vector<Entity>& GetTiles();
-#else
-	/**
-	 * \brief Set all the tile types passed in parameter to the tilemap. Usually used to "paste" copies datas to the tilemap.
-	 * \param tileTypeIds The datas containing the new tiletypes
-	 */
-	void SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds);
-	
-	/**
-	 * \brief Get all the tiletypes datas of the tilemap
-	 * \return Vector of TileTypeId
-	 */
-	std::vector<std::vector<TileTypeId>>& GetTileTypes();
 
-	/**
-	 * \brief Get all the tileEntities of the tilemap, at their position
-	 * \return Vector of Entities, poiting to Tile entities of the tilemap
-	 */
-	std::vector<std::vector<Entity>>& GetTiles();
-#endif
 	/**
 	 * \brief Assign a Tile entity to a position in the tilemap. If the position is out of bounds, does nothing.
 	 * \param pos Position of the tile.
@@ -170,21 +149,13 @@ protected:
 	/**
 	 * \brief Contains all the entities "tile" stored in the tilemap
 	 */
-#ifdef OptiVector
 	std::vector<Entity> m_Tiles;
 	Vec2f m_TilemapSize = { 0, 0 };
-#else
-	std::vector<std::vector<Entity>> m_Tiles;
-#endif
 
 	/**
 	 * \brief Contains all the tiletypeIds of the tilemap
 	 */
-#ifdef OptiVector
 	std::vector<TileTypeId> m_TileTypeIds;
-#else
-	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
-#endif
 
 	/**
 	 * \brief Size of a tile in the tilemap in pixel
@@ -248,11 +219,7 @@ public:
 	 * \param tileTypeIds c++ data struct to construct the tilemap
 	 * \param tilemapSize Size of the tilemap
 	 */
-#ifdef OptiVector
 	void InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds, Vec2f tilemapSize);
-#else
-	void InitializeMap(Entity entity, std::vector<std::vector<TileTypeId>> tileTypeIds);
-#endif
 	
 	/**
 	 * \brief Set the position of all the tiles within the tilemap
@@ -301,7 +268,7 @@ public:
 	*/
 	void Update(float dt) override;
 
-	void FixedUpdate() override;
+	void DrawTilemaps(sf::RenderWindow &window);
 
 	void Destroy() override;
 
