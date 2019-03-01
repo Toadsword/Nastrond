@@ -31,6 +31,9 @@ SOFTWARE.
 #include <graphics/sprite2d.h>
 #include <graphics/animation2d.h>
 #include <graphics/camera.h>
+#include <graphics/button.h>
+#include <graphics/image.h>
+#include <graphics/text.h>
 
 namespace sfge
 {
@@ -100,6 +103,7 @@ protected:
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
 	CameraManager m_CameraManager{ m_Engine };
+	
 	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 

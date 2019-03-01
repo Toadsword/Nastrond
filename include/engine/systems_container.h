@@ -33,6 +33,8 @@
 #include <physics/physics2d.h>
 #include <engine/entity.h>
 #include <engine/transform2d.h>
+#include <graphics/rect_transform.h>
+#include <graphics/ui.h>
 #include <editor/editor.h>
 #include <engine/tilemap.h>
 
@@ -54,7 +56,8 @@ struct SystemsContainer
   EntityManager entityManager;
   Transform2dManager transformManager;
   TilemapSystem tilemapSystem;
-
+  RectTransformManager rectTransformManager;
+  UIManager uiManager;
 };
 }
 #endif //SFGE_SYSTEMS_CONTAINER_H

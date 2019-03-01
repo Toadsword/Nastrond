@@ -1,31 +1,31 @@
 /*
- MIT License
+MIT License
 
- Copyright (c) 2017 SAE Institute Switzerland AG
+Copyright (c) 2017 SAE Institute Switzerland AG
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
- */
-
- /*******************************
-  * Author : Duncan Bourquard
-  * Date : 16.01.2019
-  */
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+ 
+/*******************************
+* Author : Duncan Bourquard
+* Date : 16.01.2019
+*/
 
 #ifndef SFGE_TILEMAP_H_
 #define SFGE_TILEMAP_H_
@@ -36,12 +36,14 @@
 #include <engine/tile.h>
 #include <engine/tile_asset.h>
 
+#define OptiVector
+
 namespace sfge
 {
 /**
  * \author : Duncan Bourquard
- * \version : 1.0
- * \date : 30.01.2019
+ * \version : 1.1
+ * \date : 27.02.2019
  */
 
 class Tilemap
@@ -63,16 +65,20 @@ public:
 	 */
 	void Update();
 
+	/**
+	 * \brief Save the tilemap.
+	 * \return Json containing all the needed informations.
+	 */
 	json Save();
 	
 	/**
-	 * \brief Calculate the size of the tilemap and returns it.
+	 * \brief Getter of the size of the tilemap.
 	 * \return the size of the tilemap.
 	 */
-	Vec2f GetSize();
+	Vec2f GetTilemapSize();
 
-	void SetTileScale(Vec2f newScale);
-	Vec2f GetTileScale();
+	void SetTileSize(Vec2f newSize);
+	Vec2f GetTileSize();
 
 	void SetLayer(int newLayer);
 	int GetLayer();
@@ -80,11 +86,43 @@ public:
 	void SetIsometric(bool newIso);
 	bool GetIsometric();
 
-	void SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds);
-	std::vector<std::vector<TileTypeId>>& GetTileTypes();
-	
-	std::vector<std::vector<Entity>>& GetTiles();
+#ifdef OptiVector
+	/**
+	 * \brief Set all the tile types passed in parameter to the tilemap. Usually used to "paste" copies datas to the tilemap.
+	 * \param tileTypeIds The datas containing the new tiletypes
+	 */
+	void SetTileTypes(std::vector<TileTypeId> tileTypeIds);
 
+	/**
+	 * \brief Get all the tiletypes datas of the tilemap
+	 * \return Vector of TileTypeId
+	 */
+	std::vector<TileTypeId>& GetTileTypes();
+	
+	/**
+	 * \brief Get all the tileEntities of the tilemap, at their position
+	 * \return Vector of Entities, poiting to Tile entities of the tilemap
+	 */
+	std::vector<Entity>& GetTiles();
+#else
+	/**
+	 * \brief Set all the tile types passed in parameter to the tilemap. Usually used to "paste" copies datas to the tilemap.
+	 * \param tileTypeIds The datas containing the new tiletypes
+	 */
+	void SetTileTypes(std::vector<std::vector<TileTypeId>> tileTypeIds);
+	
+	/**
+	 * \brief Get all the tiletypes datas of the tilemap
+	 * \return Vector of TileTypeId
+	 */
+	std::vector<std::vector<TileTypeId>>& GetTileTypes();
+
+	/**
+	 * \brief Get all the tileEntities of the tilemap, at their position
+	 * \return Vector of Entities, poiting to Tile entities of the tilemap
+	 */
+	std::vector<std::vector<Entity>>& GetTiles();
+#endif
 	/**
 	 * \brief Assign a Tile entity to a position in the tilemap. If the position is out of bounds, does nothing.
 	 * \param pos Position of the tile.
@@ -98,6 +136,12 @@ public:
 	 * \return Entity wanted
 	 */
 	Entity GetTileAt(Vec2f pos);
+
+	/**
+	 * \brief Returns the EntityId positionned at specified position
+	 * \param tileEntity Entity of the tile.
+	 * \return Position of the passed tile
+	 */
 	Vec2f GetTileAt(Entity tileEntity);
 
 	/**
@@ -107,6 +151,13 @@ public:
 	 * \return Entity wanted
 	 */
 	void SetTileAt(Vec2f pos, TileTypeId newTileType);
+
+	/**
+	 * \brief Set a new tiletype at the specified position
+	 * \param entity Entity of the tile, contained by the tilemap.
+	 * \param newTileType
+	 * \return Entity wanted
+	 */
 	void SetTileAt(Entity entity, TileTypeId newTileType);
 
 	/**
@@ -119,23 +170,37 @@ protected:
 	/**
 	 * \brief Contains all the entities "tile" stored in the tilemap
 	 */
+#ifdef OptiVector
+	std::vector<Entity> m_Tiles;
+	Vec2f m_TilemapSize = { 0, 0 };
+#else
 	std::vector<std::vector<Entity>> m_Tiles;
+#endif
+
 	/**
-	 * \brief Contians all the tiletypeIds of the tilemap
+	 * \brief Contains all the tiletypeIds of the tilemap
 	 */
+#ifdef OptiVector
+	std::vector<TileTypeId> m_TileTypeIds;
+#else
 	std::vector<std::vector<TileTypeId>> m_TileTypeIds;
+#endif
+
 	/**
-	 * \brief Scale of a tile in the tilemap
+	 * \brief Size of a tile in the tilemap in pixel
 	 */
-	Vec2f m_TileScale = {1, 1};
+	Vec2f m_TileSize = {1, 1};
+
 	/**
 	 * \brief Layer of the tilemap (Concerns the layer of drawing)
 	 */
 	int m_Layer = 0;
+
 	/**
 	 * \brief Pointer to the TileManager
 	 */
 	TileManager* m_TileManager;
+
 	/**
 	 * \brief Displays the tilemap as an isometric one or not
 	 */
@@ -175,13 +240,19 @@ public:
 	 * \param entity 
 	 * \param map Json tilemap data to construct the tilemap
 	 */
-	void InitializeMap(Entity entity, json& map);	
+	void InitializeMap(Entity entity, json& map);
+
 	/**
 	 * \brief Create a tilemap with the json passed
 	 * \param entity
 	 * \param tileTypeIds c++ data struct to construct the tilemap
+	 * \param tilemapSize Size of the tilemap
 	 */
+#ifdef OptiVector
+	void InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds, Vec2f tilemapSize);
+#else
 	void InitializeMap(Entity entity, std::vector<std::vector<TileTypeId>> tileTypeIds);
+#endif
 	
 	/**
 	 * \brief Set the position of all the tiles within the tilemap
@@ -195,7 +266,18 @@ public:
 	 */
 	void EmptyMap(Entity entity);
 
+	/**
+	 * \brief Calculate the tile the mouse currently pointes at and returns its position.
+	 * \param entity Entity containing the tilemap
+	 * \return Position in the tilemap
+	 */
 	Vec2f GetTilePositionFromMouse(Entity entity);
+
+	/**
+	 * \brief Calculate the tile the mouse currently pointes at and returns the tile entity.
+	 * \param entity Entity containing the tilemap
+	 * \return Entity of the tile
+	 */
 	Entity GetTileEntityFromMouse(Entity entity);
 protected:
 	Transform2dManager* m_Transform2dManager = nullptr;

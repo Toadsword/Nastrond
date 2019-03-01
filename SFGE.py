@@ -151,6 +151,8 @@ class Component:
     Body = 0
     Sound = 0
     Transform2d = 0
+    Button = 0
+    RectTransform = 0
 
     def init(self):
         pass
@@ -183,6 +185,14 @@ class Transform2d():
         self.position = Vector2f()
         self.scale = Vector2f()
         self.euler_angle = 0.0
+
+
+class RectTransform:
+    def __init__(self):
+        pass
+
+    def contains(self, pos_x, pos_y):
+        pass
 
 
 class Sound:
@@ -219,6 +229,30 @@ class KeyboardManager:
         pass
 
 
+class MouseManager:
+    class MouseButton:
+        Left = 0
+        Right = 0
+        Middle = 0
+        ExtraOne = 0
+        ExtraTwo = 0
+
+    def is_button_down(self, mbutton):
+        pass
+
+    def is_button_held(self, mbutton):
+        pass
+
+    def is_button_up(self, mbutton):
+        pass
+
+    def get_local_position(self):
+        pass
+
+    def get_world_position(self):
+        pass
+
+
 class Color:
     Red = 0
     Green = 0
@@ -233,6 +267,12 @@ class Color:
 
 class InputManager:
     keyboard = KeyboardManager()
+    mouse = MouseManager()
+
+
+class Button:
+    def __init__(self):
+        pass
 
 
 engine = Engine()
