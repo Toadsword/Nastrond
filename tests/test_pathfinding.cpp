@@ -35,39 +35,6 @@ SOFTWARE.
 #include <extensions/AI/behavior_tree.h>
 #include "extensions/AI/behavior_tree_factory.h"
 
-TEST(AI, PriorityQueue)
-{
-	sfge::PriorityQueue<std::string, int> testList;
-
-	testList.Put("0 => 10", 10);
-	testList.Put("1 => 0", 0);
-	testList.Put("2 => 3", 3);
-	testList.Put("4 => 1", 1);
-
-	while(!testList.Empty()) {
-		std::cout << testList.Get() << "\n";
-	}
-}
-
-TEST(AI, NavigationGraphManager) 
-{
-	sfge::Engine engine;
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-
-	engine.Init(std::move(initConfig));
-	json sceneJson = {
-		{ "name", "Test Navigation Graph SystemCPP" } };
-	json systemJson = {
-		{ "systemClassName", "NavigationGraphManager" }
-	};
-
-	sceneJson["systems"] = json::array({ systemJson });
-	auto* sceneManager = engine.GetSceneManager();
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}
-
 TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 {
 	sfge::Engine engine;
