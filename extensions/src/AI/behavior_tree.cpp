@@ -46,7 +46,6 @@ void BehaviorTree::Init()
 
 void BehaviorTree::Update(float dt)
 {
-	std::cout << "Behavior tree : Update \n";
 #ifdef AI_DEBUG_COUNT_TIME
 	const auto t1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -90,7 +89,6 @@ void BehaviorTree::Update(float dt)
 	m_TimerMicro += timerDuration % 1000;
 	m_TimerCounter++;
 #endif
-	std::cout << "Behavior tree : End Update \n";
 }
 
 void BehaviorTree::FixedUpdate() { }

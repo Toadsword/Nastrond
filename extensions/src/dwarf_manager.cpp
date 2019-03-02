@@ -31,6 +31,20 @@ namespace sfge::ext
 DwarfManager::DwarfManager(sfge::Engine& engine) :
 	System(engine) {}
 
+DwarfManager::~DwarfManager()
+{
+#ifdef AI_DEBUG_COUNT_TIME
+	std::cout << "[DwarfManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter
+		<< "\n";
+#endif
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	std::cout << "		PreBatch: " << m_Prebatch_Ms / m_TimerCounter << "," << m_Prebatch_Mc / m_TimerCounter << "\n";
+	std::cout << "		AskPath: " << m_AskPath_Ms / m_TimerCounter << "," << m_AskPath_Mc / m_TimerCounter << "\n";
+	std::cout << "		Movement: " << m_Movement_Ms / m_TimerCounter << "," << m_Movement_Mc / m_TimerCounter << "\n";
+	std::cout << "		Other: " << m_Other_Ms / m_TimerCounter << "," << m_Other_Mc / m_TimerCounter << "\n";
+#endif
+}
+
 void DwarfManager::Init()
 {
 	//Get managers
@@ -228,7 +242,7 @@ void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Ve
 void DwarfManager::AddFindRandomPathBT(const unsigned int index)
 {
 	m_DwarfActivities[index] = DwarfActivity::FIND_PATH;
-	const Vec2f pos(std::rand() % static_cast<int>(900) - 450, std::rand() % static_cast<int>(450));
+	const Vec2f pos(std::rand() % static_cast<int>(1600) - 800, std::rand() % static_cast<int>(800));
 	m_DestinationForPathFinding[index] = pos;
 }
 
@@ -434,7 +448,6 @@ void DwarfManager::CheckIsAtDestinationRange(const int startIndex, const int end
 
 void DwarfManager::Update(const float dt)
 {
-	std::cout << "Dwarf Manager : Update \n";
 #ifdef AI_DEBUG_COUNT_TIME
 	const auto t1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -626,7 +639,6 @@ void DwarfManager::Update(const float dt)
 	m_TimerMicro += timerDuration % 1000;
 	m_TimerCounter++;
 #endif
-	std::cout << "Dwarf Manager : End Update \n";
 }
 
 void DwarfManager::FixedUpdate()
@@ -635,17 +647,18 @@ void DwarfManager::FixedUpdate()
 
 void DwarfManager::Draw()
 {
-	std::cout << "Dwarf Manager : Draw \n";
 	auto window = m_Engine.GetGraphics2dManager()->GetWindow();
 #ifdef DEBUG_DRAW_PATH
 	auto sizeVertexArrayPath = 0;
 
 	for (auto i = 0u; i < m_IndexDwarfsEntities; i++)
 	{
-		sizeVertexArrayPath += m_Paths[i].size();
-		sizeVertexArrayPath += 2;
+		if (!m_Paths[i].empty()) {
+			sizeVertexArrayPath += m_Paths[i].size();
+			sizeVertexArrayPath += 2;
+		}
 	}
-	
+	if(sizeVertexArrayPath >= 2)
 	sizeVertexArrayPath -= 2;
 
 	auto index = 0;
@@ -686,6 +699,5 @@ void DwarfManager::Draw()
 	
 	window->draw(lines);
 #endif
-	std::cout << "Dwarf Manager : End Draw \n";
 }
 }

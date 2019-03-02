@@ -47,18 +47,7 @@ class DwarfManager : public System
 public:
 	DwarfManager(Engine& engine);
 
-	~DwarfManager()
-	{
-#ifdef AI_DEBUG_COUNT_TIME
-		std::cout << "[DwarfManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter << "\n";
-#endif
-#ifdef AI_DEBUG_COUNT_TIME_PRECISE
-		std::cout << "		PreBatch: " << m_Prebatch_Ms / m_TimerCounter << "," << m_Prebatch_Mc / m_TimerCounter << "\n";
-		std::cout << "		AskPath: " << m_AskPath_Ms / m_TimerCounter << "," << m_AskPath_Mc / m_TimerCounter << "\n";
-		std::cout << "		Movement: " << m_Movement_Ms / m_TimerCounter << "," << m_Movement_Mc / m_TimerCounter << "\n";
-		std::cout << "		Other: " << m_Other_Ms / m_TimerCounter << "," << m_Other_Mc / m_TimerCounter << "\n";
-#endif
-	}
+	~DwarfManager();
 
 	void Init() override;
 
@@ -278,7 +267,7 @@ private:
 	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
-	const size_t m_ContainersExtender = 10;
+	const size_t m_ContainersExtender = 100'000;
 	std::vector<Entity> m_DwarfsEntities;
 	int m_IndexDwarfsEntities = 0;
 
@@ -318,7 +307,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 20;
+	const size_t m_DwarfToSpawn = 100000;
 #endif
 
 	enum class DwarfActivity : char {

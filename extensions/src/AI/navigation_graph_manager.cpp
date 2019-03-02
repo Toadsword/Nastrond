@@ -50,8 +50,6 @@ void NavigationGraphManager::Init()
 	m_TileExtends = tilemap->GetTileSize();
 
 	const auto tilemapSize = tilemap->GetTilemapSize();
-	std::cout << "tile size = ( " << m_TileExtends.x << ", " << m_TileExtends.y << ")\n";
-	std::cout << "tilemap size = ( " << tilemapSize.x << ", " << tilemapSize.y << ")\n";
 
 	std::vector<std::vector<int>> map;
 	map.resize(tilemapSize.x);
@@ -120,7 +118,6 @@ void NavigationGraphManager::Init()
 
 void NavigationGraphManager::Update(float dt)
 {
-	std::cout << "Navigation graph Manager : Update \n";
 	//TODO ne pas passer par un nombre fix, mais plut�t alouer un temps maximum et faire un test � chaque fois pour savoir s'il reste suffisament de temps
 #ifdef AI_DEBUG_COUNT_TIME
 	auto t1 = std::chrono::high_resolution_clock::now();
@@ -146,7 +143,6 @@ void NavigationGraphManager::Update(float dt)
 	m_TimerMicro += timerDuration % 1000;
 	m_TimerCounter++;
 #endif
-	std::cout << "Navigation graph Manager : End Update \n";
 }
 
 void NavigationGraphManager::FixedUpdate() {}
