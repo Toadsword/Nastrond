@@ -258,7 +258,6 @@ public:
 #pragma endregion 
 
 private:
-	void UpdateBatch();
 	void BatchPathFindingRequest();
 	void BatchPathFollowing();
 	void BatchPosition();
@@ -270,11 +269,7 @@ private:
 
 	void UpdatePositionRange(int startIndex, int endIndex, float vel);
 
-	/**
-	* \brief test if dwarf is at destination
-	* \param index of the dwarf
-	* \return true if at destination
-	*/
+	void CheckIsAtDestinationRange(int startIndex, int endIndex);
 	bool IsDwarfAtDestination(unsigned int index);
 
 	//System
@@ -325,7 +320,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 10000;
+	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
 	//Dwarfs texture
@@ -358,6 +353,7 @@ private:
 	std::vector<int> m_PathFollowingBT;
 	unsigned int m_IndexPathFollowingBT = 0;
 
+	std::vector<bool> m_EntitiesActiveInBehaviorTree;
 	std::vector<int> m_EntitiesToWakeUp;
 	int m_IndexToWakeUp = 0;
 
@@ -377,21 +373,21 @@ private:
 	DayState m_DayState = DAY;
 
 #ifdef AI_DEBUG_COUNT_TIME
-	unsigned int m_TimerMilli = 0u;
-	unsigned int m_TimerMicro = 0u;
+	unsigned __int64 m_TimerMilli = 0u;
+	unsigned __int64 m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
 
-	unsigned int m_Prebatch_Ms = 0u;
-	unsigned int m_Prebatch_Mc = 0u;
+	unsigned __int64 m_Prebatch_Ms = 0u;
+	unsigned __int64 m_Prebatch_Mc = 0u;
 
-	unsigned int m_AskPath_Ms = 0u;
-	unsigned int m_AskPath_Mc = 0u;
+	unsigned __int64 m_AskPath_Ms = 0u;
+	unsigned __int64 m_AskPath_Mc = 0u;
 
-	unsigned int m_Movement_Ms = 0u;
-	unsigned int m_Movement_Mc = 0u;
+	unsigned __int64 m_Movement_Ms = 0u;
+	unsigned __int64 m_Movement_Mc = 0u;
 
-	unsigned int m_Other_Ms = 0u;
-	unsigned int m_Other_Mc = 0u;
+	unsigned __int64 m_Other_Ms = 0u;
+	unsigned __int64 m_Other_Mc = 0u;
 #endif
 
 #ifdef DEBUG_RANDOM_PATH

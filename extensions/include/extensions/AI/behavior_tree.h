@@ -108,8 +108,8 @@ private:
 	int m_IndexActiveEntity = 0;
 
 #ifdef AI_DEBUG_COUNT_TIME
-	unsigned int m_TimerMilli = 0u;
-	unsigned int m_TimerMicro = 0u;
+	unsigned __int64 m_TimerMilli = 0u;
+	unsigned __int64 m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
 #endif
 };

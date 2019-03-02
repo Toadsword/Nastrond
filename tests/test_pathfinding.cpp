@@ -74,4 +74,6 @@ TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
 
 	engine.Start();
+
+	system("pause");
 }
