@@ -50,10 +50,12 @@ struct GraphNode final
 	Vec2f pos;
 };
 
-#define AI_PATHFINDING_DRAW_NODES
-#define AI_PATHFINDING_DRAW_NODES_NEIGHBORS
+#define AI_PATH_FINDING_DRAW_NODES
+#define AI_PATH_FINDING_DRAW_NODES_NEIGHBORS
+#define AI_PATH_FINDING_DRAW_DEBUG_NODES
 
 #define AI_DEBUG_COUNT_TIME
+#define AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
 
 /**
  * \author Nicolas Schneider
@@ -62,12 +64,7 @@ class NavigationGraphManager final : public System
 {
 public:
 	explicit NavigationGraphManager(Engine& engine);
-	~NavigationGraphManager()
-	{
-#ifdef AI_DEBUG_COUNT_TIME
-		std::cout << "[NavigationGraphManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter << "\n";
-#endif
-	}
+	~NavigationGraphManager();
 
 	void Init() override;
 
@@ -121,11 +118,11 @@ private:
 
 	Vec2f m_TileExtends;
 
-#ifdef AI_PATHFINDING_DRAW_NODES
+#ifdef AI_PATH_FINDING_DRAW_NODES
 	sf::VertexArray m_NodesQuads;
 #endif
 
-#ifdef AI_PATHFINDING_DRAW_NODES_NEIGHBORS
+#ifdef AI_PATH_FINDING_DRAW_NODES_NEIGHBORS
 	std::vector<sf::VertexArray> m_NodesNeighborsLines;
 #endif
 
@@ -133,6 +130,22 @@ private:
 	unsigned int m_TimerMilli = 0u;
 	unsigned int m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
+#endif
+
+#ifdef AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+	unsigned __int64 m_GetNode_Ms = 0;
+	unsigned __int64 m_GetNode_Mc = 0;
+
+	unsigned __int64 m_TmpGetNode_Ms = 0;
+	unsigned __int64 m_TmpGetNode_Mc = 0;
+
+	unsigned __int64 m_FindPath_Ms = 0;
+	unsigned __int64 m_FindPath_Mc = 0;
+
+	unsigned __int64 m_TmpFindPath_Ms = 0;
+	unsigned __int64 m_TmpFindPath_Mc = 0;
+
+	unsigned int m_PathCalculated = 0;
 #endif
 
 };

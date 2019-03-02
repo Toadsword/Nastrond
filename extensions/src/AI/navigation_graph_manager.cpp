@@ -35,6 +35,18 @@ namespace sfge::ext
 NavigationGraphManager::NavigationGraphManager(Engine& engine) :
 	System(engine) {}
 
+NavigationGraphManager::~NavigationGraphManager()
+{
+#ifdef AI_DEBUG_COUNT_TIME
+	std::cout << "[NavigationGraphManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro /
+		m_TimerCounter << "\n";
+#endif
+#ifdef AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+	std::cout << "		GetNode: " << m_TmpGetNode_Ms / m_TimerCounter / 1000 << "," << m_TmpGetNode_Mc / m_TimerCounter % 1000<< "\n";
+	std::cout << "		FindPath: " << m_TmpFindPath_Ms / m_TimerCounter / 1000 << "," << m_TmpFindPath_Mc / m_TimerCounter % 1000<< "\n";
+#endif
+}
+
 void NavigationGraphManager::Init()
 {
 	m_Graphics2DManager = m_Engine.GetGraphics2dManager();
@@ -65,7 +77,7 @@ void NavigationGraphManager::Init()
 	}
 	BuildGraphFromArray(tilemap, map);
 	
-#ifdef AI_PATHFINDING_DRAW_NODES
+#ifdef AI_PATH_FINDING_DRAW_NODES
 	m_NodesQuads = sf::VertexArray{ sf::Quads, m_Graph.size() * 4 };
 	for (auto i = 0; i < m_Graph.size(); i++)
 	{
@@ -92,7 +104,7 @@ void NavigationGraphManager::Init()
 	}
 #endif
 
-#ifdef AI_PATHFINDING_DRAW_NODES_NEIGHBORS
+#ifdef AI_PATH_FINDING_DRAW_NODES_NEIGHBORS
 	m_NodesNeighborsLines.resize(m_Graph.size());
 	for (const auto& node : m_Graph)
 	{
@@ -118,7 +130,7 @@ void NavigationGraphManager::Init()
 
 void NavigationGraphManager::Update(float dt)
 {
-	//TODO ne pas passer par un nombre fix, mais plut�t alouer un temps maximum et faire un test � chaque fois pour savoir s'il reste suffisament de temps
+	//TODO ne pas passer par un nombre fix, mais plutot alouer un temps maximum et faire un test a chaque fois pour savoir s'il reste suffisament de temps
 #ifdef AI_DEBUG_COUNT_TIME
 	auto t1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -129,11 +141,35 @@ void NavigationGraphManager::Update(float dt)
 			break;
 		}
 
+#ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
+		for(auto i = 0; i < m_Graph.size(); i++)
+		{
+			const auto node = m_Graph[i];
+			const auto index = i * 4;
+
+			if (node.cost == SOLID_COST) {
+				m_NodesQuads[index + 0].color = sf::Color::Red;
+				m_NodesQuads[index + 1].color = sf::Color::Red;
+				m_NodesQuads[index + 2].color = sf::Color::Red;
+				m_NodesQuads[index + 3].color = sf::Color::Red;
+			}
+			else {
+				m_NodesQuads[index + 0].color = sf::Color::White;
+				m_NodesQuads[index + 1].color = sf::Color::White;
+				m_NodesQuads[index + 2].color = sf::Color::White;
+				m_NodesQuads[index + 3].color = sf::Color::White;
+			}
+		}
+#endif
+
 		auto waitingPath = m_WaitingPaths.front();
 		m_WaitingPaths.pop();
 
 		const auto path = GetPathFromTo(waitingPath.origin, waitingPath.destination);
 		m_DwarfManager->SetPath(waitingPath.index, path);
+#ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+		m_PathCalculated++;
+#endif
 	}
 
 #ifdef AI_DEBUG_COUNT_TIME
@@ -153,11 +189,11 @@ void NavigationGraphManager::Draw()
 
 	auto window = m_Graphics2DManager->GetWindow();
 
-#ifdef AI_PATHFINDING_DRAW_NODES
+#ifdef AI_PATH_FINDING_DRAW_NODES
 	window->draw(m_NodesQuads);
 #endif
 
-#ifdef AI_PATHFINDING_DRAW_NODES_NEIGHBORS
+#ifdef AI_PATH_FINDING_DRAW_NODES_NEIGHBORS
 	for (const auto& nodesNeighborsLine : m_NodesNeighborsLines)
 	{
 		window->draw(nodesNeighborsLine);
@@ -248,6 +284,9 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 
 std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& destination)
 {
+#ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+	const auto t1 = std::chrono::high_resolution_clock::now();
+#endif
 	auto distanceOrigin = INFINITY;
 	auto distanceDestination = INFINITY;
 
@@ -276,6 +315,13 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& d
 			indexDestination = i;
 		}
 	}
+#ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+	const auto t2 = std::chrono::high_resolution_clock::now();
+
+	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	m_TmpGetNode_Ms += timerDuration;
+	m_TmpGetNode_Mc += timerDuration;
+#endif
 
 	return GetPathFromTo(indexOrigin, indexDestination);
 }
@@ -283,6 +329,9 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& d
 std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int originIndex,
                                                          const unsigned int destinationIndex)
 {
+#ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+	const auto t1 = std::chrono::high_resolution_clock::now();
+#endif
 	PriorityQueue<unsigned int, float> openNodes;
 	openNodes.Put(originIndex, 0);
 
@@ -303,6 +352,15 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 		for (auto indexNext : m_Graph[indexCurrent].neighborsIndex)
 		{
+#ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
+			const auto node = m_Graph[indexNext];
+			const auto indexVertex = indexNext * 4;
+
+			m_NodesQuads[indexVertex + 0].color = sf::Color::Yellow;
+			m_NodesQuads[indexVertex + 1].color = sf::Color::Yellow;
+			m_NodesQuads[indexVertex + 2].color = sf::Color::Yellow;
+			m_NodesQuads[indexVertex + 3].color = sf::Color::Yellow;
+#endif
 			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
 
 			const auto newCost = costSoFar[indexCurrent] + distance;
@@ -343,6 +401,14 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	}
 	path.push_back(m_Graph[originIndex]);
 	pathPos.push_back(m_Graph[originIndex].pos);
+
+#ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+	const auto t2 = std::chrono::high_resolution_clock::now();
+
+	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	m_TmpFindPath_Ms += timerDuration;
+	m_TmpFindPath_Mc += timerDuration;
+#endif
 
 	return pathPos;
 }

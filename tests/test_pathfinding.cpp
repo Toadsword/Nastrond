@@ -181,4 +181,5 @@ TEST(AI, PathfindingTilemap)
 
 	//Start engine
 	engine.Start();
+	system("pause");
 }
