@@ -323,6 +323,14 @@ private:
 	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
+	enum class DwarfActivity : char {
+		IDLE,
+		FIND_PATH,
+		FOLLOW_PATH
+	};
+
+	std::vector<DwarfActivity> m_DwarfActivities;
+
 	//Dwarfs texture
 	std::string m_TexturePath;
 	TextureId m_TextureId;
@@ -342,20 +350,18 @@ private:
 	unsigned int m_IndexToDraw = 0;
 
 	//Data filed by the behaviourTree
-	std::vector<bool> m_PathToIndexDwarfBTNotSorted;
-	std::vector<int> m_PathToIndexDwarfBT;
-	unsigned int m_IndexPathToDestinationBT = 0;
+	std::vector<int> m_PathFindBatch;
+	unsigned int m_PathFindBatchSize = 0;
 
 	std::vector<int> m_PathFindingDwarfIndexes;
 
 
-	std::vector<bool> m_PathFollowingBTNotSorted;
-	std::vector<int> m_PathFollowingBT;
-	unsigned int m_IndexPathFollowingBT = 0;
+	std::vector<int> m_PathFollowBatch;
+	unsigned int m_PathFollowBatchSize = 0;
 
 	std::vector<bool> m_EntitiesActiveInBehaviorTree;
-	std::vector<int> m_EntitiesToWakeUp;
-	int m_IndexToWakeUp = 0;
+	std::vector<int> m_EntitiesToWakeUpBatch;
+	int m_EntitiesToWakeUpBatchSize = 0;
 
 	//Inventory task
 	std::vector<BuildingManager::InventoryTask> m_InventoryTaskBT;
