@@ -100,6 +100,8 @@ public:
 	const bool flowGoUp = false;
 
 private:
+	void WakeUpEntitiesRange(const int startIndex, const int endIndex, std::vector<int>& entitiesIndex);
+
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
@@ -112,6 +114,8 @@ private:
 	unsigned __int64 m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
 #endif
+
+	ctpl::thread_pool* m_ThreadPool;
 };
 }
 

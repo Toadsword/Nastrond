@@ -208,17 +208,17 @@ bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
 
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
-	auto& position = *m_Positions.at(index);
+	auto& dwarfPosition = *m_Positions.at(index);
 
-	auto dir = m_Paths[index].back() - position;
+	const auto distance = m_Paths[index].back() - dwarfPosition;
 
-	if (dir.GetMagnitude() < m_StoppingDistance)
+	if (sqrtf(distance.x*distance.x + distance.y * distance.y) < m_StoppingDistance)
 	{
 		m_Paths[index].pop_back();
 		
 		if (!m_Paths[index].empty()) {
-			m_VelocitiesComponents[index] = m_Paths[index].back() - position;
-			m_VelocitiesComponents[index] = m_VelocitiesComponents[index].Normalized();
+			const auto velocity = m_Paths[index].back() - dwarfPosition;
+			m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / sqrtf(velocity.x*velocity.x + velocity.y * velocity.y);
 			return false;
 		}
 
