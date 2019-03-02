@@ -656,27 +656,60 @@ void DwarfManager::Update(const float dt)
 #endif
 }
 
-void DwarfManager::FixedUpdate() {}
+void DwarfManager::FixedUpdate()
+{
+}
 
 void DwarfManager::Draw()
 {
 	auto window = m_Engine.GetGraphics2dManager()->GetWindow();
 #ifdef DEBUG_DRAW_PATH
-	for (auto i = 0u; i < m_Paths.size(); i++)
+	auto sizeVertexArrayPath = 0;
+
+	for (auto i = 0u; i < m_IndexDwarfsEntities; i++)
 	{
-		const auto color = m_Colors[i % m_Colors.size()];
+		sizeVertexArrayPath += m_Paths[i].size();
+		sizeVertexArrayPath += 2;
+	}
 
-		sf::VertexArray lines{sf::LineStrip, m_Paths[i].size()};
+	sizeVertexArrayPath -= 2;
 
-		for (size_t j = 0u; j < m_Paths[i].size(); j++)
+	auto index = 0;
+	sf::VertexArray lines{ sf::LineStrip, static_cast<size_t>(sizeVertexArrayPath) };
+	Vec2f lastPos;
+
+	for (auto i = 0u; i < m_IndexDwarfsEntities; i++)
+	{
+		auto path = m_Paths[i];
+		if(i > 0)
 		{
-			lines[j].position = m_Paths[i][j];
+			if (!path.empty()) {
+				lines[index].position = lastPos;
 
-			lines[j].color = color;
+				lines[index].color = sf::Color(0, 0, 0, 0);
+				index++;
+
+				lines[index].position = path[0];
+
+				lines[index].color = sf::Color(0, 0, 0, 0);
+				index++;
+			}
 		}
 
-		window->draw(lines);
+		const auto color = m_Colors[i % m_Colors.size()];
+
+		for (auto & p: path)
+		{
+			lines[index].position = p;
+			lines[index].color = color;
+
+			index++;
+		}
+
+		lastPos = lines[index - 1].position;
 	}
+
+	window->draw(lines);
 #endif
 	//Draw dwarf
 	const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
