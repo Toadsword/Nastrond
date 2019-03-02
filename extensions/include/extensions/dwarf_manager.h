@@ -265,8 +265,6 @@ private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
-	void AddDwarfToDraw(unsigned int index);
-
 	void UpdatePositionRange(int startIndex, int endIndex, float vel);
 
 	void CheckIsAtDestinationRange(int startIndex, int endIndex);
@@ -280,7 +278,7 @@ private:
 	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
-	const size_t m_ContainersExtender = 100'000;
+	const size_t m_ContainersExtender = 10;
 	std::vector<Entity> m_DwarfsEntities;
 	int m_IndexDwarfsEntities = 0;
 
@@ -320,7 +318,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100'000;
+	const size_t m_DwarfToSpawn = 20;
 #endif
 
 	enum class DwarfActivity : char {
@@ -343,11 +341,6 @@ private:
 	std::vector<Entity> m_AssociatedWorkingPlace;
 	std::vector<BuildingType> m_AssociatedWorkingPlaceType;
 	std::queue<BuildingType> m_JobBuildingType;
-
-	//Vertex array
-	sf::VertexArray m_VertexArray;
-	std::vector<unsigned int> m_IndexesToDraw;
-	unsigned int m_IndexToDraw = 0;
 
 	//Data filed by the behaviourTree
 	std::vector<int> m_PathFindBatch;

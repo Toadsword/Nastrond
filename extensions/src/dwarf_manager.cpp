@@ -41,6 +41,7 @@ void DwarfManager::Init()
 		"NavigationGraphManager");
 	m_BuildingManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<BuildingManager>(
 		"BuildingManager");
+	m_Config = m_Engine.GetConfig();
 
 	//Associate behaviour tree
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
@@ -56,15 +57,12 @@ void DwarfManager::Init()
 	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 	m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
-	m_VertexArray = sf::VertexArray(sf::Quads, 0);
-
 #ifdef DEBUG_SPAWN_DWARF
-	m_Config = m_Engine.GetConfig();
-	m_ScreenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 	//Create dwarfs
 	for (auto i = 0u; i < m_DwarfToSpawn; i++)
 	{
-		const Vec2f pos(std::rand() % static_cast<int>(m_ScreenSize.x), std::rand() % static_cast<int>(m_ScreenSize.y));
+		//TODO modifier d�s que Duncan a rajouter un moyen d'obtenir les bounds de la tilemap au niveau des positions
+		const Vec2f pos(std::rand() % static_cast<int>(900) - 450, std::rand() % static_cast<int>(450));
 
 		InstantiateDwarf(pos);
 	}
@@ -109,25 +107,20 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 	m_AssociatedWorkingPlace[indexNewDwarf] = INVALID_ENTITY;
 	m_DwarfActivities[indexNewDwarf] = DwarfActivity::IDLE;
 
-	const auto textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
-
-	indexNewDwarf *= 4;
-
-	m_VertexArray[indexNewDwarf].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[indexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-	m_VertexArray[indexNewDwarf + 2].texCoords = textureSize;
-	m_VertexArray[indexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
-
 	//Add transform
 	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = pos;
 
-	m_VertexArray[indexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
-	m_VertexArray[indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(
-		textureSize.x / 2.0f, -textureSize.y / 2.0f);
-	m_VertexArray[indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
-	m_VertexArray[indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(
-		-textureSize.x / 2.0f, textureSize.y / 2.0f);
+	//Add sprite
+	auto* sprite = m_SpriteManager->AddComponent(newEntity);
+	sprite->SetTexture(m_Texture);
+
+	//Set sprite infos
+	auto& spriteInfo = m_SpriteManager->GetComponentInfo(newEntity);
+	spriteInfo.name = "Sprite dwarf";
+	spriteInfo.sprite = sprite;
+	spriteInfo.textureId = m_TextureId;
+	spriteInfo.texturePath = m_TexturePath;
 }
 
 void DwarfManager::DestroyDwarfByIndex(const unsigned int index)
@@ -142,20 +135,6 @@ void DwarfManager::DestroyDwarfByIndex(const unsigned int index)
 	m_States[index] = State::INVALID;
 	m_AssociatedDwelling[index] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
-
-	//Reset vertexArray to non-visible
-	m_VertexArray[4 * index + 0].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
-
-	m_VertexArray[4 * index + 0].position = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
-	m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
-
-	//Batching data
-	m_DwarfActivities[index] = DwarfActivity::IDLE;
 }
 
 void DwarfManager::DestroyDwarfByEntity(const Entity entity)
@@ -249,7 +228,8 @@ void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Ve
 void DwarfManager::AddFindRandomPathBT(const unsigned int index)
 {
 	m_DwarfActivities[index] = DwarfActivity::FIND_PATH;
-	m_DestinationForPathFinding[index] = Vec2f(std::rand() % static_cast<int>(m_ScreenSize.x), std::rand() % static_cast<int>(m_ScreenSize.y));
+	const Vec2f pos(std::rand() % static_cast<int>(900) - 450, std::rand() % static_cast<int>(450));
+	m_DestinationForPathFinding[index] = pos;
 }
 
 void DwarfManager::AddPathFollowingBT(const unsigned int index)
@@ -381,8 +361,6 @@ void DwarfManager::ResizeContainers()
 	m_Paths.resize(newSize);
 	m_States.resize(newSize);
 
-	m_IndexesToDraw.resize(newSize);
-
 	//Associate behaviour tree
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
 		"BehaviorTree");
@@ -390,7 +368,6 @@ void DwarfManager::ResizeContainers()
 	m_AssociatedDwelling.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlace.resize(newSize, INVALID_ENTITY);
 	m_AssociatedWorkingPlaceType.resize(newSize, NO_BUILDING_TYPE);
-	m_VertexArray.resize(m_VertexArray.getVertexCount() + 4 * m_ContainersExtender);
 
 
 	m_PathFollowBatch.resize(newSize);
@@ -431,12 +408,6 @@ int DwarfManager::GetIndexForNewEntity()
 	return index;
 }
 
-void DwarfManager::AddDwarfToDraw(const unsigned int index)
-{
-	m_IndexesToDraw[m_IndexToDraw] = index;
-	m_IndexToDraw++;
-}
-
 void DwarfManager::UpdatePositionRange(const int startIndex, const int endIndex, const float vel)
 {
 	for (size_t i = startIndex; i <= endIndex; ++i)
@@ -463,6 +434,7 @@ void DwarfManager::CheckIsAtDestinationRange(const int startIndex, const int end
 
 void DwarfManager::Update(const float dt)
 {
+	std::cout << "Dwarf Manager : Update \n";
 #ifdef AI_DEBUG_COUNT_TIME
 	const auto t1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -654,6 +626,7 @@ void DwarfManager::Update(const float dt)
 	m_TimerMicro += timerDuration % 1000;
 	m_TimerCounter++;
 #endif
+	std::cout << "Dwarf Manager : End Update \n";
 }
 
 void DwarfManager::FixedUpdate()
@@ -662,6 +635,7 @@ void DwarfManager::FixedUpdate()
 
 void DwarfManager::Draw()
 {
+	std::cout << "Dwarf Manager : Draw \n";
 	auto window = m_Engine.GetGraphics2dManager()->GetWindow();
 #ifdef DEBUG_DRAW_PATH
 	auto sizeVertexArrayPath = 0;
@@ -671,7 +645,7 @@ void DwarfManager::Draw()
 		sizeVertexArrayPath += m_Paths[i].size();
 		sizeVertexArrayPath += 2;
 	}
-
+	
 	sizeVertexArrayPath -= 2;
 
 	auto index = 0;
@@ -681,7 +655,7 @@ void DwarfManager::Draw()
 	for (auto i = 0u; i < m_IndexDwarfsEntities; i++)
 	{
 		auto path = m_Paths[i];
-		if(i > 0)
+		if (i > 0)
 		{
 			if (!path.empty()) {
 				lines[index].position = lastPos;
@@ -698,7 +672,7 @@ void DwarfManager::Draw()
 
 		const auto color = m_Colors[i % m_Colors.size()];
 
-		for (auto & p: path)
+		for (auto & p : path)
 		{
 			lines[index].position = p;
 			lines[index].color = color;
@@ -706,25 +680,12 @@ void DwarfManager::Draw()
 			index++;
 		}
 
+		if(index > 0)
 		lastPos = lines[index - 1].position;
 	}
-
+	
 	window->draw(lines);
 #endif
-	//Draw dwarf
-	const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i])->Position;
-		const auto indexVertex = 4 * i;
-		
-		m_VertexArray[indexVertex].position = position - halfTextureSize;
-		m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(halfTextureSize.x, -halfTextureSize.y);
-		m_VertexArray[indexVertex + 2].position = position + halfTextureSize;
-		m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(-halfTextureSize.x, halfTextureSize.y);
-	}
-	m_IndexToDraw = 0;
-
-	window->draw(m_VertexArray, m_Texture);
+	std::cout << "Dwarf Manager : End Draw \n";
 }
 }

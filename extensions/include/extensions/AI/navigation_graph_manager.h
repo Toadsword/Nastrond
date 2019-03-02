@@ -32,6 +32,10 @@ SOFTWARE.
 #include <engine/vector.h>
 
 
+namespace sfge {
+class Tilemap;
+}
+
 namespace sfge::ext
 {
 	class DwarfManager;
@@ -46,8 +50,10 @@ struct GraphNode final
 	Vec2f pos;
 };
 
-//#define DEBUG_MOD
-#define DEBUG_MAP
+#define AI_PATHFINDING_DRAW_NODES
+#define AI_PATHFINDING_DRAW_NODES_NEIGHBORS
+
+#define AI_DEBUG_COUNT_TIME
 
 /**
  * \author Nicolas Schneider
@@ -56,6 +62,12 @@ class NavigationGraphManager final : public System
 {
 public:
 	explicit NavigationGraphManager(Engine& engine);
+	~NavigationGraphManager()
+	{
+#ifdef AI_DEBUG_COUNT_TIME
+		std::cout << "[NavigationGraphManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter << "\n";
+#endif
+	}
 
 	void Init() override;
 
@@ -77,7 +89,7 @@ private:
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
-	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
+	void BuildGraphFromArray(Tilemap* tilemap, std::vector<std::vector<int>>& map);
 
 	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 
@@ -106,13 +118,23 @@ private:
 	const int m_MaxPathForOneUpdate = 100'000;
 
 	std::vector<GraphNode> m_Graph;
-	sf::VertexArray m_VertexArray;
 
-#ifdef DEBUG_MAP
-	//Map info
-	const Vec2f m_TileExtends = Vec2f(60, 60);
-	Vec2f m_MapSize;
+	Vec2f m_TileExtends;
+
+#ifdef AI_PATHFINDING_DRAW_NODES
+	sf::VertexArray m_NodesQuads;
 #endif
+
+#ifdef AI_PATHFINDING_DRAW_NODES_NEIGHBORS
+	std::vector<sf::VertexArray> m_NodesNeighborsLines;
+#endif
+
+#ifdef AI_DEBUG_COUNT_TIME
+	unsigned int m_TimerMilli = 0u;
+	unsigned int m_TimerMicro = 0u;
+	int m_TimerCounter = 0;
+#endif
+
 };
 }
 

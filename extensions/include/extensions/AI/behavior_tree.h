@@ -30,7 +30,6 @@ SOFTWARE.
 #include <memory>
 
 #include <engine/system.h>
-#include <utility/json_utility.h>
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
