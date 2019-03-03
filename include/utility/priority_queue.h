@@ -79,7 +79,7 @@ protected:
 	Position GetPosition(int i) { return m_Vector.begin() + i; }
 	int GetIndex(const Position& p) const { return p - m_Vector.begin(); }
 public:
-	VectorCompleteTree() : m_Vector(1) { m_Vector.reserve(70); }
+	VectorCompleteTree() : m_Vector(1) { m_Vector.reserve(128); }
 	size_t Size() const
 	{
 		return  m_Vector.size() - 1;
@@ -121,7 +121,7 @@ public:
 			v2 = u2;
 		}
 
-		if (m_Priority.Size() > 64)
+		if (m_Priority.Size() > 128)
 		{
 			m_Priority.RemoveLast();
 			m_Index.RemoveLast();

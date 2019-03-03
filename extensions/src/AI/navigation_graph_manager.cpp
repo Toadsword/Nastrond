@@ -84,10 +84,10 @@ void NavigationGraphManager::Init()
 		const auto node = m_Graph[i];
 		const auto index = i * 4;
 
-		m_NodesQuads[index + 0].position = node.pos + sf::Vector2f(-10, -10);
-		m_NodesQuads[index + 1].position = node.pos + sf::Vector2f(10, -10);
-		m_NodesQuads[index + 2].position = node.pos + sf::Vector2f(10, 10);
-		m_NodesQuads[index + 3].position = node.pos + sf::Vector2f(-10, 10);
+		m_NodesQuads[index + 0].position = node.pos + sf::Vector2f(-tilemapSize.x, 0);
+		m_NodesQuads[index + 1].position = node.pos + sf::Vector2f(0, -tilemapSize.y * 0.5f);
+		m_NodesQuads[index + 2].position = node.pos + sf::Vector2f(tilemapSize.x, 0);
+		m_NodesQuads[index + 3].position = node.pos + sf::Vector2f(0, tilemapSize.y * 0.5f);
 
 		if (node.cost == SOLID_COST) {
 			m_NodesQuads[index + 0].color = sf::Color::Red;
@@ -126,6 +126,8 @@ void NavigationGraphManager::Init()
 	}
 #endif
 
+	m_CameFrom.resize(m_Graph.size(), 0);
+	m_CostSoFar.resize(m_Graph.size(), -1);
 }
 
 void NavigationGraphManager::Update(float dt)
@@ -336,15 +338,12 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	int nb = 0;
 #endif
 
-	//PriorityQueue<unsigned int, float> openNodes;
-	HeapPriorityQueue openNodes;
+	PriorityQueue<unsigned int, float> openNodes;
+	//HeapPriorityQueue openNodes;
 	openNodes.Insert(originIndex, 0);
 
-	std::unordered_map<unsigned int, unsigned int> cameFrom;
-	std::unordered_map<unsigned int, float> costSoFar;
-
-	cameFrom[originIndex] = originIndex;
-	costSoFar[originIndex] = 0;
+	m_CameFrom[originIndex] = originIndex;
+	m_CostSoFar[originIndex] = 0;
 
 	auto found = false;
 
@@ -353,10 +352,10 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 	while (!openNodes.Empty())
 	{
-		const auto indexCurrent = openNodes.Min();
-		openNodes.RemoveMin();
+		/*const auto indexCurrent = openNodes.Min();
+		openNodes.RemoveMin();*/
 
-		//const auto indexCurrent = openNodes.Get();
+		const auto indexCurrent = openNodes.Get();
 
 		if (indexCurrent == destinationIndex)
 		{
@@ -376,12 +375,12 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 #endif
 			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
 
-			const auto newCost = costSoFar[indexCurrent] + distance;
+			const auto newCost = m_CostSoFar[indexCurrent] + distance;
 
-			if (costSoFar.find(indexNext) == costSoFar.end() ||
-				newCost < costSoFar[indexNext])
+			if (m_CostSoFar[indexNext] == -1 ||
+				newCost < m_CostSoFar[indexNext])
 			{
-				costSoFar[indexNext] = newCost;
+				m_CostSoFar[indexNext] = newCost;
 				//Breaking tie value
 				const auto dx1 = std::abs(m_Graph[indexNext].pos.x - m_Graph[destinationIndex].pos.x);
 				const auto dy1 = std::abs(m_Graph[indexNext].pos.y - m_Graph[destinationIndex].pos.y);
@@ -394,7 +393,7 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 				const auto priority = newCost + heuristic;
 				openNodes.Insert(indexNext, priority);
 
-				cameFrom[indexNext] = indexCurrent;
+				m_CameFrom[indexNext] = indexCurrent;
 			}
 		}
 	}
@@ -403,12 +402,13 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 	std::vector<Vec2f> pathPos;
 	auto currentNodeIndex = destinationIndex;
+	
 	while (currentNodeIndex != originIndex)
 	{
 		pathPos.push_back(m_Graph[currentNodeIndex].pos);
 
 		path.push_back(m_Graph[currentNodeIndex]);
-		currentNodeIndex = cameFrom[currentNodeIndex];
+		currentNodeIndex = m_CameFrom[currentNodeIndex];
 	}
 	path.push_back(m_Graph[originIndex]);
 	pathPos.push_back(m_Graph[originIndex].pos);
@@ -427,6 +427,11 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	m_TmpFindPath_Ms += timerDuration;
 	m_TmpFindPath_Mc += timerDuration;
 #endif
+
+	for (auto& i : m_CostSoFar)
+	{
+		i = -1;
+	}
 
 	return pathPos;
 }
