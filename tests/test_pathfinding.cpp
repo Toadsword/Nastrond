@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 #include <gtest/gtest.h>
-#include <utility/priority_queue.h>
 
 #include <engine/engine.h>
 #include <engine/scene.h>
@@ -181,5 +180,4 @@ TEST(AI, PathfindingTilemap)
 
 	//Start engine
 	engine.Start();
-	system("pause");
 }

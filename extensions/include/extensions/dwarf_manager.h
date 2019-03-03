@@ -292,7 +292,7 @@ private:
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
-	const float m_SpeedDwarf = 200;
+	const float m_SpeedDwarf = 30;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
@@ -307,7 +307,7 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 1;
+	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
 	enum class DwarfActivity : char {

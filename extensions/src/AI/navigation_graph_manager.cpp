@@ -336,6 +336,7 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	int nb = 0;
 #endif
 
+	//PriorityQueue<unsigned int, float> openNodes;
 	HeapPriorityQueue openNodes;
 	openNodes.Insert(originIndex, 0);
 
@@ -347,24 +348,24 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 	auto found = false;
 
-	const auto gx = m_Graph[destinationIndex].pos.x + m_Graph[destinationIndex].pos.y * 2;
-	const auto gy = m_Graph[destinationIndex].pos.y * 2 - m_Graph[destinationIndex].pos.x;
-	const auto ox = m_Graph[originIndex].pos.x + m_Graph[originIndex].pos.y * 2;
-	const auto oy = m_Graph[originIndex].pos.y * 2 - m_Graph[originIndex].pos.x;
+	const auto dx2 = std::abs(m_Graph[originIndex].pos.x - m_Graph[destinationIndex].pos.x);
+	const auto dy2 = std::abs(m_Graph[originIndex].pos.y - m_Graph[destinationIndex].pos.y);
 
-	const auto dx2 = abs(ox - gx);
-	const auto dy2 = abs(oy - gy);
-
-	while (!openNodes.Empty() && !found)
+	while (!openNodes.Empty())
 	{
 		const auto indexCurrent = openNodes.Min();
 		openNodes.RemoveMin();
 
+		//const auto indexCurrent = openNodes.Get();
+
+		if (indexCurrent == destinationIndex)
+		{
+			break;
+		}
+
 		for (auto indexNext : m_Graph[indexCurrent].neighborsIndex)
 		{
 #ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
-			nb++;
-
 			const auto node = m_Graph[indexNext];
 			const auto indexVertex = indexNext * 4;
 
@@ -376,31 +377,24 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
 
 			const auto newCost = costSoFar[indexCurrent] + distance;
-			
+
 			if (costSoFar.find(indexNext) == costSoFar.end() ||
 				newCost < costSoFar[indexNext])
 			{
 				costSoFar[indexNext] = newCost;
-
-				const auto cx = m_Graph[indexNext].pos.x + m_Graph[indexNext].pos.y * 2;
-				const auto cy = m_Graph[indexNext].pos.y * 2 - m_Graph[indexNext].pos.x;
-
-				auto dx1 = abs(cx - gx);
-				auto dy1 = abs(cy - gy);
-				auto heuristic = 1 * (dx1 + dy1) + (1 - 2 * 1) * std::min(dx1, dy1);
+				//Breaking tie value
+				const auto dx1 = std::abs(m_Graph[indexNext].pos.x - m_Graph[destinationIndex].pos.x);
+				const auto dy1 = std::abs(m_Graph[indexNext].pos.y - m_Graph[destinationIndex].pos.y);
 				const auto cross = abs(dx1 * dy2 - dx2 * dy1);
-				heuristic += cross * 0.0001f;
+
+				//Heuristic
+				auto heuristic = m_Heuristic1 * (dx1 + dy1) + (m_Heuristic2 - 2 * m_Heuristic1) * std::min(dx1, dy1);
+				heuristic += cross * 0.001f;
 
 				const auto priority = newCost + heuristic;
 				openNodes.Insert(indexNext, priority);
 
 				cameFrom[indexNext] = indexCurrent;
-
-				if (indexCurrent == destinationIndex)
-				{
-					found = true;
-					break;
-				}
 			}
 		}
 	}

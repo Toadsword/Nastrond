@@ -53,7 +53,7 @@ namespace sfge
 		 * \param item 
 		 * \param priority 
 		 */
-		void Put(T item, priority_t priority) {
+		void Insert(T item, priority_t priority) {
 			m_elements.emplace(priority, item);
 		}
 
@@ -79,7 +79,7 @@ protected:
 	Position GetPosition(int i) { return m_Vector.begin() + i; }
 	int GetIndex(const Position& p) const { return p - m_Vector.begin(); }
 public:
-	VectorCompleteTree() : m_Vector(1) {}
+	VectorCompleteTree() : m_Vector(1) { m_Vector.reserve(70); }
 	size_t Size() const
 	{
 		return  m_Vector.size() - 1;
@@ -104,7 +104,7 @@ class HeapPriorityQueue
 {
 public:
 	bool Empty() const { return m_Priority.Size() == 0; }
-	void Insert(const int& index, const float& priority)
+	void Insert(const unsigned int& index, const float& priority)
 	{
 		m_Priority.AddLast(priority);
 		m_Index.AddLast(index);
@@ -121,13 +121,13 @@ public:
 			v2 = u2;
 		}
 
-		if (m_Priority.Size() > 256)
+		if (m_Priority.Size() > 64)
 		{
 			m_Priority.RemoveLast();
 			m_Index.RemoveLast();
 		}
 	}
-	const unsigned short& Min() { return *(m_Index.Root()); }
+	const unsigned int& Min() { return *(m_Index.Root()); }
 	void RemoveMin()
 	{
 		if (m_Priority.Size() == 1)
@@ -165,9 +165,9 @@ public:
 	}
 private:
 	VectorCompleteTree<float> m_Priority;
-	VectorCompleteTree<unsigned short> m_Index;
+	VectorCompleteTree<unsigned int> m_Index;
 
-	typedef VectorCompleteTree<unsigned short>::Position PositionIndex;
+	typedef VectorCompleteTree<unsigned int>::Position PositionIndex;
 	typedef VectorCompleteTree<float>::Position PositionPriority;
 };
 
