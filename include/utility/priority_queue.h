@@ -37,7 +37,7 @@ namespace sfge
 	template<typename  T, typename priority_t> struct PriorityQueue {
 	private:
 		typedef std::pair<priority_t, T> PQElement;
-		std::priority_queue<PQElement, std::vector<PQElement>, std::greater<PQElement>> m_elements;
+		std::priority_queue<PQElement, std::vector<PQElement>, std::greater<>> m_elements;
 
 	public:
 		/**
@@ -68,5 +68,107 @@ namespace sfge
 		}
 	};
 }
+
+template <typename E>
+class VectorCompleteTree {
+public:
+	typedef typename std::vector<E>::iterator Position;
+private:
+	std::vector<E> m_Vector;
+protected:
+	Position GetPosition(int i) { return m_Vector.begin() + i; }
+	int GetIndex(const Position& p) const { return p - m_Vector.begin(); }
+public:
+	VectorCompleteTree() : m_Vector(1) {}
+	size_t Size() const
+	{
+		return  m_Vector.size() - 1;
+	}
+	Position Left(const Position& p)
+	{
+		return GetPosition(2 * GetIndex(p));
+	}
+	Position Right(const Position& p) { return GetPosition(2 * GetIndex(p) + 1); }
+	Position Parent(const Position& p) { return GetPosition(GetIndex(p) / 2); }
+	bool HasLeft(const Position& p) const { return 2 * GetIndex(p) <= Size(); }
+	bool HasRight(const Position& p) const { return 2 * GetIndex(p) + 1 <= Size(); }
+	bool IsRoot(const Position &p) const { return GetIndex(p) == 1; }
+	Position Root() { return GetPosition(1); }
+	Position Last() { return GetPosition(Size()); }
+	void AddLast(const E& e) { m_Vector.push_back(e); }
+	void RemoveLast() { m_Vector.pop_back(); }
+	void Swap(const Position& p, const Position& q) { E e = *q; *q = *p; *p = e; }
+};
+
+class HeapPriorityQueue
+{
+public:
+	bool Empty() const { return m_Priority.Size() == 0; }
+	void Insert(const int& index, const float& priority)
+	{
+		m_Priority.AddLast(priority);
+		m_Index.AddLast(index);
+		auto v = m_Priority.Last();
+		auto v2 = m_Index.Last();
+		while (!m_Priority.IsRoot(v))
+		{
+			auto u = m_Priority.Parent(v);
+			auto u2 = m_Index.Parent(v2);
+			if (!(*v < *u)) break;
+			m_Priority.Swap(v, u);
+			v = u;
+			m_Index.Swap(v2, u2);
+			v2 = u2;
+		}
+
+		if (m_Priority.Size() > 256)
+		{
+			m_Priority.RemoveLast();
+			m_Index.RemoveLast();
+		}
+	}
+	const unsigned short& Min() { return *(m_Index.Root()); }
+	void RemoveMin()
+	{
+		if (m_Priority.Size() == 1)
+		{
+			m_Priority.RemoveLast();
+		}
+		else
+		{
+			auto u = m_Priority.Root();
+			auto u2 = m_Index.Root();
+			m_Priority.Swap(u, m_Priority.Last());
+			m_Priority.RemoveLast();
+			m_Index.Swap(u2, m_Index.Last());
+			m_Index.RemoveLast();
+			while (m_Priority.HasLeft(u))
+			{
+				auto v = m_Priority.Left(u);
+				auto v2 = m_Index.Left(u2);
+				if (m_Priority.HasRight(u) && *(m_Priority.Right(u)) < *v)
+				{
+					v = m_Priority.Right(u);
+					v2 = m_Index.Right(u2);
+				}
+				if (*v < *u)
+				{
+					m_Priority.Swap(v, u);
+					u = v;
+
+					m_Index.Swap(v2, u2);
+					u2 = v2;
+				}
+				else break;
+			}
+		}
+	}
+private:
+	VectorCompleteTree<float> m_Priority;
+	VectorCompleteTree<unsigned short> m_Index;
+
+	typedef VectorCompleteTree<unsigned short>::Position PositionIndex;
+	typedef VectorCompleteTree<float>::Position PositionPriority;
+};
 
 #endif /* INCLUDE_UTILITY_PRIORITY_QUEUE_H_ */

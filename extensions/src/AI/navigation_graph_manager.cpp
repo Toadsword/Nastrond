@@ -332,27 +332,39 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 #ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
 	const auto t1 = std::chrono::high_resolution_clock::now();
 #endif
-	PriorityQueue<unsigned int, float> openNodes;
-	openNodes.Put(originIndex, 0);
+#ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
+	int nb = 0;
+#endif
+
+	HeapPriorityQueue openNodes;
+	openNodes.Insert(originIndex, 0);
 
 	std::unordered_map<unsigned int, unsigned int> cameFrom;
-	std::unordered_map<unsigned int, short> costSoFar;
+	std::unordered_map<unsigned int, float> costSoFar;
 
 	cameFrom[originIndex] = originIndex;
 	costSoFar[originIndex] = 0;
 
-	while (!openNodes.Empty())
-	{
-		const auto indexCurrent = openNodes.Get();
+	auto found = false;
 
-		if (indexCurrent == destinationIndex)
-		{
-			break;
-		}
+	const auto gx = m_Graph[destinationIndex].pos.x + m_Graph[destinationIndex].pos.y * 2;
+	const auto gy = m_Graph[destinationIndex].pos.y * 2 - m_Graph[destinationIndex].pos.x;
+	const auto ox = m_Graph[originIndex].pos.x + m_Graph[originIndex].pos.y * 2;
+	const auto oy = m_Graph[originIndex].pos.y * 2 - m_Graph[originIndex].pos.x;
+
+	const auto dx2 = abs(ox - gx);
+	const auto dy2 = abs(oy - gy);
+
+	while (!openNodes.Empty() && !found)
+	{
+		const auto indexCurrent = openNodes.Min();
+		openNodes.RemoveMin();
 
 		for (auto indexNext : m_Graph[indexCurrent].neighborsIndex)
 		{
 #ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
+			nb++;
+
 			const auto node = m_Graph[indexNext];
 			const auto indexVertex = indexNext * 4;
 
@@ -364,26 +376,31 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
 
 			const auto newCost = costSoFar[indexCurrent] + distance;
-
+			
 			if (costSoFar.find(indexNext) == costSoFar.end() ||
 				newCost < costSoFar[indexNext])
 			{
 				costSoFar[indexNext] = newCost;
-				//Breaking tie value
-				const auto dx1 = std::abs(m_Graph[indexNext].pos.x - m_Graph[destinationIndex].pos.x);
-				const auto dy1 = std::abs(m_Graph[indexNext].pos.y - m_Graph[destinationIndex].pos.y);
-				const auto dx2 = std::abs(m_Graph[originIndex].pos.x - m_Graph[destinationIndex].pos.x);
-				const auto dy2 = std::abs(m_Graph[originIndex].pos.y - m_Graph[destinationIndex].pos.y);
-				const auto cross = abs(dx1 * dy2 - dx2 * dy1);
 
-				//Heuristic
-				auto heuristic = m_Heuristic1 * (dx1 + dy1) + (m_Heuristic2 - 2 * m_Heuristic1) * std::min(dx1, dy1);
-				heuristic += cross * 0.001f;
+				const auto cx = m_Graph[indexNext].pos.x + m_Graph[indexNext].pos.y * 2;
+				const auto cy = m_Graph[indexNext].pos.y * 2 - m_Graph[indexNext].pos.x;
+
+				auto dx1 = abs(cx - gx);
+				auto dy1 = abs(cy - gy);
+				auto heuristic = 1 * (dx1 + dy1) + (1 - 2 * 1) * std::min(dx1, dy1);
+				const auto cross = abs(dx1 * dy2 - dx2 * dy1);
+				heuristic += cross * 0.0001f;
 
 				const auto priority = newCost + heuristic;
-				openNodes.Put(indexNext, priority);
+				openNodes.Insert(indexNext, priority);
 
 				cameFrom[indexNext] = indexCurrent;
+
+				if (indexCurrent == destinationIndex)
+				{
+					found = true;
+					break;
+				}
 			}
 		}
 	}
@@ -402,10 +419,17 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	path.push_back(m_Graph[originIndex]);
 	pathPos.push_back(m_Graph[originIndex].pos);
 
+#ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
+	std::cout << "Tested = " << nb << "\n";
+#endif
 #ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+
 	const auto t2 = std::chrono::high_resolution_clock::now();
 
 	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+#ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
+	std::cout << "Time path finding = " << timerDuration << "\n";
+#endif
 	m_TmpFindPath_Ms += timerDuration;
 	m_TmpFindPath_Mc += timerDuration;
 #endif
