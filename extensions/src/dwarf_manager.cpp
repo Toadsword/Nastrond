@@ -199,19 +199,27 @@ bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
 	return true;
 }
 
+float Sqrt2(float x) {
+	int i = *(int*)&x;
+	i = 0x5f3759df - (i >> 1);
+	float r = *(float*)&i;
+	r = r * (1.5f - 0.5f*x*r*r);
+	return r * x;
+}
+
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
 	auto& dwarfPosition = *m_Positions.at(index);
 
 	const auto distance = m_Paths[index].back() - dwarfPosition;
 
-	if (sqrtf(distance.x*distance.x + distance.y * distance.y) < m_StoppingDistance)
+	if (Sqrt2(distance.x*distance.x + distance.y * distance.y) < m_StoppingDistance)
 	{
 		m_Paths[index].pop_back();
 		
 		if (!m_Paths[index].empty()) {
 			const auto velocity = m_Paths[index].back() - dwarfPosition;
-			m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / sqrtf(velocity.x*velocity.x + velocity.y * velocity.y);
+			m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / Sqrt2(velocity.x*velocity.x + velocity.y * velocity.y);
 			return false;
 		}
 

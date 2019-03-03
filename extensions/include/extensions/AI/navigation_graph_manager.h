@@ -104,7 +104,7 @@ private:
 	std::queue<WaitingPath> m_WaitingPaths;
 
 	std::vector<unsigned int> m_CameFrom;
-	std::vector<unsigned int> m_CostSoFar;
+	std::vector<float> m_CostSoFar;
 
 	//Heuristic for pathfinding
 	const float m_Heuristic1 = 1;

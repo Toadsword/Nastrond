@@ -328,6 +328,14 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& d
 	return GetPathFromTo(indexOrigin, indexDestination);
 }
 
+float Sqrt(float x) {
+	int i = *(int*)&x;
+	i = 0x5f3759df - (i >> 1);
+	float r = *(float*)&i;
+	r = r * (1.5f - 0.5f*x*r*r);
+	return r * x;
+}
+
 std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int originIndex,
                                                          const unsigned int destinationIndex)
 {
@@ -347,8 +355,11 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 	auto found = false;
 
-	const auto dx2 = std::abs(m_Graph[originIndex].pos.x - m_Graph[destinationIndex].pos.x);
-	const auto dy2 = std::abs(m_Graph[originIndex].pos.y - m_Graph[destinationIndex].pos.y);
+	const auto posX = m_Graph[destinationIndex].pos.x;
+	const auto posY = m_Graph[destinationIndex].pos.y;
+
+	const auto dx2 = std::abs(m_Graph[originIndex].pos.x - posX);
+	const auto dy2 = std::abs(m_Graph[originIndex].pos.y - posY);
 
 	while (!openNodes.Empty())
 	{
@@ -373,17 +384,17 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 			m_NodesQuads[indexVertex + 2].color = sf::Color::Yellow;
 			m_NodesQuads[indexVertex + 3].color = sf::Color::Yellow;
 #endif
-			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos).GetMagnitude();
+			const auto distance = (m_Graph[indexNext].pos - m_Graph[indexCurrent].pos);
 
-			const auto newCost = m_CostSoFar[indexCurrent] + distance;
+			const auto newCost = m_CostSoFar[indexCurrent] + Sqrt(distance.x * distance.x + distance.y * distance.y);
 
 			if (m_CostSoFar[indexNext] == -1 ||
 				newCost < m_CostSoFar[indexNext])
 			{
 				m_CostSoFar[indexNext] = newCost;
 				//Breaking tie value
-				const auto dx1 = std::abs(m_Graph[indexNext].pos.x - m_Graph[destinationIndex].pos.x);
-				const auto dy1 = std::abs(m_Graph[indexNext].pos.y - m_Graph[destinationIndex].pos.y);
+				const auto dx1 = std::abs(m_Graph[indexNext].pos.x - posX);
+				const auto dy1 = std::abs(m_Graph[indexNext].pos.y - posY);
 				const auto cross = abs(dx1 * dy2 - dx2 * dy1);
 
 				//Heuristic
