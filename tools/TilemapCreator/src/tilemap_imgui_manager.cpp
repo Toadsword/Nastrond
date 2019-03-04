@@ -46,10 +46,13 @@ namespace sfge::tools
 		m_EntityManager = engine->GetEngine().GetEntityManager();
 		m_IsInit = true;
 
-		m_TileEditorId = m_EntityManager->CreateEntity(INVALID_ENTITY);
-		m_EntityManager->GetEntityInfo(m_TileEditorId).name = "EditorTile";
-		if(!m_TileEditor)
-			m_TileEditor = m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTilemapSystem()->GetTileManager()->AddComponent(m_TileEditorId);
+		if(m_TileEditorId == INVALID_ENTITY)
+		{	
+			m_TileEditorId = m_EntityManager->CreateEntity(INVALID_ENTITY);
+			m_EntityManager->GetEntityInfo(m_TileEditorId).name = "EditorTile";
+			if(!m_TileEditor)
+				m_TileEditor = m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTilemapSystem()->GetTileManager()->AddComponent(m_TileEditorId);
+		}
 	}
 
 	void TilemapImguiManager::Update(float dt)

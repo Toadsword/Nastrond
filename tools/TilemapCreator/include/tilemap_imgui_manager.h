@@ -111,7 +111,7 @@ private:
 	/* ------------------------------------- Tilemap editor ------------------------------- */
 	Entity m_TileEditorId = INVALID_ENTITY;
 
-	Tile* m_TileEditor;
+	Tile* m_TileEditor = nullptr;
 
 	/* -------------------------------------- Others ----------------------------------- */
 	/**
