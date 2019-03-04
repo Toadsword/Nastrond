@@ -24,7 +24,7 @@ SOFTWARE.
 
 
 #include <extensions/Building/building_manager.h>
-
+#include <iostream>
 
 namespace sfge::ext
 {
@@ -43,13 +43,20 @@ namespace sfge::ext
 
 		m_WarehouseManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<WarehouseManager>(
 			"WarehouseManager");
-		std::cout << "new Road \n";
+
 		m_RoadManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<RoadManager>(
 			"RoadManager");
 
 		m_Init = true;
 
 		Log::GetInstance()->Msg("Building Manager initialized");
+
+		//DEBUG
+		int nmbBuilding = 20000;
+		for (int i = 0; i < nmbBuilding; i++)
+		{
+			SpawnBuilding(static_cast<BuildingType>((std::rand() % static_cast<int>(7)) + 1) , Vec2f(0, 0));
+		}
 	}
 
 	void BuildingManager::Update(float dt)
@@ -119,52 +126,52 @@ namespace sfge::ext
 		{
 		case BuildingType::FORGE: {
 			Entity forgeEntity = INVALID_ENTITY;
-			forgeEntity = m_ForgeManager->GetFreeSlotInBuilding();
+			forgeEntity = m_ForgeManager->GetBuildingWithFreePlace();
 
 			if (forgeEntity == INVALID_ENTITY)
 				return INVALID_ENTITY;
 
-			m_ForgeManager->AddDwarfToBuilding(forgeEntity);
+			m_ForgeManager->AttributeDwarfToBuilding(forgeEntity);
 			return forgeEntity;
 		}
 		case BuildingType::MINE: {
 			Entity mineEntity = INVALID_ENTITY;
-			mineEntity = m_ProductionBuildingManager->GetFreeSlotInBuilding(buildingType);
+			mineEntity = m_ProductionBuildingManager->GetBuildingWithFreePlace(buildingType);
 
 			if (mineEntity == INVALID_ENTITY)
 				return INVALID_ENTITY;
 
-			m_ProductionBuildingManager->AddDwarfToBuilding(mineEntity, buildingType);
+			m_ProductionBuildingManager->AttributeDwarfToBuilding(mineEntity);
 			return mineEntity;
 		}
 		case BuildingType::EXCAVATION_POST: {
 			Entity excavationPostEntity = INVALID_ENTITY;
-			excavationPostEntity = m_ProductionBuildingManager->GetFreeSlotInBuilding(buildingType);
+			excavationPostEntity = m_ProductionBuildingManager->GetBuildingWithFreePlace(buildingType);
 
 			if (excavationPostEntity == INVALID_ENTITY)
 				return INVALID_ENTITY;
 
-			m_ProductionBuildingManager->AddDwarfToBuilding(excavationPostEntity, buildingType);
+			m_ProductionBuildingManager->AttributeDwarfToBuilding(excavationPostEntity);
 			return excavationPostEntity;
 		}
 		case BuildingType::MUSHROOM_FARM: {
 			Entity mushroomFarmEntity = INVALID_ENTITY;
-			mushroomFarmEntity = m_ProductionBuildingManager->GetFreeSlotInBuilding(buildingType);
+			mushroomFarmEntity = m_ProductionBuildingManager->GetBuildingWithFreePlace(buildingType);
 
 			if (mushroomFarmEntity == INVALID_ENTITY)
 				return INVALID_ENTITY;
 
-			m_ProductionBuildingManager->AddDwarfToBuilding(mushroomFarmEntity, buildingType);
+			m_ProductionBuildingManager->AttributeDwarfToBuilding(mushroomFarmEntity);
 			return mushroomFarmEntity;
 		}
 		case BuildingType::WAREHOUSE:
 			Entity warehouseEntity = INVALID_ENTITY;
-			warehouseEntity = m_WarehouseManager->GetFreeSlotInBuilding();
+			warehouseEntity = m_WarehouseManager->GetBuildingWithFreePlace();
 
 			if (warehouseEntity == INVALID_ENTITY)
 				return INVALID_ENTITY;
 
-			m_WarehouseManager->AddDwarfToBuilding(warehouseEntity);
+			m_WarehouseManager->AttributeDwarfToBuilding(warehouseEntity);
 			return warehouseEntity;
 		}
 		return INVALID_ENTITY;
@@ -175,7 +182,7 @@ namespace sfge::ext
 		switch (buildingType)
 		{
 		case BuildingType::FORGE:
-			m_ForgeManager->RemoveDwarfToBuilding(entity);
+			m_ForgeManager->DeallocateDwarfToBuilding(entity);
 			break;
 		case BuildingType::MINE:
 			m_ProductionBuildingManager->DwarfEnterBuilding(entity);
@@ -301,14 +308,13 @@ namespace sfge::ext
 		return INVALID_INVENTORY_TASK;
 	}
 
-	void BuildingManager::RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity)
+	void BuildingManager::RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType)
 	{
 		InventoryTask inventoryTask = INVALID_INVENTORY_TASK;
 
 		inventoryTask.giver = entity;
 		inventoryTask.giverType = buildingType;
 		inventoryTask.resourceType = resourceType;
-		inventoryTask.resourceQuantity = resourceQuantity;
 
 		m_BuildingsNeedToBeEmptied.push_back(inventoryTask);
 
@@ -320,12 +326,12 @@ namespace sfge::ext
 			if(warehouseEntity == INVALID_ENTITY)
 				break;
 
-			m_WarehouseManager->ReserveFill(warehouseEntity, m_BuildingsNeedToBeEmptied[i].resourceType);
+			m_WarehouseManager->ReserveForFill(warehouseEntity, m_BuildingsNeedToBeEmptied[i].resourceType);
 
 			m_BuildingsNeedToBeEmptied[i].receiver = warehouseEntity;
 			m_BuildingsNeedToBeEmptied[i].receiverType = BuildingType::WAREHOUSE;
 
-			m_InventoryTasks.push_back(m_BuildingsNeedToBeEmptied[0]);
+			m_InventoryTasks.push_back(m_BuildingsNeedToBeEmptied[i]);
 			m_BuildingsNeedToBeEmptied[i] = INVALID_INVENTORY_TASK;
 
 			if(i == m_BuildingsNeedToBeEmptied.size() - 1)
@@ -335,14 +341,13 @@ namespace sfge::ext
 		}
 	}
 
-	void BuildingManager::RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity)
+	void BuildingManager::RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType)
 	{
 		InventoryTask inventoryTask = INVALID_INVENTORY_TASK;
 
 		inventoryTask.receiver = entity;
 		inventoryTask.receiverType = buildingType;
 		inventoryTask.resourceType = resourceType;
-		inventoryTask.resourceQuantity = GetStackSizeByResourceType(resourceType);
 
 		m_BuildingsNeedToBeFill.push_back(inventoryTask);
 
@@ -357,7 +362,7 @@ namespace sfge::ext
 			m_BuildingsNeedToBeFill[i].giver = warehouseEntity;
 			m_BuildingsNeedToBeFill[i].giverType = BuildingType::WAREHOUSE;
 
-			m_InventoryTasks.push_back(m_BuildingsNeedToBeFill[0]);
+			m_InventoryTasks.push_back(m_BuildingsNeedToBeFill[i]);
 			m_BuildingsNeedToBeFill[i] = INVALID_INVENTORY_TASK;
 
 			if (i == m_BuildingsNeedToBeFill.size() - 1)
@@ -369,18 +374,18 @@ namespace sfge::ext
 
 	Entity BuildingManager::AttributeDwarfToDwelling()
 	{
-		Entity dwelling = m_DwellingManager->GetFreeSlotInBuilding();
+		Entity dwelling = m_DwellingManager->GetBuildingWithFreePlace();
 
 		if (dwelling == INVALID_ENTITY)
 			return INVALID_ENTITY;
 
-		m_DwellingManager->AddDwarfToBuilding(dwelling);
+		m_DwellingManager->AttributeDwarfToBuilding(dwelling);
 
 		return dwelling;
 	}
 
 	void BuildingManager::DeallocateDwarfToDwelling(const Entity entity)
 	{
-		m_DwellingManager->RemoveDwarfToBuilding(entity);
+		m_DwellingManager->DeallocateDwarfToBuilding(entity);
 	}
 }

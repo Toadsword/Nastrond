@@ -51,7 +51,7 @@ namespace sfge::ext
 		
 		void SpawnRoad(Vec2f position, int roadBitMask);
 
-		void SpawnRoad(std::vector<TileTypeId> tilesTypeVector, const int LengthX, const int LengthY, Vec2f positionFirstTile, Vec2f size, int targetType);
+		void SpawnRoad(std::vector<TileTypeId> tilesTypeVector, const int LengthX, const int LengthY, Vec2f positionFirstTile, Vec2f size, const unsigned int roadType);
 
 		void DestroyRoad(const Entity entity);
 

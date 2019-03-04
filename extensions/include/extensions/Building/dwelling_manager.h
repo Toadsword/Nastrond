@@ -51,78 +51,34 @@ namespace sfge::ext
 
 		void Draw() override;
 
-		/**
-		 * \brief Spawn a dwelling entity at the given position.
-		 * \param position : the location of spawn wanted.
-		 */
+
 		void SpawnBuilding(Vec2f position);
 
-		/**
-		 * \brief Destroy the dwelling at the given index.
-		 * \param dwellingEntity : an entity that is a dwelling.
-		 * \return true if the Entity exist and is a dwelling.
-		 */
-		bool DestroyBuilding(Entity dwellingEntity);
+		void DestroyBuilding(Entity dwellingEntity);
 
-		/**
-		 * \brief attribute a dwarf to the given dwelling entity.
-		 * \param dwellingEntity : an entity that is a dwelling.
-		 * \return true if the entity exist and is a dwelling and if a dwarf has been added to the building.
-		 */ 
-		bool AddDwarfToBuilding(Entity dwellingEntity);
+		void AttributeDwarfToBuilding(Entity dwellingEntity);
 
-		/**
-		 * \brief remove the attribution of a dwarf to the given dwelling entity.
-		 * \param dwellingEntity : an entity that is a dwelling.
-		 * \return true if the entity exist and is a dwelling and if a dwarf has been added to the building.
-		 */
-		bool RemoveDwarfToBuilding(Entity dwellingEntity);
+		void DeallocateDwarfToBuilding(Entity dwellingEntity);
 
-		/**
-		 * \brief Get a dwelling with a slot free for a dwarf.
-		 * \return An entity of a dwelling.
-		 */
-		Entity GetFreeSlotInBuilding();
+		Entity GetBuildingWithFreePlace();
 
-		/**
-		 * \brief Increment the dwarf slot to tell that a dwarf go in.
-		 * \param dwellingEntity : The Entity of the dwelling that the dwarf want to go in.
-		 */
 		void DwarfEnterBuilding(Entity dwellingEntity);
 
-		/**
-		 * \brief Increment the dwarf slot to tell that a dwarf go out.
-		 * \param dwellingEntity : The Entity of the dwelling that the dwarf want to go out.
-		 */
 		void DwarfExitBuilding(Entity dwellingEntity);
 
-		/**
-		 * \brief give resources that the dwelling need.
-		 * \param dwellingEntity : an entity that is a dwelling.
-		 */
 		void DwarfPutsResources(Entity dwellingEntity);
 
 	private:
 
-		/**
-		 * \brief Consume Resources depending on the number of dwarf in.
-		 */
 		void Consume();
 
-		/**
-		 * \brief Resize all vector in one go to keep the synchronize all index.
-		 * \param newSize : the size with the new number of building.
-		 */
 		void ReserveContainer(const size_t newSize);
 
 		void AttributeContainer();
 
-		/**
-		 * \brief return true if a slot in the index is empty then take this slot.
-		 */
-		bool CheckEmptySlot(Entity newEntity);
+		bool CheckFreeSlot(Entity newEntity);
 
-		void SetupTexture(const unsigned int dwellingIndex);
+		void SetupTexture(const Entity entity);
 
 		/**
 		 * \brief Decrease happiness when call.
@@ -143,7 +99,7 @@ namespace sfge::ext
 		unsigned int m_NmbReservation = 0u;
 
 		const unsigned short m_MaxCapacity = 200;
-		const unsigned short m_CoolDown = 600;
+		const unsigned short m_CoolDownGoal = 600;
 
 		unsigned int m_BuildingIndexCount = 0;
 

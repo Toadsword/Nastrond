@@ -52,7 +52,7 @@ namespace sfge::ext
 		//		break;
 		//}
 
-		//Get directly the tilemap (only way it worked)
+		//Get directly the tilemap (only way to make it work)
 		m_Tilemap = m_TilemapManager->GetComponentPtr(2);
 
 		if (m_Tilemap != nullptr)
@@ -82,51 +82,52 @@ namespace sfge::ext
 	{
 
 	}
+
 	void BuildingConstructor::SetupTileMap()
 	{
 		Vec2f tilemapSize = m_Tilemap->GetTilemapSize();
 
 		std::vector<TileTypeId> tileTypes = m_Tilemap->GetTileTypes();
 
-		std::vector<int> jsonArray;
-		const Vec2f TILE_SIZE = Vec2f(64, 32);
-		Vec2f offset = Vec2f(0, 0);
+		m_RoadManager->SpawnRoad(tileTypes, tilemapSize.x, tilemapSize.y, m_TransformManager->GetComponentPtr(m_Tilemap->GetTileAt(Vec2f(0, 0)))->Position, m_SizeTile, 2);
 
-		m_RoadManager->SpawnRoad(m_Tilemap->GetTileTypes(), tilemapSize.x, tilemapSize.y, m_TransformManager->GetComponentPtr(m_Tilemap->GetTileAt(Vec2f(0, 0)))->Position, m_SizeTile, 2);
+		Vec2f position;
 
 		for (int y = 0; y < tilemapSize.y; y++)
 		{
 			for (int x = 0; x < tilemapSize.x; x++)
 			{
 				TileTypeId currentTileId = tileTypes[y * tilemapSize.y + x];
-				Vec2f xPos = { TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
-				Vec2f yPos = { -TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 
-				offset = xPos * x + yPos * y;
+				Vec2f xPos = { m_SizeTile.x / 2.0f, m_SizeTile.y / 2.0f };
+				Vec2f yPos = { -m_SizeTile.x / 2.0f, m_SizeTile.y / 2.0f };
+
+
+				position = xPos * x + yPos * y;
 
 				if(currentTileId == BuildingId::WAREHOUSE)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, offset);
+					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, position);
 				}
 				else if(currentTileId == BuildingId::FORGE)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, offset);
+					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, position);
 				}
 				else if (currentTileId == BuildingId::MINE)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::MINE, offset);
+					m_BuildingManager->SpawnBuilding(BuildingType::MINE, position);
 				}
 				else if (currentTileId == BuildingId::EXCAVATION_POST)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::EXCAVATION_POST, offset);
+					m_BuildingManager->SpawnBuilding(BuildingType::EXCAVATION_POST, position);
 				}
 				else if (currentTileId == BuildingId::MUSHROOM_FARM)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::MUSHROOM_FARM, offset);
+					m_BuildingManager->SpawnBuilding(BuildingType::MUSHROOM_FARM, position);
 				}
 				else if (currentTileId == BuildingId::DWELLING)
 				{
-					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, offset);
+					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, position);
 				}
 
 			}

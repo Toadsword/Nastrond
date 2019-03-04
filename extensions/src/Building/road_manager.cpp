@@ -100,7 +100,10 @@ namespace sfge::ext
 
 	void RoadManager::SpawnRoad(Vec2f position, int roadBitMask)
 	{
-		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
+		Entity newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
+
+		editor::EntityInfo& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+		entityInfo.name = "Road " + std::to_string(m_BuildingIndexCount);
 
 		if (newEntity == INVALID_ENTITY)
 		{
@@ -109,8 +112,10 @@ namespace sfge::ext
 		}
 
 		//add transform
-		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		Transform2d* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
+
+		RoadTextureSelection(newEntity, transformPtr, roadBitMask);
 
 		if (CheckEmptySlot(newEntity, transformPtr, roadBitMask))
 		{
@@ -119,9 +124,6 @@ namespace sfge::ext
 
 		m_BuildingIndexCount++;
 
-		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-		entityInfo.name = "Road " + std::to_string(m_BuildingIndexCount);
 
 
 		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
@@ -136,10 +138,9 @@ namespace sfge::ext
 
 		m_EntityIndex[newWarehouse] = newEntity;
 
-		RoadTextureSelection(newEntity, transformPtr, roadBitMask);
 	}
 
-	void RoadManager::SpawnRoad(const std::vector<TileTypeId> tilesTypeVector, const int LengthX, const int LengthY, const Vec2f positionFirstTile, const Vec2f size, const int targetType)
+	void RoadManager::SpawnRoad(const std::vector<TileTypeId> tilesTypeVector, const int LengthX, const int LengthY, const Vec2f positionFirstTile, const Vec2f size, const unsigned int roadType)
 	{
 		int x = 0;
 		int y = 0;
@@ -150,11 +151,11 @@ namespace sfge::ext
 
 		int roadBitMask = 0;
 
-		for (int i = 0; i < tilesTypeVector.size(); i++)
+		for (int i = 0; i < tilesTypeVector.size(); ++i)
 		{
 			roadBitMask = 0;
 
-			if (tilesTypeVector[i] != targetType)
+			if (tilesTypeVector[i] != roadType)
 			{
 				SpawnRoad(positionFirstTile + xPos * x + yPos * y, roadBitMask);
 
@@ -169,13 +170,13 @@ namespace sfge::ext
 
 			roadBitMask = 1;
 
-				if(x > 0 && tilesTypeVector[i - 1] == targetType)
+				if(x > 0 && tilesTypeVector[i - 1] == roadType)
 					roadBitMask += 1 << 1;
-				if (y > 0 && tilesTypeVector[i - LengthX] == targetType)
+				if (y > 0 && tilesTypeVector[i - LengthX] == roadType)
 					roadBitMask += 1 << 2;
-				if (y < LengthY - 1 && tilesTypeVector[i + LengthX] == targetType)
+				if (y < LengthY - 1 && tilesTypeVector[i + LengthX] == roadType)
 					roadBitMask += 1 << 3;
-				if (x < LengthX - 1 && tilesTypeVector[i + 1] == targetType)
+				if (x < LengthX - 1 && tilesTypeVector[i + 1] == roadType)
 					roadBitMask += 1 << 4;
 
 				SpawnRoad(positionFirstTile + xPos * x + yPos * y, roadBitMask);
@@ -198,111 +199,92 @@ namespace sfge::ext
 
 	bool RoadManager::CheckEmptySlot(const Entity entity, Transform2d* transform2d, int roadBitMask)
 	{
-		for (int i = 0; i < m_BuildingIndexCount; i++)
+		for (int i = 0; i < m_BuildingIndexCount; ++i)
 		{
-			if(m_EntityIndex[i] == INVALID_ENTITY)
+			if (m_EntityIndex[i] != INVALID_ENTITY)
 			{
-				m_EntityIndex[i] = entity;
-
-				auto& entityInfo = m_EntityManager->GetEntityInfo(entity);
-
-				entityInfo.name = "Road " + std::to_string(i + 1);
-
-
-				RoadTextureSelection(entity, transform2d, roadBitMask);
-				return true;
+				continue;
 			}
+
+			m_EntityIndex[i] = entity;
+
+			return true;
 		}
 		return false;
 	}
 
 	void RoadManager::RoadTextureSelection(const Entity entity, Transform2d* transform2d, int roadBitMask)
 	{
-		if(roadBitMask == RoadCase::GROUND)
+		switch (roadBitMask)
 		{
+		case RoadCase::GROUND :
 			SetupTexture(entity, m_GroundTexture, m_GroundTextureId, m_GroundTexturePath);
-		}
+			break;
 
-		else if(roadBitMask == RoadCase::SOLO)
-		{
+		case RoadCase::SOLO :
 			SetupTexture(entity, m_SoloTexture, m_SoloTextureId, m_SoloTexturePath);
-		}
+			break;
 
-		else if(roadBitMask == RoadCase::END_TOP_LEFT)
-		{
+		case RoadCase::END_TOP_LEFT:
 			transform2d->Scale = Vec2f(1, -1);
 			SetupTexture(entity, m_EndTexture, m_EndTextureId, m_EndTexturePath);
-		}
-		else if (roadBitMask == RoadCase::END_TOP_RIGHT)
-		{
+			break;
+		case RoadCase::END_TOP_RIGHT:
 			transform2d->Scale = Vec2f(-1, -1);
 			SetupTexture(entity, m_EndTexture, m_EndTextureId, m_EndTexturePath);
-		}
-		else if (roadBitMask == RoadCase::END_BOTTOM_LEFT)
-		{
+			break;
+		case RoadCase::END_BOTTOM_LEFT:
 			SetupTexture(entity, m_EndTexture, m_EndTextureId, m_EndTexturePath);
-		}
-		else if (roadBitMask == RoadCase::END_BOTTOM_RIGHT)
-		{
+			break;
+		case RoadCase::END_BOTTOM_RIGHT:
 			transform2d->Scale = Vec2f(-1, 1);
 			SetupTexture(entity, m_EndTexture, m_EndTextureId, m_EndTexturePath);
-		}
+			break;
 
-		else if (roadBitMask == RoadCase::TURN_WEST)
-		{
+		case RoadCase::TURN_WEST:
 			SetupTexture(entity, m_TurnWETexture, m_TurnWETextureId, m_TurnWETexturePath);
-		}
-		else if (roadBitMask == RoadCase::TURN_EAST)
-		{
+			break;
+		case RoadCase::TURN_EAST:
 			transform2d->Scale = Vec2f(-1, 1);
 			SetupTexture(entity, m_TurnWETexture, m_TurnWETextureId, m_TurnWETexturePath);
-		}
+			break;
 
-		else if (roadBitMask == RoadCase::TURN_NORTH)
-		{
+		case RoadCase::TURN_NORTH:
 			SetupTexture(entity, m_TurnNSTexture, m_TurnNSTextureId, m_TurnNSTexturePath);
-		}
-		else if (roadBitMask == RoadCase::TURN_SOUTH)
-		{
+			break;
+		case RoadCase::TURN_SOUTH:
 			transform2d->Scale = Vec2f(1, -1);
 			SetupTexture(entity, m_TurnNSTexture, m_TurnNSTextureId, m_TurnNSTexturePath);
-		}
+			break;
 
-		else if (roadBitMask == RoadCase::THREE_WAY_NOT_TOP_LEFT)
-		{
+		case RoadCase::THREE_WAY_NOT_TOP_LEFT:
 			transform2d->Scale = Vec2f(-1, 1);
 			SetupTexture(entity, m_ThreeWayTexture, m_ThreeWayTextureId, m_ThreeWayTexturePath);
-		}
-		else if (roadBitMask == RoadCase::THREE_WAY_NOT_TOP_RIGHT)
-		{
+			break;
+		case RoadCase::THREE_WAY_NOT_TOP_RIGHT:
 			SetupTexture(entity, m_ThreeWayTexture, m_ThreeWayTextureId, m_ThreeWayTexturePath);
-		}
-		else if (roadBitMask == RoadCase::THREE_WAY_NOT_BOTTOM_LEFT)
-		{
+			break;
+		case RoadCase::THREE_WAY_NOT_BOTTOM_LEFT:
 			transform2d->Scale = Vec2f(-1, -1);
 			SetupTexture(entity, m_ThreeWayTexture, m_ThreeWayTextureId, m_ThreeWayTexturePath);
-		}
-		else if (roadBitMask == RoadCase::THREE_WAY_NOT_BOTTOM_RIGHT)
-		{
+			break;
+		case RoadCase::THREE_WAY_NOT_BOTTOM_RIGHT:
 			transform2d->Scale = Vec2f(1, -1);
 			SetupTexture(entity, m_ThreeWayTexture, m_ThreeWayTextureId, m_ThreeWayTexturePath);
-		}
+			break;
 
-		else if (roadBitMask == RoadCase::TOP_LEFT_TO_BOTTOM_RIGHT)
-		{
+		case RoadCase::TOP_LEFT_TO_BOTTOM_RIGHT:
 			transform2d->Scale = Vec2f(-1, 1);
 			SetupTexture(entity, m_OneWayTexture, m_OneWayTextureId, m_OneWayTexturePath);
-		}
-		else if (roadBitMask == RoadCase::TOP_RIGHT_TO_BOTTOM_LEFT)
-		{
+			break;
+		case RoadCase::TOP_RIGHT_TO_BOTTOM_LEFT:
 			SetupTexture(entity, m_OneWayTexture, m_OneWayTextureId, m_OneWayTexturePath);
-		}
+			break;
 
-		else if (roadBitMask == RoadCase::CROSS)
-		{
+		case RoadCase::CROSS:
 			SetupTexture(entity, m_CrossTexture, m_CrossTextureId, m_CrossTexturePath);
+			break;
 		}
-
 	}
 
 	void RoadManager::SetupTexture(const Entity entity, sf::Texture* texture, const TextureId textureId, const std::string texturePath)

@@ -94,9 +94,9 @@ namespace sfge::ext
 		InventoryTask ConveyorLookForTask();
 
 #pragma region Move resources section
-		void RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
+		void RegistrationBuildingToBeEmptied(const Entity entity, const BuildingType buildingType, const ResourceType resourceType);
 
-		void RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType, const unsigned int resourceQuantity);
+		void RegistrationBuildingToBeFill(const Entity entity, const BuildingType buildingType, const ResourceType resourceType);
 #pragma endregion
 
 		//for dwellings
@@ -118,6 +118,8 @@ namespace sfge::ext
 		std::vector<InventoryTask> m_BuildingsNeedToBeFill;
 
 		std::vector<InventoryTask> m_InventoryTasks;
+
+		int coolDown = 0;
 	};
 }
 #endif
