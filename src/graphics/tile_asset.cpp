@@ -40,6 +40,7 @@ namespace sfge
 		System::Init();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
+		m_TilemapManager = m_Engine.GetGraphics2dManager()->GetTilemapSystem()->GetTilemapManager();
 	}
 
 	TileTypeId TileTypeManager::LoadTileType(std::string filename)
@@ -100,9 +101,9 @@ namespace sfge
 
 	bool TileTypeManager::SetTileTexture(Entity tilemapId, TileId tileId, TileTypeId tileTypeId)
 	{
-		if (tileTypeId == INVALID_TILE_TYPE)
+		if (tileTypeId == INVALID_TILE_TYPE || tilemapId == INVALID_ENTITY)
 			return false;
-		auto* tilemap = m_TilemapManager->GetComponentPtr(tilemapId);
+		auto* tilemap = m_TilemapManager->GetComponentPtr(tilemapId - 1);
 		auto* sprite = tilemap->GetSprite(tileId);
 
 		/*

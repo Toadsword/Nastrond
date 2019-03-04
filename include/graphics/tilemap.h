@@ -261,6 +261,7 @@ public:
 	 */
 	void UpdateDrawOrderTilemaps();
 protected:
+	std::vector<Entity> m_Tilemaps;
 	std::vector<Entity> m_OrderToDrawTilemaps;
 
 	//	Transform2dManager* m_Transform2dManager = nullptr;

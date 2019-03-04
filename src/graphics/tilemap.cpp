@@ -81,7 +81,7 @@ namespace sfge
 			for (int indexX = 0; indexX < mapSize.x; indexX++)
 			{
 				j["map"][indexX] = nlohmann::detail::value_t::array;
-				j["map"][indexX][indexY] = m_TileTypeIds[indexY * mapSize.y + indexX];
+				j["map"][indexX][indexY] = m_TileTypeIds[indexY * mapSize.x + indexX];
 			}
 		}
 		return j;
@@ -142,7 +142,7 @@ namespace sfge
 	TileId Tilemap::GetTileAt(Vec2f pos)
 	{
 		if (pos.x >= 0 && pos.y >= 0 && m_TilemapSize.x > pos.x && m_TilemapSize.y > pos.y)
-			return m_Tiles[static_cast<int>(pos.y) * m_TilemapSize.y + static_cast<int>(pos.x)];
+			return m_Tiles[static_cast<int>(pos.y) * m_TilemapSize.x + static_cast<int>(pos.x)];
 		return INVALID_ENTITY;
 	}
 
@@ -160,7 +160,7 @@ namespace sfge
 
 	void Tilemap::SetTileAt(Vec2f pos, TileTypeId newTileType)
 	{
-		m_TileTypeIds[pos.y * m_TilemapSize.y + pos.x] = newTileType;
+		m_TileTypeIds[pos.y * m_TilemapSize.x + pos.x] = newTileType;
 	}
 
 	void Tilemap::SetTileAt(TileId tileId, TileTypeId newTileType)
@@ -171,11 +171,12 @@ namespace sfge
 	void Tilemap::SetTilePosition(TileId tileId, Vec2f position)
 	{
 		m_TilePositions[tileId] = position;
+		m_TileSprites[tileId].setPosition(position);
 	}
 
 	void Tilemap::SetTilePosition(Vec2f tilePos, Vec2f position)
 	{
-		m_TilePositions[tilePos.y * m_TilemapSize.y + tilePos.x] = position;
+		m_TilePositions[tilePos.y * m_TilemapSize.x + tilePos.x] = position;
 	}
 
 	Vec2f Tilemap::GetTilePosition(TileId tileId)
@@ -185,7 +186,7 @@ namespace sfge
 
 	Vec2f Tilemap::GetTilePosition(Vec2f tilePos)
 	{
-		return m_TilePositions[tilePos.y * m_TilemapSize.y + tilePos.x];
+		return m_TilePositions[tilePos.y * m_TilemapSize.x + tilePos.x];
 	}
 
 	sf::Sprite* Tilemap::GetSprite(TileId tileId)
@@ -200,10 +201,10 @@ namespace sfge
 		std::vector<sf::Sprite> oldSprites = m_TileSprites;
 		Vec2f oldSize = GetTilemapSize();
 
-		m_Tiles = std::vector<TileId>(newSize.x * newSize.y, 0);
 		m_TilemapSize = newSize;
 
-		m_TileTypeIds = std::vector<TileTypeId>( newSize.x * newSize.y, INVALID_TILE_TYPE);
+		m_Tiles = std::vector<TileId>(newSize.x * newSize.y, 0);
+		m_TileTypeIds = std::vector<TileTypeId>(newSize.x * newSize.y, INVALID_TILE_TYPE);
 		m_TilePositions = std::vector<Vec2f>(newSize.x * newSize.y, Vec2f());
 		m_TileSprites = std::vector<sf::Sprite>(newSize.x * newSize.y, sf::Sprite());
 
@@ -303,6 +304,9 @@ namespace sfge
 
 		tilemapInfo.tilemap = &tilemap;
 
+		m_Tilemaps.push_back(entity - 1);
+		UpdateDrawOrderTilemaps();
+
 		m_EntityManager->AddComponentType(entity, ComponentType::TILEMAP);
 		return &tilemap;
 	}
@@ -376,6 +380,9 @@ namespace sfge
 		{
 			InitializeMap(entity, tilemapJson["map"]);
 		}
+
+		m_Tilemaps.push_back(entity - 1);
+		UpdateDrawOrderTilemaps();
 	}
 
 	void TilemapManager::UpdateTile(Entity tilemapEntity, Vec2f pos, TileTypeId tileTypeId)
@@ -407,7 +414,7 @@ namespace sfge
 		{
 			for (unsigned indexX = 0; indexX < mapSize.x; indexX++)
 			{
-				tiletypeIds[indexY * mapSize.y + indexX] = map[indexX][indexY].get<int>();
+				tiletypeIds[indexY * mapSize.x + indexX] = map[indexX][indexY].get<int>();
 			}
 		}
 		InitializeMap(entity, tiletypeIds, mapSize);
@@ -421,21 +428,15 @@ namespace sfge
 		if (!tileTypeIds.empty())
 			tilemap.ResizeTilemap(tilemapSize);
 
-
-		//Assigning positions
-		/*
-		EntityManager* entityManager = m_Engine.GetEntityManager();
-		TileManager* tileManager = m_TilemapSystem->GetTileManager();
-		for (unsigned indexY = 0; indexY < tilemapSize.x; indexY++)
+		//Init Assigns textures to the tilemap
+		for (int i = 0; i < tileTypeIds.size(); i++)
 		{
-			for (unsigned indexX = 0; indexX < tilemapSize.y; indexX++)
-			{
-				const Entity newEntity = entityManager->CreateEntity(INVALID_ENTITY);
-				tileManager->AddComponent(newEntity, tileTypeIds[indexY * tilemapSize.y + indexX]);
-				tilemap.AddTile(Vec2f(indexX, indexY), newEntity);
-			}
+			TextureId textId = m_TilemapSystem->GetTileTypeManager()->GetTextureFromTileType(tileTypeIds[i]);
+			sf::Sprite* sprite = tilemap.GetSprite(tileTypeIds[i]);
+			sprite->setTexture(*m_Engine.GetGraphics2dManager()->GetTextureManager()->GetTexture(textId));
+			sprite->setOrigin(sf::Vector2f(sprite->getLocalBounds().width, sprite->getLocalBounds().height) / 2.0f);
 		}
-		*/
+
 		SetupTilePosition(entity);
 
 		tilemap.SetTileTypes(tileTypeIds);
@@ -469,7 +470,7 @@ namespace sfge
 		{
 			for (int indexX = 0; indexX < mapSize.x; indexX++)
 			{
-				const TileId tileId = tiles[indexY * mapSize.y + indexX];
+				const TileId tileId = tiles[indexY * mapSize.x + indexX];
 				const Vec2f newPos = basePos + xPos * indexX + yPos * indexY;
 				tilemap.SetTilePosition(tileId, newPos);				
 			}
@@ -483,18 +484,12 @@ namespace sfge
 
 		std::vector<Entity>& map = tilemap.GetTiles();
 		std::vector<TileTypeId>& mapTiles = tilemap.GetTileTypes();
-
-		EntityManager* entityManager = m_Engine.GetEntityManager();
-
+		
 		const unsigned size = mapSize.x * mapSize.y;
 		for (int i = 0; i < size; i++)
 		{
-			if(map[i] != INVALID_ENTITY)
-			{
-				entityManager->DestroyEntity(map[i]);
-				map[i] = INVALID_ENTITY;
-				map[i] = INVALID_TILE_TYPE;
-			}
+			map[i] = INVALID_ENTITY;
+			map[i] = INVALID_TILE_TYPE;
 		}
 	}
 
@@ -537,29 +532,19 @@ namespace sfge
 
 	void TilemapManager::UpdateDrawOrderTilemaps()
 	{
-		m_OrderToDrawTilemaps.clear();
-		std::vector<Entity> currentTilemaps;
-
-		//Gather all the tilemaps
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
-			{
-				currentTilemaps.push_back(i);
-			}
-		}
+		m_OrderToDrawTilemaps = m_Tilemaps;
 
 		//Sort their layers
-		for (int i = 0; i < currentTilemaps.size() - 1; i++)
+		for (int i = 0; i < m_OrderToDrawTilemaps.size() - 1; i++)
 		{
-			for (int j = 0; j < currentTilemaps.size() - i - 1; j++)
+			for (int j = 0; j < m_OrderToDrawTilemaps.size() - i - 1; j++)
 			{
-				GetComponentPtr(currentTilemaps[j])->GetLayer();
-				if (GetComponentPtr(currentTilemaps[j])->GetLayer() > GetComponentPtr(currentTilemaps[j + 1])->GetLayer())
+				GetComponentPtr(m_OrderToDrawTilemaps[j])->GetLayer();
+				if (GetComponentPtr(m_OrderToDrawTilemaps[j])->GetLayer() > GetComponentPtr(m_OrderToDrawTilemaps[j + 1])->GetLayer())
 				{
-					int tmp = currentTilemaps[j];
-					currentTilemaps[j] = currentTilemaps[j + 1];
-					currentTilemaps[j + 1] = tmp;
+					int tmp = m_OrderToDrawTilemaps[j];
+					m_OrderToDrawTilemaps[j] = m_OrderToDrawTilemaps[j + 1];
+					m_OrderToDrawTilemaps[j + 1] = tmp;
 				}
 			}
 		}
