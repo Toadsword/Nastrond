@@ -154,6 +154,15 @@ void Body2dManager::Init()
 
 void Body2dManager::FixedUpdate()
 {
+#ifdef COMPONENT_OPTIMIZATION
+	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+	{
+		auto & transform = m_Transform2dManager->GetComponentRef(m_ConcernedEntities[i] - 1);
+		auto & body2d = GetComponentRef(m_ConcernedEntities[i] - 1);
+		m_ComponentsInfo[m_ConcernedEntities[i]].AddVelocity(body2d.GetLinearVelocity());
+		transform.Position = meter2pixel(body2d.GetBody()->GetPosition()) - static_cast<sf::Vector2f>(body2d.GetOffset());
+	}
+#else
 	for (auto i = 0u; i < m_Components.size(); i++)
 	{
 		const Entity entity = i + 1;
@@ -166,6 +175,7 @@ void Body2dManager::FixedUpdate()
 			transform.Position = meter2pixel(body2d.GetBody()->GetPosition()) - static_cast<sf::Vector2f>(body2d.GetOffset());
 		}
 	}
+#endif
 }
 
 Body2d* Body2dManager::AddComponent(Entity entity)

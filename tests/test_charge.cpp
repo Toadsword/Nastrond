@@ -35,6 +35,47 @@ SOFTWARE.
 #include <graphics/ui.h>
 #include <graphics/graphics2d.h>
 #include <python/python_engine.h>
+//#include <minwindef.h>
+#include <Windows.h>
+#include "audio/audio.h"
+#include <stack>
+#include <ctime>
+#include <input/input.h>
+#include <physics/physics2d.h>
+#include <engine/entity.h>
+#include <engine/transform2d.h>
+#include <editor/editor.h>
+#include <engine/tilemap.h>
+#include <graphics/shape2d.h>
+
+//#define DRAW_EMABLED
+
+// This function will return true if the pointer points to stack. Otherwise false
+// Source : https://www.codeproject.com/articles/35206/pointer-pointing-to-stack-or-heap
+bool IsMemoryOnStack(LPVOID pVoid)
+{
+	LPVOID dwStackTop = 0;
+	LPVOID dwStackLowCurrent = 0;
+	__asm
+	{
+		mov EAX, FS:[4]
+		mov dwStackTop, eax
+		mov EAX, FS : [8]
+		mov dwStackLowCurrent, eax
+	}
+
+	std::cout << "\nStack top : "<< dwStackTop << " | Stack Low Current : "<< dwStackLowCurrent << " | Parameter : " << pVoid;
+
+	if (pVoid <= dwStackTop && pVoid >= dwStackLowCurrent)
+	{
+
+		// The memory lie between the stack top and stack committed.
+		return true;
+	}
+
+	// Pointer doesn't point to the stack
+	return false;
+}
 
 json CreateFakeGameScene(float mapSize, float buildingFactor, float dwarfFactor, float uiElement)
 {
@@ -371,23 +412,18 @@ TEST(Vector, VectorFunction)
 	VectorReserveAndErase(50000, 1250);
 }*/
 
-TEST(Charge, TestChargeLight)
+/*
+ * This test tell if the managers are located on the stack and give the size for each one
+ */
+TEST(Stack, IsOnStack)
 {
-	/*float mapSize = 50.0f;
-	float buildingFactor = 0.05f;
-	float dwarfFactor = 4.0f;
-	float uiElement = 50.0f;*/
-
-	const int engineIterations = 250;
-	const int eNumber = 5000;
-
-	std::cout << "\n\nInitilize the engine...\n";
+#pragma region Initialisation_And_Get_Systems
 	sfge::Engine engine;
 	engine.Init();
 
-	std::cout << "\nCreating the scene...\n";
-	//engine.GetSceneManager()->LoadSceneFromJson(CreateFakeGameScene(mapSize, buildingFactor, dwarfFactor, uiElement));
-	engine.GetSceneManager()->LoadSceneFromJson(CreatOverloadedScene(eNumber));
+	/*engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_ui.scene");
+
+	engine.Start();*/
 
 	// Engine managers
 	sfge::Graphics2dManager* graphics2dManager = engine.GetGraphics2dManager();
@@ -413,25 +449,115 @@ TEST(Charge, TestChargeLight)
 	sfge::ButtonManager* buttonManager = uiManager->GetButtonManager();
 	sfge::TextManager* textManager = uiManager->GetTextManager();
 	sfge::ImageManager* imageManager = uiManager->GetImageManager();
+#pragma endregion 
 
-	std::cout << "\nEntities concerned vectors : "
-		<< "\nTransform : " << std::to_string(transformManager->GetConcernedEntities().size())
-		<< "\nRectTransform : " << std::to_string(rectTransformManager->GetConcernedEntities().size())
-		<< "\nShape : " << std::to_string(shapeManager->GetConcernedEntities().size())
-		<< "\nSprite : " << std::to_string(spriteManager->GetConcernedEntities().size())
-		<< "\nAnimations : " << std::to_string(animationManager->GetConcernedEntities().size())
-		<< "\nPyComponent : " << std::to_string(pyComponentManager->GetConcernedEntities().size())
-		<< "\nImage : " << std::to_string(imageManager->GetConcernedEntities().size())
-		<< "\nButton : " << std::to_string(buttonManager->GetConcernedEntities().size());
+	int OnStack = 1000000000;
 
-	std::cout << "\nStart the fake engine...\n";
-	//engine.Start();
+	bool check = IsMemoryOnStack(&OnStack);
+	check ? std::cout << "\nTest value is on stack\n" : std::cout << "\nTest value is not on stack\n";
+	std::cout << "Size : " << sizeof(OnStack) << "\n";
 
-	float iterationsTimes[engineIterations];
+	check = IsMemoryOnStack(graphics2dManager);
+	check ? std::cout << "\nGraphics manager is on stack\n" : std::cout << "\nGraphics manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::Graphics2dManager) << "\n";
+
+	check = IsMemoryOnStack(audioManager);
+	check ? std::cout << "\nAudio manager is on stack\n" : std::cout << "\nAudio manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::AudioManager) << "\n";
+
+	check = IsMemoryOnStack(pythonEngine);
+	check ? std::cout << "\nPython engine is on stack\n" : std::cout << "\nPython engine is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::PythonEngine) << "\n";
+
+	check = IsMemoryOnStack(pyComponentManager);
+	check ? std::cout << "\nPy manager is on stack\n" : std::cout << "\nPy manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::PyComponentManager) << "\n";
+
+	check = IsMemoryOnStack(physicsManager);
+	check ? std::cout << "\nPhysics manager is on stack\n" : std::cout << "\nPhysics manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::Physics2dManager) << "\n";
+
+	check = IsMemoryOnStack(entityManager);
+	check ? std::cout << "\nEntity manager is on stack\n" : std::cout << "\nEntity manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::EntityManager) << "\n";
+
+	check = IsMemoryOnStack(transformManager);
+	check ? std::cout << "\nTransform manager is on stack\n" : std::cout << "\nTransform manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::Transform2dManager) << "\n";
+
+	check = IsMemoryOnStack(rectTransformManager);
+	check ? std::cout << "\nRect Transform manager is on stack\n" : std::cout << "\nRect Transform manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::RectTransformManager) << "\n";
+
+	check = IsMemoryOnStack(uiManager);
+	check ? std::cout << "\nUI manager is on stack\n" : std::cout << "\nUI manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::UIManager) << "\n";
+
+	check = IsMemoryOnStack(animationManager);
+	check ? std::cout << "\nAnimation manager is on stack\n" : std::cout << "\nAnimation manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::AnimationManager) << "\n";
+
+	check = IsMemoryOnStack(shapeManager);
+	check ? std::cout << "\nShape manager is on stack\n" : std::cout << "\nShape manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::ShapeManager) << "\n";
+
+	check = IsMemoryOnStack(spriteManager);
+	check ? std::cout << "\nSprite manager is on stack\n" : std::cout << "\nSprite manager is not on stack\n";
+	std::cout << "Size : " << sizeof(sfge::SpriteManager) << "\n";
+
+	check = IsMemoryOnStack(graphics2dManager);
+	check ? std::cout << "\nGraphics manager is on stack\n" : std::cout << "\nGraphics manager is not on stack\n";
+
+	check = IsMemoryOnStack(graphics2dManager);
+	check ? std::cout << "\nGraphics manager is on stack\n" : std::cout << "\nGraphics manager is not on stack\n";
+
+	check = IsMemoryOnStack(graphics2dManager);
+	check ? std::cout << "\nGraphics manager is on stack\n" : std::cout << "\nGraphics manager is not on stack\n";
+
+	check = IsMemoryOnStack(graphics2dManager);
+	check ? std::cout << "\nGraphics manager is on stack\n" : std::cout << "\nGraphics manager is not on stack\n";
+
+	return SUCCEED();
+}
+
+std::string FakeEngine(int iteration, json scene)
+{
+	sfge::Engine engine;
+	engine.Init();
+
+	engine.GetSceneManager()->LoadSceneFromJson(scene);
+
+	// Engine managers
+	sfge::Graphics2dManager* graphics2dManager = engine.GetGraphics2dManager();
+	sfge::AudioManager* audioManager = engine.GetAudioManager();
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+	sfge::InputManager* inputManager = engine.GetInputManager();
+	sfge::PythonEngine* pythonEngine = engine.GetPythonEngine();
+	sfge::PyComponentManager* pyComponentManager = &pythonEngine->GetPyComponentManager();
+	sfge::Physics2dManager* physicsManager = engine.GetPhysicsManager();
+	sfge::EntityManager* entityManager = engine.GetEntityManager();
+	sfge::Transform2dManager* transformManager = engine.GetTransform2dManager();
+	sfge::RectTransformManager* rectTransformManager = engine.GetRectTransformManager();
+	sfge::UIManager* uiManager = engine.GetUIManager();
+	sfge::Editor* editor = engine.GetEditor();
+	sfge::TilemapSystem* tilemapSystem = engine.GetTilemapSystem();
+
+	// Graphics2d managers
+	sfge::AnimationManager* animationManager = graphics2dManager->GetAnimationManager();
+	sfge::ShapeManager* shapeManager = graphics2dManager->GetShapeManager();
+	sfge::SpriteManager* spriteManager = graphics2dManager->GetSpriteManager();
+	sfge::TextureManager* textureManager = graphics2dManager->GetTextureManager();
+	sfge::CameraManager* cameraManager = graphics2dManager->GetCameraManager();
+
+	sf::RenderWindow* m_Window = graphics2dManager->GetWindow();
+
+	// UI managers
+	sfge::ButtonManager* buttonManager = uiManager->GetButtonManager();
+	sfge::TextManager* textManager = uiManager->GetTextManager();
+	sfge::ImageManager* imageManager = uiManager->GetImageManager();
 
 #pragma region Fake_Engine
-	int iteration = 0;
-
+	int i = 0;
 	sf::Clock globalClock;
 	sf::Clock updateClock;
 	sf::Clock fixedUpdateClock;
@@ -440,26 +566,58 @@ TEST(Charge, TestChargeLight)
 	sf::Time deltaFixedUpdateTime = sf::Time();
 	sf::Time dt = sf::Time();
 
-	rmt_BindOpenGL();
-	while (iteration < engineIterations && m_Window != nullptr)
-	{
-		//std::cout << "\n" << std::to_string(iteration);
+	sfge::Configuration* m_Config = engine.GetConfig();
 
+#ifdef DRAW_EMABLED
+	rmt_BindOpenGL();
+#endif
+
+	std::clock_t timer;
+
+	timer = std::clock();
+
+	while (i < iteration && m_Window != nullptr)
+	{
 		rmt_ScopedOpenGLSample(SFGE_Frame_GL);
 		rmt_ScopedCPUSample(SFGE_Frame, 0)
 
 			bool isFixedUpdateFrame = false;
+#ifdef DRAW_EMABLED
+		sf::Event event{};
+		while (m_Window != nullptr &&
+			m_Window->pollEvent(event))
+		{
+			editor->ProcessEvent(event);
+			if (event.type == sf::Event::Closed)
+			{
+				m_Window->close();
+			}
 
+		}
+#endif
+
+		inputManager->Update(dt.asSeconds());
 		auto fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
-		if (fixedUpdateTime.asSeconds() > engine.GetConfig()->fixedDeltaTime)
+		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
 			fixedUpdateClock.restart();
 			physicsManager->FixedUpdate();
+			previousFixedUpdateTime = globalClock.getElapsedTime();
+			tilemapSystem->FixedUpdate();
 			pythonEngine->FixedUpdate();
+			sceneManager->FixedUpdate();
+			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime();
 			isFixedUpdateFrame = true;
 		}
+		tilemapSystem->Update(dt.asSeconds());
 
 		pythonEngine->Update(dt.asSeconds());
+
+		sceneManager->Update(dt.asSeconds());
+
+#ifdef DRAW_EMABLED
+		editor->Update(dt.asSeconds());
+#endif
 		graphicsUpdateClock.restart();
 		transformManager->Update(dt.asSeconds());
 
@@ -468,134 +626,343 @@ TEST(Charge, TestChargeLight)
 
 		graphics2dManager->Update(dt.asSeconds());
 
+#ifdef DRAW_EMABLED
+		sceneManager->Draw();
+
 		uiManager->Draw();
 		graphics2dManager->Draw();
 
 		pythonEngine->Draw();
+		editor->Draw();
 		graphics2dManager->Display();
 
 		const sf::Time graphicsDt = graphicsUpdateClock.getElapsedTime();
-		iterationsTimes[iteration] = dt.asMicroseconds();
+#endif
 		dt = updateClock.restart();
-		iteration++;
+		i++;
 	}
-#pragma endregion 
 
-	float loopEngineTotalTime = 0;
-	float loopEngineAverageTime;
-	float fIterations = engineIterations;
+	auto duration = 1000.0 * (std::clock() - timer) / CLOCKS_PER_SEC;
 
-	for (int i = 0; i < engineIterations; i++)
-		loopEngineTotalTime += iterationsTimes[i];
-
-	loopEngineAverageTime = fIterations / loopEngineTotalTime;
-
-	std::cout << "\nEngine loop finished\n total time : " << loopEngineTotalTime << " | Average time " << loopEngineAverageTime;
-
-	std::cout << "\nDelete all shapes...";
 	// Suppression of all the shapes
-	for(unsigned i = 0; i < eNumber; i++)
+	std::cout << "\n Destruction of shape";
+	std::vector<Entity> e = shapeManager->GetConcernedEntities();
+	if (e.size() > 0)
 	{
-		shapeManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			shapeManager->DestroyComponent(e[i]);
+		}
 	}
 
-	std::cout << "\nDelete all sprites...";
+	std::cout << "\n Destruction of sprite";
+	e = spriteManager->GetConcernedEntities();
 	// Suppression of all the sprites
-	for (unsigned i = 0; i < eNumber; i++)
+	if (e.size() > 0)
 	{
-		spriteManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			spriteManager->DestroyComponent(e[i]);
+		}
 	}
 
-	std::cout << "\nDelete all scripts...";
+	std::cout << "\n Destruction of pyComponent";
+	e = pyComponentManager->GetConcernedEntities();
 	// Suppression of all the python scripts
-	for (unsigned i = 0; i < eNumber; i++)
+	if (e.size() > 0)
 	{
-		pyComponentManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			pyComponentManager->DestroyComponent(i);
+		}
 	}
 
-	std::cout << "\nDelete all animations...";
+	std::cout << "\n Destruction of animation";
+	e = animationManager->GetConcernedEntities();
 	// Suppression of all the animations
-	for (unsigned i = 0; i < eNumber; i++)
+	if (e.size() > 0)
 	{
-		animationManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			animationManager->DestroyComponent(e[i]);
+		}
 	}
 
-	std::cout << "\nDelete all buttons...";
+	std::cout << "\n Destruction of button";
+	e = buttonManager->GetConcernedEntities();
 	// Suppression of all the buttons
-	for (unsigned i = 0; i < eNumber; i++)
+	if (e.size() > 0)
 	{
-		buttonManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			buttonManager->DestroyComponent(e[i]);
+		}
 	}
 
-	std::cout << "\nDelete all images...";
+	std::cout << "\n Destruction of image";
+	e = imageManager->GetConcernedEntities();
 	// Suppression of all the images
-	for (unsigned i = 0; i < eNumber; i++)
+	if (e.size() > 0)
 	{
-		imageManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			imageManager->DestroyComponent(e[i]);
+		}
 	}
 
-	std::cout << "\nDelete all transforms...";
+	std::cout << "\n Destruction of transform";
+	e = transformManager->GetConcernedEntities();
 	// Suppression of all the transforms
-	for (unsigned i = 0; i < eNumber; i++)
+	if (e.size() > 0)
 	{
-		transformManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			transformManager->DestroyComponent(e[i]);
+		}
 	}
 
-	std::cout << "\nDelete all rect transforms...";
+	std::cout << "\n Destruction of rectTransform";
+	e = rectTransformManager->GetConcernedEntities();
 	// Suppression of all the rect transforms
-	for (unsigned i = 0; i < eNumber; i++)
+	if (e.size() > 0)
 	{
-		rectTransformManager->DestroyComponent(i);
+		for (unsigned i = 0; i < 2; i++)
+		{
+			rectTransformManager->DestroyComponent(e[i]);
+		}
 	}
 
+#ifdef DRAW_EMABLED
 	rmt_UnbindOpenGL();
+#endif
+
 	engine.Destroy();
 
-	std::cout << "\nEverything has been destroyed, test success !";
+	return std::to_string(duration);
+}
+
+std::string IterateFakeEngine(int en, int i, int ei,json scene)
+{
+	std::string result;
+	std::string Treatment;
+
+	for (int j = 0; j < i; j++)
+	{
+		std::cout << "\n---------------------Start test S1 iteration " << j << " without draw---------------------";
+		Treatment = FakeEngine(ei, scene);
+		result += (std::to_string(en) + ";" + Treatment + "\n");
+		std::cout << "Treatment : " << Treatment;
+		std::cout << "\n----------------------End test S1 iteration " << j << " without draw---------------------";
+	}
+
+	return result;
+}
+
+TEST(Charge, TestChargeLight)
+{
+	std::string returnedValues = "Entity Number;Treatment\n";
+	//std::ofstream resultFile;
+
+	const int iteration = 1;
+	const int engineIterations = 1;
+	const int eN1 = 32;
+	/*const int eN2 = 32;
+	const int eN3 = 64;
+	const int eN4 = 128;
+	const int eN5 = 256;
+	const int eN6 = 512;
+	const int eN7 = 1024;
+	const int eN8 = 2048;
+	const int eN9 = 4096;
+	const int eN10 = 8192;
+	const int eN11 = 16384;*/
+
+	json s1 = CreatOverloadedScene(eN1);
+	/*json s2 = CreatOverloadedScene(eN2);
+	json s3 = CreatOverloadedScene(eN3);
+	json s4 = CreatOverloadedScene(eN4);
+	json s5 = CreatOverloadedScene(eN5);
+	json s6 = CreatOverloadedScene(eN6);
+	json s7 = CreatOverloadedScene(eN7);
+	json s8 = CreatOverloadedScene(eN8);
+	json s9 = CreatOverloadedScene(eN9);
+	json s10 = CreatOverloadedScene(eN10);
+	json s11 = CreatOverloadedScene(eN11);*/
+
+	returnedValues += IterateFakeEngine(eN1, iteration, engineIterations, s1);
+	/*returnedValues += IterateFakeEngine(eN2, iteration, engineIterations, s2);
+	returnedValues += IterateFakeEngine(eN3, iteration, engineIterations, s3);
+	returnedValues += IterateFakeEngine(eN4, iteration, engineIterations, s4);
+	returnedValues += IterateFakeEngine(eN5, iteration, engineIterations, s5);
+	returnedValues += IterateFakeEngine(eN6, iteration, engineIterations, s6);
+	returnedValues += IterateFakeEngine(eN7, iteration, engineIterations, s7);
+	returnedValues += IterateFakeEngine(eN8, iteration, engineIterations, s8);
+	returnedValues += IterateFakeEngine(eN9, iteration, engineIterations, s9);
+	returnedValues += IterateFakeEngine(eN10, iteration, engineIterations, s10);
+	returnedValues += IterateFakeEngine(eN11, iteration, engineIterations, s11);
+
+	resultFile.open("fakeEngineRunConcernedNoDraw.csv");
+	resultFile << returnedValues;
+	resultFile.close();*/
+
 	return SUCCEED();
 }
 
-/*TEST(Charge, TestChargeMediumLow)
+class TestComponentClass
 {
-	int mapSize = 250;
-	int buildingFactor = 0.2;
-	int dwarfFactor = 4;
-	int uiElement = 50;
+public:
+	void Update(sfge::Vec2f* incrementBy)
+	{
+		testValue += *incrementBy;
+	};
 
-	sfge::Engine engine;
-	engine.Init();
+	bool valide = false;
+protected:
+	sfge::Vec2f testValue = { 0,0 };	
+};
 
-	engine.GetSceneManager()->LoadSceneFromJson(CreateScene(mapSize, buildingFactor, dwarfFactor, uiElement));
+class TestComponentClassManager
+{
+public:
+	void Init(const unsigned vectorSize, int entityPercentage)
+	{
+		m_Components.clear();
+		m_ConcernedEntity.clear();
 
-	engine.Start();
+		m_Components = std::vector<TestComponentClass>{ vectorSize };
+
+		for (int i = 0; i < m_Components.size(); i++)
+		{
+			int vr = rand() % 100;
+
+			if (vr < entityPercentage)
+			{
+				m_Components[i].valide = true;
+				m_ConcernedEntity.push_back(i);	
+			}
+		}
+
+		componentPercentage = (m_ConcernedEntity.size() * 100) / vectorSize;
+
+		std::cout << "\nThere is " << m_ConcernedEntity.size() << " valide component out of " << vectorSize;
+	};
+
+	void ClassicUpdate()
+	{
+		for(int i = 0; i < m_Components.size(); i++)
+		{
+			if (m_Components[i].valide)
+				m_Components[i].Update(&increment);
+		}
+	};
+
+	void ConcernedUpdate()
+	{
+		for (int i = 0; i < m_ConcernedEntity.size(); i++)
+			m_Components[m_ConcernedEntity[i]].Update(&increment);
+	};
+	float componentPercentage = 0.0f;
+private:
+	std::vector<TestComponentClass> m_Components;
+	std::vector<int> m_ConcernedEntity;
+	sfge::Vec2f increment = { 0.1f,0.1f };
+};
+
+std::string UpdateManager(TestComponentClassManager* manager, int iteration)
+{
+	std::clock_t timer;
+
+	timer = std::clock();
+
+	for (int i = 0; i < iteration; i++)
+	{
+		manager->ClassicUpdate();
+	}
+
+	auto durationClassic =  1000.0 * (std::clock() - timer) / CLOCKS_PER_SEC;
+
+	timer = std::clock();
+
+	for (int i = 0; i < iteration; i++)
+	{
+		manager->ConcernedUpdate();
+	}
+
+	auto durationConcerned = 1000.0 *(std::clock() - timer) / CLOCKS_PER_SEC;
+
+	std::cout << "\nClassic : " << durationClassic << " ms\tConcerned : " << durationConcerned << " ms";
+	return std::to_string(durationClassic) + ";" + std::to_string(durationConcerned);
 }
 
-TEST(Charge, TestChargeMediumUp)
+TEST(Component, ComponentUpdateManagement)
 {
-	int mapSize = 250;
-	int buildingFactor = 0.2;
-	int dwarfFactor = 4;
-	int uiElement = 50;
+	std::string returnedValues = "Entity number;Valide component percentage;Classic treatment;Concerned treatement;\n";
+	std::ofstream resultFile;
 
-	sfge::Engine engine;
-	engine.Init();
+	int loopIteration = 1;
+	int componentPercentage = 100;
+	int testIteration = 1;	
+	int i = 0;
 
-	engine.GetSceneManager()->LoadSceneFromJson(CreateScene(mapSize, buildingFactor, dwarfFactor, uiElement));
+	const unsigned entityNumber1 = 1 << 4;
+	const unsigned entityNumber2 = 1 << 5;
+	const unsigned entityNumber3 = 1 << 6;
+	const unsigned entityNumber4 = 1 << 7;
+	const unsigned entityNumber5 = 1 << 8;
+	const unsigned entityNumber6 = 1 << 9;
+	const unsigned entityNumber7 = 1 << 10;
+	const unsigned entityNumber8 = 1 << 11;
+	const unsigned entityNumber9 = 1 << 12;
+	const unsigned entityNumber10 = 1 << 13;
+	const unsigned entityNumber11 = 1 << 14;
+	TestComponentClassManager m1;
+	TestComponentClassManager m2;
+	TestComponentClassManager m3;
+	TestComponentClassManager m4;
+	TestComponentClassManager m5;
+	TestComponentClassManager m6;
+	TestComponentClassManager m7;
+	TestComponentClassManager m8;
+	TestComponentClassManager m9;
+	TestComponentClassManager m10;
+	TestComponentClassManager m11;
 
-	engine.Start();
+	while (componentPercentage > 0)
+	{
+		std::cout << "\n---------------------Start test with " << componentPercentage << "% of valide components---------------------";
+		m1.Init(entityNumber1, componentPercentage);
+		m2.Init(entityNumber2, componentPercentage);
+		m3.Init(entityNumber3, componentPercentage);
+		m4.Init(entityNumber4, componentPercentage);
+		m5.Init(entityNumber5, componentPercentage);
+		m6.Init(entityNumber6, componentPercentage);
+		m7.Init(entityNumber7, componentPercentage);
+		m8.Init(entityNumber8, componentPercentage);
+		m9.Init(entityNumber9, componentPercentage);
+		m10.Init(entityNumber10, componentPercentage);
+		m11.Init(entityNumber11, componentPercentage);
+
+		returnedValues += (std::to_string(entityNumber1) + ";" + std::to_string(m1.componentPercentage) + ";" + UpdateManager(&m1, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber2) + ";" + std::to_string(m2.componentPercentage) + ";" + UpdateManager(&m2, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber3) + ";" + std::to_string(m3.componentPercentage) + ";" + UpdateManager(&m3, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber4) + ";" + std::to_string(m4.componentPercentage) + ";" + UpdateManager(&m4, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber5) + ";" + std::to_string(m5.componentPercentage) + ";" + UpdateManager(&m5, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber6) + ";" + std::to_string(m6.componentPercentage) + ";" + UpdateManager(&m6, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber7) + ";" + std::to_string(m7.componentPercentage) + ";" + UpdateManager(&m7, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber8) + ";" + std::to_string(m8.componentPercentage) + ";" + UpdateManager(&m8, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber9) + ";" + std::to_string(m9.componentPercentage) + ";" + UpdateManager(&m9, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber10) + ";" + std::to_string(m10.componentPercentage) + ";" + UpdateManager(&m10, loopIteration) + ";\n");
+		returnedValues += (std::to_string(entityNumber11) + ";" + std::to_string(m11.componentPercentage) + ";" + UpdateManager(&m11, loopIteration) + ";\n");
+		std::cout << "\n----------------------End test with " << componentPercentage << "% of valide components---------------------";
+		i++;
+
+		if (i % 5 == 0)
+			componentPercentage -= 5;
+	}
+
+	/*resultFile.open("componentResultData.csv");
+	resultFile << returnedValues;
+	resultFile.close();*/
+
+	return SUCCEED();
 }
-
-TEST(Charge, TestChargeHeavy)
-{
-	int mapSize = 250;
-	int buildingFactor = 0.2;
-	int dwarfFactor = 4;
-	int uiElement = 50;
-
-	sfge::Engine engine;
-	engine.Init();
-
-	engine.GetSceneManager()->LoadSceneFromJson(CreateScene(mapSize, buildingFactor, dwarfFactor, uiElement));
-
-	engine.Start();
-}*/

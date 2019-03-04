@@ -8,6 +8,9 @@
 #include <engine/transform2d.h>
 #include <imgui.h>
 #include <engine/engine.h>
+
+#define COMPONENT_OPTIMIZATION
+
 namespace sfge
 {
 
@@ -68,11 +71,13 @@ void Transform2dManager::DestroyComponent(Entity entity)
 
 void Transform2dManager::Update(float dt) {
     System::Update(dt);
+#ifdef COMPONENT_OPTIMIZATION
 	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
 	{
 		m_Components[m_ConcernedEntities[i] - 1].Update();
 	}
-    /*for(auto& transform : m_Components)
+#else
+    for(auto& transform : m_Components)
 	{
     	if(transform.EulerAngle > 180.0f)
 		{
@@ -83,7 +88,8 @@ void Transform2dManager::Update(float dt) {
 		{
 			transform.EulerAngle += 360.0f;
 		}
-	}*/
+	}
+#endif
 }
 
 json Transform2dManager::Save()

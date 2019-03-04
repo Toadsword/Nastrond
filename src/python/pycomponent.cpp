@@ -547,15 +547,16 @@ PyBehavior **PyComponentManager::GetComponentPtr(Entity entity)
 }
 void PyComponentManager::InitPyComponents()
 {
+#ifdef COMPONENT_OPTIMIZATION
 	for (int i = 0; i < m_ConcernedEntities.size(); i++)
 		m_Components[i]->Init();
-
-	/*for (auto* pyComponent : m_Components)
+#else
+	for (auto* pyComponent : m_Components)
 	{
 		if(pyComponent != nullptr)
 			pyComponent->Init();
-	}*/
-
+	}
+#endif
 }
 void PyComponentManager::Destroy()
 {
@@ -591,17 +592,36 @@ void PyComponentManager::FixedUpdate()
 	rmt_ScopedCPUSample(PyComponentFixedUpdate,0);
 
 	auto config = m_Engine.GetConfig();
-
+#ifdef COMPONENT_OPTIMIZATION
 	for (int i = 0; i < m_ConcernedEntities.size(); i++)
 		m_Components[i]->FixedUpdate(config->fixedDeltaTime);
+#else
+	for (auto* pyComponent : m_Components)
+	{
+		if (pyComponent != nullptr)
+		{
+			pyComponent->FixedUpdate(config->fixedDeltaTime);
+		}
+	}
+#endif
 }
 void PyComponentManager::Update(float dt)
 {
 	System::Update(dt);
 
 	rmt_ScopedCPUSample(PyComponentUpdate,0);
+#ifdef COMPONENT_OPTIMIZATION
 	for (int i = 0; i < m_ConcernedEntities.size(); i++)
 		m_Components[i]->Update(dt);
+#else
+	for (auto* pyComponent : m_Components)
+	{
+		if (pyComponent != nullptr)
+		{
+			pyComponent->Update(dt);
+		}
+	}
+#endif
 }
 void PyComponentManager::OnResize(size_t newSize)
 {

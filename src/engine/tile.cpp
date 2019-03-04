@@ -113,7 +113,7 @@ Tile * TileManager::AddComponent(Entity entity)
 		m_Engine.GetTransform2dManager()->AddComponent(entity);
 
 	tileInfo.tile = &tile;
-
+	m_ConcernedEntities.push_back(entity);
 	m_EntityManager->AddComponentType(entity, ComponentType::TILE);
 	return &tile;
 }
@@ -124,7 +124,7 @@ Tile * TileManager::AddComponent(Entity entity, TileTypeId tileType)
 	auto& tileInfo = GetComponentInfo(entity);
 	
 	tileInfo.tile = tile;
-
+	m_ConcernedEntities.push_back(entity);
 	tile->SetType(tileType);
 	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(entity, tileType);
 

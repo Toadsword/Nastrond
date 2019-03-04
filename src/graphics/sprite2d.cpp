@@ -35,6 +35,8 @@ SOFTWARE.
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#define COMPONENT_OPTIMIZATION
+
 namespace sfge
 {
 
@@ -133,29 +135,40 @@ void SpriteManager::Update(float dt)
 {
 	(void) dt;
 	rmt_ScopedCPUSample(SpriteUpdate,0)
+#ifdef COMPONENT_OPTIMIZATION
 	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
 	{
 		m_Components[m_ConcernedEntities[i] - 1].Update(m_Transform2dManager->GetComponentPtr(m_ConcernedEntities[i]));
 	}
-	/*for(auto i = 0u; i < m_Components.size();i++)
+#else
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
 		{
 			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1));
 		}
-	}*/
+	}
+#endif
 }
 
 void SpriteManager::DrawSprites(sf::RenderWindow &window)
 {
 
 	rmt_ScopedCPUSample(SpriteDraw,0)
+#ifdef COMPONENT_OPTIMIZATION
+	for(auto i = 0U; i < m_ConcernedEntities.size(); i++)
+	{
+		if(m_Components[m_ConcernedEntities[i] - 1].is_visible)
+			m_Components[m_ConcernedEntities[i] - 1].Draw(window);
+	}
+#else
 	for (auto i = 0u; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
 			if(m_Components[i].is_visible)
 				m_Components[i].Draw(window);
 	}
+#endif
 }
 
 void SpriteManager::Reset()

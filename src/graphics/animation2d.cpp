@@ -34,6 +34,8 @@ SOFTWARE.
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#define COMPONENT_OPTIMIZATION
+
 namespace sfge
 {
 
@@ -155,6 +157,10 @@ void AnimationManager::Update(float dt)
 {
 
 	rmt_ScopedCPUSample(Animation2dUpdate,0)
+#ifdef COMPONENT_OPTIMIZATION
+		for (int i = 0; i < m_ConcernedEntities.size(); i++)
+			m_Components[m_ConcernedEntities[i] - 1].Update(dt, m_Transform2dManager->GetComponentPtr(i + 1));
+#else
 	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::ANIMATION2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
@@ -162,6 +168,7 @@ void AnimationManager::Update(float dt)
 			m_Components[i].Update(dt, m_Transform2dManager->GetComponentPtr(i + 1));
 		}
 	}
+#endif
 }
 
 

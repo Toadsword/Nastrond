@@ -26,6 +26,8 @@ SOFTWARE.
 #include <imgui.h>
 #include <utility/file_utility.h>
 
+#define COMPONENT_OPTIMIZATION
+
 namespace sfge
 {
 	Text& Text::operator=(const Text&)
@@ -199,6 +201,10 @@ namespace sfge
 	void TextManager::Update(float dt)
 	{
 		System::Update(dt);
+#ifdef COMPONENT_OPTIMIZATION
+		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+			m_Components[m_ConcernedEntities[i] - 1].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
+#else
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
@@ -206,15 +212,21 @@ namespace sfge
 				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
 			}
 		}
+#endif
 	}
 
 	void TextManager::DrawTexts(sf::RenderWindow& window)
 	{	
+#ifdef COMPONENT_OPTIMIZATION
+		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+			m_Components[m_ConcernedEntities[i] - 1].Draw(window);
+#else
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT))
 				m_Components[i].Draw(window);
 		}
+#endif
 	}
 
 	void TextManager::OnResize(size_t newSize)

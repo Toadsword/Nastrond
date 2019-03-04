@@ -31,6 +31,8 @@ SOFTWARE.
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#define COMPONENT_OPTIMIZATION
+
 namespace sfge
 {
 
@@ -129,8 +131,13 @@ void ShapeManager::Init()
 
 void ShapeManager::DrawShapes(sf::RenderWindow &window)
 {
-
 	rmt_ScopedCPUSample(ShapeDraw,0)
+#ifdef COMPONENT_OPTIMIZATION
+	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+	{
+		m_Components[m_ConcernedEntities[i] - 1].Draw(window);
+	}
+#else
 	for(auto i = 0u; i < m_Components.size(); i++)
 	{
 		if(m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
@@ -138,24 +145,27 @@ void ShapeManager::DrawShapes(sf::RenderWindow &window)
 			m_Components[i].Draw(window);
 		}
 	}
+#endif
 }
 
 void ShapeManager::Update(const float dt)
 {
 
 	rmt_ScopedCPUSample(ShapeUpdate,0)
+#ifdef COMPONENT_OPTIMIZATION
 	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
 	{
 		m_Components[m_ConcernedEntities[i] - 1].Update(dt, m_Transform2dManager->GetComponentPtr(m_ConcernedEntities[i]));
 	}
-	/*for (auto i = 0u; i < m_Components.size(); i++)
+#else
+	for (auto i = 0u; i < m_Components.size(); i++)
 	{
 		if (m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
 		{
 			m_Components[i].Update(dt, m_Transform2dManager->GetComponentPtr(i + 1));
 		}
-	}*/
-	
+	}
+#endif
 }
 
 void ShapeManager::Clear()
@@ -171,9 +181,6 @@ Shape *ShapeManager::AddComponent (Entity entity)
 {
 	auto shapePtr = GetComponentPtr (entity);
 	GetComponentInfo (entity).shapePtr = shapePtr;
-	/*
-		* Component optimisation addition
-		*/
 	m_ConcernedEntities.push_back(entity);
 	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::SHAPE2D);
 	m_ComponentsInfo[entity - 1].SetEntity(entity);

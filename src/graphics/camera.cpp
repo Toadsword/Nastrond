@@ -33,6 +33,8 @@ SOFTWARE.
 #include <imgui.h>
 #include <imgui-SFML.h>	
 
+#define COMPONENT_OPTIMIZATION
+
 namespace sfge
 {
 	Camera::Camera()
@@ -104,6 +106,13 @@ namespace sfge
 	void CameraManager::Update(float dt)
 	{
 		rmt_ScopedCPUSample(CameraUpdate, 0)
+#ifdef COMPONENT_OPTIMIZATION
+		for (auto i = 0U; i < m_ConcernedEntities.size(); i++)
+		{
+			if(m_ConcernedEntities[i] == currentCamera)
+				m_Components[m_ConcernedEntities[i] - 1].Update(dt, (*m_GraphicsManager->GetWindow()));
+		}
+#else
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
 			if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
@@ -114,6 +123,7 @@ namespace sfge
 				}
 			}
 		}
+#endif
 	}
 
 	void CameraManager::SetCameraCurrent(short newCurrent)
