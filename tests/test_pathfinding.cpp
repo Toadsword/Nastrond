@@ -34,59 +34,6 @@ SOFTWARE.
 #include <extensions/AI/behavior_tree.h>
 #include <extensions/AI/behavior_tree_factory.h>
 
-TEST(AI, BehaviourTreeLoadRandomPathFromJson)
-{
-	sfge::Engine engine;
-
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity.SetZero();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-
-	auto* sceneManager = engine.GetSceneManager();
-
-	json sceneJson = {
-		{ "name", "Behavior tree" } };
-	json systemJsonBehaviourTree = {
-		{ "systemClassName", "BehaviorTree" }
-	};
-	json systemJsonNavigation = {
-		{ "systemClassName", "NavigationGraphManager" }
-	};
-	json systemJsonDwarf = {
-		{ "systemClassName", "DwarfManager" }
-	};
-	json systemJsonDwelling = {
-		{ "systemClassName", "DwellingManager"}
-	};
-
-	sceneJson["systems"] = json::array({ systemJsonBehaviourTree,  systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
-
-	json entityCamera;
-	json CameraJson;
-	CameraJson["type"] = static_cast<int>(sfge::ComponentType::CAMERA);
-	json pyCameraJson;
-	pyCameraJson["script_path"] = "scripts/camera_manager.py";
-	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
-	entityCamera["components"] = json::array({ CameraJson, pyCameraJson });
-
-
-	sceneJson["entities"] = json::array({ entityCamera});
-
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::BehaviorTree>("BehaviorTree");
-
-	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
-
-	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
-
-	engine.Start();
-
-	system("pause");
-}
-
 TEST(AI, PathfindingTilemap)
 {
 	sfge::Engine engine;
@@ -166,7 +113,7 @@ TEST(AI, PathfindingTilemap)
 
 	//Scene json
 	json sceneJson;
-	sceneJson["name"] = "Path finding in isometric tilemap";
+	sceneJson["name"] = "Normal que rien ne s'affiche";
 	sceneJson["entities"] = json::array({ entityCamera, tilemapEntity });
 	sceneJson["systems"] = json::array({ systemJsonBehaviourTree,  systemJsonNavigation, systemJsonDwarf, systemJsonDwelling });
 
