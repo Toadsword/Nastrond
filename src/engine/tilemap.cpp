@@ -383,9 +383,6 @@ namespace sfge
 			m_Engine.GetTransform2dManager()->AddComponent(entity);
 
 		tilemapInfo.tilemap = &tilemap;
-		/*
-		* Component optimisation addition
-		*/
 		m_ConcernedEntities.push_back(entity);
 		m_EntityManager->AddComponentType(entity, ComponentType::TILEMAP);
 		return &tilemap;
@@ -521,6 +518,7 @@ namespace sfge
 #endif
 	{
 		auto & tilemap = m_Components[entity - 1];
+		m_ConcernedEntities.push_back(entity);
 		EmptyMap(entity);
 
 #ifndef OptiVector

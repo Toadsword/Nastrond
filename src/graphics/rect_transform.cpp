@@ -46,7 +46,7 @@ namespace sfge
 
 	void RectTransform::Update(Camera* camera)
 	{
-		if(camera == nullptr)
+		if (camera == nullptr)
 			Position = basePosition;
 		else
 			Position = basePosition + camera->GetPosition();
@@ -140,9 +140,6 @@ namespace sfge
 		auto& rectTransform = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].rectTransform = &rectTransform;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
-		/*
-		* Component optimisation addition
-		*/
 		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::RECTTRANSFORM);
 		return &rectTransform;
@@ -165,7 +162,8 @@ namespace sfge
 	
 	void RectTransformManager::Update(float dt)
 	{
-		System::Update(dt);
+		//System::Update(dt);
+		rmt_ScopedCPUSample(RectTransformUpdate, 0)
 #ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
 		{

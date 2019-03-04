@@ -465,13 +465,12 @@ void PyComponentManager::OnCollisionExit(Entity entity, ColliderData * colliderD
 
 void PyComponentManager::RemovePyComponentsFrom(Entity entity)
 {
-	for(auto i = 0u; i < m_ConcernedEntities.size();i++)
+	for(auto i = 0u; i < m_Components.size();i++)
 	{
 		auto& pyComponent = m_Components[i];
 		if(pyComponent != nullptr && entity == pyComponent->GetEntity())
 		{
 			pyComponent = nullptr;
-			m_ConcernedEntities.erase(m_ConcernedEntities.begin() + i);
 		}
 	}
 	for(auto i = 0u; i < m_PythonInstances.size();i++)
@@ -505,7 +504,7 @@ int PyComponentManager::GetFreeComponentIndex()
 }
 void PyComponentManager::Init()
 {
-	SingleComponentManager::Init();
+	MultipleComponentManager::Init();
 	m_PythonEngine = m_Engine.GetPythonEngine();
 }
 
@@ -520,10 +519,6 @@ void PyComponentManager::CreateComponent(json &componentJson, Entity entity)
 		{
 			const InstanceId instanceId = LoadPyComponent(moduleId, entity);
 			(void) instanceId;
-			/*
-		* Component optimisation addition
-		*/
-			m_ConcernedEntities.push_back(entity);
 		}
 	}
 }
@@ -547,16 +542,11 @@ PyBehavior **PyComponentManager::GetComponentPtr(Entity entity)
 }
 void PyComponentManager::InitPyComponents()
 {
-#ifdef COMPONENT_OPTIMIZATION
-	for (int i = 0; i < m_ConcernedEntities.size(); i++)
-		m_Components[i]->Init();
-#else
 	for (auto* pyComponent : m_Components)
 	{
 		if(pyComponent != nullptr)
 			pyComponent->Init();
 	}
-#endif
 }
 void PyComponentManager::Destroy()
 {
@@ -592,10 +582,7 @@ void PyComponentManager::FixedUpdate()
 	rmt_ScopedCPUSample(PyComponentFixedUpdate,0);
 
 	auto config = m_Engine.GetConfig();
-#ifdef COMPONENT_OPTIMIZATION
-	for (int i = 0; i < m_ConcernedEntities.size(); i++)
-		m_Components[i]->FixedUpdate(config->fixedDeltaTime);
-#else
+
 	for (auto* pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr)
@@ -603,17 +590,12 @@ void PyComponentManager::FixedUpdate()
 			pyComponent->FixedUpdate(config->fixedDeltaTime);
 		}
 	}
-#endif
 }
 void PyComponentManager::Update(float dt)
 {
 	System::Update(dt);
 
 	rmt_ScopedCPUSample(PyComponentUpdate,0);
-#ifdef COMPONENT_OPTIMIZATION
-	for (int i = 0; i < m_ConcernedEntities.size(); i++)
-		m_Components[i]->Update(dt);
-#else
 	for (auto* pyComponent : m_Components)
 	{
 		if (pyComponent != nullptr)
@@ -621,11 +603,10 @@ void PyComponentManager::Update(float dt)
 			pyComponent->Update(dt);
 		}
 	}
-#endif
 }
 void PyComponentManager::OnResize(size_t newSize)
 {
-	SingleComponentManager::OnResize(newSize);
+	MultipleComponentManager::OnResize(newSize);
 	m_PythonInstances.resize(newSize);
 }
 }

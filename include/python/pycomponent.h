@@ -95,11 +95,11 @@ public:
     void OnTriggerExit(ColliderData * collider) override;
 };
 
-class PyComponentManager: public SingleComponentManager<PyBehavior*, editor::PyComponentInfo, ComponentType::PYCOMPONENT>
+class PyComponentManager: public MultipleComponentManager<PyBehavior*, editor::PyComponentInfo, ComponentType::PYCOMPONENT>
 {
 public:
 
-	using SingleComponentManager::SingleComponentManager;
+	using MultipleComponentManager::MultipleComponentManager;
 	~PyComponentManager(){};
 	void Init() override;
 	void Update(float dt) override;

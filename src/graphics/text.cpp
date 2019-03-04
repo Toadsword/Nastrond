@@ -203,7 +203,7 @@ namespace sfge
 		System::Update(dt);
 #ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
-			m_Components[m_ConcernedEntities[i] - 1].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
+			m_Components[m_ConcernedEntities[i] - 1].Update(m_RectTransformManager->GetComponentPtr(m_ConcernedEntities[i])->Position);
 #else
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
