@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include <vector>
 #include <string>
+#include <functional>
 
 namespace sfge::ext::behavior_tree
 {

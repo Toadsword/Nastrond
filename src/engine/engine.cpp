@@ -25,11 +25,9 @@ SOFTWARE.
 #include <memory>
 #include <iostream>
 
-
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-
 
 #include <engine/engine.h>
 #include <engine/globals.h>
@@ -37,8 +35,6 @@ SOFTWARE.
 #include <utility/log.h>
 #include <utility/file_utility.h>
 #include <engine/systems_container.h>
-
-
 
 namespace sfge
 {
@@ -103,7 +99,6 @@ void Engine::InitModules()
     m_SystemsContainer->pythonEngine.Init();
     m_SystemsContainer->physicsManager.Init();
     m_SystemsContainer->editor.Init();
-	m_SystemsContainer->tilemapSystem.Init();
 
 	m_Window = m_SystemsContainer->graphics2dManager.GetWindow();
 	running = true;
@@ -150,15 +145,12 @@ void Engine::Start()
 			fixedUpdateClock.restart ();
 			m_SystemsContainer->physicsManager.FixedUpdate();
 			previousFixedUpdateTime = globalClock.getElapsedTime();
-			m_SystemsContainer->tilemapSystem.FixedUpdate();
 			m_SystemsContainer->pythonEngine.FixedUpdate();
             m_SystemsContainer->sceneManager.FixedUpdate();
 			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime ();
 			m_FrameData.frameFixedUpdate = deltaFixedUpdateTime;
 			isFixedUpdateFrame = true;
 		}
-		m_SystemsContainer->tilemapSystem.Update(dt.asSeconds());
-
         m_SystemsContainer->pythonEngine.Update(dt.asSeconds());
 
         m_SystemsContainer->sceneManager.Update(dt.asSeconds());
@@ -205,7 +197,6 @@ void Engine::Destroy()
 	m_SystemsContainer->inputManager.Destroy();
 	m_SystemsContainer->editor.Destroy();
 	m_SystemsContainer->physicsManager.Destroy();
-	m_SystemsContainer->tilemapSystem.Destroy();
 	rmt_DestroyGlobalInstance(rmt);
 }
 
@@ -219,7 +210,6 @@ void Engine::Clear()
 	m_SystemsContainer->pythonEngine.Clear();
 	m_SystemsContainer->editor.Clear();
 	m_SystemsContainer->physicsManager.Clear();
-	m_SystemsContainer->tilemapSystem.Clear();
 }
 
 void Engine::Collect() 
@@ -232,7 +222,6 @@ void Engine::Collect()
 	m_SystemsContainer->pythonEngine.Collect();
 	m_SystemsContainer->editor.Collect();
 	m_SystemsContainer->physicsManager.Collect();
-	m_SystemsContainer->tilemapSystem.Collect();
 }
 
 void Engine::Save()
@@ -245,7 +234,7 @@ void Engine::Save()
 	json transformSave = m_SystemsContainer->transformManager.Save();
 	json spriteSave = m_SystemsContainer->graphics2dManager.GetSpriteManager()->Save();
 	json pyComponentSave = m_SystemsContainer->pythonEngine.GetPyComponentManager().Save();
-	json tilemapSave = m_SystemsContainer->tilemapSystem.Save();
+	json tilemapSave = m_SystemsContainer->graphics2dManager.GetTilemapSystem()->Save();
 	json cameraSave = m_SystemsContainer->graphics2dManager.GetCameraManager()->Save();
 
 	bool hasAtLeastOneComponent = false;
@@ -418,11 +407,6 @@ UIManager* Engine::GetUIManager()
 Editor* Engine::GetEditor() 
 {
 	return m_SystemsContainer ? &m_SystemsContainer->editor : nullptr;
-}
-
-TilemapSystem* Engine::GetTilemapSystem()
-{
-	return m_SystemsContainer ? &m_SystemsContainer->tilemapSystem : nullptr;
 }
 
 ctpl::thread_pool & Engine::GetThreadPool()

@@ -26,7 +26,7 @@ SOFTWARE.
 #include <utility/priority_queue.h>
 
 #include <extensions/AI/navigation_graph_manager.h>
-#include "engine/tilemap.h"
+#include <graphics/tilemap.h>
 
 #include <extensions/dwarf_manager.h>
 
@@ -54,7 +54,7 @@ void NavigationGraphManager::Init()
 		"DwarfManager");
 
 	//Get everything needed
-	auto* tilemapSystem = m_Engine.GetTilemapSystem();
+	auto* tilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
 
 	auto* tilemapManager = tilemapSystem->GetTilemapManager();
 
@@ -213,7 +213,7 @@ void NavigationGraphManager::AskForPath(const unsigned int index, const Vec2f or
 void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<std::vector<int>>& map)
 {
 	auto transformManager = m_Engine.GetTransform2dManager();
-	auto* tilemapSystem = m_Engine.GetTilemapSystem();
+	auto* tilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
 	auto tileManager = tilemapSystem->GetTileManager();
 
 	std::vector<TileTypeId> tileTypes = tilemap->GetTileTypes();

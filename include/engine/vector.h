@@ -61,5 +61,36 @@ class Vec2f
 
 };
 
+
+class Vec2i
+{
+public:
+	int x;
+	int y;
+
+	Vec2i(int x, int y);
+	Vec2i();
+#ifdef SFML_VECTOR2_HPP
+	Vec2i(const sf::Vector2f& v);//copy construct
+#endif
+	static Vec2i Lerp(const Vec2i& v1, const Vec2i& v2, float t);
+	static int Dot(const Vec2i& v1, const Vec2i& v2);
+
+	bool operator==(const Vec2i &rhs) const;
+	bool operator!=(const Vec2i &rhs) const;
+
+	Vec2i operator+(const Vec2i& rhs) const;
+	Vec2i& operator+=(const Vec2i& rhs);
+	Vec2i operator-(const Vec2i& rhs) const;
+
+	Vec2i& operator-=(const Vec2i& rhs);
+	Vec2i operator*(int rhs) const;
+	Vec2i operator/(int rhs) const;
+
+	operator sf::Vector2f() const;
+
+
+};
+
 }
 #endif //SFGE_VECTOR_H
