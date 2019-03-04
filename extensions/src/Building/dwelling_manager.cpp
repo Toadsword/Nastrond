@@ -203,15 +203,18 @@ namespace sfge::ext
 			{
 				continue;
 			}
+
+			const unsigned short stackSizeNeeded = GetStackSizeByResourceType(m_ResourceTypeNeeded);
 			
-			if (m_ResourcesInventories[i] <= 0)
+			if (m_ResourcesInventories[i] == 0 && m_ResourcesInventories[i] <= m_MaxCapacity - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
+			{
+				m_ReservedImportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::DWELLING, m_ResourceTypeNeeded);
+			}
+
+			if (m_ResourcesInventories[i] == 0)
 			{
 				DecreaseHappiness();
-				continue;
-			}
-			
-			if(m_DwarfSlots[i].dwarfIn <= 0)
-			{
 				continue;
 			}
 
@@ -225,9 +228,7 @@ namespace sfge::ext
 			m_ProgressionCoolDown[i] = 0;
 			m_ResourcesInventories[i]--;
 
-			const unsigned short stackSizeNeeded = GetStackSizeByResourceType(m_ResourceTypeNeeded);
-
-			if(m_ResourcesInventories[i] <= m_MaxCapacity - (m_ReservedImportStackNumber[i] * m_ResourceTypeNeeded + stackSizeNeeded))
+			if(m_ResourcesInventories[i] <= m_MaxCapacity - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
 			{
 				m_ReservedImportStackNumber[i]++;
 				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::DWELLING, m_ResourceTypeNeeded);
@@ -267,7 +268,6 @@ namespace sfge::ext
 			}
 
 			m_EntityIndex[i] = newEntity;
-
 
 			m_DwarfSlots[i] = DwarfSlots();
 

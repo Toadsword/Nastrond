@@ -148,7 +148,6 @@ namespace sfge::ext
 			m_ResourceTypes[newBuilding] = m_MushroomFarmResourceType;
 			break;
 		}
-
 	}
 
 	void ProductionBuildingManager::DestroyBuilding(Entity entity, BuildingType buildingType)

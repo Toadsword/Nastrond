@@ -109,7 +109,6 @@ namespace sfge::ext
 		const size_t newForge = m_BuildingIndexCount - 1;
 
 		m_EntityIndex[newForge] = newEntity;
-
 	}
 
 	void ForgeManager::DestroyBuilding(Entity entity)
@@ -230,12 +229,23 @@ namespace sfge::ext
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == INVALID_ENTITY || m_ResourcesInventoriesReceiver[i] <= 0 || m_ResourcesInventoriesGiver[i] >= m_MaxCapacityGiver)
+			if (m_EntityIndex[i] == INVALID_ENTITY || m_ResourcesInventoriesGiver[i] >= m_MaxCapacityGiver)
 			{
 				continue;
 			}
 
-			if ((m_ProgressionCoolDown[i] += m_DwarfSlots[i].dwarfIn) < m_CoolDownGoal)
+			const unsigned short stackSizeNeeded = GetStackSizeByResourceType(m_ResourceTypeNeeded);
+
+			if(m_ResourcesInventoriesReceiver[i] == 0 && m_ResourcesInventoriesReceiver[i] <= m_MaxCapacityReceiver - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
+			{
+				m_ReservedImportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeNeeded);
+				continue;
+			}
+			
+			m_ProgressionCoolDown[i] += m_DwarfSlots[i].dwarfIn;
+
+			if (m_ProgressionCoolDown[i] < m_CoolDownGoal)
 			{
 				continue;
 			}
@@ -243,15 +253,14 @@ namespace sfge::ext
 			m_ProgressionCoolDown[i] = 0;
 			m_ResourcesInventoriesReceiver[i]--;
 
-			const unsigned short stackSizeNeeded = GetStackSizeByResourceType(m_ResourceTypeNeeded);
-
 			if(m_ResourcesInventoriesReceiver[i] <= m_MaxCapacityReceiver - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
 			{
+				m_ReservedImportStackNumber[i]++;
 				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeNeeded);
 			}
 
 			m_ProgressionConsumption[i]++;
-
+			
 			if (m_ProgressionConsumption[i] < m_ConsumptionGoal)
 			{
 				continue;
@@ -264,6 +273,7 @@ namespace sfge::ext
 
 			if(m_ResourcesInventoriesGiver[i] >= m_ReservedExportStackNumber[i] * stackSizeProduce + stackSizeProduce)
 			{
+				m_ReservedExportStackNumber[i]++;
 				m_BuildingManager->RegistrationBuildingToBeEmptied(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeProduced);
 			}
 		}

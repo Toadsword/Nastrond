@@ -161,7 +161,7 @@ TEST(Building, SpawnBuilding)
 	const auto config = engine.GetConfig();
 
 	sceneJson = {
-		{ "name", "Test Tilemap Building" } };
+		{ "name", "Test Spawn Building" } };
 
 	json systemJsonDwellingManager = {
 		{ "systemClassName", "DwellingManager" } };

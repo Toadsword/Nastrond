@@ -374,7 +374,8 @@ namespace sfge::ext
 
 	Entity BuildingManager::AttributeDwarfToDwelling()
 	{
-		Entity dwelling = m_DwellingManager->GetBuildingWithFreePlace();
+		Entity dwelling = INVALID_ENTITY;
+		dwelling = m_DwellingManager->GetBuildingWithFreePlace();
 
 		if (dwelling == INVALID_ENTITY)
 			return INVALID_ENTITY;
