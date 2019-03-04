@@ -106,11 +106,7 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 		newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 	}
 
-	const auto indexNewDwarf = GetIndexForNewEntity();
-
-	auto& entityInfo = entityManager->GetEntityInfo(newEntity);
-	entityInfo.name = "Dwarf " + std::to_string(indexNewDwarf);
-
+	auto indexNewDwarf = GetIndexForNewEntity();
 
 	if(indexNewDwarf + 1 > m_IndexDwarfsEntities)
 	{
@@ -213,27 +209,24 @@ float Sqrt2(float x) {
 
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
-	if (!m_Paths[index].empty()) {
-		auto& dwarfPosition = *m_Positions.at(index);
+	auto& dwarfPosition = *m_Positions.at(index);
 
-		const auto distance = m_Paths[index].back() - dwarfPosition;
+	const auto distance = m_Paths[index].back() - dwarfPosition;
 
-		if (Sqrt2(distance.x*distance.x + distance.y * distance.y) < m_StoppingDistance)
-		{
-			m_Paths[index].pop_back();
-
-			if (!m_Paths[index].empty()) {
-				const auto velocity = m_Paths[index].back() - dwarfPosition;
-				m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / Sqrt2(velocity.x*velocity.x + velocity.y * velocity.y);
-				return false;
-			}
-
-			m_VelocitiesComponents[index] = Vec2f(0, 0);
-			return true;
+	if (Sqrt2(distance.x*distance.x + distance.y * distance.y) < m_StoppingDistance)
+	{
+		m_Paths[index].pop_back();
+		
+		if (!m_Paths[index].empty()) {
+			const auto velocity = m_Paths[index].back() - dwarfPosition;
+			m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / Sqrt2(velocity.x*velocity.x + velocity.y * velocity.y);
+			return false;
 		}
-		return false;
+
+		m_VelocitiesComponents[index] = Vec2f(0, 0);
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool DwarfManager::HasPath(const unsigned int index)
@@ -379,7 +372,7 @@ void DwarfManager::BatchPosition()
 	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
 	{
 		m_Positions[i] = &m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[i])->Position;
- 	}
+	}
 }
 
 void DwarfManager::ResizeContainers()
@@ -621,12 +614,11 @@ void DwarfManager::Update(const float dt)
 	m_CurrentTime += dt;
 	switch (m_DayState)
 	{
-	case DAY:
+	case DAY: 
 		if(m_CurrentTime > m_DayDuration)
 		{
 			m_CurrentTime = 0;
 			m_DayState = DayState::NIGHT;
-			std::cout << "To Night\n";
 		}
 		break;
 	case NIGHT:
@@ -634,8 +626,6 @@ void DwarfManager::Update(const float dt)
 		{
 			m_CurrentTime = 0;
 			m_DayState = DayState::DAY;
-
-			std::cout << "To Day\n";
 		}
 		break;
 	default: ;

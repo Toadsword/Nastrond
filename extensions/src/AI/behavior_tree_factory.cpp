@@ -221,6 +221,85 @@ Node::ptr BehaviorTreeUtility::AddLeafNodeFromJson(json& behaviorTreeJson, const
 		if (CheckJsonExists(behaviorTreeJson, "destination")) {
 			static_cast<FindPathToData*>(leaf->data.get())->destination = static_cast<NodeDestination>(behaviorTreeJson["destination"]);
 		}
+	}else if(behaviorTreeJson["name"] == NodeTypeToString(NodeType::HAS_DWELLING_LEAF))
+	{
+		std::cout << "   -> Has dwelling leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::HAS_DWELLING_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::SET_DWELLING_LEAF))
+	{
+		std::cout << "   -> Set dwelling leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::SET_DWELLING_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::ENTER_DWELLING_LEAF))
+	{
+		std::cout << "   -> Enter dwelling leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::ENTER_DWELLING_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::EXIT_DWELLING_LEAF))
+	{
+		std::cout << "   -> Exit dwelling leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::EXIT_DWELLING_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::ENTER_WORKING_PLACE_LEAF))
+	{
+		std::cout << "   -> Enter working place leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::ENTER_WORKING_PLACE_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::EXIT_WORKING_PLACE_LEAF))
+	{
+		std::cout << "   -> Exit working place leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::EXIT_WORKING_PLACE_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::HAS_JOB_LEAF))
+	{
+		std::cout << "   -> Has job leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::HAS_JOB_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::HAS_STATIC_JOB_LEAF))
+	{
+		std::cout << "   -> Has static job leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::HAS_STATIC_JOB_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::ASSIGN_JOB_LEAF))
+	{
+		std::cout << "   -> Assign job leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::ASSIGN_JOB_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::IS_DAY_TIME_LEAF))
+	{
+		std::cout << "   -> Is day time leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::IS_DAY_TIME_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::IS_NIGHT_TIME_LEAF))
+	{
+		std::cout << "   -> Is night time leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::IS_NIGHT_TIME_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::WAIT_DAY_TIME_LEAF))
+	{
+		std::cout << "   -> Wait day time leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::WAIT_DAY_TIME_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::WAIT_NIGHT_TIME_LEAF))
+	{
+		std::cout << "   -> Wait night time leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::WAIT_NIGHT_TIME_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::ASK_INVENTORY_TASK_LEAF))
+	{
+		std::cout << "   -> Ask inventory task leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::ASK_INVENTORY_TASK_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::TAKE_RESOURCE_LEAF))
+	{
+		std::cout << "   -> Take resource leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::TAKE_RESOURCE_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::PUT_RESOURCE_LEAF))
+	{
+		std::cout << "   -> Put resource leaf\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::PUT_RESOURCE_LEAF);
 	}
 	else
 	{

@@ -28,7 +28,9 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <engine/component.h>
 
-#include <fstream>
+#include <extensions/dwarf_manager.h>
+#include <extensions/AI/behavior_tree.h>
+#include <extensions/AI/behavior_tree_factory.h>
 
 
 TEST(Building, TestScene)
@@ -47,8 +49,8 @@ TEST(Building, TestScene)
 	tilemapJson["type"] = static_cast<int>(sfge::ComponentType::TILEMAP);
 	tilemapJson["is_isometric"] = true;
 	tilemapJson["layer"] = 1;
-	tilemapJson["tile_size"] = json::array({ 64, 32 });
-	tilemapJson["map_size"] = json::array({ 10, 10 });
+	tilemapJson["tile_size"] = json::array({64, 32});
+	tilemapJson["map_size"] = json::array({10, 10});
 	tilemapJson["map"] = json::array({
 		json::array({1, 2, 2, 2, 2, 6, 9, 2, 2, 2}),
 		json::array({1, 2, 3, 9, 2, 9, 9, 8, 9, 2}),
@@ -60,37 +62,58 @@ TEST(Building, TestScene)
 		json::array({2, 2, 2, 8, 9, 2, 1, 1, 2, 1}),
 		json::array({7, 9, 1, 9, 9, 5, 9, 1, 8, 9}),
 		json::array({9, 9, 1, 1, 1, 9, 9, 1, 9, 9})
-		});
-	entityJsonTilemap["components"] = json::array({ tilemapJson });
+	});
+	entityJsonTilemap["components"] = json::array({tilemapJson});
 	entityJsonTilemap["name"] = "Tilemap";
 
 	const auto config = engine.GetConfig();
 
 	sceneJson = {
-		{ "name", "Test Tilemap Building" } };
+		{"name", "Test Tilemap Building"}
+	};
 
 	json systemJsonDwellingManager = {
-		{ "systemClassName", "DwellingManager" } };
+		{"systemClassName", "DwellingManager"}
+	};
 
 	json systemJsonProductionBuildingManager = {
-		{ "systemClassName", "ProductionBuildingManager" } };
+		{"systemClassName", "ProductionBuildingManager"}
+	};
 
 	json systemJsonForgeManager = {
-		{ "systemClassName", "ForgeManager" } };
+		{"systemClassName", "ForgeManager"}
+	};
 
 	json systemJsonWarehouseManager = {
-		{ "systemClassName", "WarehouseManager" } };
+		{"systemClassName", "WarehouseManager"}
+	};
 
 	json systemJsonRoadgManager = {
-		{ "systemClassName", "RoadManager" } };
+		{"systemClassName", "RoadManager"}
+	};
 
 	json systemJsonBuildingManager = {
-		{ "systemClassName", "BuildingManager" } };
+		{"systemClassName", "BuildingManager"}
+	};
 
 	json systemJsonBuildingConstructor = {
-		{ "systemClassName", "BuildingConstructor" } };
+		{"systemClassName", "BuildingConstructor"}
+	};
 
-	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehouseManager, systemJsonRoadgManager, systemJsonBuildingManager, systemJsonBuildingConstructor });
+	json systemJsonBehaviourTree = {
+		{"systemClassName", "BehaviorTree"}
+	};
+	json systemJsonNavigation = {
+		{"systemClassName", "NavigationGraphManager"}
+	};
+	json systemJsonDwarf = {
+		{"systemClassName", "DwarfManager"}
+	};
+	sceneJson["systems"] = json::array({
+		systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager,
+		systemJsonWarehouseManager, systemJsonRoadgManager, systemJsonBuildingManager, systemJsonBuildingConstructor,
+		systemJsonBehaviourTree, systemJsonNavigation, systemJsonDwarf
+	});
 
 	json entityJsonCamera;
 	entityJsonCamera["name"] = "Camera";
@@ -99,13 +122,27 @@ TEST(Building, TestScene)
 	json pyCameraJson;
 	pyCameraJson["script_path"] = "scripts/camera_manager.py";
 	pyCameraJson["type"] = static_cast<int>(sfge::ComponentType::PYCOMPONENT);
-	entityJsonCamera["components"] = json::array({ CameraJson, pyCameraJson });
+	entityJsonCamera["components"] = json::array({CameraJson, pyCameraJson});
 
-	sceneJson["entities"] = json::array({ entityJsonCamera, entityJsonTilemap });
+	sceneJson["entities"] = json::array({entityJsonCamera, entityJsonTilemap});
 
 	sfge::SceneManager* sceneManager = engine.GetSceneManager();
 
 	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+
+	//Load behavior tree
+	auto behaviourTree = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::behavior_tree::
+		BehaviorTree>("BehaviorTree");
+	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/CompleteBehaviorTree.asset");
+	//const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
+	behaviourTree->SetRootNode(
+		sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
+
+	auto dwarfManager = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::DwarfManager>("DwarfManager");
+	for(auto i = 0; i < 25; i++)
+	{
+		dwarfManager->InstantiateDwarf(sfge::Vec2f(0, 0));
+	}
 
 	engine.Start();
 }

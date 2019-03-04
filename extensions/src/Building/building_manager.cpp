@@ -325,7 +325,7 @@ namespace sfge::ext
 			m_BuildingsNeedToBeEmptied[i].receiver = warehouseEntity;
 			m_BuildingsNeedToBeEmptied[i].receiverType = BuildingType::WAREHOUSE;
 
-			m_InventoryTasks.push_back(m_BuildingsNeedToBeEmptied[0]);
+			m_InventoryTasks.push_back(m_BuildingsNeedToBeEmptied[i]);
 			m_BuildingsNeedToBeEmptied[i] = INVALID_INVENTORY_TASK;
 
 			if(i == m_BuildingsNeedToBeEmptied.size() - 1)
@@ -357,7 +357,7 @@ namespace sfge::ext
 			m_BuildingsNeedToBeFill[i].giver = warehouseEntity;
 			m_BuildingsNeedToBeFill[i].giverType = BuildingType::WAREHOUSE;
 
-			m_InventoryTasks.push_back(m_BuildingsNeedToBeFill[0]);
+			m_InventoryTasks.push_back(m_BuildingsNeedToBeFill[i]);
 			m_BuildingsNeedToBeFill[i] = INVALID_INVENTORY_TASK;
 
 			if (i == m_BuildingsNeedToBeFill.size() - 1)
