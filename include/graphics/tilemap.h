@@ -141,6 +141,7 @@ public:
 	Vec2f GetTilePosition(Vec2f tilePos);
 
 	sf::Sprite* GetSprite(TileId tileId);
+	void SetTexture(TileId tileId, sf::Texture* texture);
 
 	/**
 	 * \brief Resize the limit size of the tilemap

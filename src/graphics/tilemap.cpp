@@ -194,6 +194,13 @@ namespace sfge
 		return &m_TileSprites[tileId];
 	}
 
+	void Tilemap::SetTexture(TileId tileId, sf::Texture* texture)
+	{
+		m_TileSprites[tileId].setTexture(*texture);
+		m_TileSprites[tileId].setOrigin(sf::Vector2f(m_TileSprites[tileId].getLocalBounds().width, m_TileSprites[tileId].getLocalBounds().height) / 2.0f);
+		m_TileSprites[tileId].setPosition(m_TilePositions[tileId]);
+	}
+
 	void Tilemap::ResizeTilemap(Vec2f newSize)
 	{
 		std::vector<TileTypeId> oldTileTypes = m_TileTypeIds;
@@ -432,9 +439,7 @@ namespace sfge
 		for (int i = 0; i < tileTypeIds.size(); i++)
 		{
 			TextureId textId = m_TilemapSystem->GetTileTypeManager()->GetTextureFromTileType(tileTypeIds[i]);
-			sf::Sprite* sprite = tilemap.GetSprite(tileTypeIds[i]);
-			sprite->setTexture(*m_Engine.GetGraphics2dManager()->GetTextureManager()->GetTexture(textId));
-			sprite->setOrigin(sf::Vector2f(sprite->getLocalBounds().width, sprite->getLocalBounds().height) / 2.0f);
+			tilemap.SetTexture(i, m_Engine.GetGraphics2dManager()->GetTextureManager()->GetTexture(textId));
 		}
 
 		SetupTilePosition(entity);
