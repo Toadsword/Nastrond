@@ -59,11 +59,12 @@ void DwarfManager::Init()
 	m_VertexArray = sf::VertexArray(sf::Quads, 0);
 
 #ifdef DEBUG_SPAWN_DWARF
-	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
+	m_Config = m_Engine.GetConfig();
+	m_ScreenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 	//Create dwarfs
 	for (auto i = 0u; i < m_DwarfToSpawn; i++)
 	{
-		const Vec2f pos(std::rand() % static_cast<int>(screenSize.x), std::rand() % static_cast<int>(screenSize.y));
+		const Vec2f pos(std::rand() % static_cast<int>(m_ScreenSize.x), std::rand() % static_cast<int>(m_ScreenSize.y));
 
 		InstantiateDwarf(pos);
 	}
@@ -77,22 +78,28 @@ void DwarfManager::Init()
 	m_JobBuildingType.push(MINE);
 	m_JobBuildingType.push(WAREHOUSE);
 	m_JobBuildingType.push(MUSHROOM_FARM);
+
+	m_ThreadPool = &m_Engine.GetThreadPool();
 }
 
 void DwarfManager::InstantiateDwarf(const Vec2f pos)
 {
 	auto* entityManager = m_Engine.GetEntityManager();
-	Configuration* configuration = m_Engine.GetConfig();
 
 	auto newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 
 	if (newEntity == INVALID_ENTITY)
 	{
-		entityManager->ResizeEntityNmb(configuration->currentEntitiesNmb + m_ContainersExtender);
+		entityManager->ResizeEntityNmb(m_Config->currentEntitiesNmb + m_ContainersExtender);
 		newEntity = entityManager->CreateEntity(INVALID_ENTITY);
 	}
 
-	const int indexNewDwarf = GetIndexForNewEntity();
+	auto indexNewDwarf = GetIndexForNewEntity();
+
+	if(indexNewDwarf + 1 > m_IndexDwarfsEntities)
+	{
+		m_IndexDwarfsEntities = indexNewDwarf + 1;
+	}
 
 	//Update data for new dwarf in std::vectors
 	m_DwarfsEntities[indexNewDwarf] = newEntity;
@@ -101,26 +108,28 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 	m_AssociatedDwelling[indexNewDwarf] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[indexNewDwarf] = INVALID_ENTITY;
 
-	sf::Vector2f textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
+	const auto textureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y);
 
-	m_VertexArray[4 * indexNewDwarf].texCoords = sf::Vector2f(0, 0);
-	m_VertexArray[4 * indexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
-	m_VertexArray[4 * indexNewDwarf + 2].texCoords = textureSize;
-	m_VertexArray[4 * indexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
+	indexNewDwarf *= 4;
+
+	m_VertexArray[indexNewDwarf].texCoords = sf::Vector2f(0, 0);
+	m_VertexArray[indexNewDwarf + 1].texCoords = sf::Vector2f(textureSize.x, 0);
+	m_VertexArray[indexNewDwarf + 2].texCoords = textureSize;
+	m_VertexArray[indexNewDwarf + 3].texCoords = sf::Vector2f(0, textureSize.y);
 
 	//Add transform
 	auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 	transformPtr->Position = pos;
 
-	m_VertexArray[4 * indexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
-	m_VertexArray[4 * indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(
+	m_VertexArray[indexNewDwarf].position = transformPtr->Position - textureSize / 2.0f;
+	m_VertexArray[indexNewDwarf + 1].position = transformPtr->Position + sf::Vector2f(
 		textureSize.x / 2.0f, -textureSize.y / 2.0f);
-	m_VertexArray[4 * indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
-	m_VertexArray[4 * indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(
+	m_VertexArray[indexNewDwarf + 2].position = transformPtr->Position + textureSize / 2.0f;
+	m_VertexArray[indexNewDwarf + 3].position = transformPtr->Position + sf::Vector2f(
 		-textureSize.x / 2.0f, textureSize.y / 2.0f);
 }
 
-void DwarfManager::DestroyDwarfByIndex(unsigned int index)
+void DwarfManager::DestroyDwarfByIndex(const unsigned int index)
 {
 	//Destroy entity
 	auto* entityManager = m_Engine.GetEntityManager();
@@ -143,12 +152,16 @@ void DwarfManager::DestroyDwarfByIndex(unsigned int index)
 	m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
 	m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
+
+	//Batching data
+	m_PathFollowingBTNotSorted[index] = false;
+	m_PathToIndexDwarfBTNotSorted[index] = false;
 }
 
-void DwarfManager::DestroyDwarfByEntity(Entity entity)
+void DwarfManager::DestroyDwarfByEntity(const Entity entity)
 {
 	auto index = -1;
-	for (auto i = 0; i < m_DwarfsEntities.size(); i++)
+	for (auto i = 0; i < m_IndexDwarfsEntities; i++)
 	{
 		if (m_DwarfsEntities[i] == entity)
 		{
@@ -161,26 +174,7 @@ void DwarfManager::DestroyDwarfByEntity(Entity entity)
 		}
 	}
 
-	if (index != -1)
-	{
-		//Clean all values
-		m_Paths[index] = std::vector<Vec2f>(0);
-		m_States[index] = State::INVALID;
-		m_AssociatedDwelling[index] = INVALID_ENTITY;
-		m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
-		m_DwarfsEntities[index] = INVALID_ENTITY;
-
-		//Reset vertexArray
-		m_VertexArray[4 * index].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 1].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 2].texCoords = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 3].texCoords = sf::Vector2f(0, 0);
-
-		m_VertexArray[4 * index].position = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 1].position = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 2].position = sf::Vector2f(0, 0);
-		m_VertexArray[4 * index + 3].position = sf::Vector2f(0, 0);
-	}
+	DestroyDwarfByIndex(index);
 }
 
 Entity DwarfManager::GetDwellingEntity(const unsigned int index)
@@ -216,70 +210,67 @@ bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
 
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
-	if (!m_Paths[index].empty())
+	auto& position = *m_Positions.at(index);
+
+	auto dir = m_Paths[index].back() - position;
+
+	if (dir.GetMagnitude() < m_StoppingDistance)
 	{
-		const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[index])->Position;
-
-		auto dir = m_Paths[index][0] - position;
-		if (dir.GetMagnitude() < m_StoppingDistance)
-		{
-			m_Paths[index].clear();
-			return true;
+		m_Paths[index].pop_back();
+		if (!m_Paths[index].empty()) {
+			m_VelocitiesComponents[index] = m_Paths[index].back() - position;
+			m_VelocitiesComponents[index] = m_VelocitiesComponents[index].Normalized();
+			return false;
 		}
 
-		if (m_Paths[index].size() > 1) {
-
-			dir = m_Paths[index][m_Paths[index].size() - 1] - position;
-
-			if (dir.GetMagnitude() < m_StoppingDistance)
-			{
-				m_Paths[index].pop_back();
-			}
-		}
-
-		return false;
+		m_VelocitiesComponents[index] = Vec2f(0, 0);
+		return true;
 	}
-	return true;
+	return false;
 }
 
-bool DwarfManager::HasPath(unsigned int index)
+bool DwarfManager::HasPath(const unsigned int index)
 {
 	return !m_Paths[index].empty();
 }
 
+void DwarfManager::SetPath(const unsigned int index, std::vector<Vec2f> path)
+{
+	m_Paths[index] = path;
+	m_VelocitiesComponents[index] = path.back() - m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[index])->Position;
+	m_VelocitiesComponents[index] = m_VelocitiesComponents[index].Normalized();
+}
+
 void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Vec2f destination)
 {
-	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
-	m_PathToDestinationBT[m_IndexPathToDestinationBT] = destination;
-	m_IndexPathToDestinationBT++;
+	m_PathToIndexDwarfBTNotSorted[index] = true;
+	m_DestinationForPathFinding[index] = destination;
 }
 
-void DwarfManager::AddFindRandomPathBT(unsigned int index)
+void DwarfManager::AddFindRandomPathBT(const unsigned int index)
 {
-	m_PathToRandomBT[m_IndexPathToRandomBT] = index;
-	m_IndexPathToRandomBT++;
+	m_PathToIndexDwarfBTNotSorted[index] = true;
+	m_DestinationForPathFinding[index] = Vec2f(std::rand() % static_cast<int>(m_ScreenSize.x), std::rand() % static_cast<int>(m_ScreenSize.y));
 }
 
-void DwarfManager::AddPathFollowingBT(unsigned int index)
+void DwarfManager::AddPathFollowingBT(const unsigned int index)
 {
-	m_PathFollowingBT[m_IndexPathFollowingBT] = index;
-	m_IndexPathFollowingBT++;
+	m_PathFollowingBTNotSorted[index] = true;
 }
 
 void DwarfManager::AddInventoryTaskPathToGiver(const unsigned int index)
 {
-	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
-	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
-	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].giver)->Position;
-	m_IndexPathToDestinationBT++;
+	m_PathToIndexDwarfBTNotSorted[index] = true;
+	m_DestinationForPathFinding[index] = m_Transform2DManager
+		->GetComponentPtr(m_InventoryTaskBT[index].giver)->Position;
 }
 
 void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
 {
-	m_PathToIndexDwarfBT[m_IndexPathToDestinationBT] = index;
-	m_PathToDestinationBT[m_IndexPathToDestinationBT] = m_Transform2DManager
-	                                                    ->GetComponentPtr(m_InventoryTaskBT[index].receiver)->Position;
-	m_IndexPathToDestinationBT++;
+
+	m_PathToIndexDwarfBTNotSorted[index] = true;
+	m_DestinationForPathFinding[index] = m_Transform2DManager
+		->GetComponentPtr(m_InventoryTaskBT[index].receiver)->Position;
 }
 
 void DwarfManager::DwarfEnterDwelling(const unsigned int index)
@@ -312,8 +303,11 @@ bool DwarfManager::HasStaticJob(const unsigned int index)
 	return m_AssociatedWorkingPlaceType[index] != WAREHOUSE;
 }
 
+std::mutex AssignJobMutex;
 bool DwarfManager::AssignJob(const unsigned int index)
 {
+	//TODO enlever le lock pour que le tout soit plus rapide
+	std::lock_guard<std::mutex> lock(AssignJobMutex);
 	char nbJob = 0;
 
 	while (nbJob < m_JobBuildingType.size())
@@ -348,6 +342,60 @@ bool DwarfManager::IsNightTime() const
 	return m_DayState == NIGHT;
 }
 
+void DwarfManager::UpdateBatch()
+{
+	/*auto& threadPool = m_Engine.GetThreadPool();
+
+	std::vector<std::future<void>> joinFutures(3);
+	auto updateFunction = std::bind(&DwarfManager::BatchPathFindingRequest, this);
+	joinFutures[0] = threadPool.push(updateFunction);
+
+	auto updateFunction1 = std::bind(&DwarfManager::BatchPathFollowing, this);
+	joinFutures[1] = threadPool.push(updateFunction1);
+
+	auto updateFunction2 = std::bind(&DwarfManager::BatchPosition, this);
+	joinFutures[2] = threadPool.push(updateFunction2);
+
+	for (auto i = 0; i < 3; i++)
+	{
+		joinFutures[i].get();
+	}*/
+}
+
+void DwarfManager::BatchPathFindingRequest()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if (m_PathToIndexDwarfBTNotSorted[i]) {
+			m_PathFindingDwarfIndexes[m_IndexPathToDestinationBT] = i;
+			m_IndexPathToDestinationBT++;
+
+			m_PathToIndexDwarfBTNotSorted[i] = false;
+		}
+	}
+}
+
+void DwarfManager::BatchPathFollowing()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if (m_PathFollowingBTNotSorted[i]) {
+			m_PathFollowingBT[m_IndexPathFollowingBT] = i;
+
+			m_IndexPathFollowingBT++;
+
+		}
+	}
+}
+
+void DwarfManager::BatchPosition()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		m_Positions[i] = &m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[i])->Position;
+	}
+}
+
 void DwarfManager::ResizeContainers()
 {
 	const auto newSize = m_DwarfsEntities.size() + m_ContainersExtender;
@@ -367,12 +415,26 @@ void DwarfManager::ResizeContainers()
 	m_AssociatedWorkingPlaceType.resize(newSize, NO_BUILDING_TYPE);
 	m_VertexArray.resize(m_VertexArray.getVertexCount() + 4 * m_ContainersExtender);
 
+
+	m_PathFollowingBTNotSorted.resize(newSize);
+
 	m_PathFollowingBT.resize(newSize);
+
+	m_PathToIndexDwarfBTNotSorted.resize(newSize);
+
 	m_PathToIndexDwarfBT.resize(newSize);
-	m_PathToDestinationBT.resize(newSize);
-	m_PathToRandomBT.resize(newSize);
+
+	m_PathFindingDwarfIndexes.resize(newSize);
+
+	m_DestinationForPathFinding.resize(newSize);
 
 	m_InventoryTaskBT.resize(newSize);
+
+	m_EntitiesToWakeUp.resize(newSize);
+
+	//Velocities
+	m_VelocitiesComponents.resize(newSize);
+	m_Positions.resize(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()
@@ -398,46 +460,139 @@ void DwarfManager::AddDwarfToDraw(const unsigned int index)
 	m_IndexToDraw++;
 }
 
-void DwarfManager::Update(float dt)
+void DwarfManager::UpdatePositionRange(const int startIndex, const int endIndex, const float vel)
 {
-#ifdef DEBUG_RANDOM_PATH
-	const auto config = m_Engine.GetConfig();
-	const Vec2f screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
+	for (size_t i = startIndex; i <= endIndex; ++i)
+	{
+		const auto indexDwarf = m_PathFollowingBT[i];
+
+		*m_Positions[indexDwarf] += m_VelocitiesComponents[indexDwarf] * vel;
+	}
+}
+
+void DwarfManager::Update(const float dt)
+{
+#ifdef AI_DEBUG_COUNT_TIME
+	const auto t1 = std::chrono::high_resolution_clock::now();
+#endif
+
+#pragma region prebatching data
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t3 = std::chrono::high_resolution_clock::now();
+#endif
+	//Batch data
+	{
+		std::vector<std::future<void>> joinFutures(3);
+		auto updateFunction = std::bind(&DwarfManager::BatchPathFindingRequest, this);
+		joinFutures[0] = m_ThreadPool->push(updateFunction);
+
+		auto updateFunction1 = std::bind(&DwarfManager::BatchPathFollowing, this);
+		joinFutures[1] = m_ThreadPool->push(updateFunction1);
+
+		auto updateFunction2 = std::bind(&DwarfManager::BatchPosition, this);
+		joinFutures[2] = m_ThreadPool->push(updateFunction2);
+
+		for (auto i = 0; i < 3; i++)
+		{
+			joinFutures[i].get();
+		}
+	}
+
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t4 = std::chrono::high_resolution_clock::now();
+	{
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
+		m_Prebatch_Ms += timerDuration2 / 1000;
+		m_Prebatch_Mc += timerDuration2 % 1000;
+	}
+#endif
+#pragma endregion 
+
+#pragma region ask for path
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t5 = std::chrono::high_resolution_clock::now();
 #endif
 	//Random path
-	if (m_IndexPathToRandomBT != 0) {
-		for (size_t i = 0; i < m_IndexPathToRandomBT; ++i)
+	for (size_t i = 0; i < m_IndexPathToDestinationBT; ++i)
+	{
+		const auto indexDwarf = m_PathFindingDwarfIndexes[i]; 
+		
+		m_NavigationGraphManager->AskForPath(indexDwarf, *m_Positions[indexDwarf], m_DestinationForPathFinding[indexDwarf]);
+	}
+	m_IndexPathToDestinationBT = 0;
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t6 = std::chrono::high_resolution_clock::now();
+	{
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t6 - t5).count();
+		m_AskPath_Ms += timerDuration2 / 1000;
+		m_AskPath_Mc += timerDuration2 % 1000;
+	}
+#endif
+#pragma endregion 
+
+#pragma region movement
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t7 = std::chrono::high_resolution_clock::now();
+#endif
+	const auto vel = m_SpeedDwarf * dt;
+
+	//Update position
+	const auto coreNmb = m_ThreadPool->size();
+	if (m_IndexPathFollowingBT > coreNmb) {
+
+		std::vector<std::future<void>> joinFutures2(coreNmb);
+		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
 		{
-			const auto indexDwarf = m_PathToRandomBT[i];
-
-			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
-			m_NavigationGraphManager->AskForPath(&m_Paths[indexDwarf], transformPtr->Position,
-				Vec2f(std::rand() % static_cast<int>(screenSize.x),
-					std::rand() % static_cast<int>(screenSize.y
-						)));
-
-			AddDwarfToDraw(indexDwarf);
+			auto start = (threadIndex + 1)*m_IndexPathFollowingBT / (coreNmb + 1);
+			auto end = (threadIndex + 2)*m_IndexPathFollowingBT / (coreNmb + 1) - 1;
+			auto updateFunction3 = std::bind(&DwarfManager::UpdatePositionRange, this, start, end, vel);
+			joinFutures2[threadIndex] = m_ThreadPool->push(updateFunction3);
 		}
-		m_IndexPathToRandomBT = 0;
+		UpdatePositionRange(0, m_IndexPathFollowingBT / (coreNmb + 1) - 1, vel);
+		for (auto i = 0; i < coreNmb; i++)
+		{
+			joinFutures2[i].get();
+		}
+	}else
+	{
+		UpdatePositionRange(0, m_IndexPathFollowingBT, vel);
 	}
 
-	//Follow path
-	if (m_IndexPathFollowingBT != 0) {
-		for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
+	for (size_t i = 0; i < m_IndexPathFollowingBT; ++i)
+	{
+		const auto indexDwarf = m_PathFollowingBT[i];
+
+		if (IsDwarfAtDestination(indexDwarf))
 		{
-			const auto indexDwarf = m_PathFollowingBT[i];
-
-			const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf]);
-
-			auto dir = m_Paths[indexDwarf][m_Paths[indexDwarf].size() - 1] - transformPtr->Position;
-
-			transformPtr->Position += dir.Normalized() * m_SpeedDwarf * dt;
-
-			AddDwarfToDraw(indexDwarf);
-
+			m_EntitiesToWakeUp[m_IndexToWakeUp] = indexDwarf;
+			m_IndexToWakeUp++;
+			m_PathFollowingBTNotSorted[indexDwarf] = false;
 		}
-		m_IndexPathFollowingBT = 0;
 	}
+	m_IndexPathFollowingBT = 0;
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t8 = std::chrono::high_resolution_clock::now();
+	{
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t8 - t7).count();
+		m_Movement_Ms += timerDuration2 / 1000;
+		m_Movement_Mc += timerDuration2 % 1000;
+	}
+#endif
+#pragma endregion 
+
+#pragma region other
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t9 = std::chrono::high_resolution_clock::now();
+#endif
+	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
+		"BehaviorTree");
+
+	m_IndexPathFollowingBT = 0;
+
+	//Wake up
+	behaviorTree->WakeUpEntities(m_EntitiesToWakeUp, m_IndexToWakeUp);
+
+	m_IndexToWakeUp = 0;
 
 	//Update current time
 	m_CurrentTime += dt;
@@ -459,6 +614,23 @@ void DwarfManager::Update(float dt)
 		break;
 	default: ;
 	}
+#ifdef AI_DEBUG_COUNT_TIME_PRECISE
+	const auto t10 = std::chrono::high_resolution_clock::now();
+	{
+		const auto timerDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(t10 - t9).count();
+		m_Other_Ms += timerDuration2 / 1000;
+		m_Other_Mc += timerDuration2 % 1000;
+	}
+#endif
+#pragma endregion
+
+#ifdef AI_DEBUG_COUNT_TIME
+	const auto t2 = std::chrono::high_resolution_clock::now();
+	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	m_TimerMilli += timerDuration / 1000;
+	m_TimerMicro += timerDuration % 1000;
+	m_TimerCounter++;
+#endif
 }
 
 void DwarfManager::FixedUpdate() {}
@@ -472,6 +644,7 @@ void DwarfManager::Draw()
 		const auto color = m_Colors[i % m_Colors.size()];
 
 		sf::VertexArray lines{sf::LineStrip, m_Paths[i].size()};
+
 		for (size_t j = 0u; j < m_Paths[i].size(); j++)
 		{
 			lines[j].position = m_Paths[i][j];
@@ -482,23 +655,20 @@ void DwarfManager::Draw()
 		window->draw(lines);
 	}
 #endif
-
 	//Draw dwarf
-	if (m_IndexToDraw != 0) {
-		const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
-		for (size_t i = 0; i < m_IndexToDraw; i++)
-		{
-			const auto indexDwarf = m_IndexesToDraw[i];
-			const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[indexDwarf])->Position;
-			const auto indexVertex = 4 * i;
-
-			m_VertexArray[indexVertex].position = position - halfTextureSize;
-			m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(halfTextureSize.x, -halfTextureSize.y);
-			m_VertexArray[indexVertex + 2].position = position + halfTextureSize;
-			m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(-halfTextureSize.x, halfTextureSize.y);
-		}
-		m_IndexToDraw = 0;
+	const auto halfTextureSize = sf::Vector2f(m_Texture->getSize().x, m_Texture->getSize().y) / 2.0f;
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		const auto position = m_Engine.GetTransform2dManager()->GetComponentPtr(m_DwarfsEntities[i])->Position;
+		const auto indexVertex = 4 * i;
+		
+		m_VertexArray[indexVertex].position = position - halfTextureSize;
+		m_VertexArray[indexVertex + 1].position = position + sf::Vector2f(halfTextureSize.x, -halfTextureSize.y);
+		m_VertexArray[indexVertex + 2].position = position + halfTextureSize;
+		m_VertexArray[indexVertex + 3].position = position + sf::Vector2f(-halfTextureSize.x, halfTextureSize.y);
 	}
+	m_IndexToDraw = 0;
+
 	window->draw(m_VertexArray, m_Texture);
 }
 }

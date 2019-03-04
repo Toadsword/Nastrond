@@ -34,6 +34,8 @@ SOFTWARE.
 
 namespace sfge::ext
 {
+	class DwarfManager;
+
 /**
  * \author Nicolas Schneider
  */
@@ -65,11 +67,11 @@ public:
 
 	/**
 	 * \brief Ask a path from the origin to a destination, store datas to be used when the path finder is free
-	 * \param path 
+	 * \param index 
 	 * \param origin 
 	 * \param destination 
 	 */
-	void AskForPath(std::vector<Vec2f>* path, Vec2f origin, Vec2f destination);
+	void AskForPath(unsigned int index, Vec2f origin, Vec2f destination);
 
 private:
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
@@ -80,11 +82,12 @@ private:
 	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 
 	Graphics2dManager* m_Graphics2DManager;
+	DwarfManager* m_DwarfManager;
 
 	//Queue for waiting path
 	struct WaitingPath final
 	{
-		std::vector<Vec2f>* path;
+		int index;
 		Vec2f destination;
 		Vec2f origin;
 	};
@@ -100,14 +103,14 @@ private:
 	const static short ROAD_COST = 1;
 	const static short NORMAL_COST = 2;
 
-	const short m_MaxPathForOneUpdate = 1;
+	const int m_MaxPathForOneUpdate = 100'000;
 
 	std::vector<GraphNode> m_Graph;
 	sf::VertexArray m_VertexArray;
 
 #ifdef DEBUG_MAP
 	//Map info
-	const Vec2f m_TileExtends = Vec2f(6, 6);
+	const Vec2f m_TileExtends = Vec2f(60, 60);
 	Vec2f m_MapSize;
 #endif
 };

@@ -77,16 +77,6 @@ namespace sfge::ext::behavior_tree
 		LENGTH
 	};
 
-	/**
-	 * \brief Status of nodes
-	 */
-	enum class NodeStatus : unsigned char
-	{
-		SUCCESS,
-		FAIL,
-		RUNNING
-	};
-
 #pragma region nodeDatas
 	struct NodeData {};
 
@@ -146,11 +136,13 @@ namespace sfge::ext::behavior_tree
 		 * \brief execute the node
 		 * \param index of the dwarf
 		 */
-		void Execute(unsigned int index);
+		void Execute(unsigned int index) const;
 
 		std::unique_ptr<NodeData> data;
 
 		NodeType nodeType;
+
+		std::function<void(unsigned int)> executeFunction;
 	protected:
 		void DestroyChild(Node* childNode);
 
