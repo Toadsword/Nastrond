@@ -25,8 +25,6 @@
 #ifndef SFGE_SYSTEM_H
 #define SFGE_SYSTEM_H
 
-#include <utility/json_utility.h>
-
 namespace sfge
 {
 

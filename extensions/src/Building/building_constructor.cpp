@@ -39,7 +39,7 @@ namespace sfge::ext
 
 		m_Configuration = m_Engine.GetConfig();
 
-		m_TilemapSystem = m_Engine.GetTilemapSystem();
+		m_TilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
 
 		m_TilemapManager = m_TilemapSystem->GetTilemapManager();
 

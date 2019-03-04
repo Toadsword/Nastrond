@@ -31,6 +31,7 @@ SOFTWARE.
 #include <graphics/sprite2d.h>
 #include <graphics/animation2d.h>
 #include <graphics/camera.h>
+#include <graphics/tilemap.h>
 #include <graphics/button.h>
 #include <graphics/image.h>
 #include <graphics/text.h>
@@ -91,6 +92,7 @@ public:
 	SpriteManager* GetSpriteManager();
 	TextureManager* GetTextureManager();
 	CameraManager* GetCameraManager();
+	TilemapSystem* GetTilemapSystem();
 
 protected:
 	bool m_Windowless = false;
@@ -103,7 +105,7 @@ protected:
 	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
 	CameraManager m_CameraManager{ m_Engine };
-	
+	TilemapSystem m_TilemapSystem{ m_Engine };
 	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 

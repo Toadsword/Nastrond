@@ -27,8 +27,8 @@ SOFTWARE.
 #define SFGE_TOOLS_TILEMAP_CREATOR_H
 
 #include <engine/system.h>
-#include <engine/tilemap.h>
 #include <tilemap_imgui_manager.h>
+#include <graphics/tilemap.h>
 
 namespace sfge::tools
 {
