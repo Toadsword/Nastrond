@@ -520,12 +520,12 @@ TEST(Stack, IsOnStack)
 	return SUCCEED();
 }
 
-std::string FakeEngine(int iteration, json scene)
+std::string FakeEngine(int iteration, std::string scenePath)
 {
 	sfge::Engine engine;
 	engine.Init();
 
-	engine.GetSceneManager()->LoadSceneFromJson(scene);
+	engine.GetSceneManager()->LoadSceneFromPath(scenePath);
 
 	// Engine managers
 	sfge::Graphics2dManager* graphics2dManager = engine.GetGraphics2dManager();
@@ -741,18 +741,18 @@ std::string FakeEngine(int iteration, json scene)
 	return std::to_string(duration);
 }
 
-std::string IterateFakeEngine(int en, int i, int ei,json scene)
+std::string IterateFakeEngine(int en, int i, int ei,std::string scenePath)
 {
 	std::string result;
 	std::string Treatment;
 
 	for (int j = 0; j < i; j++)
 	{
-		std::cout << "\n---------------------Start test S1 iteration " << j << " without draw---------------------";
-		Treatment = FakeEngine(ei, scene);
+		std::cout << "\n---------------------Start test iteration " << j << "---------------------";
+		Treatment = FakeEngine(ei, scenePath);
 		result += (std::to_string(en) + ";" + Treatment + "\n");
 		std::cout << "Treatment : " << Treatment;
-		std::cout << "\n----------------------End test S1 iteration " << j << " without draw---------------------";
+		std::cout << "\n----------------------End test iteration " << j << "---------------------";
 	}
 
 	return result;
@@ -764,8 +764,8 @@ TEST(Charge, TestChargeLight)
 	//std::ofstream resultFile;
 
 	const int iteration = 1;
-	const int engineIterations = 1;
-	const int eN1 = 32;
+	const int engineIterations = 10;
+	const int eN1 = 16;
 	/*const int eN2 = 32;
 	const int eN3 = 64;
 	const int eN4 = 128;
@@ -777,17 +777,17 @@ TEST(Charge, TestChargeLight)
 	const int eN10 = 8192;
 	const int eN11 = 16384;*/
 
-	json s1 = CreatOverloadedScene(eN1);
-	/*json s2 = CreatOverloadedScene(eN2);
-	json s3 = CreatOverloadedScene(eN3);
-	json s4 = CreatOverloadedScene(eN4);
-	json s5 = CreatOverloadedScene(eN5);
-	json s6 = CreatOverloadedScene(eN6);
-	json s7 = CreatOverloadedScene(eN7);
-	json s8 = CreatOverloadedScene(eN8);
-	json s9 = CreatOverloadedScene(eN9);
-	json s10 = CreatOverloadedScene(eN10);
-	json s11 = CreatOverloadedScene(eN11);*/
+	std::string s1 = "data/scenes/test_charge/test_charge_16";
+	/*std::string s2 = "data/scenes/test_charge/test_charge_32";
+	std::string s3 = "data/scenes/test_charge/test_charge_64";
+	std::string s4 = "data/scenes/test_charge/test_charge_128";
+	std::string s5 = "data/scenes/test_charge/test_charge_256";
+	std::string s6 = "data/scenes/test_charge/test_charge_512";
+	std::string s7 = "data/scenes/test_charge/test_charge_1024";
+	std::string s8 = "data/scenes/test_charge/test_charge_2048";
+	std::string s9 = "data/scenes/test_charge/test_charge_4096";
+	std::string s10 = "data/scenes/test_charge/test_charge_8192";
+	std::string s11 = "data/scenes/test_charge/test_charge_16384";*/
 
 	returnedValues += IterateFakeEngine(eN1, iteration, engineIterations, s1);
 	/*returnedValues += IterateFakeEngine(eN2, iteration, engineIterations, s2);
@@ -801,7 +801,7 @@ TEST(Charge, TestChargeLight)
 	returnedValues += IterateFakeEngine(eN10, iteration, engineIterations, s10);
 	returnedValues += IterateFakeEngine(eN11, iteration, engineIterations, s11);
 
-	resultFile.open("fakeEngineRunConcernedNoDraw.csv");
+	resultFile.open("fakeEngineRunClassic.csv");
 	resultFile << returnedValues;
 	resultFile.close();*/
 
