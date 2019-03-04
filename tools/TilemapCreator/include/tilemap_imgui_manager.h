@@ -120,6 +120,8 @@ private:
 	 * \brief Reference to the Entity Manager.
 	 */
 	EntityManager* m_EntityManager = nullptr;
+
+	sf::RenderWindow* m_Window;
 };
 }
 #endif // ifndef GRAPHICS_MANAGER_H

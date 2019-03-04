@@ -44,6 +44,7 @@ namespace sfge::tools
 	{
 		m_TilemapCreator = engine;
 		m_EntityManager = engine->GetEngine().GetEntityManager();
+		m_Window = engine->GetEngine().GetGraphics2dManager()->GetWindow();
 		m_IsInit = true;
 	}
 
@@ -81,6 +82,8 @@ namespace sfge::tools
 			DrawMainWindow();
 		}
 		ImGui::End();
+
+		m_Window->draw(m_TileEditor);
 	}
 
 	void TilemapImguiManager::DisplayMenuWindow()
@@ -203,6 +206,7 @@ namespace sfge::tools
 		{
 			TextureId currentText = m_TilemapCreator->GetTileTypeManager()->GetTextureFromTileType(m_SelectedTileType);
 			m_TileEditor.setTexture(*m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTextureManager()->GetTexture(currentText));
+			m_TileEditor.setOrigin(sf::Vector2f(m_TileEditor.getLocalBounds().width, m_TileEditor.getLocalBounds().height) / 2.0f);
 			
 			//m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_SelectedTilemap, m_TileEditorId, m_SelectedTileType);
 			
