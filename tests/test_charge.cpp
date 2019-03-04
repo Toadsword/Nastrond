@@ -45,7 +45,7 @@ SOFTWARE.
 #include <engine/entity.h>
 #include <engine/transform2d.h>
 #include <editor/editor.h>
-#include <engine/tilemap.h>
+#include <graphics/tilemap.h>
 #include <graphics/shape2d.h>
 
 //#define DRAW_EMABLED
@@ -540,7 +540,7 @@ std::string FakeEngine(int iteration, std::string scenePath)
 	sfge::RectTransformManager* rectTransformManager = engine.GetRectTransformManager();
 	sfge::UIManager* uiManager = engine.GetUIManager();
 	sfge::Editor* editor = engine.GetEditor();
-	sfge::TilemapSystem* tilemapSystem = engine.GetTilemapSystem();
+	sfge::TilemapSystem* tilemapSystem = graphics2dManager->GetTilemapSystem();
 
 	// Graphics2d managers
 	sfge::AnimationManager* animationManager = graphics2dManager->GetAnimationManager();
@@ -603,7 +603,7 @@ std::string FakeEngine(int iteration, std::string scenePath)
 			fixedUpdateClock.restart();
 			physicsManager->FixedUpdate();
 			previousFixedUpdateTime = globalClock.getElapsedTime();
-			tilemapSystem->FixedUpdate();
+			//tilemapSystem->FixedUpdate();
 			pythonEngine->FixedUpdate();
 			sceneManager->FixedUpdate();
 			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime();
