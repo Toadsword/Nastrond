@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include <extensions/Building/building_manager.h>
 #include <extensions/Building/road_manager.h>
-#include "engine/tilemap.h"
+#include <graphics/tilemap.h>
 
 
 namespace sfge::ext

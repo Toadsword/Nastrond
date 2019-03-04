@@ -25,6 +25,7 @@ SOFTWARE.
 */
 
 #include <tilemap_creator.h>
+#include <graphics/graphics2d.h>
 #include <utility/log.h>
 
 namespace sfge::tools
@@ -34,8 +35,8 @@ void TilemapCreator::Init()
 	Log::GetInstance()->Msg("Init TilemapCreator");
 	m_TilemapImguiManager.Init(this);
 
-	m_TilemapManager = m_Engine.GetTilemapSystem()->GetTilemapManager();
-	m_TileTypeManager = m_Engine.GetTilemapSystem()->GetTileTypeManager();
+	m_TilemapManager = m_Engine.GetGraphics2dManager()->GetTilemapSystem()->GetTilemapManager();
+	m_TileTypeManager = m_Engine.GetGraphics2dManager()->GetTilemapSystem()->GetTileTypeManager();
 
 	m_IsInit = true;
 }

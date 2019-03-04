@@ -29,9 +29,9 @@ SOFTWARE.
 
 #include <imgui.h>
 
-#include <engine/tile.h>
-#include <engine/tilemap.h>
-#include <engine/tile_asset.h>
+#include <graphics/tile.h>
+#include <graphics/tilemap.h>
+#include <graphics/tile_asset.h>
 #include <graphics/texture.h>
 #include <graphics/graphics2d.h>
 
@@ -92,7 +92,7 @@ void TileManager::Init()
 {
 	SingleComponentManager::Init();
 	m_Transform2dManager = m_Engine.GetTransform2dManager();
-	m_TilemapManager = m_Engine.GetTilemapSystem()->GetTilemapManager();
+	m_TilemapManager = m_Engine.GetGraphics2dManager()->GetTilemapSystem()->GetTilemapManager();
 }
 
 void TileManager::Update(float dt)
@@ -126,7 +126,7 @@ Tile * TileManager::AddComponent(Entity entity, TileTypeId tileType)
 	tileInfo.tile = tile;
 	m_ConcernedEntities.push_back(entity);
 	tile->SetType(tileType);
-	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(entity, tileType);
+	m_Engine.GetGraphics2dManager()->GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(entity, tileType);
 
 	return tile;
 }
@@ -136,7 +136,7 @@ void TileManager::CreateComponent(Entity entity, TileTypeId tileType)
 	auto & newTile = m_Components[entity - 1];
 	auto & newTileInfo = m_ComponentsInfo[entity - 1];
 
-	m_Engine.GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(tileType, entity);
+	m_Engine.GetGraphics2dManager()->GetTilemapSystem()->GetTileTypeManager()->SetTileTexture(tileType, entity);
 }
 
 void TileManager::CreateComponent(json& componentJson, Entity entity)
