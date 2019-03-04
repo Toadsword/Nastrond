@@ -30,7 +30,6 @@ SOFTWARE.
 #include <memory>
 
 #include <engine/system.h>
-#include <utility/json_utility.h>
 #include <engine/globals.h>
 
 #include <extensions/dwarf_manager.h>
@@ -89,7 +88,6 @@ public:
 	std::vector<bool> doesFlowGoDown;
 
 	std::vector<char> repeaterCounter;
-	std::vector<char> sequenceActiveChild;
 	std::vector<bool> hasSucceeded;
 
 	std::vector<bool> sleepingEntity;
@@ -100,6 +98,8 @@ public:
 	const bool flowGoUp = false;
 
 private:
+	void WakeUpEntitiesRange(const int startIndex, const int endIndex, std::vector<int>& entitiesIndex);
+
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
@@ -108,10 +108,12 @@ private:
 	int m_IndexActiveEntity = 0;
 
 #ifdef AI_DEBUG_COUNT_TIME
-	unsigned int m_TimerMilli = 0u;
-	unsigned int m_TimerMicro = 0u;
+	unsigned __int64 m_TimerMilli = 0u;
+	unsigned __int64 m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
 #endif
+
+	ctpl::thread_pool* m_ThreadPool;
 };
 }
 

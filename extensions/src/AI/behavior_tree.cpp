@@ -40,6 +40,8 @@ BehaviorTree::~BehaviorTree()
 void BehaviorTree::Init()
 {
 	dwarfManager = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<DwarfManager>("DwarfManager");
+
+	m_ThreadPool = &m_Engine.GetThreadPool();
 }
 
 void BehaviorTree::Update(float dt)
@@ -57,8 +59,7 @@ void BehaviorTree::Update(float dt)
 		}
 	}
 
-	auto& threadPool = m_Engine.GetThreadPool();
-	const auto coreNmb = threadPool.size();
+	const auto coreNmb = m_ThreadPool->size();
 
 	if (m_IndexActiveEntity < coreNmb) {
 		UpdateRange(0, m_IndexActiveEntity - 1);
@@ -70,7 +71,7 @@ void BehaviorTree::Update(float dt)
 			auto start = (threadIndex + 1)*m_IndexActiveEntity / (coreNmb + 1);
 			auto end = (threadIndex + 2)*m_IndexActiveEntity / (coreNmb + 1) - 1;
 			auto updateFunction = std::bind(&BehaviorTree::UpdateRange, this, start, end);
-			joinFutures[threadIndex] = threadPool.push(updateFunction);
+			joinFutures[threadIndex] = m_ThreadPool->push(updateFunction);
 		}
 		UpdateRange(0, m_IndexActiveEntity / (coreNmb + 1) - 1);
 		for (auto i = 0; i < coreNmb; i++)
@@ -122,17 +123,81 @@ void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 		currentNode.resize(m_Entities->size(), m_RootNode);
 		doesFlowGoDown.resize(m_Entities->size(), true);
 		repeaterCounter.resize(m_Entities->size(), 0);
-		sequenceActiveChild.resize(m_Entities->size(), 0);
 		hasSucceeded.resize(m_Entities->size(), true);
 
 		m_ActiveEntity.resize(m_Entities->size(), true);
 		sleepingEntity.resize(m_Entities->size(), false);
 	}
+
+	if(m_RootNode != nullptr)
+	{
+		std::vector<Node::ptr> openNodes;
+		openNodes.push_back(m_RootNode);
+
+		while(!openNodes.empty())
+		{
+			const auto node = openNodes.back();
+			openNodes.pop_back();
+
+			switch (node->nodeType) { 
+				case NodeType::SEQUENCE_COMPOSITE:
+				case NodeType::SELECTOR_COMPOSITE:
+				{
+					auto* compositeData = static_cast<CompositeData*>(node->data.get());
+
+					compositeData->activeChild.resize(m_Entities->size());
+
+					for (auto child : compositeData->children)
+					{
+						openNodes.push_back(child);
+					}
+				}
+				break;
+				case NodeType::REPEATER_DECORATOR: 
+				case NodeType::REPEAT_UNTIL_FAIL_DECORATOR: 
+				case NodeType::SUCCEEDER_DECORATOR: 
+				case NodeType::INVERTER_DECORATOR:
+				{
+					auto* decoratorData = static_cast<DecoratorData*>(node->data.get());
+					openNodes.push_back(decoratorData->child);
+				}
+				break;
+				default: ; }
+		}
+	}
 }
 
 void BehaviorTree::WakeUpEntities(std::vector<int>& entitiesIndex, const int maxIndex)
 {
-	for (auto i = 0; i < maxIndex; i++)
+	const auto coreNmb = m_ThreadPool->size();
+	if (maxIndex > coreNmb) {
+
+		std::vector<std::future<void>> joinFutures2(coreNmb);
+		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
+		{
+			auto start = (threadIndex + 1)*maxIndex / (coreNmb + 1);
+			auto end = (threadIndex + 2)*maxIndex / (coreNmb + 1) - 1;
+			auto updateFunction3 = std::bind(&BehaviorTree::WakeUpEntitiesRange, this, start, end, entitiesIndex);
+			joinFutures2[threadIndex] = m_ThreadPool->push(updateFunction3);
+		}
+		WakeUpEntitiesRange(0, maxIndex / (coreNmb + 1) - 1, entitiesIndex);
+		for (auto i = 0; i < coreNmb; i++)
+		{
+			joinFutures2[i].get();
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < maxIndex; ++i)
+		{
+			sleepingEntity[entitiesIndex[i]] = false;
+		}
+	}
+}
+
+void BehaviorTree::WakeUpEntitiesRange(const int startIndex, const int endIndex, std::vector<int>& entitiesIndex)
+{
+	for (auto i = startIndex; i <= endIndex; i++)
 	{
 		sleepingEntity[entitiesIndex[i]] = false;
 	}

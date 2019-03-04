@@ -32,8 +32,8 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define DEBUG_DRAW_PATH
-#define DEBUG_SPAWN_DWARF
+//#define DEBUG_DRAW_PATH
+//#define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
 
 #define AI_DEBUG_COUNT_TIME
@@ -47,18 +47,7 @@ class DwarfManager : public System
 public:
 	DwarfManager(Engine& engine);
 
-	~DwarfManager()
-	{
-#ifdef AI_DEBUG_COUNT_TIME
-		std::cout << "[DwarfManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro / m_TimerCounter << "\n";
-#endif
-#ifdef AI_DEBUG_COUNT_TIME_PRECISE
-		std::cout << "		PreBatch: " << m_Prebatch_Ms / m_TimerCounter << "," << m_Prebatch_Mc / m_TimerCounter << "\n";
-		std::cout << "		AskPath: " << m_AskPath_Ms / m_TimerCounter << "," << m_AskPath_Mc / m_TimerCounter << "\n";
-		std::cout << "		Movement: " << m_Movement_Ms / m_TimerCounter << "," << m_Movement_Mc / m_TimerCounter << "\n";
-		std::cout << "		Other: " << m_Other_Ms / m_TimerCounter << "," << m_Other_Mc / m_TimerCounter << "\n";
-#endif
-	}
+	~DwarfManager();
 
 	void Init() override;
 
@@ -258,7 +247,6 @@ public:
 #pragma endregion 
 
 private:
-	void UpdateBatch();
 	void BatchPathFindingRequest();
 	void BatchPathFollowing();
 	void BatchPosition();
@@ -266,15 +254,9 @@ private:
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
-	void AddDwarfToDraw(unsigned int index);
-
 	void UpdatePositionRange(int startIndex, int endIndex, float vel);
 
-	/**
-	* \brief test if dwarf is at destination
-	* \param index of the dwarf
-	* \return true if at destination
-	*/
+	void CheckIsAtDestinationRange(int startIndex, int endIndex);
 	bool IsDwarfAtDestination(unsigned int index);
 
 	//System
@@ -325,8 +307,16 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 10000;
+	const size_t m_DwarfToSpawn = 100'000;
 #endif
+
+	enum class DwarfActivity : char {
+		IDLE,
+		FIND_PATH,
+		FOLLOW_PATH
+	};
+
+	std::vector<DwarfActivity> m_DwarfActivities;
 
 	//Dwarfs texture
 	std::string m_TexturePath;
@@ -341,32 +331,26 @@ private:
 	std::vector<BuildingType> m_AssociatedWorkingPlaceType;
 	std::queue<BuildingType> m_JobBuildingType;
 
-	//Vertex array
-	sf::VertexArray m_VertexArray;
-	std::vector<unsigned int> m_IndexesToDraw;
-	unsigned int m_IndexToDraw = 0;
-
 	//Data filed by the behaviourTree
-	std::vector<bool> m_PathToIndexDwarfBTNotSorted;
-	std::vector<int> m_PathToIndexDwarfBT;
-	unsigned int m_IndexPathToDestinationBT = 0;
+	std::vector<int> m_PathFindBatch;
+	unsigned int m_PathFindBatchSize = 0;
 
 	std::vector<int> m_PathFindingDwarfIndexes;
 
 
-	std::vector<bool> m_PathFollowingBTNotSorted;
-	std::vector<int> m_PathFollowingBT;
-	unsigned int m_IndexPathFollowingBT = 0;
+	std::vector<int> m_PathFollowBatch;
+	unsigned int m_PathFollowBatchSize = 0;
 
-	std::vector<int> m_EntitiesToWakeUp;
-	int m_IndexToWakeUp = 0;
+	std::vector<bool> m_EntitiesActiveInBehaviorTree;
+	std::vector<int> m_EntitiesToWakeUpBatch;
+	int m_EntitiesToWakeUpBatchSize = 0;
 
 	//Inventory task
 	std::vector<BuildingManager::InventoryTask> m_InventoryTaskBT;
 
 	//Time of Day
-	const float m_DayDuration = 10;
-	const float m_NightDuration = 5;
+	const float m_DayDuration = 25;
+	const float m_NightDuration = 25;
 	float m_CurrentTime = 0;
 
 	enum DayState
@@ -377,21 +361,21 @@ private:
 	DayState m_DayState = DAY;
 
 #ifdef AI_DEBUG_COUNT_TIME
-	unsigned int m_TimerMilli = 0u;
-	unsigned int m_TimerMicro = 0u;
+	unsigned __int64 m_TimerMilli = 0u;
+	unsigned __int64 m_TimerMicro = 0u;
 	int m_TimerCounter = 0;
 
-	unsigned int m_Prebatch_Ms = 0u;
-	unsigned int m_Prebatch_Mc = 0u;
+	unsigned __int64 m_Prebatch_Ms = 0u;
+	unsigned __int64 m_Prebatch_Mc = 0u;
 
-	unsigned int m_AskPath_Ms = 0u;
-	unsigned int m_AskPath_Mc = 0u;
+	unsigned __int64 m_AskPath_Ms = 0u;
+	unsigned __int64 m_AskPath_Mc = 0u;
 
-	unsigned int m_Movement_Ms = 0u;
-	unsigned int m_Movement_Mc = 0u;
+	unsigned __int64 m_Movement_Ms = 0u;
+	unsigned __int64 m_Movement_Mc = 0u;
 
-	unsigned int m_Other_Ms = 0u;
-	unsigned int m_Other_Mc = 0u;
+	unsigned __int64 m_Other_Ms = 0u;
+	unsigned __int64 m_Other_Mc = 0u;
 #endif
 
 #ifdef DEBUG_RANDOM_PATH
