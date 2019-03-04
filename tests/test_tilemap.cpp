@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <engine/engine.h>
-#include <engine/tilemap.h>
+#include <graphics/tilemap.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
 #include <fstream>

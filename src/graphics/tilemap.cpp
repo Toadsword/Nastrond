@@ -29,6 +29,7 @@
 
 #include <imgui.h>
 
+#include <graphics/graphics2d.h>
 #include <graphics/tilemap.h>
 #include <graphics/tile_asset.h>
 #include <graphics/texture.h>
@@ -214,7 +215,7 @@ namespace sfge
 	{
 		SingleComponentManager::Init();
 		m_Transform2dManager = m_Engine.GetTransform2dManager();
-		m_TilemapSystem = m_Engine.GetTilemapSystem();
+		m_TilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
 	}
 
 	void TilemapManager::Update(float dt)

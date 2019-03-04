@@ -30,6 +30,7 @@ SOFTWARE.
 #include <engine/engine.h>
 #include <graphics/tile_asset.h>
 #include <graphics/texture.h>
+#include <graphics/graphics2d.h>
 #include <utility/file_utility.h>
 
 namespace sfge
