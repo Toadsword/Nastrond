@@ -22,68 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <extensions/warehouse_manager.h>
+#ifndef SFGE_UI_H
+#define SFGE_UI_H
 
-namespace sfge::ext
-{
-	WarehouseManager::WarehouseManager(Engine& engine) : System(engine){}
+#include <engine/entity.h>
+#include <engine/system.h>
+#include <graphics/graphics2d.h>
+#include <graphics/text.h>
+#include <graphics/button.h>
+#include <graphics/image.h>
 
-	void WarehouseManager::Init()
-	{
-		std::cout << "Warehouse Manager \n";
+namespace sfge
+{	
+	/*
+	 * Author: Cédric Chambaz
+	 */
+	class UIManager : public System {
+	public:
+		using System::System;
 
-	}
+		void Init() override;
+		void Update(float dt) override;
+		void Draw() override;
 
-	void WarehouseManager::Update(float dt)
-	{
-	}
+		ButtonManager* GetButtonManager();
+		TextManager* GetTextManager();
+		ImageManager* GetImageManager();
+	private:
+		// Managers
+		EntityManager* m_EntityManager;
+		Graphics2dManager* m_Graphics2dManager;
+		ButtonManager m_ButtonManager{ m_Engine };
+		TextManager m_TextManager{ m_Engine };
+		ImageManager m_ImageManager{ m_Engine };
 
-	void WarehouseManager::FixedUpdate()
-	{
-	}
-
-	void WarehouseManager::AddNewBuilding(Vec2f position)
-	{
-	}
-
-	bool WarehouseManager::DestroyBuilding(Entity warehouseEntity)
-	{
-		return false;
-	}
-
-	bool WarehouseManager::AddDwarfToBuilding(Entity warehouseEntity)
-	{
-		return false;
-	}
-
-	bool WarehouseManager::RemoveDwarfToBuilding(Entity warehouseEntity)
-	{
-		return false;
-	}
-
-	void WarehouseManager::DwarfEnterBuilding(Entity warehouseEntity)
-	{
-	}
-
-	void WarehouseManager::DwarfExitBuilding(Entity warehouseEntity)
-	{
-	}
-
-	Entity WarehouseManager::GetFreeSlotInBuilding()
-	{
-		return Entity();
-	}
-
-	Entity WarehouseManager::GetWarehouseWithResources(ResourceType resourceType)
-	{
-		return Entity();
-	}
-
-	Entity WarehouseManager::GetWarehouseWithFreeSpaceAvailable(ResourceType resourceType)
-	{
-		return Entity();
-	}
-
-
-
+		sf::RenderWindow* m_Window;
+	};
 }
+#endif

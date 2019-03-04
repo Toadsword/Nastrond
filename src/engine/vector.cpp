@@ -50,7 +50,12 @@ float Vec2f::GetMagnitude()
 
 Vec2f Vec2f::Normalized()
 {
-  return (*this)/(*this).GetMagnitude();
+	float magnitude = GetMagnitude();
+	if (magnitude > 0) {
+		return Vec2f(x / magnitude, y / magnitude);
+	}
+	return *this;
+	// return (*this)/(*this).GetMagnitude();
 }
 
 bool Vec2f::operator==(const Vec2f &rhs) const

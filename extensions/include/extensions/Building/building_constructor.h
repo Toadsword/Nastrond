@@ -22,13 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef BUILDING_NOENTITY_MANAGER_H
-#define BUILDING_NOENTITY_MANAGER_H
+#ifndef BUILDING_CONSTRUCTOR_H
+#define BUILDING_CONSTRUCTOR_H
 
 #include <engine/system.h>
-#include <graphics/graphics2d.h>
+#include <python/python_engine.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_manager.h>
+#include <extensions/Building/road_manager.h>
+#include "engine/tilemap.h"
 
 
 namespace sfge::ext
@@ -36,10 +38,10 @@ namespace sfge::ext
 	/**
 	 * \author Robin Alves
 	 */
-	class BuildingNoEntityManager : public System
+	class BuildingConstructor : public System
 	{
 	public:
-		BuildingNoEntityManager(Engine& engine);
+		BuildingConstructor(Engine& engine);
 
 		void Init() override;
 
@@ -49,41 +51,32 @@ namespace sfge::ext
 
 		void Draw() override;
 
-		/**
-		 * \brief Spawn a dwelling entity at the given position.
-		 * \param position : the location of spawn wanted.
-		 */
-		void AddNewBuilding(Vec2f position);
+		enum BuildingId : TileTypeId
+		{
+			WAREHOUSE = 3,
+			FORGE = 4,
+			MINE = 5,
+			EXCAVATION_POST = 6,
+			MUSHROOM_FARM = 7,
+			DWELLING = 8
+		};
 
 	private:
+		json m_TmpTileMapJson;
 
-		/**
-		 * \brief Consume Resources depending on the number of dwarf in.
-		 */
-		void Consume();
+		void SetupTileMap();
 
-		/**
-		 * \brief Resize all vector in one go to keep the synchronize all index.
-		 * \param newSize : the size with the new number of building.
-		 */
-		void ResizeContainer(const size_t newSize);
+		Configuration* m_Configuration = nullptr;
+		Transform2dManager* m_TransformManager = nullptr;
+		BuildingManager* m_BuildingManager = nullptr;
+		RoadManager* m_RoadManager = nullptr;
 
-		/**
-		 * \brief Decrease happiness when call.
-		 */
-		void DecreaseHappiness();
+		Tilemap* m_Tilemap = nullptr;
+		Vec2f m_SizeTile;
+		TilemapManager* m_TilemapManager = nullptr;
+		TilemapSystem* m_TilemapSystem = nullptr;
 
-		TextureManager* m_TextureManager;
-
-		std::vector<Entity> m_EntityIndex;
-
-		//Building texture
-		std::string m_TexturePath;
-		TextureId m_TextureId;
-		sf::Texture* m_Texture;
-
-		//Vertex array
-		sf::VertexArray m_VertexArray;
+		bool m_Init = false;
 	};
 }
 #endif

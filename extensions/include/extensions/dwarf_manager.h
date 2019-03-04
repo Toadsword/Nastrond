@@ -27,14 +27,17 @@ SOFTWARE.
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 #include <extensions/AI/navigation_graph_manager.h>
-#include <extensions/building_utilities.h>
-#include <extensions/building_manager.h>
+#include <extensions/Building/building_utilities.h>
+#include <extensions/Building/building_manager.h>
 
 namespace sfge::ext
 {
-#define DEBUG_DRAW_PATH
-#define DEBUG_SPAWN_DWARF
+//#define DEBUG_DRAW_PATH
+//#define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
+
+#define AI_DEBUG_COUNT_TIME
+#define AI_DEBUG_COUNT_TIME_PRECISE
 
 /**
  * \author Nicolas Schneider
@@ -43,6 +46,8 @@ class DwarfManager : public System
 {
 public:
 	DwarfManager(Engine& engine);
+
+	~DwarfManager();
 
 	void Init() override;
 
@@ -103,20 +108,19 @@ public:
 #pragma endregion 
 
 #pragma region Path
-	
-	/**
-	 * \brief test if dwarf is at destination
-	 * \param index of the dwarf
-	 * \return true if at destination
-	 */
-	bool IsDwarfAtDestination(unsigned int index);
-
 	/**
 	 * \brief test if dwarf has a assigned path
 	 * \param index of the dwarf
 	 * \return true if has a path
 	 */
 	bool HasPath(unsigned int index);
+
+	/**
+	 * \brief 
+	 * \param index 
+	 * \param path 
+	 */
+	void SetPath(unsigned int index, std::vector<Vec2f> path);
 
 	/**
 	 * \brief call from the behaviour tree to add a request for a new path
@@ -243,10 +247,17 @@ public:
 #pragma endregion 
 
 private:
+	void BatchPathFindingRequest();
+	void BatchPathFollowing();
+	void BatchPosition();
+
 	void ResizeContainers();
 	int GetIndexForNewEntity();
 
-	void AddDwarfToDraw(unsigned int index);
+	void UpdatePositionRange(int startIndex, int endIndex, float vel);
+
+	void CheckIsAtDestinationRange(int startIndex, int endIndex);
+	bool IsDwarfAtDestination(unsigned int index);
 
 	//System
 	Transform2dManager* m_Transform2DManager;
@@ -256,8 +267,9 @@ private:
 	BuildingManager* m_BuildingManager;
 
 	//Dwarfs Holder
-	const size_t m_ContainersExtender = 100;
+	const size_t m_ContainersExtender = 100'000;
 	std::vector<Entity> m_DwarfsEntities;
+	int m_IndexDwarfsEntities = 0;
 
 	//State management
 	enum State
@@ -272,11 +284,15 @@ private:
 
 	//Path management
 	std::vector<std::vector<Vec2f>> m_Paths;
-	const float m_StoppingDistance = 20;
+	const float m_StoppingDistance = 10;
+	std::vector<Vec2f> m_DestinationForPathFinding;
+	std::vector<Vec2f> m_VelocitiesComponents;
+
+	std::vector<Vec2f*> m_Positions;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
-	const float m_SpeedDwarf = 20;
+	const float m_SpeedDwarf = 30;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
@@ -291,8 +307,16 @@ private:
 #endif
 
 #ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100;
+	const size_t m_DwarfToSpawn = 100'000;
 #endif
+
+	enum class DwarfActivity : char {
+		IDLE,
+		FIND_PATH,
+		FOLLOW_PATH
+	};
+
+	std::vector<DwarfActivity> m_DwarfActivities;
 
 	//Dwarfs texture
 	std::string m_TexturePath;
@@ -307,28 +331,26 @@ private:
 	std::vector<BuildingType> m_AssociatedWorkingPlaceType;
 	std::queue<BuildingType> m_JobBuildingType;
 
-	//Vertex array
-	sf::VertexArray m_VertexArray;
-	std::vector<unsigned int> m_IndexesToDraw;
-	unsigned int m_IndexToDraw = 0;
-
 	//Data filed by the behaviourTree
-	std::vector<int> m_PathToIndexDwarfBT;
-	std::vector<Vec2f> m_PathToDestinationBT;
-	unsigned int m_IndexPathToDestinationBT = 0;
+	std::vector<int> m_PathFindBatch;
+	unsigned int m_PathFindBatchSize = 0;
 
-	std::vector<int> m_PathToRandomBT;
-	unsigned int m_IndexPathToRandomBT = 0;
+	std::vector<int> m_PathFindingDwarfIndexes;
 
-	std::vector<int> m_PathFollowingBT;
-	unsigned int m_IndexPathFollowingBT = 0;
+
+	std::vector<int> m_PathFollowBatch;
+	unsigned int m_PathFollowBatchSize = 0;
+
+	std::vector<bool> m_EntitiesActiveInBehaviorTree;
+	std::vector<int> m_EntitiesToWakeUpBatch;
+	int m_EntitiesToWakeUpBatchSize = 0;
 
 	//Inventory task
 	std::vector<BuildingManager::InventoryTask> m_InventoryTaskBT;
 
 	//Time of Day
-	const float m_DayDuration = 10;
-	const float m_NightDuration = 5;
+	const float m_DayDuration = 25;
+	const float m_NightDuration = 25;
 	float m_CurrentTime = 0;
 
 	enum DayState
@@ -337,6 +359,31 @@ private:
 		NIGHT
 	};
 	DayState m_DayState = DAY;
+
+#ifdef AI_DEBUG_COUNT_TIME
+	unsigned __int64 m_TimerMilli = 0u;
+	unsigned __int64 m_TimerMicro = 0u;
+	int m_TimerCounter = 0;
+
+	unsigned __int64 m_Prebatch_Ms = 0u;
+	unsigned __int64 m_Prebatch_Mc = 0u;
+
+	unsigned __int64 m_AskPath_Ms = 0u;
+	unsigned __int64 m_AskPath_Mc = 0u;
+
+	unsigned __int64 m_Movement_Ms = 0u;
+	unsigned __int64 m_Movement_Mc = 0u;
+
+	unsigned __int64 m_Other_Ms = 0u;
+	unsigned __int64 m_Other_Mc = 0u;
+#endif
+
+#ifdef DEBUG_RANDOM_PATH
+	Configuration* m_Config;
+	Vec2f m_ScreenSize;
+#endif
+
+	ctpl::thread_pool* m_ThreadPool;
 };
 }
 

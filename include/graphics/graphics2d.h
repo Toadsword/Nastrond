@@ -32,6 +32,9 @@ SOFTWARE.
 #include <graphics/animation2d.h>
 #include <graphics/camera.h>
 #include <graphics/tilemap.h>
+#include <graphics/button.h>
+#include <graphics/image.h>
+#include <graphics/text.h>
 
 namespace sfge
 {

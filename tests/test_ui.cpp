@@ -22,3 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <engine/engine.h>
+#include <engine/scene.h>
+#include <utility/json_utility.h>
+#include <gtest/gtest.h>
+
+TEST(UI, TestUI)
+{
+	sfge::Engine engine;
+	engine.Init();
+
+	engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_ui.scene");
+
+	engine.Start();
+}

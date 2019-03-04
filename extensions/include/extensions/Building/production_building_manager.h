@@ -27,11 +27,14 @@ SOFTWARE.
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
+#include <python/python_engine.h>
 
-#include <extensions/building_utilities.h>
+#include <extensions/Building/building_utilities.h>
 
 namespace sfge::ext
 {
+	class BuildingManager;
+
 	/**
 	 * \author Robin Alves
 	 */
@@ -52,7 +55,7 @@ namespace sfge::ext
 		 * \brief Spawn a building entity at the given position.
 		 * \param position : the location of spawn wanted.
 		 */
-		void AddNewBuilding(Vec2f position, BuildingType buildingType);
+		void SpawnBuilding(Vec2f position, BuildingType buildingType);
 
 		/**
 		 * \brief Destroy the mine at the given index.
@@ -94,23 +97,11 @@ namespace sfge::ext
 		Entity GetFreeSlotInBuilding(BuildingType buildingType);
 
 		/**
-		 * \brief get a building that have resources ready to be taken.
-		 * \return a mine entity with resources.
-		 */
-		Entity GetBuildingWithResources(BuildingType buildingType);
-
-		/**
-		 * \brief get the type of resources that a building produce.
-		 * \return a resource type.
-		 */
-		ResourceType GetProducedResourceType(BuildingType buildingType);
-
-		/**
 		 * \brief get a certain amount of resources that a building have produce.
 		 * \param entity : an entity that is a building.
 		 * \return an int of an amount of resources.
 		 */
-		int TakeResources(Entity entity);
+		int DwarfTakesResources(Entity entity, BuildingType buildingType);
 
 	private:
 		/**
@@ -124,49 +115,40 @@ namespace sfge::ext
 		 */
 		void ResizeContainer(size_t newSize);
 
-
-		/**
-		 * \brief Resize the vertex array for the good type of building.
-		 * \param newSize : the new size of the vertex array.
-		 * \param buildingType : the type of building of the vertex array.
-		 */
-		void ResizeContainerForVertexArray(size_t newSize, BuildingType buildingType);
-
 		/**
 		 * \brief check if a slot already setup is empty and fill it.
 		 * \param newEntity : the entity that is newly created.
 		 * \param buildingType  the type of building that you are creating.
-		 * \param transformPtr : the transform of the newly created.
 		 * \return true if a slot was empty and has been fill.
 		 */
-		bool CheckEmptySlot(Entity newEntity, BuildingType buildingType, Transform2d* transformPtr);
+		bool CheckEmptySlot(Entity newEntity, BuildingType buildingType);
 
 		/**
 		 * \brief Attribute a vertexArray ofr the entity.
-		 * \param entityIndex : the index of the entity.
+		 * \param newEntity : the entity of the building newly created.
 		 * \param buildingType : the type of building of the entity.
-		 * \param transformPtr : the transform of the entity.
 		 */
-		void AttributionVertxArray(unsigned int entityIndex, BuildingType buildingType, Transform2d * transformPtr);
+		void AttributionTexture(Entity newEntity, BuildingType buildingType);
 
 		/**
 		 * \brief Setup The Vertex array for the sprite of the entity.
 		 * \param newEntity : the index of the entity.
-		 * \param vertexArrayPtr : the pointer of the vertex array of the needed building type.
 		 * \param texture : the texture of the needed building.
-		 * \param transformPtr : the transform of the entity.
 		 */
-		void SetupVertexArray(int newEntity, sf::VertexArray* vertexArrayPtr, sf::Texture* texture, Transform2d* transformPtr);
+		void SetupTexture(Entity newEntity, sf::Texture* texture);
 
 		bool m_Init = false;
 
+		EntityManager* m_EntityManager;
 		Transform2dManager* m_Transform2DManager;
 		TextureManager* m_TextureManager;
+		SpriteManager* m_SpriteManager;
+		BuildingManager* m_BuildingManager;
+		Configuration* m_Configuration;
 
-		sf::RenderWindow* window;
+		sf::RenderWindow* m_Window;
 
 		const unsigned short m_MaxCapacity = 200;
-		const unsigned short m_StackSize = 10;
 		const unsigned short m_CoolDown = 600;
 
 		unsigned int m_BuildingIndexCount = 0;
@@ -175,6 +157,8 @@ namespace sfge::ext
 		std::vector<DwarfSlots> m_DwarfSlots;
 
 		std::vector<unsigned short> m_ResourcesInventories;
+		std::vector<unsigned char> m_ReservedExportStackNumber;
+
 		std::vector<ResourceType> m_ResourceTypes;
 		std::vector<BuildingType> m_BuildingTypes;
 
@@ -194,26 +178,22 @@ namespace sfge::ext
 		unsigned int m_ExcavationPostCount = 0;
 		unsigned int m_MushroomFarmCount = 0;
 
+#pragma region Graphics section
 		//Mine texture
 		std::string m_MineTexturePath;
 		TextureId m_MineTextureId;
 		sf::Texture* m_MineTexture;
-
-		sf::VertexArray m_MineVertexArray;
 
 		//Excavation post texture
 		std::string m_ExcavationPostTexturePath;
 		TextureId m_ExcavationPostTextureId;
 		sf::Texture* m_ExcavationPostTexture;
 
-		sf::VertexArray m_ExcavationPostVertexArray;
-
 		//Mushroom farm texture
 		std::string m_MushroomFarmTexturePath;
 		TextureId m_MushroomFarmTextureId;
 		sf::Texture* m_MushroomFarmTexture;
-
-		sf::VertexArray m_MushroomFarmVertexArray;
+#pragma endregion
 	};
 }
 #endif

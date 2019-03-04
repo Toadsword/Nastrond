@@ -39,52 +39,47 @@ namespace sfge::ext
 		FOOD
 	};
 
-	/**
-	 * \brief Struct that represent an inventory that must be empty.
-	 * \author Robin Alves
-	 */
-	struct GiverInventory
+	static const struct StackSize
 	{
-		unsigned int maxCapacity = 100u;
-		unsigned int packNumber = 0u;
-		unsigned int packSize = 0u;
-		float inventory = 0u;
-		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
+		static const unsigned short rawResources = 20;
+		static const unsigned short transformedResources = 5;
 	};
 
-	/**
-	 * \brief Represent an inventory that must be fill.
-	 * \author Robin Alves
-	 */
-	struct ReceiverInventory
+	static unsigned short GetStackSizeByResourceType(ResourceType resourceType)
 	{
-		unsigned int maxCapacity = 100u;
-		float inventory = 0u;
-		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
-	};
+		switch(resourceType)
+		{
+		case ResourceType::IRON :
+			return StackSize::rawResources;
+		case ResourceType::STONE:
+			return StackSize::rawResources;
+		case ResourceType::FOOD:
+			return StackSize::rawResources;
+		case ResourceType::TOOL:
+			return StackSize::rawResources;
+		}
+		return NO_RESOURCE_TYPE;
+	}
 
-	/**
-	 * \brief Represent an inventory that must be fill.
-	 * \author Robin Alves
-	 */
-	struct Inventory
+	enum RoadCase : unsigned char
 	{
-		unsigned int maxCapacity = 100u;
-		float inventory = 0u;
-		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
-	};
-
-
-	/**
-	 * \brief Represent the progression of the production by the consumption of one or more receiver inventory to a giver inventory.
-	 * \author Robin Alves
-	 */
-	struct ProgressionProduction
-	{
-		float progression = 0.0f;
-		int goal = 20;
-		int FrameCoolDown = 0;
-		ResourceType resourceType = ResourceType::NO_RESOURCE_TYPE;
+		GROUND = 0,
+		SOLO = 1,
+		END_TOP_LEFT = 3,
+		END_TOP_RIGHT = 5,
+		END_BOTTOM_LEFT = 9,
+		END_BOTTOM_RIGHT = 17,
+		TURN_WEST = 11,
+		TURN_EAST = 21,
+		TURN_NORTH = 7,
+		TURN_SOUTH = 25,
+		THREE_WAY_NOT_TOP_LEFT = 29,
+		THREE_WAY_NOT_TOP_RIGHT = 27,
+		THREE_WAY_NOT_BOTTOM_LEFT = 23,
+		THREE_WAY_NOT_BOTTOM_RIGHT = 15,
+		TOP_LEFT_TO_BOTTOM_RIGHT = 19,
+		TOP_RIGHT_TO_BOTTOM_LEFT = 13,
+		CROSS = 31
 	};
 
 	enum BuildingType : unsigned char
@@ -95,6 +90,7 @@ namespace sfge::ext
 		EXCAVATION_POST,
 		MUSHROOM_FARM,
 		WAREHOUSE,
+		ROAD,
 		DWELLING, //Warning : Dwelling are not consider as working place
 		LENGTH
 	};
@@ -113,6 +109,7 @@ namespace sfge::ext
 	const DwarfSlots RESET_DWARF_SLOTS;
 
 	const unsigned int EMPTY_INVENTORY = 0U;
-	const unsigned short CONTAINER_EXTENDER = 2000;
+	const unsigned short CONTAINER_RESERVATION = 2000;
+	
 }
 #endif
