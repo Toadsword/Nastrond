@@ -153,6 +153,9 @@ Node::Node(BehaviorTree* bt, ptr parentNode, NodeType type)
 	case NodeType::PUT_RESOURCE_LEAF: 
 		executeFunction = [=](const int index) {this->PutResourcesLeaf(index); };
 		break;
+	case NodeType::HAS_INVENTORY_TASK:
+		executeFunction = [=](const int index) {this->HasInventoryTaskLeaf(index); };
+		break;
 	default: ; }
 }
 
@@ -254,18 +257,19 @@ void Node::SequenceComposite(const unsigned int index) const
 	}
 #endif
 
-	//if last one returned fail => then it's a fail
-	if (!m_BehaviorTree->hasSucceeded[index])
-	{
-		m_BehaviorTree->currentNode[index] = m_ParentNode;
-		return;
-	}
-
 	//If last one is parent => first time entering the sequence
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
 		nodeData->activeChild[index] = 0;
 		m_BehaviorTree->currentNode[index] = nodeData->children[0];
+		return;
+	}
+
+	//if last one returned fail => then it's a fail
+	if (!m_BehaviorTree->hasSucceeded[index])
+	{
+		m_BehaviorTree->hasSucceeded[index] = false;
+		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		return;
 	}
 
@@ -301,7 +305,6 @@ void Node::SelectorComposite(const unsigned int index) const
 	}
 #endif
 
-
 	//If last one is parent => first time entering the sequence
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
@@ -310,41 +313,28 @@ void Node::SelectorComposite(const unsigned int index) const
 		return;
 	}
 
-	//If last one is child AND has succeeded => Go up
-	if (!m_BehaviorTree->doesFlowGoDown[index] && m_BehaviorTree->hasSucceeded[index]) {
-		m_BehaviorTree->currentNode[index] = m_ParentNode;
-		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+	//if last one returned success => then it's a success
+	if (m_BehaviorTree->hasSucceeded[index])
+	{
 		m_BehaviorTree->hasSucceeded[index] = true;
+		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		return;
 	}
 
-	//Else it means that the previous node is a children
-	for (char i = 0; i < nodeData->children.size(); i++)
+	if (nodeData->activeChild[index] < nodeData->children.size() - 1)
 	{
-		if (i == nodeData->activeChild[index])
-		{
-			//If last one is a success => going out of node
-			if (m_BehaviorTree->hasSucceeded[index])
-			{
-				m_BehaviorTree->currentNode[index] = m_ParentNode;
-				return;
-			}
-
-			//Else if not last child => go next child
-			if (i < nodeData->children.size() - 1)
-			{
-				m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
-				m_BehaviorTree->currentNode[index] = nodeData->children[i + 1];
-				nodeData->activeChild[index]++;
-				return;
-			}
-			//mean that they all failed => return fail
-			m_BehaviorTree->currentNode[index] = m_ParentNode;
-			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-			m_BehaviorTree->hasSucceeded[index] = false;
-			return;
-		}
+		//Next child
+		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
+		nodeData->activeChild[index] += 1;
+		m_BehaviorTree->currentNode[index] = nodeData->children[nodeData->activeChild[index]];
+		return;
 	}
+
+	//Go up to parent when all child visited
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviorTree->hasSucceeded[index] = false;
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 }
 
 void Node::RepeaterDecorator(const unsigned int index) const
@@ -579,14 +569,8 @@ void Node::SetDwellingLeaf(const unsigned int index) const
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
-	if (m_BehaviorTree->dwarfManager->AssignDwellingToDwarf(index))
-	{
-		m_BehaviorTree->hasSucceeded[index] = true;
-	}
-	else
-	{
-		m_BehaviorTree->hasSucceeded[index] = false;
-	}
+	m_BehaviorTree->dwarfManager->AskAssignDwellingToDwarf(index);
+	m_BehaviorTree->hasSucceeded[index] = true;
 }
 
 void Node::EnterDwellingLeaf(const unsigned int index) const
@@ -716,7 +700,7 @@ void Node::HasStaticJobLeaf(const unsigned int index) const
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
-	if (m_BehaviorTree->dwarfManager->HasJob(index))
+	if (m_BehaviorTree->dwarfManager->HasStaticJob(index))
 	{
 		m_BehaviorTree->hasSucceeded[index] = true;
 	}
@@ -743,14 +727,8 @@ void Node::AssignJobLeaf(const unsigned int index) const
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
-	if (m_BehaviorTree->dwarfManager->AssignJob(index))
-	{
-		m_BehaviorTree->hasSucceeded[index] = true;
-	}
-	else
-	{
-		m_BehaviorTree->hasSucceeded[index] = false;
-	}
+	m_BehaviorTree->dwarfManager->AssignJob(index);
+	m_BehaviorTree->hasSucceeded[index] = true;
 }
 
 void Node::IsDayTimeLeaf(const unsigned int index) const
@@ -863,13 +841,16 @@ void Node::AskInventoryTaskLeaf(const unsigned int index) const
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
-	if (m_BehaviorTree->dwarfManager->AddInventoryTaskBT(index))
-	{
-		m_BehaviorTree->hasSucceeded[index] = true;
-	}else
-	{
-		m_BehaviorTree->hasSucceeded[index] = false;
-	}
+	m_BehaviorTree->dwarfManager->AddInventoryTaskBT(index);
+	m_BehaviorTree->hasSucceeded[index] = true;
+}
+
+void Node::HasInventoryTaskLeaf(const unsigned int index) const
+{
+	m_BehaviorTree->hasSucceeded[index] = m_BehaviorTree->dwarfManager->HasInventoryTask(index);
+
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
 }
 
 void Node::TakeResourcesLeaf(const unsigned int index) const
@@ -983,6 +964,7 @@ void Node::FindPathToLeaf(const unsigned int index) const
 			std::cout << " inventory task giver\n";
 		}
 #endif
+		std::cout << "inventory task giver\n";
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
 		break;
 	case NodeDestination::INVENTORY_TASK_RECEIVER:

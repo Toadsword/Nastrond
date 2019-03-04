@@ -61,7 +61,7 @@ void BehaviorTree::Update(float dt)
 
 	const auto coreNmb = m_ThreadPool->size();
 
-	if (m_IndexActiveEntity < coreNmb) {
+	if (m_IndexActiveEntity < coreNmb && m_IndexActiveEntity > 0) {
 		UpdateRange(0, m_IndexActiveEntity - 1);
 	}
 	else {

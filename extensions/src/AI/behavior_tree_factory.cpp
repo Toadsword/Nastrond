@@ -167,6 +167,8 @@ std::string BehaviorTreeUtility::NodeTypeToString(const NodeType nodeType)
 		return "Put resource";
 	case NodeType::FIND_PATH_TO_LEAF:
 		return "Find path to";
+	case NodeType::HAS_INVENTORY_TASK:
+		return "Has inventory task";
 	default:
 		std::ostringstream oss;
 		oss << "[Error] NodeType to String : the type is not implemented";
@@ -300,6 +302,11 @@ Node::ptr BehaviorTreeUtility::AddLeafNodeFromJson(json& behaviorTreeJson, const
 	{
 		std::cout << "   -> Put resource leaf\n";
 		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::PUT_RESOURCE_LEAF);
+	}
+	else if (behaviorTreeJson["name"] == NodeTypeToString(NodeType::HAS_INVENTORY_TASK))
+	{
+		std::cout << "   -> Has inventory task\n";
+		leaf = std::make_shared<Node>(behaviorTree, parentNode, NodeType::HAS_INVENTORY_TASK);
 	}
 	else
 	{
@@ -467,6 +474,7 @@ std::string BehaviorTreeUtility::LeafNodeToString(const Node::ptr& node)
 	case NodeType::ASK_INVENTORY_TASK_LEAF:
 	case NodeType::TAKE_RESOURCE_LEAF:
 	case NodeType::PUT_RESOURCE_LEAF:
+	case NodeType::HAS_INVENTORY_TASK:
 		break;
 	case NodeType::FIND_PATH_TO_LEAF:
 		outString += "\"destination\" : " + std::to_string(
