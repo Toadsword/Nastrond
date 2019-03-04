@@ -442,7 +442,6 @@ void DwarfManager::UpdatePositionRange(const int startIndex, const int endIndex,
 	for (size_t i = startIndex; i <= endIndex; ++i)
 	{
 		const auto indexDwarf = m_PathFollowBatch[i];
-
 		*m_Positions[indexDwarf] += m_VelocitiesComponents[indexDwarf] * vel;
 	}
 }
@@ -546,11 +545,8 @@ void DwarfManager::Update(const float dt)
 		}
 	}else
 	{
-		for (size_t i = 0; i < m_PathFollowBatchSize; ++i)
-		{
-			const auto indexDwarf = m_PathFollowBatch[i];
-
-			*m_Positions[indexDwarf] += m_VelocitiesComponents[indexDwarf] * vel;
+		if (m_PathFollowBatchSize > 0) {
+			UpdatePositionRange(0, m_PathFollowBatchSize - 1, vel);
 		}
 	}
 
@@ -571,15 +567,8 @@ void DwarfManager::Update(const float dt)
 		}
 	}else
 	{
-		for (size_t i = 0; i < m_PathFollowBatchSize; ++i)
-		{
-			const auto indexDwarf = m_PathFollowBatch[i];
-
-			if (IsDwarfAtDestination(indexDwarf))
-			{
-				m_EntitiesActiveInBehaviorTree[indexDwarf] = true;
-				m_DwarfActivities[i] = DwarfActivity::IDLE;
-			}
+		if (m_PathFollowBatchSize > 0) {
+			CheckIsAtDestinationRange(0, m_PathFollowBatchSize - 1);
 		}
 	}
 

@@ -29,7 +29,6 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-//#define AI_BT_NODE_NAME
 	class BehaviorTree;
 	class Node;
 
@@ -109,6 +108,11 @@ namespace sfge::ext::behavior_tree
 	class Node final
 	{
 	public:
+//#define AI_BT_NODE_NAME
+//#define AI_BT_SPECIFIC_ENTITY
+#ifdef AI_BT_SPECIFIC_ENTITY
+		int specificEntity = 23;
+#endif
 		/**
 		 * \brief shared pointer of node
 		 */
