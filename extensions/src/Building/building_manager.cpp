@@ -50,13 +50,6 @@ namespace sfge::ext
 		m_Init = true;
 
 		Log::GetInstance()->Msg("Building Manager initialized");
-
-		//DEBUG
-		int nmbBuilding = 20000;
-		for (int i = 0; i < nmbBuilding; i++)
-		{
-			SpawnBuilding(static_cast<BuildingType>((std::rand() % static_cast<int>(7)) + 1) , Vec2f(0, 0));
-		}
 	}
 
 	void BuildingManager::Update(float dt)
