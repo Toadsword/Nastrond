@@ -24,6 +24,9 @@ SOFTWARE.
 #ifndef DWARF_MANAGER_H
 #define DWARF_MANAGER_H
 
+#include <ppl.h>
+#include <concurrent_vector.h>
+
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 #include <extensions/AI/navigation_graph_manager.h>
@@ -300,7 +303,7 @@ private:
 		ASSIGN_JOB
 	};
 
-	std::vector<DwarfActivity> m_DwarfActivities;
+	concurrency::concurrent_vector<DwarfActivity> m_DwarfActivities;
 
 	//Dwarfs texture
 	std::string m_TexturePath;
@@ -308,7 +311,7 @@ private:
 	sf::Texture* m_Texture;
 
 	//Dwelling
-	std::vector<Entity> m_AssociatedDwelling;
+	concurrency::concurrent_vector<Entity> m_AssociatedDwelling;
 
 	//Jobs
 	std::vector<Entity> m_AssociatedWorkingPlace;

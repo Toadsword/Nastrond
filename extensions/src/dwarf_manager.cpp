@@ -389,6 +389,14 @@ void DwarfManager::BatchAssignDwelling()
 			const auto inventoryTask = m_BuildingManager->ConveyorLookForTask();
 
 			m_InventoryTaskBT[i] = inventoryTask;
+			if (inventoryTask == m_BuildingManager->INVALID_INVENTORY_TASK)
+			{
+				std::cout << "Empty task for " << i << "\n";
+			}
+			else
+			{
+				std::cout << "Task for" << i << "\n";
+			}
 
 			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
@@ -453,6 +461,7 @@ void DwarfManager::BatchAssignDwelling()
 
 				if (buildingEntity != INVALID_ENTITY)
 				{
+					std::cout << "assign job for " << i << "\n";
 					m_AssociatedWorkingPlace[i] = buildingEntity;
 					m_AssociatedWorkingPlaceType[i] = buildingType;
 
@@ -460,6 +469,11 @@ void DwarfManager::BatchAssignDwelling()
 				}
 
 				nbJob++;
+			}
+
+			if(nbJob == m_JobBuildingType.size())
+			{
+				std::cout << "no job assigned for " << i << "\n";
 			}
 
 			m_DwarfActivities[i] = DwarfActivity::IDLE;

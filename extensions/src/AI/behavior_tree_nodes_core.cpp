@@ -268,6 +268,7 @@ void Node::SequenceComposite(const unsigned int index) const
 	//if last one returned fail => then it's a fail
 	if (!m_BehaviorTree->hasSucceeded[index])
 	{
+		nodeData->activeChild[index] = 0;
 		m_BehaviorTree->hasSucceeded[index] = false;
 		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		return;
@@ -284,7 +285,7 @@ void Node::SequenceComposite(const unsigned int index) const
 
 	//Go up to parent when all child visited
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
+	nodeData->activeChild[index] = 0;
 	m_BehaviorTree->hasSucceeded[index] = true;
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 }
@@ -316,6 +317,7 @@ void Node::SelectorComposite(const unsigned int index) const
 	//if last one returned success => then it's a success
 	if (m_BehaviorTree->hasSucceeded[index])
 	{
+		nodeData->activeChild[index] = 0;
 		m_BehaviorTree->hasSucceeded[index] = true;
 		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		return;
@@ -332,7 +334,7 @@ void Node::SelectorComposite(const unsigned int index) const
 
 	//Go up to parent when all child visited
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
+	nodeData->activeChild[index] = 0;
 	m_BehaviorTree->hasSucceeded[index] = false;
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 }
@@ -848,7 +850,10 @@ void Node::AskInventoryTaskLeaf(const unsigned int index) const
 void Node::HasInventoryTaskLeaf(const unsigned int index) const
 {
 	m_BehaviorTree->hasSucceeded[index] = m_BehaviorTree->dwarfManager->HasInventoryTask(index);
-
+	if(m_BehaviorTree->hasSucceeded[index])
+	{
+		std::cout << "has inventory task for " << index << "\n";
+	}
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 }
