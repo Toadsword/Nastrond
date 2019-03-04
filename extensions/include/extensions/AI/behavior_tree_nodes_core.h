@@ -29,6 +29,7 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
+//#define AI_BT_NODE_NAME
 	class BehaviorTree;
 	class Node;
 
@@ -83,6 +84,7 @@ namespace sfge::ext::behavior_tree
 	struct CompositeData : NodeData
 	{
 		std::vector<std::shared_ptr<Node>> children;
+		std::vector<unsigned char> activeChild;
 	};
 
 	struct DecoratorData : NodeData

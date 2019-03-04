@@ -32,6 +32,10 @@ SOFTWARE.
 #include <engine/vector.h>
 
 
+namespace sfge {
+class Tilemap;
+}
+
 namespace sfge::ext
 {
 	class DwarfManager;
@@ -46,8 +50,12 @@ struct GraphNode final
 	Vec2f pos;
 };
 
-//#define DEBUG_MOD
-#define DEBUG_MAP
+//#define AI_PATH_FINDING_DRAW_NODES
+//#define AI_PATH_FINDING_DRAW_NODES_NEIGHBORS
+//#define AI_PATH_FINDING_DRAW_DEBUG_NODES
+
+#define AI_DEBUG_COUNT_TIME
+#define AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
 
 /**
  * \author Nicolas Schneider
@@ -56,6 +64,7 @@ class NavigationGraphManager final : public System
 {
 public:
 	explicit NavigationGraphManager(Engine& engine);
+	~NavigationGraphManager();
 
 	void Init() override;
 
@@ -77,7 +86,7 @@ private:
 	std::vector<Vec2f> GetPathFromTo(Vec2f& origin, Vec2f& destination);
 	std::vector<Vec2f> GetPathFromTo(unsigned int originIndex, unsigned int destinationIndex);
 
-	void BuildGraphFromArray(std::vector<std::vector<int>>& map);
+	void BuildGraphFromArray(Tilemap* tilemap, std::vector<std::vector<int>>& map);
 
 	static float GetSquaredDistance(Vec2f& v1, Vec2f& v2);
 
@@ -94,6 +103,9 @@ private:
 
 	std::queue<WaitingPath> m_WaitingPaths;
 
+	std::vector<unsigned int> m_CameFrom;
+	std::vector<float> m_CostSoFar;
+
 	//Heuristic for pathfinding
 	const float m_Heuristic1 = 1;
 	const float m_Heuristic2 = sqrt(2.f);
@@ -106,13 +118,39 @@ private:
 	const int m_MaxPathForOneUpdate = 100'000;
 
 	std::vector<GraphNode> m_Graph;
-	sf::VertexArray m_VertexArray;
 
-#ifdef DEBUG_MAP
-	//Map info
-	const Vec2f m_TileExtends = Vec2f(60, 60);
-	Vec2f m_MapSize;
+	Vec2f m_TileExtends;
+
+#ifdef AI_PATH_FINDING_DRAW_NODES
+	sf::VertexArray m_NodesQuads;
 #endif
+
+#ifdef AI_PATH_FINDING_DRAW_NODES_NEIGHBORS
+	std::vector<sf::VertexArray> m_NodesNeighborsLines;
+#endif
+
+#ifdef AI_DEBUG_COUNT_TIME
+	unsigned int m_TimerMilli = 0u;
+	unsigned int m_TimerMicro = 0u;
+	int m_TimerCounter = 0;
+#endif
+
+#ifdef AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
+	unsigned __int64 m_GetNode_Ms = 0;
+	unsigned __int64 m_GetNode_Mc = 0;
+
+	unsigned __int64 m_TmpGetNode_Ms = 0;
+	unsigned __int64 m_TmpGetNode_Mc = 0;
+
+	unsigned __int64 m_FindPath_Ms = 0;
+	unsigned __int64 m_FindPath_Mc = 0;
+
+	unsigned __int64 m_TmpFindPath_Ms = 0;
+	unsigned __int64 m_TmpFindPath_Mc = 0;
+
+	unsigned int m_PathCalculated = 0;
+#endif
+
 };
 }
 
