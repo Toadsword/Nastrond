@@ -60,7 +60,6 @@ class Transform2dManager;
 class RectTransformManager;
 class UIManager;
 class Editor;
-class TilemapSystem;
 struct SystemsContainer;
 
 /* Paths to the folders used for save */
@@ -121,7 +120,6 @@ public:
 	RectTransformManager* GetRectTransformManager();
 	UIManager* GetUIManager();
 	Editor* GetEditor();
-	TilemapSystem* GetTilemapSystem();
 
 	ctpl::thread_pool& GetThreadPool();
 	ProfilerFrameData& GetProfilerFrameData();
@@ -132,13 +130,10 @@ protected:
 	sf::RenderWindow* m_Window = nullptr;
 	std::unique_ptr<Configuration> m_Config;
 
-
 	Remotery* rmt;
-	//
 	std::unique_ptr<SystemsContainer> m_SystemsContainer;
 
   	ProfilerFrameData m_FrameData;
-
 };
 
 

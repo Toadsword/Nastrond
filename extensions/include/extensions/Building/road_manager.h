@@ -29,7 +29,7 @@ SOFTWARE.
 #include <graphics/graphics2d.h>
 
 #include <extensions/Building/building_utilities.h>
-#include "engine/tile_asset.h"
+#include <graphics/tile_asset.h>
 
 namespace sfge::ext
 {
