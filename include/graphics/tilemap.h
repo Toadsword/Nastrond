@@ -261,6 +261,12 @@ public:
 	 * \brief Update the draw order of the tilemaps. Usually called when the layer order is changed.
 	 */
 	void UpdateDrawOrderTilemaps();
+
+	/**
+	 * \brief Returns all the current existing tilemaps.
+	 * \return list of entities containing a tilemap.
+	 */
+	std::vector<Entity> GetAllTilemaps();
 protected:
 	std::vector<Entity> m_Tilemaps;
 	std::vector<Entity> m_OrderToDrawTilemaps;

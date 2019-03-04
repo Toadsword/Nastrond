@@ -53,7 +53,7 @@ namespace sfge::ext
 		//}
 
 		//Get directly the tilemap (only way it worked)
-		m_Tilemap = m_TilemapManager->GetComponentPtr(2);
+		m_Tilemap = m_TilemapManager->GetComponentPtr(m_TilemapManager->GetAllTilemaps()[0]);
 
 		if (m_Tilemap != nullptr)
 		{

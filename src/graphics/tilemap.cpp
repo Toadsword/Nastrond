@@ -555,6 +555,11 @@ namespace sfge
 		}
 	}
 
+	std::vector<Entity> TilemapManager::GetAllTilemaps()
+	{
+		return m_Tilemaps;
+	}
+
 	void TilemapSystem::Init()
 	{
 		m_TileTypeManager.Init();
