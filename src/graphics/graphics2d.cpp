@@ -89,6 +89,7 @@ void Graphics2dManager::Update(float dt)
 
 void Graphics2dManager::Draw()
 {
+	rmt_ScopedCPUSample(Graphics2dDraw, 0)
 	if(!m_Windowless)
 	{
 		m_TilemapSystem.DrawTilemaps(*m_Window);

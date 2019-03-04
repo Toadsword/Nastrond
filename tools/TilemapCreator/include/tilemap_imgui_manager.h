@@ -30,7 +30,7 @@ Project : TilemapCreator for SFGE
 #ifndef TILEMAP_IMGUI_MANAGER_H
 #define TILEMAP_IMGUI_MANAGER_H
 #include <engine/entity.h>
-#include <graphics/tile.h>
+#include <SFML/Graphics.hpp>
 
 namespace sfge::tools
 {
@@ -109,9 +109,7 @@ private:
 	int m_SizeNewTilemap[2] = {1,1};
 
 	/* ------------------------------------- Tilemap editor ------------------------------- */
-	Entity m_TileEditorId = INVALID_ENTITY;
-
-	Tile* m_TileEditor = nullptr;
+	sf::Sprite m_TileEditor;
 
 	/* -------------------------------------- Others ----------------------------------- */
 	/**
