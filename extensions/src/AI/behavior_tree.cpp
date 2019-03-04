@@ -123,11 +123,47 @@ void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 		currentNode.resize(m_Entities->size(), m_RootNode);
 		doesFlowGoDown.resize(m_Entities->size(), true);
 		repeaterCounter.resize(m_Entities->size(), 0);
-		sequenceActiveChild.resize(m_Entities->size(), 0);
 		hasSucceeded.resize(m_Entities->size(), true);
 
 		m_ActiveEntity.resize(m_Entities->size(), true);
 		sleepingEntity.resize(m_Entities->size(), false);
+	}
+
+	if(m_RootNode != nullptr)
+	{
+		std::vector<Node::ptr> openNodes;
+		openNodes.push_back(m_RootNode);
+
+		while(!openNodes.empty())
+		{
+			const auto node = openNodes.back();
+			openNodes.pop_back();
+
+			switch (node->nodeType) { 
+				case NodeType::SEQUENCE_COMPOSITE:
+				case NodeType::SELECTOR_COMPOSITE:
+				{
+					auto* compositeData = static_cast<CompositeData*>(node->data.get());
+
+					compositeData->activeChild.resize(m_Entities->size());
+
+					for (auto child : compositeData->children)
+					{
+						openNodes.push_back(child);
+					}
+				}
+				break;
+				case NodeType::REPEATER_DECORATOR: 
+				case NodeType::REPEAT_UNTIL_FAIL_DECORATOR: 
+				case NodeType::SUCCEEDER_DECORATOR: 
+				case NodeType::INVERTER_DECORATOR:
+				{
+					auto* decoratorData = static_cast<DecoratorData*>(node->data.get());
+					openNodes.push_back(decoratorData->child);
+				}
+				break;
+				default: ; }
+		}
 	}
 }
 

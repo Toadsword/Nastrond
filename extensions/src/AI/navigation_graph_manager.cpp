@@ -215,22 +215,30 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 	auto transformManager = m_Engine.GetTransform2dManager();
 	auto* tilemapSystem = m_Engine.GetTilemapSystem();
 	auto tileManager = tilemapSystem->GetTileManager();
+
+	std::vector<TileTypeId> tileTypes = tilemap->GetTileTypes();
 	
 	for (auto x = 0; x < map.size(); x++)
 	{
 		for (auto y = 0; y < map[x].size(); y++)
 		{
 			GraphNode node;
-			auto tile = tileManager->GetComponentPtr(tilemap->GetTileAt(Vec2f(x, y)));
+			//auto tile = tileManager->GetComponentPtr(tilemap->GetTileAt(Vec2f(x, y)));
+			const auto tile = tileTypes[y * map.size() + x];
+			Vec2f offset = Vec2f(0, 0);
+			const Vec2f TILE_SIZE = Vec2f(64, 32);
+			Vec2f xPos = { TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
+			Vec2f yPos = { -TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 
+			offset = xPos * x + yPos * y;
 			//if(tilemap->GetTileAt(Vec2f(x, y))
-			if (tile->GetType() == 2) {
+			if (tile > 2) {
 				node.cost = SOLID_COST;
 			}else
 			{
-				node.cost = map[x][y];
+				node.cost = NORMAL_COST;
 			}
-			node.pos = transformManager->GetComponentPtr(tilemap->GetTileAt(Vec2f(x, y)))->Position;
+			node.pos = xPos * x + yPos * y;
 
 			m_Graph.push_back(node);
 		}
@@ -353,8 +361,6 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	m_CameFrom[originIndex] = originIndex;
 	m_CostSoFar[originIndex] = 0;
 
-	auto found = false;
-
 	const auto posX = m_Graph[destinationIndex].pos.x;
 	const auto posY = m_Graph[destinationIndex].pos.y;
 
@@ -388,7 +394,7 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 			const auto newCost = m_CostSoFar[indexCurrent] + Sqrt(distance.x * distance.x + distance.y * distance.y);
 
-			if (m_CostSoFar[indexNext] == -1 ||
+			if (m_CostSoFar[indexNext] == 100'000 ||
 				newCost < m_CostSoFar[indexNext])
 			{
 				m_CostSoFar[indexNext] = newCost;
@@ -441,7 +447,7 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 	for (auto& i : m_CostSoFar)
 	{
-		i = -1;
+		i = 100'000;
 	}
 
 	return pathPos;

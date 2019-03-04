@@ -243,6 +243,10 @@ void Node::SequenceComposite(const unsigned int index) const
 {
 	auto* nodeData = static_cast<CompositeData*>(data.get());
 
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Sequence (" << nodeData->activeChild[index] << ")\n";
+#endif
+
 	//if last one returned fail => then it's a fail
 	if (!m_BehaviorTree->hasSucceeded[index])
 	{
@@ -253,48 +257,56 @@ void Node::SequenceComposite(const unsigned int index) const
 	//If last one is parent => first time entering the sequence
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
-		m_BehaviorTree->sequenceActiveChild[index] = 0;
+		nodeData->activeChild[index] = 0;
 		m_BehaviorTree->currentNode[index] = nodeData->children[0];
 		return;
 	}
 
-	//Else it means that the previous node is a children
-	for (size_t i = 0; i < nodeData->children.size(); i++)
+	if(nodeData->activeChild[index] < nodeData->children.size() - 1)
 	{
-		if (i == m_BehaviorTree->sequenceActiveChild[index])
-		{
-			if (i == nodeData->children.size() - 1)
-			{
-				m_BehaviorTree->currentNode[index] = m_ParentNode;
-
-				m_BehaviorTree->hasSucceeded[index] = true;
-				return;
-			}
-
-			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
-			m_BehaviorTree->sequenceActiveChild[index]++;
-			m_BehaviorTree->currentNode[index] = nodeData->children[i + 1];
-			return;
-		}
+		//Next child
+		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
+		nodeData->activeChild[index] += 1;
+		m_BehaviorTree->currentNode[index] = nodeData->children[nodeData->activeChild[index]];
+		return;
 	}
+
+	//Go up to parent when all child visited
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
+
+	m_BehaviorTree->hasSucceeded[index] = true;
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 }
 
 void Node::SelectorComposite(const unsigned int index) const
 {
 	auto* nodeData = static_cast<CompositeData*>(data.get());
 
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Selector (" << nodeData->activeChild[index] << ")\n";
+#endif
+
+
 	//If last one is parent => first time entering the sequence
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
-		m_BehaviorTree->sequenceActiveChild[index] = 0;
+		nodeData->activeChild[index] = 0;
 		m_BehaviorTree->currentNode[index] = nodeData->children[0];
+		return;
+	}
+
+	//If last one is child AND has succeeded => Go up
+	if (!m_BehaviorTree->doesFlowGoDown[index] && m_BehaviorTree->hasSucceeded[index]) {
+		m_BehaviorTree->currentNode[index] = m_ParentNode;
+		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+		m_BehaviorTree->hasSucceeded[index] = true;
 		return;
 	}
 
 	//Else it means that the previous node is a children
 	for (char i = 0; i < nodeData->children.size(); i++)
 	{
-		if (i == m_BehaviorTree->sequenceActiveChild[index])
+		if (i == nodeData->activeChild[index])
 		{
 			//If last one is a success => going out of node
 			if (m_BehaviorTree->hasSucceeded[index])
@@ -308,12 +320,12 @@ void Node::SelectorComposite(const unsigned int index) const
 			{
 				m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
 				m_BehaviorTree->currentNode[index] = nodeData->children[i + 1];
-				m_BehaviorTree->sequenceActiveChild[index]++;
+				nodeData->activeChild[index]++;
 				return;
 			}
 			//mean that they all failed => return fail
 			m_BehaviorTree->currentNode[index] = m_ParentNode;
-
+			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 			m_BehaviorTree->hasSucceeded[index] = false;
 			return;
 		}
@@ -322,6 +334,10 @@ void Node::SelectorComposite(const unsigned int index) const
 
 void Node::RepeaterDecorator(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Repeater\n";
+#endif
+
 	auto* nodeData = static_cast<RepeaterData*>(data.get());
 
 	//If flow goes down => start counter 
@@ -352,6 +368,10 @@ void Node::RepeaterDecorator(const unsigned int index) const
 
 void Node::RepeatUntilFailDecorator(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Repeat until fail\n";
+#endif
+
 	auto* nodeData = static_cast<DecoratorData*>(data.get());
 
 	if (m_BehaviorTree->doesFlowGoDown[index])
@@ -362,11 +382,13 @@ void Node::RepeatUntilFailDecorator(const unsigned int index) const
 	{
 		if (!m_BehaviorTree->hasSucceeded[index])
 		{
+			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 			m_BehaviorTree->currentNode[index] = m_ParentNode;
 			m_BehaviorTree->hasSucceeded[index] = true;
 		}
 		else
 		{
+			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoDown;
 			m_BehaviorTree->currentNode[index] = nodeData->child;
 		}
 	}
@@ -374,6 +396,10 @@ void Node::RepeatUntilFailDecorator(const unsigned int index) const
 
 void Node::InverterDecorator(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Inverter\n";
+#endif
+
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
 		auto* nodeData = static_cast<DecoratorData*>(data.get());
@@ -404,6 +430,10 @@ void Node::InverterDecorator(const unsigned int index) const
 
 void Node::SucceederDecorator(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Succeeder\n";
+#endif
+
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
 		auto* nodeData = static_cast<DecoratorData*>(data.get());
@@ -417,6 +447,10 @@ void Node::SucceederDecorator(const unsigned int index) const
 
 void Node::WaitForPath(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Wait for path\n";
+#endif
+
 	if (m_BehaviorTree->dwarfManager->HasPath(index))
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -428,6 +462,9 @@ void Node::WaitForPath(const unsigned int index) const
 
 void Node::MoveToLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Move to\n";
+#endif
 	m_BehaviorTree->dwarfManager->AddPathFollowingBT(index);
 	m_BehaviorTree->sleepingEntity[index] = true;
 
@@ -439,6 +476,9 @@ void Node::MoveToLeaf(const unsigned int index) const
 
 void Node::HasDwellingLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Has Dwelling\n";
+#endif
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -454,6 +494,9 @@ void Node::HasDwellingLeaf(const unsigned int index) const
 
 void Node::SetDwellingLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Set dwelling\n";
+#endif
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -469,6 +512,9 @@ void Node::SetDwellingLeaf(const unsigned int index) const
 
 void Node::EnterDwellingLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Enter Dwelling\n";
+#endif
 	m_BehaviorTree->dwarfManager->DwarfEnterDwelling(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -479,6 +525,9 @@ void Node::EnterDwellingLeaf(const unsigned int index) const
 
 void Node::ExitDwellingLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Exit dwelling\n";
+#endif
 	m_BehaviorTree->dwarfManager->DwarfExitDwelling(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -489,6 +538,9 @@ void Node::ExitDwellingLeaf(const unsigned int index) const
 
 void Node::EnterWorkingPlaceLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Enter working place\n";
+#endif
 	m_BehaviorTree->dwarfManager->DwarfEnterWorkingPlace(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -499,6 +551,9 @@ void Node::EnterWorkingPlaceLeaf(const unsigned int index) const
 
 void Node::ExitWorkingPlaceLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Exit working place\n";
+#endif
 	m_BehaviorTree->dwarfManager->DwarfExitWorkingPlace(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -509,6 +564,9 @@ void Node::ExitWorkingPlaceLeaf(const unsigned int index) const
 
 void Node::HasJobLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Has job\n";
+#endif
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -525,6 +583,9 @@ void Node::HasJobLeaf(const unsigned int index) const
 
 void Node::HasStaticJobLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Has stastic job\n";
+#endif
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -541,6 +602,9 @@ void Node::HasStaticJobLeaf(const unsigned int index) const
 
 void Node::AssignJobLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Assign job\n";
+#endif
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -556,6 +620,9 @@ void Node::AssignJobLeaf(const unsigned int index) const
 
 void Node::IsDayTimeLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Is day time\n";
+#endif
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -571,6 +638,9 @@ void Node::IsDayTimeLeaf(const unsigned int index) const
 
 void Node::IsNightTimeLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Is night time\n";
+#endif
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 
@@ -586,6 +656,9 @@ void Node::IsNightTimeLeaf(const unsigned int index) const
 
 void Node::WaitDayTimeLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Wait day time\n";
+#endif
 	if (m_BehaviorTree->dwarfManager->IsDayTime())
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -596,6 +669,9 @@ void Node::WaitDayTimeLeaf(const unsigned int index) const
 
 void Node::WaitNightTimeLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Wait night time\n";
+#endif
 	if (m_BehaviorTree->dwarfManager->IsNightTime())
 	{
 		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -606,16 +682,26 @@ void Node::WaitNightTimeLeaf(const unsigned int index) const
 
 void Node::AskInventoryTaskLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Ask inventory task\n";
+#endif
+	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
+	m_BehaviorTree->currentNode[index] = m_ParentNode;
+
 	if (m_BehaviorTree->dwarfManager->AddInventoryTaskBT(index))
 	{
-		m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
-		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		m_BehaviorTree->hasSucceeded[index] = true;
+	}else
+	{
+		m_BehaviorTree->hasSucceeded[index] = false;
 	}
 }
 
 void Node::TakeResourcesLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Take resource\n";
+#endif
 	m_BehaviorTree->dwarfManager->TakeResources(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -626,6 +712,9 @@ void Node::TakeResourcesLeaf(const unsigned int index) const
 
 void Node::PutResourcesLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Put resource\n";
+#endif
 	m_BehaviorTree->dwarfManager->PutResources(index);
 
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
@@ -636,21 +725,39 @@ void Node::PutResourcesLeaf(const unsigned int index) const
 
 void Node::FindPathToLeaf(const unsigned int index) const
 {
+#ifdef AI_BT_NODE_NAME
+	std::cout << "Find path to ";
+#endif
 	switch (static_cast<FindPathToData*>(data.get())->destination)
 	{
 	case NodeDestination::RANDOM:
+#ifdef AI_BT_NODE_NAME
+		std::cout << " random\n";
+#endif
 		m_BehaviorTree->dwarfManager->AddFindRandomPathBT(index);
 		break;
 	case NodeDestination::DWELLING:
+#ifdef AI_BT_NODE_NAME
+		std::cout << " dwelling\n";
+#endif
 		m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetDwellingAssociatedPosition(index));
 		break;
 	case NodeDestination::WORKING_PLACE:
+#ifdef AI_BT_NODE_NAME
+		std::cout << " working place\n";
+#endif
 		m_BehaviorTree->dwarfManager->AddFindPathToDestinationBT(index, m_BehaviorTree->dwarfManager->GetWorkingPlaceAssociatedPosition(index));
 		break;
 	case NodeDestination::INVENTORY_TASK_GIVER:
+#ifdef AI_BT_NODE_NAME
+		std::cout << " inventory task giver\n";
+#endif
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
 		break;
 	case NodeDestination::INVENTORY_TASK_RECEIVER:
+#ifdef AI_BT_NODE_NAME
+		std::cout << "inventory task receiver\n";
+#endif
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToReceiver(index);
 		break;
 	default: 

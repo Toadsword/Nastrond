@@ -32,8 +32,8 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-#define DEBUG_DRAW_PATH
-#define DEBUG_SPAWN_DWARF
+//#define DEBUG_DRAW_PATH
+//#define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
 
 #define AI_DEBUG_COUNT_TIME
@@ -349,8 +349,8 @@ private:
 	std::vector<BuildingManager::InventoryTask> m_InventoryTaskBT;
 
 	//Time of Day
-	const float m_DayDuration = 10;
-	const float m_NightDuration = 5;
+	const float m_DayDuration = 25;
+	const float m_NightDuration = 25;
 	float m_CurrentTime = 0;
 
 	enum DayState

@@ -88,7 +88,6 @@ public:
 	std::vector<bool> doesFlowGoDown;
 
 	std::vector<char> repeaterCounter;
-	std::vector<char> sequenceActiveChild;
 	std::vector<bool> hasSucceeded;
 
 	std::vector<bool> sleepingEntity;

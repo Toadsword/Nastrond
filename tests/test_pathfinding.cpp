@@ -32,7 +32,7 @@ SOFTWARE.
 
 #include <extensions/python_extensions.h>
 #include <extensions/AI/behavior_tree.h>
-#include "extensions/AI/behavior_tree_factory.h"
+#include <extensions/AI/behavior_tree_factory.h>
 
 TEST(AI, BehaviourTreeLoadRandomPathFromJson)
 {
