@@ -90,7 +90,7 @@ namespace sfge
 
 		cameraInfo.camera = &camera;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
-
+		m_ConcernedEntities.push_back(entity);
 		m_EntityManager->AddComponentType(entity, ComponentType::CAMERA);
 		return &camera;
 	}
@@ -107,11 +107,9 @@ namespace sfge
 	{
 		rmt_ScopedCPUSample(CameraUpdate, 0)
 #ifdef COMPONENT_OPTIMIZATION
-		for (auto i = 0U; i < m_ConcernedEntities.size(); i++)
-		{
-			if(m_ConcernedEntities[i] == currentCamera)
-				m_Components[m_ConcernedEntities[i] - 1].Update(dt, (*m_GraphicsManager->GetWindow()));
-		}
+		/*for (auto i = 0U; i < m_ConcernedEntities.size(); i++)
+			m_Components[m_ConcernedEntities[i] - 1].Update(dt, (*m_GraphicsManager->GetWindow()));*/
+		m_Components[0].Update(dt, (*m_GraphicsManager->GetWindow()));
 #else
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
