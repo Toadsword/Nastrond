@@ -98,17 +98,23 @@ namespace sfge
 		return tiletypeId;
 	}
 
-	bool TileTypeManager::SetTileTexture(Entity tileId, TileTypeId tileTypeId)
+	bool TileTypeManager::SetTileTexture(Entity tilemapId, TileId tileId, TileTypeId tileTypeId)
 	{
 		if (tileTypeId == INVALID_TILE_TYPE)
 			return false;
+		auto* tilemap = m_TilemapManager->GetComponentPtr(tilemapId);
+		auto* sprite = tilemap->GetSprite(tileId);
 
+		/*
 		auto* sprite = m_SpriteManager->GetComponentPtr(tileId);
 		if (!m_Engine.GetEntityManager()->HasComponent(tileId, ComponentType::SPRITE2D))
 			sprite = m_SpriteManager->AddComponent(tileId);
-		
-		sprite->SetTexture(m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1]));
-		m_SpriteManager->GetComponentInfo(tileId).textureId = m_TexturesId[tileTypeId - 1];
+		*/
+
+		sprite->setTexture(*m_TextureManager->GetTexture(m_TexturesId[tileTypeId - 1]));
+		sprite->setOrigin(sf::Vector2f(sprite->getLocalBounds().width, sprite->getLocalBounds().height) / 2.0f);
+
+		//m_SpriteManager->GetComponentInfo(tileId).textureId = m_TexturesId[tileTypeId - 1];
 
 		return true;
 	}
@@ -123,7 +129,7 @@ namespace sfge
 		return INVALID_TEXTURE;
 	}
 
-	std::vector<size_t> TileTypeManager::GetAllTileTypeIds()
+	std::vector<size_t> TileTypeManager::GetAllTileTypeIds() const
 	{
 		return m_TileTypeId;
 	}

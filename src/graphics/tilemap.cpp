@@ -42,20 +42,19 @@ namespace sfge
 	{
 	}
 
-	void Tilemap::Init(TileManager* tileManager)
+	void Tilemap::Init()
 	{
-		m_TileManager = tileManager;
 	}
 
 	void Tilemap::Update()
 	{
-		Tile* tile;
-		const Vec2f size = GetTilemapSize();
-		for (int index = 0; index < size.x * size.y; index++)
+	}
+
+	void Tilemap::Draw(sf::RenderWindow &window)
+	{
+		for(auto sprite : m_TileSprites)
 		{
-			tile = m_TileManager->GetComponentPtr(m_Tiles[index]);
-			if (tile != nullptr)
-				tile->Update();			
+			window.draw(sprite);
 		}
 	}
 
@@ -135,31 +134,25 @@ namespace sfge
 		return m_TileTypeIds;
 	}
 
-	std::vector<Entity>& Tilemap::GetTiles()
+	std::vector<TileId>& Tilemap::GetTiles()
 	{
 		return m_Tiles;
 	}
 
-	void Tilemap::AddTile(Vec2f pos, Entity entity)
-	{
-		if(pos.x < m_TilemapSize.x && pos.y < m_TilemapSize.y)
-			m_Tiles[static_cast<int>(pos.y) * m_TilemapSize.y + static_cast<int>(pos.x)] = entity;
-	}
-
-	Entity Tilemap::GetTileAt(Vec2f pos)
+	TileId Tilemap::GetTileAt(Vec2f pos)
 	{
 		if (pos.x >= 0 && pos.y >= 0 && m_TilemapSize.x > pos.x && m_TilemapSize.y > pos.y)
 			return m_Tiles[static_cast<int>(pos.y) * m_TilemapSize.y + static_cast<int>(pos.x)];
 		return INVALID_ENTITY;
 	}
 
-	Vec2f Tilemap::GetTileAt(Entity tileEntity)
+	Vec2f Tilemap::GetTileAt(TileId tileId)
 	{
 		const unsigned sizeY = m_TilemapSize.y;
 		const unsigned size = m_TilemapSize.x * m_TilemapSize.y;
 		for (unsigned index = 0; index < size; index++)
 		{
-			if (m_Tiles[index] == tileEntity)
+			if (m_Tiles[index] == tileId)
 				return Vec2f(index % sizeY, index / sizeY);
 		}
 		return Vec2f(0, 0);
@@ -170,30 +163,64 @@ namespace sfge
 		m_TileTypeIds[pos.y * m_TilemapSize.y + pos.x] = newTileType;
 	}
 
-	void Tilemap::SetTileAt(Entity entity, TileTypeId newTileType)
+	void Tilemap::SetTileAt(TileId tileId, TileTypeId newTileType)
 	{
-		SetTileAt(GetTileAt(entity), newTileType);
+		m_TileTypeIds[tileId] = newTileType;
+	}
+
+	void Tilemap::SetTilePosition(TileId tileId, Vec2f position)
+	{
+		m_TilePositions[tileId] = position;
+	}
+
+	void Tilemap::SetTilePosition(Vec2f tilePos, Vec2f position)
+	{
+		m_TilePositions[tilePos.y * m_TilemapSize.y + tilePos.x] = position;
+	}
+
+	Vec2f Tilemap::GetTilePosition(TileId tileId)
+	{
+		return m_TilePositions[tileId];
+	}
+
+	Vec2f Tilemap::GetTilePosition(Vec2f tilePos)
+	{
+		return m_TilePositions[tilePos.y * m_TilemapSize.y + tilePos.x];
+	}
+
+	sf::Sprite* Tilemap::GetSprite(TileId tileId)
+	{
+		return &m_TileSprites[tileId];
 	}
 
 	void Tilemap::ResizeTilemap(Vec2f newSize)
 	{
-		std::vector<Entity> oldTiles = m_Tiles;
 		std::vector<TileTypeId> oldTileTypes = m_TileTypeIds;
+		std::vector<Vec2f> oldPosition = m_TilePositions;
+		std::vector<sf::Sprite> oldSprites = m_TileSprites;
 		Vec2f oldSize = GetTilemapSize();
 
-		m_Tiles = std::vector<Entity>(newSize.x * newSize.y, INVALID_ENTITY);
+		m_Tiles = std::vector<TileId>(newSize.x * newSize.y, 0);
 		m_TilemapSize = newSize;
 
 		m_TileTypeIds = std::vector<TileTypeId>( newSize.x * newSize.y, INVALID_TILE_TYPE);
+		m_TilePositions = std::vector<Vec2f>(newSize.x * newSize.y, Vec2f());
+		m_TileSprites = std::vector<sf::Sprite>(newSize.x * newSize.y, sf::Sprite());
 
 		if (newSize.x > 0 && newSize.y > 0)
 		{
+			for (unsigned i = 0; i < newSize.x * newSize.y; i++)
+				m_Tiles[i] = i;
+
 			unsigned size = std::min(newSize.x * newSize.y, oldSize.x * oldSize.y);
 			for (unsigned i = 0; i < size; i++)
-				m_Tiles[i] = oldTiles[i];
+				m_TileTypeIds[i] = oldTileTypes[i];
 
 			for (unsigned i = 0; i < size; i++)
-				m_TileTypeIds[i] = oldTileTypes[i];
+				m_TilePositions[i] = oldPosition[i];
+
+			for (unsigned i = 0; i < size; i++)
+				m_TileSprites[i] = oldSprites[i];
 		}
 	}
 
@@ -220,13 +247,12 @@ namespace sfge
 	void TilemapManager::Init()
 	{
 		SingleComponentManager::Init();
-		m_Transform2dManager = m_Engine.GetTransform2dManager();
+		//m_Transform2dManager = m_Engine.GetTransform2dManager();
 		m_TilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
 	}
 
 	void TilemapManager::Update(float dt)
 	{
-		(void)dt;
 		rmt_ScopedCPUSample(TilemapUpdate, 0)
 		for (auto i = 0u; i < m_Components.size(); i++)
 		{
@@ -234,6 +260,15 @@ namespace sfge
 			{
 				m_Components[i].Update();
 			}
+		}
+	}
+
+	void TilemapManager::Draw(sf::RenderWindow &window)
+	{
+		rmt_ScopedCPUSample(TilemapDraw, 0)
+		for(Entity tilemap : m_OrderToDrawTilemaps)
+		{
+			m_Components[tilemap].Draw(window);
 		}
 	}
 
@@ -346,7 +381,7 @@ namespace sfge
 	void TilemapManager::UpdateTile(Entity tilemapEntity, Vec2f pos, TileTypeId tileTypeId)
 	{
 		auto* tilemap = GetComponentPtr(tilemapEntity);
-		m_TilemapSystem->GetTileTypeManager()->SetTileTexture(tilemap->GetTileAt(pos), tileTypeId);
+		m_TilemapSystem->GetTileTypeManager()->SetTileTexture(tilemapEntity, tilemap->GetTileAt(pos), tileTypeId);
 	}
 
 	void TilemapManager::DestroyComponent(Entity entity)
@@ -386,10 +421,11 @@ namespace sfge
 		if (!tileTypeIds.empty())
 			tilemap.ResizeTilemap(tilemapSize);
 
-		EntityManager* entityManager = m_Engine.GetEntityManager();
-		TileManager* tileManager = m_TilemapSystem->GetTileManager();
 
 		//Assigning positions
+		/*
+		EntityManager* entityManager = m_Engine.GetEntityManager();
+		TileManager* tileManager = m_TilemapSystem->GetTileManager();
 		for (unsigned indexY = 0; indexY < tilemapSize.x; indexY++)
 		{
 			for (unsigned indexX = 0; indexX < tilemapSize.y; indexX++)
@@ -399,6 +435,7 @@ namespace sfge
 				tilemap.AddTile(Vec2f(indexX, indexY), newEntity);
 			}
 		}
+		*/
 		SetupTilePosition(entity);
 
 		tilemap.SetTileTypes(tileTypeIds);
@@ -413,7 +450,7 @@ namespace sfge
 		const Vec2f mapSize = tilemap.GetTilemapSize();
 		const auto& tiles = tilemap.GetTiles();
 
-		const Vec2f basePos = m_Transform2dManager->GetComponentPtr(entity)->Position;
+		const Vec2f basePos = m_Engine.GetTransform2dManager()->GetComponentPtr(entity)->Position;
 		const Vec2f tileSize = tilemap.GetTileSize();
 		Vec2f xPos, yPos;
 
@@ -432,12 +469,9 @@ namespace sfge
 		{
 			for (int indexX = 0; indexX < mapSize.x; indexX++)
 			{
-				const Entity tileEntity = tiles[indexY * mapSize.y + indexX];
-				if(tileEntity != INVALID_ENTITY)
-				{
-					const Vec2f newPos = basePos + xPos * indexX + yPos * indexY;
-					m_Transform2dManager->GetComponentPtr(tileEntity)->Position = newPos;
-				}
+				const TileId tileId = tiles[indexY * mapSize.y + indexX];
+				const Vec2f newPos = basePos + xPos * indexX + yPos * indexY;
+				tilemap.SetTilePosition(tileId, newPos);				
 			}
 		}
 	}
@@ -470,7 +504,7 @@ namespace sfge
 		const sf::Vector2i worldPosSf = m_Engine.GetInputManager()->GetMouseManager().GetWorldPosition();
 		Vec2f worldPos = Vec2f(worldPosSf.x, worldPosSf.y);
 
-		Vec2f tilemapPos = m_Transform2dManager->GetComponentPtr(entity)->Position;
+		Vec2f tilemapPos = m_Engine.GetTransform2dManager()->GetComponentPtr(entity)->Position;
 		const Vec2f mapSize = tilemap.GetTilemapSize();
 
 		const Vec2f tileSize = tilemap.GetTileSize();
@@ -494,29 +528,57 @@ namespace sfge
 		return indexToFind;
 	}
 
-	Entity TilemapManager::GetTileEntityFromMouse(Entity entity)
+	TileId TilemapManager::GetTileEntityFromMouse(Entity entity)
 	{
 		auto & tilemap = m_Components[entity - 1];
 		Vec2f tilePosInTilemap = GetTilePositionFromMouse(entity);
 		return tilemap.GetTileAt(tilePosInTilemap);
 	}
 
+	void TilemapManager::UpdateDrawOrderTilemaps()
+	{
+		m_OrderToDrawTilemaps.clear();
+		std::vector<Entity> currentTilemaps;
+
+		//Gather all the tilemaps
+		for (auto i = 0u; i < m_Components.size(); i++)
+		{
+			if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
+			{
+				currentTilemaps.push_back(i);
+			}
+		}
+
+		//Sort their layers
+		for (int i = 0; i < currentTilemaps.size() - 1; i++)
+		{
+			for (int j = 0; j < currentTilemaps.size() - i - 1; j++)
+			{
+				GetComponentPtr(currentTilemaps[j])->GetLayer();
+				if (GetComponentPtr(currentTilemaps[j])->GetLayer() > GetComponentPtr(currentTilemaps[j + 1])->GetLayer())
+				{
+					int tmp = currentTilemaps[j];
+					currentTilemaps[j] = currentTilemaps[j + 1];
+					currentTilemaps[j + 1] = tmp;
+				}
+			}
+		}
+	}
+
 	void TilemapSystem::Init()
 	{
 		m_TileTypeManager.Init();
 		m_TilemapManager.Init();
-		m_TileManager.Init();
 	}
 
 	void TilemapSystem::Update(float dt)
 	{
-		//m_TilemapManager.Update(dt);
-		//m_TileManager.Update(dt);
+		m_TilemapManager.Update(dt);
 	}
 
 	void TilemapSystem::DrawTilemaps(sf::RenderWindow& window)
 	{
-
+		m_TilemapManager.Draw(window);
 	}
 
 	void TilemapSystem::Destroy()
@@ -529,14 +591,12 @@ namespace sfge
 	{
 		m_TileTypeManager.Clear();
 		m_TilemapManager.Clear();
-		m_TileManager.Clear();
 	}
 
 	void TilemapSystem::Collect()
 	{
 		m_TileTypeManager.Collect();
 		m_TilemapManager.Collect();
-		m_TileManager.Collect();
 	}
 
 	json TilemapSystem::Save()
@@ -545,7 +605,6 @@ namespace sfge
 		
 		j["tiletype"] = m_TileTypeManager.Save();
 		j["tilemap"] = m_TilemapManager.Save();
-		//m_TileManager.Save();
 		
 		return j;
 	}
@@ -553,11 +612,6 @@ namespace sfge
 	TilemapManager * TilemapSystem::GetTilemapManager()
 	{
 		return &m_TilemapManager;
-	}
-
-	TileManager * TilemapSystem::GetTileManager()
-	{
-		return &m_TileManager;
 	}
 
 	TileTypeManager * TilemapSystem::GetTileTypeManager()
