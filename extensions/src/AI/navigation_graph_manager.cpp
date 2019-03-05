@@ -37,14 +37,7 @@ NavigationGraphManager::NavigationGraphManager(Engine& engine) :
 
 NavigationGraphManager::~NavigationGraphManager()
 {
-#ifdef AI_DEBUG_COUNT_TIME
-	std::cout << "[NavigationGraphManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro /
-		m_TimerCounter << "\n";
-#endif
-#ifdef AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
-	std::cout << "		GetNode: " << m_TmpGetNode_Ms / m_TimerCounter / 1000 << "," << m_TmpGetNode_Mc / m_TimerCounter % 1000<< "\n";
-	std::cout << "		FindPath: " << m_TmpFindPath_Ms / m_TimerCounter / 1000 << "," << m_TmpFindPath_Mc / m_TimerCounter % 1000<< "\n";
-#endif
+
 }
 
 void NavigationGraphManager::Init()
@@ -132,10 +125,6 @@ void NavigationGraphManager::Init()
 
 void NavigationGraphManager::Update(float dt)
 {
-	//TODO ne pas passer par un nombre fix, mais plutot alouer un temps maximum et faire un test a chaque fois pour savoir s'il reste suffisament de temps
-#ifdef AI_DEBUG_COUNT_TIME
-	auto t1 = std::chrono::high_resolution_clock::now();
-#endif
 	for (size_t i = 0; i < m_MaxPathForOneUpdate; i++)
 	{
 		if (m_WaitingPaths.empty())
@@ -169,18 +158,10 @@ void NavigationGraphManager::Update(float dt)
 
 		const auto path = GetPathFromTo(waitingPath.origin, waitingPath.destination);
 		m_DwarfManager->SetPath(waitingPath.index, path);
-#ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
-		m_PathCalculated++;
-#endif
+
 	}
 
-#ifdef AI_DEBUG_COUNT_TIME
-	auto t2 = std::chrono::high_resolution_clock::now();
-	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	m_TimerMilli += timerDuration / 1000;
-	m_TimerMicro += timerDuration % 1000;
-	m_TimerCounter++;
-#endif
+
 }
 
 void NavigationGraphManager::FixedUpdate() {}

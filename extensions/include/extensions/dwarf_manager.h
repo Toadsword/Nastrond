@@ -37,8 +37,8 @@ namespace sfge::ext
 //#define DEBUG_DRAW_PATH
 #define DEBUG_RANDOM_PATH
 
-#define AI_DEBUG_COUNT_TIME
-#define AI_DEBUG_COUNT_TIME_PRECISE
+//#define AI_DEBUG_COUNT_TIME
+//#define AI_DEBUG_COUNT_TIME_PRECISE
 
 /**
  * \author Nicolas Schneider

@@ -24,7 +24,7 @@ SOFTWARE.
 #ifndef SFGE_EXT_BEHAVIOR_TREE_H
 #define SFGE_EXT_BEHAVIOR_TREE_H
 
-#define AI_DEBUG_COUNT_TIME
+//#define AI_DEBUG_COUNT_TIME
 
 #include <vector>
 #include <memory>
