@@ -44,6 +44,7 @@ namespace sfge
 
 	void Tilemap::Init()
 	{
+
 	}
 
 	void Tilemap::Update()
@@ -142,16 +143,6 @@ namespace sfge
 	TileTypeId Tilemap::GetTileType(Vec2f pos)
 	{
 		return m_TileTypeIds[GetTileAt(pos)];
-	}
-
-	void Tilemap::SetTileType(TileId tileId, TileTypeId tileTypeId)
-	{
-		m_TileTypeIds[tileId] = tileTypeId;
-	}
-
-	void Tilemap::SetTileType(Vec2f pos, TileTypeId tileTypeId)
-	{
-		m_TileTypeIds[GetTileAt(pos)] = tileTypeId;
 	}
 
 	std::vector<TileId>& Tilemap::GetTiles()
@@ -450,6 +441,7 @@ namespace sfge
 	void TilemapManager::InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds, Vec2f tilemapSize)
 	{
 		auto & tilemap = m_Components[entity - 1];
+
 		EmptyMap(entity);
 
 		if (!tileTypeIds.empty())

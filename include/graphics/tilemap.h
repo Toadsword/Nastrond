@@ -103,8 +103,6 @@ public:
 
 	TileTypeId GetTileType(TileId tileId);
 	TileTypeId GetTileType(Vec2f pos);
-	void SetTileType(TileId tileId, TileTypeId tileTypeId);
-	void SetTileType(Vec2f pos, TileTypeId tileTypeId);
 	
 	/**
 	 * \brief Get all the tileEntities of the tilemap, at their position
