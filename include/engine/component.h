@@ -57,12 +57,11 @@ enum class ComponentType : int
 	PYCOMPONENT = 1 << 6,
 	ANIMATION2D = 1 << 7,
 	TILEMAP = 1 << 8,
-	TILE = 1 << 9,
-	CAMERA = 1 << 10,
-	RECTTRANSFORM = 1 << 11,
-	IMAGE = 1 << 12,
-	TEXT = 1 << 13,
-	BUTTON = 1 << 14,
+	CAMERA = 1 << 9,
+	RECTTRANSFORM = 1 << 10,
+	IMAGE = 1 << 11,
+	TEXT = 1 << 12,
+	BUTTON = 1 << 13,
 };
 
 class IComponentFactory

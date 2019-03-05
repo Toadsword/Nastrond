@@ -273,10 +273,6 @@ void Engine::Save()
 	//Loop on all the entities
 	for (int i = 1; i < INIT_ENTITY_NMB; i++)
 	{
-		// If a tile is found, we don't want to save it
-		if(m_SystemsContainer->entityManager.HasComponent(i, ComponentType::TILE))
-			continue;
-
 		hasAtLeastOneComponent = false;
 		componentIndex = 0;
 
