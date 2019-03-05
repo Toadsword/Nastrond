@@ -58,7 +58,7 @@ class MouseManager : public System
 public:
 	using System::System;
 	void Update(float dt) override;
-	sf::Vector2i GetLocalPosition() const;
+	sf::Vector2f GetLocalPosition() const;
 	sf::Vector2i GetWorldPosition() const;
 	bool IsButtonHeld(sf::Mouse::Button button) const;
 	bool IsButtonDown(sf::Mouse::Button button) const;

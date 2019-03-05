@@ -8,8 +8,18 @@
 #include <engine/transform2d.h>
 #include <imgui.h>
 #include <engine/engine.h>
+
 namespace sfge
 {
+
+	void Transform2d::Update()
+	{
+		if (EulerAngle > 180.0f)
+			EulerAngle -= 360.0f;
+		else if (EulerAngle < -180.0f)
+			EulerAngle += 360.0f;
+	}
+
 void editor::Transform2dInfo::DrawOnInspector()
 {	
 	float pos[2] = { transform->Position.x, transform->Position.y };
@@ -29,6 +39,7 @@ Transform2d* Transform2dManager::AddComponent(Entity entity)
 	auto& transform = GetComponentRef(entity);
 	m_ComponentsInfo[entity - 1].transform = &transform;
 	m_ComponentsInfo[entity - 1].SetEntity(entity);
+	m_ConcernedEntities.push_back(entity);
 	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TRANSFORM2D);
 	return &transform;
 }
@@ -48,24 +59,15 @@ void Transform2dManager::CreateComponent(json& componentJson, Entity entity)
 
 void Transform2dManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
 	m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::TRANSFORM2D);
 }
 
 
 void Transform2dManager::Update(float dt) {
     System::Update(dt);
-    for(auto& transform : m_Components)
-	{
-    	if(transform.EulerAngle > 180.0f)
-		{
-    		transform.EulerAngle -= 360.0f;
-		}
-
-		if(transform.EulerAngle < -180.0f)
-		{
-			transform.EulerAngle += 360.0f;
-		}
-	}
+	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+		m_Components[m_ConcernedEntities[i] - 1].Update();
 }
 
 json Transform2dManager::Save()

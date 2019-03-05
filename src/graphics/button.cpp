@@ -59,13 +59,18 @@ namespace sfge
 		auto& button = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].button = &button;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
+		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::BUTTON);
 		return &button;
 	}
 
 	void ButtonManager::DestroyComponent(Entity entity)
 	{
-		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::BUTTON);
+		if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::BUTTON))
+		{
+			RemoveConcernedEntity(entity);
+			m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::BUTTON);
+		}
 	}
 
 	void ButtonManager::Init()

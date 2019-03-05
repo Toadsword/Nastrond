@@ -119,7 +119,6 @@ void DwarfManager::InstantiateDwarf(const Vec2f pos)
 
 	//Update data for new dwarf in std::vectors
 	m_DwarfsEntities[indexNewDwarf] = newEntity;
-	m_States[indexNewDwarf] = State::IDLE;
 	m_Paths[indexNewDwarf] = std::vector<Vec2f>();
 	m_AssociatedDwelling[indexNewDwarf] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[indexNewDwarf] = INVALID_ENTITY;
@@ -150,7 +149,6 @@ void DwarfManager::DestroyDwarfByIndex(const unsigned int index)
 	//Clean all values
 	m_DwarfsEntities[index] = INVALID_ENTITY;
 	m_Paths[index].clear();
-	m_States[index] = State::INVALID;
 	m_AssociatedDwelling[index] = INVALID_ENTITY;
 	m_AssociatedWorkingPlace[index] = INVALID_ENTITY;
 }
@@ -189,24 +187,15 @@ Vec2f DwarfManager::GetWorkingPlaceAssociatedPosition(const unsigned int index)
 	return m_Transform2DManager->GetComponentPtr(m_AssociatedWorkingPlace[index])->Position;
 }
 
-bool DwarfManager::AssignDwellingToDwarf(const unsigned int index)
+void DwarfManager::AskAssignDwellingToDwarf(const unsigned int index)
 {
-	auto const dwellingEntity = m_BuildingManager->AttributeDwarfToDwelling();
-
-	if (dwellingEntity == INVALID_ENTITY)
-	{
-		return false;
-	}
-
-	m_AssociatedDwelling[index] = dwellingEntity;
-
-	return true;
+	m_DwarfActivities[index] = DwarfActivity::ASSIGN_DWELLING;
 }
 
 float Sqrt2(float x) {
-	int i = *(int*)&x;
+	auto i = *reinterpret_cast<int*>(&x);
 	i = 0x5f3759df - (i >> 1);
-	float r = *(float*)&i;
+	auto r = *reinterpret_cast<float*>(&i);
 	r = r * (1.5f - 0.5f*x*r*r);
 	return r * x;
 }
@@ -280,24 +269,44 @@ void DwarfManager::AddInventoryTaskPathToReceiver(const unsigned int index)
 		->GetComponentPtr(m_InventoryTaskBT[index].receiver)->Position;
 }
 
+void DwarfManager::AddInventoryTaskBT(const unsigned int index)
+{
+	m_DwarfActivities[index] = DwarfActivity::ASSIGN_INVENTORY_TASK;
+}
+
+void DwarfManager::TakeResources(const unsigned int index)
+{
+	m_DwarfActivities[index] = DwarfActivity::TAKE_RESOURCE;
+}
+
+void DwarfManager::PutResources(const unsigned int index)
+{
+	m_DwarfActivities[index] = DwarfActivity::PUT_RESOURCE;
+}
+
+bool DwarfManager::HasInventoryTask(const unsigned int index)
+{
+	return m_InventoryTaskBT[index].giverType != NO_BUILDING_TYPE;
+}
+
 void DwarfManager::DwarfEnterDwelling(const unsigned int index)
 {
-	m_BuildingManager->DwarfEnterBuilding(DWELLING, GetDwellingEntity(index));
+	m_DwarfActivities[index] = DwarfActivity::ENTER_DWELLING;
 }
 
 void DwarfManager::DwarfExitDwelling(const unsigned int index)
 {
-	m_BuildingManager->DwarfExitBuilding(DWELLING, GetDwellingEntity(index));
+	m_DwarfActivities[index] = DwarfActivity::EXIT_DWELLING;
 }
 
 void DwarfManager::DwarfEnterWorkingPlace(const unsigned int index)
 {
-	m_BuildingManager->DwarfEnterBuilding(m_AssociatedWorkingPlaceType[index], m_AssociatedWorkingPlace[index]);
+	m_DwarfActivities[index] = DwarfActivity::ENTER_WORKING_PLACE;
 }
 
 void DwarfManager::DwarfExitWorkingPlace(const unsigned int index)
 {
-	m_BuildingManager->DwarfExitBuilding(m_AssociatedWorkingPlaceType[index], m_AssociatedWorkingPlace[index]);
+	m_DwarfActivities[index] = DwarfActivity::EXIT_WORKING_PLACE;
 }
 
 bool DwarfManager::HasJob(const unsigned int index)
@@ -310,33 +319,9 @@ bool DwarfManager::HasStaticJob(const unsigned int index)
 	return m_AssociatedWorkingPlaceType[index] != WAREHOUSE;
 }
 
-std::mutex AssignJobMutex;
-bool DwarfManager::AssignJob(const unsigned int index)
+void DwarfManager::AssignJob(const unsigned int index)
 {
-	//TODO enlever le lock pour que le tout soit plus rapide
-	std::lock_guard<std::mutex> lock(AssignJobMutex);
-	char nbJob = 0;
-
-	while (nbJob < m_JobBuildingType.size())
-	{
-		const auto buildingType = m_JobBuildingType.front();
-		m_JobBuildingType.pop();
-
-		const auto buildingEntity = m_BuildingManager->AttributeDwarfToWorkingPlace(buildingType);
-
-		m_JobBuildingType.push(buildingType);
-
-		if (buildingEntity != INVALID_ENTITY)
-		{
-			m_AssociatedWorkingPlace[index] = buildingEntity;
-			m_AssociatedWorkingPlaceType[index] = buildingType;
-			return true;
-		}
-
-		nbJob++;
-	}
-
-	return false;
+	m_DwarfActivities[index] = DwarfActivity::ASSIGN_JOB;
 }
 
 bool DwarfManager::IsDayTime() const
@@ -382,13 +367,112 @@ void DwarfManager::BatchPosition()
  	}
 }
 
+void DwarfManager::BatchAssignDwelling()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_DWELLING) {
+			auto const dwellingEntity = m_BuildingManager->AttributeDwarfToDwelling();
+			if(dwellingEntity == INVALID_ENTITY)
+			{
+				std::cout << "BUG DE TA MERE\n";
+			}else
+			{
+				std::cout << "Set house for" << i << " = " << dwellingEntity << "\n";
+			}
+			m_AssociatedDwelling[i] = dwellingEntity;
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_INVENTORY_TASK) {
+			const auto inventoryTask = m_BuildingManager->ConveyorLookForTask();
+
+			m_InventoryTaskBT[i] = inventoryTask;
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if(m_DwarfActivities[i] == DwarfActivity::TAKE_RESOURCE)
+		{
+			m_BuildingManager->DwarfTakesResources(m_InventoryTaskBT[i].giverType, m_InventoryTaskBT[i].giver,
+				m_InventoryTaskBT[i].resourceType);
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if(m_DwarfActivities[i] == DwarfActivity::PUT_RESOURCE)
+		{
+			m_BuildingManager->DwarfPutsResources(m_InventoryTaskBT[i].receiverType, m_InventoryTaskBT[i].receiver,
+				m_InventoryTaskBT[i].resourceType,
+				m_InventoryTaskBT[i].resourceQuantity);
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if(m_DwarfActivities[i] == DwarfActivity::ENTER_DWELLING)
+		{
+			m_BuildingManager->DwarfEnterBuilding(DWELLING, GetDwellingEntity(i));
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if(m_DwarfActivities[i] == DwarfActivity::EXIT_DWELLING)
+		{
+			m_BuildingManager->DwarfExitBuilding(DWELLING, GetDwellingEntity(i));
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if (m_DwarfActivities[i] == DwarfActivity::ENTER_WORKING_PLACE)
+		{
+			m_BuildingManager->DwarfEnterBuilding(m_AssociatedWorkingPlaceType[i], m_AssociatedWorkingPlace[i]);
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if (m_DwarfActivities[i] == DwarfActivity::EXIT_WORKING_PLACE)
+		{
+			m_BuildingManager->DwarfExitBuilding(m_AssociatedWorkingPlaceType[i], m_AssociatedWorkingPlace[i]);
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+
+		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_JOB)
+		{
+			char nbJob = 0;
+
+			while (nbJob < m_JobBuildingType.size())
+			{
+				const auto buildingType = m_JobBuildingType.front();
+				m_JobBuildingType.pop();
+
+				const auto buildingEntity = m_BuildingManager->AttributeDwarfToWorkingPlace(buildingType);
+
+				m_JobBuildingType.push(buildingType);
+
+				if (buildingEntity != INVALID_ENTITY)
+				{
+					m_AssociatedWorkingPlace[i] = buildingEntity;
+					m_AssociatedWorkingPlaceType[i] = buildingType;
+
+					break;
+				}
+
+				nbJob++;
+			}
+
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+	}
+}
+
 void DwarfManager::ResizeContainers()
 {
 	const auto newSize = m_DwarfsEntities.size() + m_ContainersExtender;
 
 	m_DwarfsEntities.resize(newSize, INVALID_ENTITY);
 	m_Paths.resize(newSize);
-	m_States.resize(newSize);
 
 	//Associate behaviour tree
 	auto* behaviorTree = m_Engine.GetPythonEngine()->GetPySystemManager().GetPySystem<behavior_tree::BehaviorTree>(
@@ -442,7 +526,6 @@ void DwarfManager::UpdatePositionRange(const int startIndex, const int endIndex,
 	for (size_t i = startIndex; i <= endIndex; ++i)
 	{
 		const auto indexDwarf = m_PathFollowBatch[i];
-
 		*m_Positions[indexDwarf] += m_VelocitiesComponents[indexDwarf] * vel;
 	}
 }
@@ -473,7 +556,7 @@ void DwarfManager::Update(const float dt)
 #endif
 	//Batch data
 	{
-		std::vector<std::future<void>> joinFutures(3);
+		std::vector<std::future<void>> joinFutures(4);
 		auto updateFunction = std::bind(&DwarfManager::BatchPathFindingRequest, this);
 		joinFutures[0] = m_ThreadPool->push(updateFunction);
 
@@ -483,7 +566,10 @@ void DwarfManager::Update(const float dt)
 		auto updateFunction2 = std::bind(&DwarfManager::BatchPosition, this);
 		joinFutures[2] = m_ThreadPool->push(updateFunction2);
 
-		for (auto i = 0; i < 3; i++)
+		auto updateFunction3 = std::bind(&DwarfManager::BatchAssignDwelling, this);
+		joinFutures[3] = m_ThreadPool->push(updateFunction3);
+
+		for (auto i = 0; i < 4; i++)
 		{
 			joinFutures[i].get();
 		}
@@ -546,11 +632,8 @@ void DwarfManager::Update(const float dt)
 		}
 	}else
 	{
-		for (size_t i = 0; i < m_PathFollowBatchSize; ++i)
-		{
-			const auto indexDwarf = m_PathFollowBatch[i];
-
-			*m_Positions[indexDwarf] += m_VelocitiesComponents[indexDwarf] * vel;
+		if (m_PathFollowBatchSize > 0) {
+			UpdatePositionRange(0, m_PathFollowBatchSize - 1, vel);
 		}
 	}
 
@@ -571,15 +654,8 @@ void DwarfManager::Update(const float dt)
 		}
 	}else
 	{
-		for (size_t i = 0; i < m_PathFollowBatchSize; ++i)
-		{
-			const auto indexDwarf = m_PathFollowBatch[i];
-
-			if (IsDwarfAtDestination(indexDwarf))
-			{
-				m_EntitiesActiveInBehaviorTree[indexDwarf] = true;
-				m_DwarfActivities[i] = DwarfActivity::IDLE;
-			}
+		if (m_PathFollowBatchSize > 0) {
+			CheckIsAtDestinationRange(0, m_PathFollowBatchSize - 1);
 		}
 	}
 

@@ -79,6 +79,7 @@ class ComponentManager:
  protected:
   EntityManager* m_EntityManager = nullptr;
   std::vector<T> m_Components;
+  std::vector<Entity> m_ConcernedEntities;
  public:
   ComponentManager(Engine& engine) : System(engine) {}
   ComponentManager(const ComponentManager&) = delete;
@@ -96,6 +97,7 @@ class ComponentManager:
   virtual ~ComponentManager()
   {
     m_Components.clear();
+	m_ConcernedEntities.clear();
   }
 
 
@@ -106,8 +108,24 @@ class ComponentManager:
     return m_Components;
   }
 
+  std::vector<Entity> GetConcernedEntities()
+  {
+	  return m_ConcernedEntities;
+  }
+
   virtual void OnDestroy(Entity entity) override { (void) entity; }
 
+void RemoveConcernedEntity(Entity entity)
+ {
+	for (int i = 0U; i < m_ConcernedEntities.size(); i++)
+	{
+		if (m_ConcernedEntities[i] == entity)
+		{
+			m_ConcernedEntities.erase(m_ConcernedEntities.begin() + i);
+			return;
+		}
+	}
+ }
 };
 
 
