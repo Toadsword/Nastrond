@@ -58,7 +58,7 @@ void NavigationGraphManager::Init()
 
 	auto* tilemapManager = tilemapSystem->GetTilemapManager();
 
-	auto* tilemap = tilemapManager->GetComponentPtr(2); //TODO a changer d�s que Duncan a une meilleur solution
+	auto* tilemap = tilemapManager->GetComponentPtr(2); 
 	m_TileExtends = tilemap->GetTileSize();
 
 	const auto tilemapSize = tilemap->GetTilemapSize();
@@ -212,9 +212,6 @@ void NavigationGraphManager::AskForPath(const unsigned int index, const Vec2f or
 
 void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<std::vector<int>>& map)
 {
-	auto transformManager = m_Engine.GetTransform2dManager();
-	auto* tilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
-
 	std::vector<TileTypeId> tileTypes = tilemap->GetTileTypes();
 	
 	for (auto x = 0; x < map.size(); x++)
@@ -222,15 +219,15 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 		for (auto y = 0; y < map[x].size(); y++)
 		{
 			GraphNode node;
-			//auto tile = tileManager->GetComponentPtr(tilemap->GetTileAt(Vec2f(x, y)));
+			
 			const auto tile = tileTypes[y * map.size() + x];
-			Vec2f offset = Vec2f(0, 0);
-			const Vec2f TILE_SIZE = Vec2f(64, 32);
+			auto offset = Vec2f(0, 0);
+			const auto TILE_SIZE = Vec2f(64, 32);
 			Vec2f xPos = { TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 			Vec2f yPos = { -TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 
 			offset = xPos * x + yPos * y;
-			//if(tilemap->GetTileAt(Vec2f(x, y))
+			
 			if (tile > 2) {
 				node.cost = SOLID_COST;
 			}else
@@ -277,12 +274,7 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 					}
 					else
 					{
-						//TODO v�rifier si la construction est correcte surtout si les voisins sont libres
-						/*if (m_Graph[y * map.size() + (x + j)].cost != SOLID_COST &&
-							m_Graph[(y + i) * map.size() + x].cost != SOLID_COST)
-						{*/
-							node.neighborsIndex.push_back(indexNeighbor);
-						//}
+						node.neighborsIndex.push_back(indexNeighbor);
 					}
 				}
 			}
@@ -353,8 +345,7 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	int nb = 0;
 #endif
 
-	PriorityQueue<unsigned int, float> openNodes;
-	//HeapPriorityQueue openNodes;
+	HeapPriorityQueue openNodes;
 	openNodes.Insert(originIndex, 0);
 
 	m_CameFrom[originIndex] = originIndex;
@@ -368,10 +359,8 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 	while (!openNodes.Empty())
 	{
-		/*const auto indexCurrent = openNodes.Min();
-		openNodes.RemoveMin();*/
-
-		const auto indexCurrent = openNodes.Get();
+		const auto indexCurrent = openNodes.Min();
+		openNodes.RemoveMin();
 
 		if (indexCurrent == destinationIndex)
 		{
@@ -414,8 +403,6 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 		}
 	}
 
-	std::vector<GraphNode> path;
-
 	std::vector<Vec2f> pathPos;
 	auto currentNodeIndex = destinationIndex;
 	
@@ -423,10 +410,8 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	{
 		pathPos.push_back(m_Graph[currentNodeIndex].pos);
 
-		path.push_back(m_Graph[currentNodeIndex]);
 		currentNodeIndex = m_CameFrom[currentNodeIndex];
 	}
-	path.push_back(m_Graph[originIndex]);
 	pathPos.push_back(m_Graph[originIndex].pos);
 
 #ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES
