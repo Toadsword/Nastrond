@@ -146,3 +146,43 @@ TEST(Building, TestScene)
 
 	engine.Start();
 }
+
+TEST(Building, SpawnBuilding)
+{
+	sfge::Engine engine;
+	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
+	initConfig->gravity.SetZero();
+	initConfig->devMode = false;
+	initConfig->maxFramerate = 0;
+	engine.Init(std::move(initConfig));
+
+	json sceneJson;
+
+	const auto config = engine.GetConfig();
+
+	sceneJson = {
+		{ "name", "Test Spawn Building" } };
+
+	json systemJsonDwellingManager = {
+		{ "systemClassName", "DwellingManager" } };
+
+	json systemJsonProductionBuildingManager = {
+		{ "systemClassName", "ProductionBuildingManager" } };
+
+	json systemJsonForgeManager = {
+		{ "systemClassName", "ForgeManager" } };
+
+	json systemJsonWarehouseManager = {
+		{ "systemClassName", "WarehouseManager" } };
+
+	json systemJsonBuildingManager = {
+		{ "systemClassName", "BuildingManager" } };
+
+	sceneJson["systems"] = json::array({ systemJsonDwellingManager, systemJsonProductionBuildingManager, systemJsonForgeManager, systemJsonWarehouseManager, systemJsonBuildingManager });
+
+	sfge::SceneManager* sceneManager = engine.GetSceneManager();
+
+	engine.GetSceneManager()->LoadSceneFromJson(sceneJson);
+
+	engine.Start();
+}

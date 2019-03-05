@@ -44,6 +44,7 @@ namespace sfge::ext
 		m_Texture = m_TextureManager->GetTexture(m_TextureId);
 
 		m_Init = true;
+
 		Log::GetInstance()->Msg("Warehouse Manager initialized");
 	}
 
@@ -66,7 +67,7 @@ namespace sfge::ext
 	void WarehouseManager::SpawnBuilding(Vec2f position)
 	{
 
-		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
+		Entity newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if (newEntity == INVALID_ENTITY)
 		{
@@ -75,19 +76,21 @@ namespace sfge::ext
 		}
 
 		//add transform
-		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		Transform2d* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
 
-		if (CheckEmptySlot(newEntity))
+		SetupTexture(newEntity);
+
+		editor::EntityInfo& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+		entityInfo.name = "Warehouse " + std::to_string(m_BuildingIndexCount);
+
+		if (CheckFreeSlot(newEntity))
 		{
 			return;
 		}
 
 		m_BuildingIndexCount++;
 
-		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-		entityInfo.name = "Warehouse " + std::to_string(m_BuildingIndexCount);
 
 
 		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
@@ -102,56 +105,43 @@ namespace sfge::ext
 
 		m_EntityIndex[newWarehouse] = newEntity;
 
-		SetupTexture(newEntity);
 	}
 
-	bool WarehouseManager::DestroyBuilding(Entity entity)
+	void WarehouseManager::DestroyBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
 				m_EntityIndex[i] = INVALID_ENTITY;
-
-				
 				m_EntityManager->DestroyEntity(entity);
-				return true;
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool WarehouseManager::AddDwarfToBuilding(Entity entity)
+	void WarehouseManager::AttributeDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
-				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
-				{
-					m_DwarfSlots[i].dwarfAttributed++;
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				m_DwarfSlots[i].dwarfAttributed++;
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool WarehouseManager::RemoveDwarfToBuilding(Entity entity)
+	void WarehouseManager::DeallocateDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfAttributed--;
-				return true;
+				return;
 			}
 		}
-		return false;
 	}
 
 	void WarehouseManager::DwarfEnterBuilding(Entity entity)
@@ -161,8 +151,7 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn++;
-				if (m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
-					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
+				return;
 			}
 		}
 	}
@@ -173,14 +162,13 @@ namespace sfge::ext
 		{
 			if (m_EntityIndex[i] == entity)
 			{
-				m_DwarfSlots[i].dwarfIn--;
-				if (m_DwarfSlots[i].dwarfIn < 0)
-					m_DwarfSlots[i].dwarfIn = 0;
+				m_DwarfSlots[i].dwarfIn++;
+				return;
 			}
 		}
 	}
 
-	Entity WarehouseManager::GetFreeSlotInBuilding()
+	Entity WarehouseManager::GetBuildingWithFreePlace()
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -365,7 +353,8 @@ namespace sfge::ext
 			}
 		}
 	}
-	void WarehouseManager::ReserveFill(Entity entity, ResourceType resourceType)
+
+	void WarehouseManager::ReserveForFill(Entity entity, ResourceType resourceType)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -392,7 +381,8 @@ namespace sfge::ext
 			}
 		}
 	}
-	void WarehouseManager::ReserveEmpty(Entity entity, ResourceType resourceType)
+
+	void WarehouseManager::ReserveForEmpty(Entity entity, ResourceType resourceType)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -420,45 +410,50 @@ namespace sfge::ext
 		}
 	}
 
-	bool WarehouseManager::CheckEmptySlot(Entity newEntity)
+	bool WarehouseManager::CheckFreeSlot(Entity newEntity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == NULL)
+			if (m_EntityIndex[i] != INVALID_ENTITY)
 			{
-				m_EntityIndex[i] = newEntity;
-				auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-				entityInfo.name = "Warehouse " + std::to_string(i + 1);
-
-				m_DwarfSlots[i] = DwarfSlots();
-
-				m_IronInventories[i] = 0;
-				m_StoneInventories[i] = 0;
-				m_ToolInventories[i] = 0;
-				m_MushroomInventories[i] = 0;
-
-				m_ReservedExportStackNumberIron[i] = 0;
-				m_ReservedExportStackNumberStone[i] = 0;
-				m_ReservedExportStackNumberTool[i] = 0;
-				m_ReservedExportStackNumberMushroom[i] = 0;
-
-				m_ReservedImportStackNumberIron[i] = 0;
-				m_ReservedImportStackNumberStone[i] = 0;
-				m_ReservedImportStackNumberTool[i] = 0;
-				m_ReservedImportStackNumberMushroom[i] = 0;
-
-				SetupTexture(newEntity);
-				return true;
+				continue;
 			}
+
+			m_EntityIndex[i] = newEntity;
+
+			m_DwarfSlots[i] = DwarfSlots();
+
+			m_IronInventories[i] = 0;
+			m_StoneInventories[i] = 0;
+			m_ToolInventories[i] = 0;
+			m_MushroomInventories[i] = 0;
+
+			m_ReservedExportStackNumberIron[i] = 0;
+			m_ReservedExportStackNumberStone[i] = 0;
+			m_ReservedExportStackNumberTool[i] = 0;
+			m_ReservedExportStackNumberMushroom[i] = 0;
+
+			m_ReservedImportStackNumberIron[i] = 0;
+			m_ReservedImportStackNumberStone[i] = 0;
+			m_ReservedImportStackNumberTool[i] = 0;
+			m_ReservedImportStackNumberMushroom[i] = 0;
+
+			return true;
 		}
 		return false;
 	}
+
 	void WarehouseManager::SetupTexture(const Entity entity)
 	{
 		//Sprite Component part
 		Sprite* sprite = m_SpriteManager->AddComponent(entity);
 		sprite->SetTexture(m_Texture);
+
+		auto& spriteInfo = m_SpriteManager->GetComponentInfo(entity);
+		spriteInfo.name = "Sprite";
+		spriteInfo.sprite = sprite;
+		spriteInfo.textureId = m_TextureId;
+		spriteInfo.texturePath = m_TexturePath;
 	}
 
 	void WarehouseManager::ReserveContainer(const size_t newSize)
@@ -481,6 +476,7 @@ namespace sfge::ext
 		m_ReservedImportStackNumberTool.reserve(newSize);
 		m_ReservedImportStackNumberMushroom.reserve(newSize);
 	}
+
 	void WarehouseManager::AttributeContainer()
 	{
 		m_EntityIndex.emplace_back(INVALID_ENTITY);

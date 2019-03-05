@@ -85,12 +85,11 @@ namespace sfge::ext
 	enum BuildingType : unsigned char
 	{
 		NO_BUILDING_TYPE,
-		FORGE,
 		MINE,
 		EXCAVATION_POST,
 		MUSHROOM_FARM,
+		FORGE,
 		WAREHOUSE,
-		ROAD,
 		DWELLING, //Warning : Dwelling are not consider as working place
 		LENGTH
 	};
@@ -101,9 +100,17 @@ namespace sfge::ext
 	 */
 	struct DwarfSlots
 	{
-		int maxDwarfCapacity = 5;
-		int dwarfAttributed = 0;
-		int dwarfIn = 0;
+		const unsigned char maxDwarfCapacity = 5;
+		unsigned char dwarfAttributed = 0;
+		unsigned char dwarfIn = 0;
+
+		DwarfSlots& operator=(const DwarfSlots &a)
+		{
+			this->dwarfIn = a.dwarfIn;
+			this->dwarfAttributed = a.dwarfAttributed;
+
+			return *this;  // Return a reference to myself.
+		}
 	};
 
 	const DwarfSlots RESET_DWARF_SLOTS;

@@ -48,50 +48,20 @@ namespace sfge::ext
 
 		void Draw() override;
 
-		/**
-		 * \brief Spawn a warehouse entity at the given position.
-		 * \param position : the location of spawn wanted.
-		 */
+
 		void SpawnBuilding(Vec2f position);
 
-		/**
-		 * \brief Destroy the warehouse at the given index.
-		 * \param warehouseEntity : an entity that is a warehouse.
-		 * \return true if the Entity exist and is a warehouse.
-		 */
-		bool DestroyBuilding(Entity warehouseEntity);
+		void DestroyBuilding(Entity warehouseEntity);
 
-		/**
-		 * \brief attribute a dwarf to the given warehouse entity.
-		 * \param warehouseEntity : an entity that is a warehouse.
-		 * \return true if the entity exist and is a warehouse and if a dwarf has been added to the building.
-		 */
-		bool AddDwarfToBuilding(Entity warehouseEntity);
+		void AttributeDwarfToBuilding(Entity warehouseEntity);
 
-		/**
-		 * \brief remove the attribution of a dwarf to the given warehouse entity.
-		 * \param warehouseEntity : an entity that is a warehouse.
-		 * \return true if the entity exist and is a warehouse and if a dwarf has been added to the building.
-		 */
-		bool RemoveDwarfToBuilding(Entity warehouseEntity);
+		void DeallocateDwarfToBuilding(Entity warehouseEntity);
 
-		/**
-		 * \brief Increment the dwarf slot to tell that a dwarf go in.
-		 * \param warehouseEntity : The Entity of the warehouse that the dwarf want to go in.
-		 */
 		void DwarfEnterBuilding(Entity warehouseEntity);
 
-		/**
-		 * \brief decrement the dwarf slot to tell that a dwarf go out.
-		 * \param warehouseEntity : The Entity of the warehouse that the dwarf want to go out.
-		 */
 		void DwarfExitBuilding(Entity warehouseEntity);
 
-		/**
-		 * \brief Get a warehouse with a slot free for a dwarf.
-		 * \return An entity of a warehouse.
-		 */
-		Entity GetFreeSlotInBuilding();
+		Entity GetBuildingWithFreePlace();
 
 		Entity GetWarehouseWithResources(ResourceType resourceType);
 
@@ -101,23 +71,20 @@ namespace sfge::ext
 
 		void DwarfPutsResources(Entity entity, ResourceType resourceType);
 
-		void ReserveFill(Entity entity, ResourceType resourceType);
+		void ReserveForFill(Entity entity, ResourceType resourceType);
 
-		void ReserveEmpty(Entity entity, ResourceType resourceType);
+		void ReserveForEmpty(Entity entity, ResourceType resourceType);
 
 	private:
-		/**
-		 * \brief check if a slot already setup is empty and fill it.
-		 * \param newEntity : the entity that is newly created.
-		 * \return true if a slot was empty and has been fill.
-		 */
-		bool CheckEmptySlot(Entity newEntity);
+
+		bool CheckFreeSlot(Entity newEntity);
 
 		void SetupTexture(const Entity entity);
 
 		void ReserveContainer(const size_t newSize);
 
 		void AttributeContainer();
+
 
 		EntityManager * m_EntityManager;
 		Transform2dManager* m_Transform2DManager;

@@ -51,90 +51,33 @@ namespace sfge::ext
 
 		void Draw() override;
 
-		/**
-		 * \brief Spawn a building entity at the given position.
-		 * \param position : the location of spawn wanted.
-		 */
+
 		void SpawnBuilding(Vec2f position, BuildingType buildingType);
 
-		/**
-		 * \brief Destroy the mine at the given index.
-		 * \param entity : an entity that is a building.
-		 * \return true if the Entity exist and is a building.
-		 */
-		bool DestroyBuilding(Entity entity, BuildingType buildingType);
+		void DestroyBuilding(Entity entity, BuildingType buildingType);
 
-		/**
-		 * \brief attribute a dwarf to the given building entity.
-		 * \param entity : an entity that is a building.
-		 * \return true if the entity exist and is a building and if a dwarf has been added to the building.
-		 */
-		bool AddDwarfToBuilding(Entity entity, BuildingType buildingType);
+		void AttributeDwarfToBuilding(Entity entity);
 
-		/**
-		 * \brief remove the attribution of a dwarf to the given building entity.
-		 * \param entity : an entity that is a building.
-		 * \return true if the entity exist and is a building and if a dwarf has been added to the building.
-		 */
-		bool RemoveDwarfToBuilding(Entity entity);
+		void DeallocateDwarfToBuilding(Entity entity);
 
-		/**
-		 * \brief Increment the dwarf slot to tell that a dwarf go in.
-		 * \param entity : The Entity of a building that the dwarf want to go in.
-		 */
 		void DwarfEnterBuilding(Entity entity);
 
-		/**
-		 * \brief decrement the dwarf slot to tell that a dwarf go out.
-		 * \param entity : The Entity of a building that the dwarf want to go out.
-		 */
 		void DwarfExitBuilding(Entity entity);
 
-		/**
-		 * \brief Get a building with a slot free for a dwarf.
-		 * \return An entity of a mine.
-		 */
-		Entity GetFreeSlotInBuilding(BuildingType buildingType);
+		Entity GetBuildingWithFreePlace(BuildingType buildingType);
 
-		/**
-		 * \brief get a certain amount of resources that a building have produce.
-		 * \param entity : an entity that is a building.
-		 * \return an int of an amount of resources.
-		 */
 		int DwarfTakesResources(Entity entity, BuildingType buildingType);
 
 	private:
-		/**
-		 * \brief Produce iron.
-		 */
+
 		void Produce();
 
-		/**
-		 * \brief Resize all vector in one go to keep the synchronize all index.
-		 * \param newSize : the size with the new number of building.
-		 */
 		void ResizeContainer(size_t newSize);
 
-		/**
-		 * \brief check if a slot already setup is empty and fill it.
-		 * \param newEntity : the entity that is newly created.
-		 * \param buildingType  the type of building that you are creating.
-		 * \return true if a slot was empty and has been fill.
-		 */
-		bool CheckEmptySlot(Entity newEntity, BuildingType buildingType);
+		bool CheckFreeSlot(Entity newEntity, BuildingType buildingType);
 
-		/**
-		 * \brief Attribute a vertexArray ofr the entity.
-		 * \param newEntity : the entity of the building newly created.
-		 * \param buildingType : the type of building of the entity.
-		 */
 		void AttributionTexture(Entity newEntity, BuildingType buildingType);
 
-		/**
-		 * \brief Setup The Vertex array for the sprite of the entity.
-		 * \param newEntity : the index of the entity.
-		 * \param texture : the texture of the needed building.
-		 */
 		void SetupTexture(Entity newEntity, sf::Texture* texture);
 
 		bool m_Init = false;
@@ -149,7 +92,7 @@ namespace sfge::ext
 		sf::RenderWindow* m_Window;
 
 		const unsigned short m_MaxCapacity = 200;
-		const unsigned short m_CoolDown = 600;
+		const unsigned short m_CoolDownGoal = 600;
 
 		unsigned int m_BuildingIndexCount = 0;
 

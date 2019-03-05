@@ -83,28 +83,22 @@ namespace sfge::ext
 
 	void ProductionBuildingManager::SpawnBuilding(Vec2f position, BuildingType buildingType)
 	{
-		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
+		Entity newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if (newEntity == INVALID_ENTITY)
 		{
-			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
+			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + CONTAINER_RESERVATION);
 			newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 		}
 
 		
 		//add transform
-		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		Transform2d* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(position.x, position.y);
 
+		AttributionTexture(newEntity, buildingType);
 
-		if (CheckEmptySlot(newEntity, buildingType))
-		{
-			return;
-		}
-
-		m_BuildingIndexCount++;
-
-		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+		editor::EntityInfo& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
 		switch (buildingType)
 		{
 		case BuildingType::MINE:
@@ -117,6 +111,14 @@ namespace sfge::ext
 			entityInfo.name = "MushroomFarm " + std::to_string(m_BuildingIndexCount);
 			break;
 		}
+
+		if (CheckFreeSlot(newEntity, buildingType))
+		{
+			return;
+		}
+
+		m_BuildingIndexCount++;
+
 
 		if (m_BuildingIndexCount >= m_EntityIndex.size())
 		{
@@ -146,56 +148,43 @@ namespace sfge::ext
 			m_ResourceTypes[newBuilding] = m_MushroomFarmResourceType;
 			break;
 		}
-
-		AttributionTexture(newEntity, buildingType);
 	}
 
-	bool ProductionBuildingManager::DestroyBuilding(Entity entity, BuildingType buildingType)
+	void ProductionBuildingManager::DestroyBuilding(Entity entity, BuildingType buildingType)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
 				m_EntityIndex[i] = INVALID_ENTITY;
-				EntityManager* entityManager = m_Engine.GetEntityManager();
-				entityManager->DestroyEntity(entity);
-				return true;
+				m_EntityManager->DestroyEntity(entity);
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool ProductionBuildingManager::AddDwarfToBuilding(Entity entity, BuildingType buildingType)
+	void ProductionBuildingManager::AttributeDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == entity && m_BuildingTypes[i] == buildingType)
+			if (m_EntityIndex[i] == entity)
 			{
-				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
-				{
-					m_DwarfSlots[i].dwarfAttributed++;
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				m_DwarfSlots[i].dwarfAttributed++;
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool ProductionBuildingManager::RemoveDwarfToBuilding(Entity entity)
+	void ProductionBuildingManager::DeallocateDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_EntityIndex.size(); i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfAttributed--;
-				return true;
+				return;
 			}
 		}
-		return false;
 	}
 
 	void ProductionBuildingManager::DwarfEnterBuilding(Entity entity)
@@ -205,8 +194,7 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn++;
-				if (m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
-					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
+				return;
 			}
 		}
 	}
@@ -219,13 +207,12 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn--;
-				if (m_DwarfSlots[i].dwarfIn < 0)
-					m_DwarfSlots[i].dwarfIn = 0;
+				return;
 			}
 		}
 	}
 
-	Entity ProductionBuildingManager::GetFreeSlotInBuilding(BuildingType buildingType)
+	Entity ProductionBuildingManager::GetBuildingWithFreePlace(BuildingType buildingType)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -260,23 +247,25 @@ namespace sfge::ext
 				continue;
 			}
 
+			if(m_ResourcesInventories[i] >= m_MaxCapacity)
+			{
+				continue;
+			}
+
 			m_ProgressionCoolDowns[i] += m_DwarfSlots[i].dwarfIn;
 
-			if (m_ProgressionCoolDowns[i] == m_CoolDown)
+			if (m_ProgressionCoolDowns[i] < m_CoolDownGoal)
 			{
-				m_ProgressionCoolDowns[i] = 0;
-				m_ResourcesInventories[i]++;
+				continue;
+			}
 
-				if(m_ResourcesInventories[i] >= m_ReservedExportStackNumber[i] * GetStackSizeByResourceType(m_ResourceTypes[i]) + GetStackSizeByResourceType(m_ResourceTypes[i]))
-				{
-					m_ReservedExportStackNumber[i]++;
-					m_BuildingManager->RegistrationBuildingToBeEmptied(m_EntityIndex[i], m_BuildingTypes[i], m_ResourceTypes[i], 0);
-				}
+			m_ProgressionCoolDowns[i] = 0;
+			m_ResourcesInventories[i]++;
 
-				if (m_ResourcesInventories[i] > m_MaxCapacity)
-				{
-					m_ResourcesInventories[i] = m_MaxCapacity;
-				}
+			if(m_ResourcesInventories[i] >= m_ReservedExportStackNumber[i] * GetStackSizeByResourceType(m_ResourceTypes[i]) + GetStackSizeByResourceType(m_ResourceTypes[i]))
+			{
+				m_ReservedExportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeEmptied(m_EntityIndex[i], m_BuildingTypes[i], m_ResourceTypes[i]);
 			}
 		}
 	}
@@ -292,7 +281,7 @@ namespace sfge::ext
 		m_ResourceTypes.resize(newSize);
 	}
 
-	bool ProductionBuildingManager::CheckEmptySlot(Entity newEntity, BuildingType buildingType)
+	bool ProductionBuildingManager::CheckFreeSlot(Entity newEntity, BuildingType buildingType)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -301,25 +290,8 @@ namespace sfge::ext
 				continue;
 			}
 
-			auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-
-			switch (buildingType)
-			{
-			case BuildingType::MINE:
-				entityInfo.name = "Mine " + std::to_string(i + 1);
-				break;
-			case BuildingType::EXCAVATION_POST:
-				entityInfo.name = "ExcavationPost " + std::to_string(i + 1);
-				break;
-			case BuildingType::MUSHROOM_FARM:
-				entityInfo.name = "MushroomFarm " + std::to_string(i + 1);
-				break;
-			}
-
 			m_EntityIndex[i] = newEntity;
-			const DwarfSlots newDwarfSlot;
-			m_DwarfSlots[i] = newDwarfSlot;
+			m_DwarfSlots[i] = DwarfSlots();
 			m_ResourcesInventories[i] = 0;
 			m_BuildingTypes[i] = buildingType;
 
@@ -330,13 +302,12 @@ namespace sfge::ext
 				break;
 			case BuildingType::EXCAVATION_POST:
 				m_ResourceTypes[i] = m_ExcavationPostResourceType;
+
 				break;
 			case BuildingType::MUSHROOM_FARM:
 				m_ResourceTypes[i] = m_MushroomFarmResourceType;
 				break;
 			}
-
-			AttributionTexture(newEntity, buildingType);
 
 
 			return true;
