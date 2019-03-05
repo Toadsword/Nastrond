@@ -39,6 +39,8 @@ namespace sfge::ext
 
 		m_Configuration = m_Engine.GetConfig();
 
+
+
 		m_TilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
 
 		m_TilemapManager = m_TilemapSystem->GetTilemapManager();
@@ -60,7 +62,6 @@ namespace sfge::ext
 			m_SizeTile = m_Tilemap->GetTileSize();
 			SetupTileMap();
 		}
-			std::cout << "Setup Tilema\n";
 
 		m_Init = true;
 		Log::GetInstance()->Msg("Building Constructor initialized");
