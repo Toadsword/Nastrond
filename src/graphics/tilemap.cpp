@@ -311,7 +311,7 @@ namespace sfge
 
 		tilemapInfo.tilemap = &tilemap;
 
-		m_Tilemaps.push_back(entity - 1);
+		m_Tilemaps.push_back(entity);
 		UpdateDrawOrderTilemaps();
 
 		m_EntityManager->AddComponentType(entity, ComponentType::TILEMAP);
