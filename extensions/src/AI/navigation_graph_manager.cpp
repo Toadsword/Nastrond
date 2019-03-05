@@ -214,7 +214,6 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 {
 	auto transformManager = m_Engine.GetTransform2dManager();
 	auto* tilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
-	auto tileManager = tilemapSystem->GetTileManager();
 
 	std::vector<TileTypeId> tileTypes = tilemap->GetTileTypes();
 	
