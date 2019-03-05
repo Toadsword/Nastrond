@@ -73,28 +73,30 @@ namespace sfge::ext
 
 	void ForgeManager::SpawnBuilding(Vec2f pos)
 	{
-		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
+		Entity newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if(newEntity == INVALID_ENTITY)
 		{
-			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
+			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + CONTAINER_RESERVATION);
 			newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 		}
 
 		//add transform
-		auto transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		Transform2d* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(pos.x, pos.y);
+		
+		SetupTexture(newEntity);
 
-		if(CheckEmptySlot(newEntity))
+		editor::EntityInfo& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+		entityInfo.name = "Forge " + std::to_string(m_BuildingIndexCount);
+
+		if(CheckFreeSlot(newEntity))
 		{
 			return;
 		}
 
 		m_BuildingIndexCount++;
 
-		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-		entityInfo.name = "Forge " + std::to_string(m_BuildingIndexCount);
 
 		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
 		{
@@ -107,11 +109,9 @@ namespace sfge::ext
 		const size_t newForge = m_BuildingIndexCount - 1;
 
 		m_EntityIndex[newForge] = newEntity;
-
-		SetupTexture(newEntity);
 	}
 
-	bool ForgeManager::DestroyBuilding(Entity entity)
+	void ForgeManager::DestroyBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -120,43 +120,33 @@ namespace sfge::ext
 				m_EntityIndex[i] = INVALID_ENTITY;
 				EntityManager* entityManager = m_Engine.GetEntityManager();
 				entityManager->DestroyEntity(entity);
-				return true;
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool ForgeManager::AddDwarfToBuilding(Entity entity)
+	void ForgeManager::AttributeDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
-				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
-				{
-					m_DwarfSlots[i].dwarfAttributed++;
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				m_DwarfSlots[i].dwarfAttributed++;
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool ForgeManager::RemoveDwarfToBuilding(Entity entity)
+	void ForgeManager::DeallocateDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfAttributed--;
-				return true;
+				return;
 			}
 		} 
-		return false;
 	}
 
 	void ForgeManager::DwarfEnterBuilding(Entity entity)
@@ -166,8 +156,7 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn++;
-				if (m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
-					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
+				return;
 			}
 		}
 	}
@@ -179,13 +168,12 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn--;
-				if (m_DwarfSlots[i].dwarfIn < 0)
-					m_DwarfSlots[i].dwarfIn = 0;
+				return;
 			}
 		}
 	}
 
-	Entity ForgeManager::GetFreeSlotInBuilding()
+	Entity ForgeManager::GetBuildingWithFreePlace()
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -241,50 +229,63 @@ namespace sfge::ext
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == NULL || m_ResourcesInventoriesReceiver[i] <= 0 || m_ResourcesInventoriesGiver[i] >= m_MaxCapacityGiver)
+			if (m_EntityIndex[i] == INVALID_ENTITY || m_ResourcesInventoriesGiver[i] >= m_MaxCapacityGiver)
 			{
 				continue;
 			}
 
-			if((m_ProgressionCoolDown[i] += m_DwarfSlots[i].dwarfIn) >= m_CoolDown)
+			const unsigned short stackSizeNeeded = GetStackSizeByResourceType(m_ResourceTypeNeeded);
+
+			if(m_ResourcesInventoriesReceiver[i] == 0 && m_ResourcesInventoriesReceiver[i] <= m_MaxCapacityReceiver - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
 			{
-				m_ProgressionCoolDown[i] = 0;
-				m_ResourcesInventoriesReceiver[i]--;
+				m_ReservedImportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeNeeded);
+				continue;
+			}
+			
+			m_ProgressionCoolDown[i] += m_DwarfSlots[i].dwarfIn;
 
-				if(m_ResourcesInventoriesReceiver[i] <= m_MaxCapacityReceiver - (m_ReservedImportStackNumber[i] * GetStackSizeByResourceType(ResourceType::IRON) + GetStackSizeByResourceType(ResourceType::IRON)))
-				{
-					// TODO : ADAPT WITHOUT THE RESOURCE QUANTITY
-					m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeNeeded, 0);
-				}
+			if (m_ProgressionCoolDown[i] < m_CoolDownGoal)
+			{
+				continue;
+			}
 
-				m_ProgressionConsumption[i]++;
+			m_ProgressionCoolDown[i] = 0;
+			m_ResourcesInventoriesReceiver[i]--;
 
-				if(m_ProgressionConsumption[i] >= m_ConsumptionGoal)
-				{
-					m_ProgressionConsumption[i] = 0;
-					m_ResourcesInventoriesGiver[i]++;
+			if(m_ResourcesInventoriesReceiver[i] <= m_MaxCapacityReceiver - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
+			{
+				m_ReservedImportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeNeeded);
+			}
 
-					if(m_ResourcesInventoriesGiver[i] >= m_ReservedExportStackNumber[i] * GetStackSizeByResourceType(m_ResourceTypeProduced) + GetStackSizeByResourceType(m_ResourceTypeProduced))
-					{
-						// TODO : ADAPT WITHOUT THE RESOURCE QUANTITY FOR THE EXPORT
-						m_BuildingManager->RegistrationBuildingToBeEmptied(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeProduced, 0);
-					}
-				}
+			m_ProgressionConsumption[i]++;
+			
+			if (m_ProgressionConsumption[i] < m_ConsumptionGoal)
+			{
+				continue;
+			}
+
+			m_ProgressionConsumption[i] = 0;
+			m_ResourcesInventoriesGiver[i]++;
+
+			const unsigned short stackSizeProduce = GetStackSizeByResourceType(m_ResourceTypeProduced);
+
+			if(m_ResourcesInventoriesGiver[i] >= m_ReservedExportStackNumber[i] * stackSizeProduce + stackSizeProduce)
+			{
+				m_ReservedExportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeEmptied(m_EntityIndex[i], BuildingType::FORGE, m_ResourceTypeProduced);
 			}
 		}
 	}
 
-	bool ForgeManager::CheckEmptySlot(Entity newEntity)
+	bool ForgeManager::CheckFreeSlot(Entity newEntity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == INVALID_ENTITY)
 			{
 				m_EntityIndex[i] = newEntity;
-
-				auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-				entityInfo.name = "Forge " + std::to_string(i + 1);
 
 				m_DwarfSlots[i] = DwarfSlots();
 
@@ -296,13 +297,12 @@ namespace sfge::ext
 
 				m_ReservedExportStackNumber[i] = 0;
 				m_ReservedImportStackNumber[i] = 0;
-
-				SetupTexture(newEntity);
 				return true;
 			}
 		}
 		return false;
 	}
+
 	void ForgeManager::AttributeContainer()
 	{
 		m_EntityIndex.emplace_back(INVALID_ENTITY);
@@ -318,10 +318,17 @@ namespace sfge::ext
 		m_ReservedExportStackNumber.emplace_back(0);
 		m_ReservedImportStackNumber.emplace_back(0);
 	}
-	void ForgeManager::SetupTexture(const unsigned int forgeIndex)
+
+	void ForgeManager::SetupTexture(const Entity entity)
 	{
-		// Sprite Component part
-		Sprite* sprite = m_SpriteManager->AddComponent(forgeIndex);
+		//Sprite Component part
+		Sprite* sprite = m_SpriteManager->AddComponent(entity);
 		sprite->SetTexture(m_Texture);
+
+		auto& spriteInfo = m_SpriteManager->GetComponentInfo(entity);
+		spriteInfo.name = "Sprite";
+		spriteInfo.sprite = sprite;
+		spriteInfo.textureId = m_TextureId;
+		spriteInfo.texturePath = m_TexturePath;
 	}
 }

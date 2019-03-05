@@ -3,12 +3,26 @@
 	"entities": 
 	[
 		{
+			"name": "Camera",
+			"components": [
+				{
+					"name": "Script",
+					"type": 64,
+					"script_path": "scripts/camera_manager.py"
+				},
+				{
+					"name": "camera",
+					"type": 1024
+				}
+			]
+		},
+		{
 			"name": "TestImage",
 			"components": [
 				{
 					"name": "RectTransform",
 					"type": 2048,
-					"basePosition": [500, 500],
+					"basePosition": [0, 0],
 					"scale" : [1.0,1.0],
 					"angle": 0.0
 				},

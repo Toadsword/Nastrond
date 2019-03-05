@@ -15,7 +15,9 @@ class ButtonTest(Component):
     def update(self, dt):
         if input_manager.mouse.is_button_up(input_manager.mouse.MouseButton.Left):
             self.mousePosition = input_manager.mouse.get_local_position()
+            print("User click detected at " + self.mousePosition.x.__str__() + " | " + self.mousePosition.y.__str__())
             if self.RectTransform.contains(self.mousePosition.x, self.mousePosition.y):
+                print("User click in button")
                 self.action()
 
     def action(self):

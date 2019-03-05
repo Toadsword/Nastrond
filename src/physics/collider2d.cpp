@@ -159,6 +159,7 @@ ColliderData *ColliderManager::AddComponent(Entity entity)
 }
 void ColliderManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
 	(void) entity;
 }
 ColliderData *ColliderManager::GetComponentPtr(Entity entity)

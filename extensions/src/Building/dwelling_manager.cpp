@@ -71,28 +71,30 @@ namespace sfge::ext
 
 	void DwellingManager::SpawnBuilding(Vec2f pos)
 	{
-		auto newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
+		Entity newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 
 		if(newEntity == INVALID_ENTITY)
 		{
-			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + 1);
+			m_EntityManager->ResizeEntityNmb(m_Configuration->currentEntitiesNmb + CONTAINER_RESERVATION);
 			newEntity = m_EntityManager->CreateEntity(INVALID_ENTITY);
 		}
 
 		//add transform
-		auto* transformPtr = m_Transform2DManager->AddComponent(newEntity);
+		Transform2d* transformPtr = m_Transform2DManager->AddComponent(newEntity);
 		transformPtr->Position = Vec2f(pos.x, pos.y);
 
-		if (CheckEmptySlot(newEntity))
+		SetupTexture(newEntity);
+
+		editor::EntityInfo& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
+		entityInfo.name = "Dwelling " + std::to_string(m_BuildingIndexCount);
+
+		if (CheckFreeSlot(newEntity))
 		{
 			return;
 		}
 
 		m_BuildingIndexCount++;
 
-		auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-		entityInfo.name = "Dwelling " + std::to_string(m_BuildingIndexCount);
 
 		if (m_BuildingIndexCount >= CONTAINER_RESERVATION * m_NmbReservation)
 		{
@@ -105,59 +107,46 @@ namespace sfge::ext
 		const size_t newDwelling = m_BuildingIndexCount - 1;
 
 		m_EntityIndex[newDwelling] = newEntity;
-
-		SetupTexture(newEntity);
 	}
 
-	bool DwellingManager::DestroyBuilding(Entity entity)
+	void DwellingManager::DestroyBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
 				m_EntityIndex[i] = INVALID_ENTITY;
-				EntityManager* entityManager = m_Engine.GetEntityManager();
-				entityManager->DestroyEntity(entity);
-				return true;
+				m_EntityManager->DestroyEntity(entity);
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool DwellingManager::AddDwarfToBuilding(Entity dwellingEntity)
+	void DwellingManager::AttributeDwarfToBuilding(Entity dwellingEntity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == dwellingEntity)
 			{
-				if (m_DwarfSlots[i].dwarfAttributed < m_DwarfSlots[i].maxDwarfCapacity)
-				{
-					m_DwarfSlots[i].dwarfAttributed++;
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				m_DwarfSlots[i].dwarfAttributed++;
+				return;
 			}
 		}
-		return false;
 	}
 
-	bool DwellingManager::RemoveDwarfToBuilding(Entity entity)
+	void DwellingManager::DeallocateDwarfToBuilding(Entity entity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfAttributed--;
-				return true;
+				return;
 			}
 		}
-		return false;
 	}
 
-	Entity DwellingManager::GetFreeSlotInBuilding()
+	Entity DwellingManager::GetBuildingWithFreePlace()
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
@@ -176,8 +165,7 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn++;
-				if (m_DwarfSlots[i].dwarfIn > m_DwarfSlots[i].maxDwarfCapacity)
-					m_DwarfSlots[i].dwarfIn = m_DwarfSlots[i].maxDwarfCapacity;
+				return;
 			}
 		}
 	}
@@ -189,8 +177,7 @@ namespace sfge::ext
 			if (m_EntityIndex[i] == entity)
 			{
 				m_DwarfSlots[i].dwarfIn--;
-				if (m_DwarfSlots[i].dwarfIn < 0)
-					m_DwarfSlots[i].dwarfIn = 0;
+				return;
 			}
 		}
 	}
@@ -203,6 +190,7 @@ namespace sfge::ext
 			{
 				m_ResourcesInventories[i] += GetStackSizeByResourceType(m_ResourceTypeNeeded);
 				m_ReservedImportStackNumber[i]--;
+				return;
 			}
 		}
 	}
@@ -215,35 +203,35 @@ namespace sfge::ext
 			{
 				continue;
 			}
+
+			const unsigned short stackSizeNeeded = GetStackSizeByResourceType(m_ResourceTypeNeeded);
 			
-			if (m_ResourcesInventories[i] <= 0)
+			if (m_ResourcesInventories[i] == 0 && m_ResourcesInventories[i] <= m_MaxCapacity - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
+			{
+				m_ReservedImportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::DWELLING, m_ResourceTypeNeeded);
+			}
+
+			if (m_ResourcesInventories[i] == 0)
 			{
 				DecreaseHappiness();
-				continue;
-			}
-			
-			if(m_DwarfSlots[i].dwarfIn <= 0)
-			{
 				continue;
 			}
 
 			m_ProgressionCoolDown[i] += m_DwarfSlots[i].dwarfIn;
 
-			if(m_ProgressionCoolDown[i] >= m_CoolDown)
+			if (m_ProgressionCoolDown[i] < m_CoolDownGoal)
 			{
-				m_ProgressionCoolDown[i] = 0;
-				m_ResourcesInventories[i]--;
+				continue;
+			}
 
-				if(m_ResourcesInventories[i] < 0)
-				{
-					DecreaseHappiness();
-				}
+			m_ProgressionCoolDown[i] = 0;
+			m_ResourcesInventories[i]--;
 
-				if(m_ResourcesInventories[i] <= m_MaxCapacity - (m_ReservedImportStackNumber[i] * GetStackSizeByResourceType(m_ResourceTypeNeeded) + GetStackSizeByResourceType(m_ResourceTypeNeeded)))
-				{
-					m_ReservedImportStackNumber[i]++;
-					m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::DWELLING, m_ResourceTypeNeeded, 0);
-				}
+			if(m_ResourcesInventories[i] <= m_MaxCapacity - (m_ReservedImportStackNumber[i] * stackSizeNeeded + stackSizeNeeded))
+			{
+				m_ReservedImportStackNumber[i]++;
+				m_BuildingManager->RegistrationBuildingToBeFill(m_EntityIndex[i], BuildingType::DWELLING, m_ResourceTypeNeeded);
 			}
 		}
 	}
@@ -264,44 +252,45 @@ namespace sfge::ext
 		m_EntityIndex.emplace_back(INVALID_ENTITY);
 		m_DwarfSlots.emplace_back(DwarfSlots());
 
-		m_ResourcesInventories.emplace_back(0);
+		m_ResourcesInventories.emplace_back(m_MaxCapacity);
 		m_ReservedImportStackNumber.emplace_back(0);
 
 		m_ProgressionCoolDown.emplace_back(0);
 	}
 
-	bool DwellingManager::CheckEmptySlot(Entity newEntity)
+	bool DwellingManager::CheckFreeSlot(Entity newEntity)
 	{
 		for (int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == INVALID_ENTITY)
+			if (m_EntityIndex[i] != INVALID_ENTITY)
 			{
-				m_EntityIndex[i] = newEntity;
-
-				auto& entityInfo = m_EntityManager->GetEntityInfo(newEntity);
-
-				entityInfo.name = "Dwelling " + std::to_string(i + 1);
-
-
-				m_DwarfSlots[i] = DwarfSlots();
-
-				m_ResourcesInventories[i] = 0;
-				m_ProgressionCoolDown[i] = 0;
-				m_ReservedImportStackNumber[i] = 0;
-
-				SetupTexture(newEntity);
-
-				return true;
+				continue;
 			}
+
+			m_EntityIndex[i] = newEntity;
+
+			m_DwarfSlots[i] = DwarfSlots();
+
+			m_ResourcesInventories[i] = 0;
+			m_ProgressionCoolDown[i] = 0;
+			m_ReservedImportStackNumber[i] = 0;
+
+			return true;
 		}
 		return false;
 	}
 
-	void DwellingManager::SetupTexture(const unsigned int dwellingIndex)
+	void DwellingManager::SetupTexture(const Entity entity)
 	{
 		//Sprite Component part
-		Sprite* sprite = m_SpriteManager->AddComponent(dwellingIndex);
+		Sprite* sprite = m_SpriteManager->AddComponent(entity);
 		sprite->SetTexture(m_Texture);
+
+		auto& spriteInfo = m_SpriteManager->GetComponentInfo(entity);
+		spriteInfo.name = "Sprite";
+		spriteInfo.sprite = sprite;
+		spriteInfo.textureId = m_TextureId;
+		spriteInfo.texturePath = m_TexturePath;
 	}
 
 	void DwellingManager::DecreaseHappiness()

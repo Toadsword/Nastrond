@@ -115,9 +115,10 @@ void MouseManager::Update(float dt)
 	}
 }
 
-sf::Vector2i MouseManager::GetLocalPosition() const
+sf::Vector2f MouseManager::GetLocalPosition() const
 {
-	return sf::Mouse::getPosition(*m_Engine.GetGraphics2dManager()->GetWindow());
+	sf::Vector2i pixelPos = sf::Mouse::getPosition(*m_Engine.GetGraphics2dManager()->GetWindow());
+	return m_Engine.GetGraphics2dManager()->GetWindow()->mapPixelToCoords(pixelPos);
 }
 sf::Vector2i MouseManager::GetWorldPosition() const
 {

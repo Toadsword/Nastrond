@@ -129,29 +129,17 @@ void ShapeManager::Init()
 
 void ShapeManager::DrawShapes(sf::RenderWindow &window)
 {
-
 	rmt_ScopedCPUSample(ShapeDraw,0)
-	for(auto i = 0u; i < m_Components.size(); i++)
-	{
-		if(m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D))
-		{
-			m_Components[i].Draw(window);
-		}
-	}
+	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+		m_Components[m_ConcernedEntities[i] - 1].Draw(window);
 }
 
 void ShapeManager::Update(const float dt)
 {
 
 	rmt_ScopedCPUSample(ShapeUpdate,0)
-	for (auto i = 0u; i < m_Components.size(); i++)
-	{
-		if (m_EntityManager->HasComponent(i + 1, ComponentType::SHAPE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
-		{
-			m_Components[i].Update(dt, m_Transform2dManager->GetComponentPtr(i + 1));
-		}
-	}
-	
+	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+		m_Components[m_ConcernedEntities[i] - 1].Update(dt, m_Transform2dManager->GetComponentPtr(m_ConcernedEntities[i]));
 }
 
 void ShapeManager::Clear()
@@ -167,6 +155,7 @@ Shape *ShapeManager::AddComponent (Entity entity)
 {
 	auto shapePtr = GetComponentPtr (entity);
 	GetComponentInfo (entity).shapePtr = shapePtr;
+	m_ConcernedEntities.push_back(entity);
 	m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::SHAPE2D);
 	m_ComponentsInfo[entity - 1].SetEntity(entity);
 	return shapePtr;
@@ -181,11 +170,11 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 		offset = GetVectorFromJson(componentJson, "offset");
 	}
 
-	auto& shape = m_Components[entity-1];
-	shape.SetOffset(offset);
+	auto* shape = AddComponent(entity);
+	shape->SetOffset(offset);
 
 	auto shapeInfo = editor::ShapeInfo();
-	shapeInfo.shapePtr = &shape;
+	shapeInfo.shapePtr = shape;
 
 	if (CheckJsonNumber(componentJson, "shape_type"))
 	{
@@ -204,8 +193,8 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			auto circleShape = std::make_unique <sf::CircleShape>();
 			circleShape->setRadius (radius);
 			circleShape->setOrigin (radius, radius);
-			shape.SetShape (std::move(circleShape));
-			shape.Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
+			shape->SetShape (std::move(circleShape));
+			shape->Update(0.0f, m_Transform2dManager->GetComponentPtr(entity));
 		}
 			break;
 		case ShapeType::RECTANGLE:
@@ -223,8 +212,8 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 			auto rect = std::make_unique<sf::RectangleShape>();
 			rect->setSize (size);
 			rect->setOrigin (size.x/2.0f, size.y/2.0f);
-            shape.SetShape (std::move (rect));
-            shape.Update (0.0f, m_Transform2dManager->GetComponentPtr(entity));
+            shape->SetShape (std::move (rect));
+            shape->Update (0.0f, m_Transform2dManager->GetComponentPtr(entity));
 			
 		}
 			break;
@@ -245,6 +234,7 @@ void ShapeManager::CreateComponent(json& componentJson, Entity entity)
 
 void ShapeManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
 	(void) entity;
 }
 
