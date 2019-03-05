@@ -396,6 +396,7 @@ namespace sfge
 		}
 
 		m_Tilemaps.push_back(entity - 1);
+		m_ConcernedEntities.push_back(entity);
 		UpdateDrawOrderTilemaps();
 	}
 

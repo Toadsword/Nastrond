@@ -80,9 +80,6 @@ class ComponentManager:
  protected:
   EntityManager* m_EntityManager = nullptr;
   std::vector<T> m_Components;
-	/*
-	 * Component optimisation addition
-	 */
   std::vector<Entity> m_ConcernedEntities;
  public:
   ComponentManager(Engine& engine) : System(engine) {}
@@ -101,9 +98,6 @@ class ComponentManager:
   virtual ~ComponentManager()
   {
     m_Components.clear();
-	  /*
-	   * Component optimisation addition
-	   */
 	m_ConcernedEntities.clear();
   }
 
