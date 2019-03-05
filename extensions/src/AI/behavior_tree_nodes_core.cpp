@@ -358,15 +358,15 @@ void Node::RepeaterDecorator(const unsigned int index) const
 	//If flow goes down => start counter 
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
-		m_BehaviorTree->repeaterCounter[index] = 0;
+		nodeData->count[index] = 0;
 	}
 	else
 	{
 		
 		//If limit == 0 => infinity, if m_Counter == m_Limit it's over
-		if (nodeData->limit > 0 && ++m_BehaviorTree->repeaterCounter[index] == nodeData->limit)
+		if (nodeData->limit > 0 && ++nodeData->count[index] == nodeData->limit)
 		{
-			m_BehaviorTree->repeaterCounter[index] = 0;
+			nodeData->count[index] = 0;
 
 			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 			m_BehaviorTree->currentNode[index] = m_ParentNode;

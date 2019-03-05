@@ -86,10 +86,7 @@ public:
 
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
-
-	std::vector<char> repeaterCounter;
 	std::vector<bool> hasSucceeded;
-
 	std::vector<bool> sleepingEntity;
 
 	DwarfManager* dwarfManager;

@@ -82,7 +82,7 @@ namespace sfge::ext::behavior_tree
 #pragma region nodeDatas
 	struct NodeData {};
 
-	struct CompositeData : NodeData
+	struct CompositeData final : NodeData
 	{
 		std::vector<std::shared_ptr<Node>> children;
 		std::vector<unsigned char> activeChild;
@@ -93,12 +93,13 @@ namespace sfge::ext::behavior_tree
 		std::shared_ptr<Node> child;
 	};
 
-	struct RepeaterData : DecoratorData
+	struct RepeaterData final : DecoratorData
 	{
 		int limit = 0;
+		std::vector<unsigned char> count;
 	};
 
-	struct FindPathToData : NodeData
+	struct FindPathToData final : NodeData
 	{
 		NodeDestination destination;
 	};
