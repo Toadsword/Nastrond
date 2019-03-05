@@ -336,9 +336,9 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& d
 }
 
 float Sqrt(float x) {
-	int i = *(int*)&x;
+	auto i = *reinterpret_cast<int*>(&x);
 	i = 0x5f3759df - (i >> 1);
-	float r = *(float*)&i;
+	auto r = *reinterpret_cast<float*>(&i);
 	r = r * (1.5f - 0.5f*x*r*r);
 	return r * x;
 }

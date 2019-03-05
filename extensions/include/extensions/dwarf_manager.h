@@ -36,7 +36,6 @@ SOFTWARE.
 namespace sfge::ext
 {
 //#define DEBUG_DRAW_PATH
-//#define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
 
 #define AI_DEBUG_COUNT_TIME
@@ -239,6 +238,15 @@ private:
 	void BatchPathFollowing();
 	void BatchPosition();
 	void BatchAssignDwelling();
+	void BatchAssignInventoryTask();
+	void BatchTakeResource();
+	void BatchPutResource();
+	void BatchEnterDwelling();
+	void BatchExitDwelling();
+	void BatchEnterWorkingPlace();
+	void BatchExitWorkingPlace();
+	void BatchAssignJob();
+	void Batch();
 
 	void ResizeContainers();
 	int GetIndexForNewEntity();
@@ -272,6 +280,9 @@ private:
 	float m_FixedDeltaTime = 0.0f;
 	const float m_SpeedDwarf = 30;
 
+	//Threads
+	std::vector<std::future<void>> m_BatchThreads;
+
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
 		sf::Color::Black,
@@ -282,10 +293,6 @@ private:
 		sf::Color::Red,
 		sf::Color::Yellow
 	};
-#endif
-
-#ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
 	enum class DwarfActivity : unsigned char {
@@ -303,7 +310,7 @@ private:
 		ASSIGN_JOB
 	};
 
-	concurrency::concurrent_vector<DwarfActivity> m_DwarfActivities;
+	std::vector<DwarfActivity> m_DwarfActivities;
 
 	//Dwarfs texture
 	std::string m_TexturePath;
@@ -311,7 +318,7 @@ private:
 	sf::Texture* m_Texture;
 
 	//Dwelling
-	concurrency::concurrent_vector<Entity> m_AssociatedDwelling;
+	std::vector<Entity> m_AssociatedDwelling;
 
 	//Jobs
 	std::vector<Entity> m_AssociatedWorkingPlace;

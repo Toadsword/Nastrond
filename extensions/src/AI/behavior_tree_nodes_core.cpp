@@ -850,10 +850,7 @@ void Node::AskInventoryTaskLeaf(const unsigned int index) const
 void Node::HasInventoryTaskLeaf(const unsigned int index) const
 {
 	m_BehaviorTree->hasSucceeded[index] = m_BehaviorTree->dwarfManager->HasInventoryTask(index);
-	if(m_BehaviorTree->hasSucceeded[index])
-	{
-		std::cout << "has inventory task for " << index << "\n";
-	}
+
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
 }
@@ -969,7 +966,6 @@ void Node::FindPathToLeaf(const unsigned int index) const
 			std::cout << " inventory task giver\n";
 		}
 #endif
-		std::cout << "inventory task giver\n";
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
 		break;
 	case NodeDestination::INVENTORY_TASK_RECEIVER:

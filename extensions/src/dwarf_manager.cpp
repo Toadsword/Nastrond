@@ -63,24 +63,12 @@ void DwarfManager::Init()
 	behaviorTree->SetEntities(&m_DwarfsEntities);
 
 	//Read config
-	const auto config = m_Engine.GetConfig();
-	m_FixedDeltaTime = m_Engine.GetConfig()->fixedDeltaTime;
+	m_FixedDeltaTime = m_Config->fixedDeltaTime;
 
 	//Load texture
 	m_TexturePath = "data/sprites/triangle.png";
 	m_TextureId = m_TextureManager->LoadTexture(m_TexturePath);
 	m_Texture = m_TextureManager->GetTexture(m_TextureId);
-
-#ifdef DEBUG_SPAWN_DWARF
-	//Create dwarfs
-	for (auto i = 0u; i < m_DwarfToSpawn; i++)
-	{
-		//TODO modifier d�s que Duncan a rajouter un moyen d'obtenir les bounds de la tilemap au niveau des positions
-		const Vec2f pos(std::rand() % static_cast<int>(900) - 450, std::rand() % static_cast<int>(450));
-
-		InstantiateDwarf(pos);
-	}
-#endif
 
 	//Init job 
 	//TODO changer la mani�re dont je cr�e la liste des boulots, il serait plus int�ressant de garder le % de chaque job actuellement attribu�
@@ -92,6 +80,8 @@ void DwarfManager::Init()
 	m_JobBuildingType.push(MUSHROOM_FARM);
 
 	m_ThreadPool = &m_Engine.GetThreadPool();
+
+	m_BatchThreads.resize(12);
 }
 
 void DwarfManager::InstantiateDwarf(const Vec2f pos)
@@ -373,79 +363,97 @@ void DwarfManager::BatchAssignDwelling()
 	{
 		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_DWELLING) {
 			auto const dwellingEntity = m_BuildingManager->AttributeDwarfToDwelling();
-			if(dwellingEntity == INVALID_ENTITY)
-			{
-				std::cout << "BUG DE TA MERE\n";
-			}else
-			{
-				std::cout << "Set house for" << i << " = " << dwellingEntity << "\n";
-			}
+
 			m_AssociatedDwelling[i] = dwellingEntity;
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
+void DwarfManager::BatchAssignInventoryTask()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
 		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_INVENTORY_TASK) {
 			const auto inventoryTask = m_BuildingManager->ConveyorLookForTask();
 
 			m_InventoryTaskBT[i] = inventoryTask;
-			if (inventoryTask == m_BuildingManager->INVALID_INVENTORY_TASK)
-			{
-				std::cout << "Empty task for " << i << "\n";
-			}
-			else
-			{
-				std::cout << "Task for" << i << "\n";
-			}
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
-		if(m_DwarfActivities[i] == DwarfActivity::TAKE_RESOURCE)
+void DwarfManager::BatchTakeResource()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if (m_DwarfActivities[i] == DwarfActivity::TAKE_RESOURCE)
 		{
 			m_BuildingManager->DwarfTakesResources(m_InventoryTaskBT[i].giverType, m_InventoryTaskBT[i].giver,
 				m_InventoryTaskBT[i].resourceType);
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
-		if(m_DwarfActivities[i] == DwarfActivity::PUT_RESOURCE)
+void DwarfManager::BatchPutResource()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if (m_DwarfActivities[i] == DwarfActivity::PUT_RESOURCE)
 		{
 			m_BuildingManager->DwarfPutsResources(m_InventoryTaskBT[i].receiverType, m_InventoryTaskBT[i].receiver,
 				m_InventoryTaskBT[i].resourceType,
 				m_InventoryTaskBT[i].resourceQuantity);
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
-		if(m_DwarfActivities[i] == DwarfActivity::ENTER_DWELLING)
+void DwarfManager::BatchEnterDwelling()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if (m_DwarfActivities[i] == DwarfActivity::ENTER_DWELLING)
 		{
 			m_BuildingManager->DwarfEnterBuilding(DWELLING, GetDwellingEntity(i));
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
-		if(m_DwarfActivities[i] == DwarfActivity::EXIT_DWELLING)
+void DwarfManager::BatchExitDwelling()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if (m_DwarfActivities[i] == DwarfActivity::EXIT_DWELLING)
 		{
 			m_BuildingManager->DwarfExitBuilding(DWELLING, GetDwellingEntity(i));
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
+void DwarfManager::BatchEnterWorkingPlace()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
 		if (m_DwarfActivities[i] == DwarfActivity::ENTER_WORKING_PLACE)
 		{
 			m_BuildingManager->DwarfEnterBuilding(m_AssociatedWorkingPlaceType[i], m_AssociatedWorkingPlace[i]);
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
+void DwarfManager::BatchExitWorkingPlace()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
 		if (m_DwarfActivities[i] == DwarfActivity::EXIT_WORKING_PLACE)
 		{
 			m_BuildingManager->DwarfExitBuilding(m_AssociatedWorkingPlaceType[i], m_AssociatedWorkingPlace[i]);
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
+	}
+}
 
+void DwarfManager::BatchAssignJob()
+{
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
 		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_JOB)
 		{
 			char nbJob = 0;
@@ -461,7 +469,6 @@ void DwarfManager::BatchAssignDwelling()
 
 				if (buildingEntity != INVALID_ENTITY)
 				{
-					std::cout << "assign job for " << i << "\n";
 					m_AssociatedWorkingPlace[i] = buildingEntity;
 					m_AssociatedWorkingPlaceType[i] = buildingType;
 
@@ -470,12 +477,34 @@ void DwarfManager::BatchAssignDwelling()
 
 				nbJob++;
 			}
+		}
+	}
+}
 
-			if(nbJob == m_JobBuildingType.size())
-			{
-				std::cout << "no job assigned for " << i << "\n";
-			}
+void DwarfManager::Batch()
+{
+	m_BatchThreads[0] = m_ThreadPool->push(std::bind(&DwarfManager::BatchAssignJob, this));
+	m_BatchThreads[1] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPathFindingRequest, this));
+	m_BatchThreads[2] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPathFollowing, this));
+	m_BatchThreads[3] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPosition, this));
+	m_BatchThreads[4] = m_ThreadPool->push(std::bind(&DwarfManager::BatchAssignDwelling, this));
+	m_BatchThreads[5] = m_ThreadPool->push(std::bind(&DwarfManager::BatchAssignInventoryTask, this));
+	m_BatchThreads[6] = m_ThreadPool->push(std::bind(&DwarfManager::BatchTakeResource, this));
+	m_BatchThreads[7] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPutResource, this));
+	m_BatchThreads[8] = m_ThreadPool->push(std::bind(&DwarfManager::BatchEnterDwelling, this));
+	m_BatchThreads[9] = m_ThreadPool->push(std::bind(&DwarfManager::BatchExitDwelling, this));
+	m_BatchThreads[10] = m_ThreadPool->push(std::bind(&DwarfManager::BatchEnterWorkingPlace, this));
+	m_BatchThreads[11] = m_ThreadPool->push(std::bind(&DwarfManager::BatchExitWorkingPlace, this));
 
+	for (auto i = 0; i < 12; i++)
+	{
+		m_BatchThreads[i].get();
+	}
+
+	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
+	{
+		if(m_DwarfActivities[i] != DwarfActivity::FOLLOW_PATH)
+		{
 			m_DwarfActivities[i] = DwarfActivity::IDLE;
 		}
 	}
@@ -569,25 +598,7 @@ void DwarfManager::Update(const float dt)
 	const auto t3 = std::chrono::high_resolution_clock::now();
 #endif
 	//Batch data
-	{
-		std::vector<std::future<void>> joinFutures(4);
-		auto updateFunction = std::bind(&DwarfManager::BatchPathFindingRequest, this);
-		joinFutures[0] = m_ThreadPool->push(updateFunction);
-
-		auto updateFunction1 = std::bind(&DwarfManager::BatchPathFollowing, this);
-		joinFutures[1] = m_ThreadPool->push(updateFunction1);
-
-		auto updateFunction2 = std::bind(&DwarfManager::BatchPosition, this);
-		joinFutures[2] = m_ThreadPool->push(updateFunction2);
-
-		auto updateFunction3 = std::bind(&DwarfManager::BatchAssignDwelling, this);
-		joinFutures[3] = m_ThreadPool->push(updateFunction3);
-
-		for (auto i = 0; i < 4; i++)
-		{
-			joinFutures[i].get();
-		}
-	}
+	Batch();
 
 #ifdef AI_DEBUG_COUNT_TIME_PRECISE
 	const auto t4 = std::chrono::high_resolution_clock::now();
@@ -628,49 +639,13 @@ void DwarfManager::Update(const float dt)
 	const auto vel = m_SpeedDwarf * dt;
 
 	//Update position
-	const auto coreNmb = m_ThreadPool->size();
-	if (m_PathFollowBatchSize > coreNmb) {
-
-		std::vector<std::future<void>> joinFutures2(coreNmb);
-		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
-		{
-			auto start = (threadIndex + 1)*m_PathFollowBatchSize / (coreNmb + 1);
-			auto end = (threadIndex + 2)*m_PathFollowBatchSize / (coreNmb + 1) - 1;
-			auto updateFunction3 = std::bind(&DwarfManager::UpdatePositionRange, this, start, end, vel);
-			joinFutures2[threadIndex] = m_ThreadPool->push(updateFunction3);
-		}
-		UpdatePositionRange(0, m_PathFollowBatchSize / (coreNmb + 1) - 1, vel);
-		for (auto i = 0; i < coreNmb; i++)
-		{
-			joinFutures2[i].get();
-		}
-	}else
-	{
-		if (m_PathFollowBatchSize > 0) {
-			UpdatePositionRange(0, m_PathFollowBatchSize - 1, vel);
-		}
+	if (m_PathFollowBatchSize > 0) {
+		UpdatePositionRange(0, m_PathFollowBatchSize - 1, vel);
 	}
 
 	//Check if is at destination
-	if (m_PathFollowBatchSize > coreNmb) {
-		std::vector<std::future<void>> joinFutures2(coreNmb);
-		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
-		{
-			auto start = (threadIndex + 1)*m_PathFollowBatchSize / (coreNmb + 1);
-			auto end = (threadIndex + 2)*m_PathFollowBatchSize / (coreNmb + 1) - 1;
-			auto updateFunction3 = std::bind(&DwarfManager::CheckIsAtDestinationRange, this, start, end);
-			joinFutures2[threadIndex] = m_ThreadPool->push(updateFunction3);
-		}
-		CheckIsAtDestinationRange(0, m_PathFollowBatchSize / (coreNmb + 1) - 1);
-		for (auto i = 0; i < coreNmb; i++)
-		{
-			joinFutures2[i].get();
-		}
-	}else
-	{
-		if (m_PathFollowBatchSize > 0) {
-			CheckIsAtDestinationRange(0, m_PathFollowBatchSize - 1);
-		}
+	if (m_PathFollowBatchSize > 0) {
+		CheckIsAtDestinationRange(0, m_PathFollowBatchSize - 1);
 	}
 
 	for(size_t i = 0; i < m_IndexDwarfsEntities; i++)
@@ -716,7 +691,7 @@ void DwarfManager::Update(const float dt)
 		{
 			m_CurrentTime = 0;
 			m_DayState = DayState::NIGHT;
-			std::cout << "To Night\n";
+			std::cout << "[Time info] To Night\n";
 		}
 		break;
 	case NIGHT:
@@ -725,7 +700,7 @@ void DwarfManager::Update(const float dt)
 			m_CurrentTime = 0;
 			m_DayState = DayState::DAY;
 
-			std::cout << "To Day\n";
+			std::cout << "[Time info] To Day\n";
 		}
 		break;
 	default: ;
@@ -755,7 +730,6 @@ void DwarfManager::FixedUpdate()
 
 void DwarfManager::Draw()
 {
-	auto window = m_Engine.GetGraphics2dManager()->GetWindow();
 #ifdef DEBUG_DRAW_PATH
 	auto sizeVertexArrayPath = 0;
 

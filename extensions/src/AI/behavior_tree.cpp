@@ -169,35 +169,7 @@ void BehaviorTree::SetEntities(std::vector<Entity>* vectorEntities)
 
 void BehaviorTree::WakeUpEntities(std::vector<int>& entitiesIndex, const int maxIndex)
 {
-	const auto coreNmb = m_ThreadPool->size();
-	if (maxIndex > coreNmb) {
-
-		std::vector<std::future<void>> joinFutures2(coreNmb);
-		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
-		{
-			auto start = (threadIndex + 1)*maxIndex / (coreNmb + 1);
-			auto end = (threadIndex + 2)*maxIndex / (coreNmb + 1) - 1;
-			auto updateFunction3 = std::bind(&BehaviorTree::WakeUpEntitiesRange, this, start, end, entitiesIndex);
-			joinFutures2[threadIndex] = m_ThreadPool->push(updateFunction3);
-		}
-		WakeUpEntitiesRange(0, maxIndex / (coreNmb + 1) - 1, entitiesIndex);
-		for (auto i = 0; i < coreNmb; i++)
-		{
-			joinFutures2[i].get();
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < maxIndex; ++i)
-		{
-			sleepingEntity[entitiesIndex[i]] = false;
-		}
-	}
-}
-
-void BehaviorTree::WakeUpEntitiesRange(const int startIndex, const int endIndex, std::vector<int>& entitiesIndex)
-{
-	for (auto i = startIndex; i <= endIndex; i++)
+	for (size_t i = 0; i < maxIndex; ++i)
 	{
 		sleepingEntity[entitiesIndex[i]] = false;
 	}

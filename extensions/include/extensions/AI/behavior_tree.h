@@ -98,8 +98,6 @@ public:
 	const bool flowGoUp = false;
 
 private:
-	void WakeUpEntitiesRange(const int startIndex, const int endIndex, std::vector<int>& entitiesIndex);
-
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;
