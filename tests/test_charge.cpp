@@ -36,7 +36,7 @@ SOFTWARE.
 #include <graphics/graphics2d.h>
 #include <python/python_engine.h>
 //#include <minwindef.h>
-#include <Windows.h>
+//#include <Windows.h>
 #include "audio/audio.h"
 #include <stack>
 #include <ctime>
@@ -52,7 +52,7 @@ SOFTWARE.
 
 // This function will return true if the pointer points to stack. Otherwise false
 // Source : https://www.codeproject.com/articles/35206/pointer-pointing-to-stack-or-heap
-bool IsMemoryOnStack(LPVOID pVoid)
+/*bool IsMemoryOnStack(LPVOID pVoid)
 {
 	LPVOID dwStackTop = 0;
 	LPVOID dwStackLowCurrent = 0;
@@ -75,7 +75,7 @@ bool IsMemoryOnStack(LPVOID pVoid)
 
 	// Pointer doesn't point to the stack
 	return false;
-}
+}*/
 
 json CreateFakeGameScene(float mapSize, float buildingFactor, float dwarfFactor, float uiElement)
 {
@@ -415,7 +415,7 @@ TEST(Vector, VectorFunction)
 /*
  * This test tell if the managers are located on the stack and give the size for each one
  */
-TEST(Stack, IsOnStack)
+/*TEST(Stack, IsOnStack)
 {
 #pragma region Initialisation_And_Get_Systems
 	sfge::Engine engine;
@@ -423,7 +423,7 @@ TEST(Stack, IsOnStack)
 
 	/*engine.GetSceneManager()->LoadSceneFromPath("data/scenes/test_ui.scene");
 
-	engine.Start();*/
+	engine.Start();
 
 	// Engine managers
 	sfge::Graphics2dManager* graphics2dManager = engine.GetGraphics2dManager();
@@ -518,7 +518,7 @@ TEST(Stack, IsOnStack)
 	check ? std::cout << "\nGraphics manager is on stack\n" : std::cout << "\nGraphics manager is not on stack\n";
 
 	return SUCCEED();
-}
+}*/
 
 std::string FakeEngine(int iteration, std::string scenePath)
 {
@@ -645,7 +645,7 @@ std::string FakeEngine(int iteration, std::string scenePath)
 	auto duration = 1000.0 * (std::clock() - timer) / CLOCKS_PER_SEC;
 
 	// Suppression of all the shapes
-	std::cout << "\n Destruction of shape";
+	/*std::cout << "\n Destruction of shape";
 	std::vector<Entity> e = shapeManager->GetConcernedEntities();
 	if (e.size() > 0)
 	{
@@ -730,7 +730,7 @@ std::string FakeEngine(int iteration, std::string scenePath)
 		{
 			rectTransformManager->DestroyComponent(e[i]);
 		}
-	}
+	}*/
 
 #ifdef DRAW_EMABLED
 	rmt_UnbindOpenGL();
