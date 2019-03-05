@@ -104,7 +104,7 @@ public:
 	 * \param index of the dwarf
 	 * \param dwellingEntity to assign to the dwarf
 	 */
-	bool AssignDwellingToDwarf(unsigned int index);
+	void AskAssignDwellingToDwarf(unsigned int index);
 #pragma endregion 
 
 #pragma region Path
@@ -158,29 +158,14 @@ public:
 	/**
 	 * \brief call from the behavior tree to add a new inventory task to a given dwarf
 	 * \param index of the dwarfs
-	 * \return true if a inventoryTask has been assigned
 	 */
-	bool AddInventoryTaskBT(unsigned int index) { 
-		BuildingManager::InventoryTask inventoryTask = m_BuildingManager->ConveyorLookForTask();
+	void AddInventoryTaskBT(unsigned int index);
 
-		if(inventoryTask == m_BuildingManager->INVALID_INVENTORY_TASK)
-		{
-			return false;
-		}
+	void TakeResources(unsigned int index);
 
-		m_InventoryTaskBT[index] = inventoryTask;
-		return true; 
-	}
+	void PutResources(unsigned int index);
 
-	void TakeResources(unsigned int index)
-	{
-		m_BuildingManager->DwarfTakesResources(m_InventoryTaskBT[index].giverType, m_InventoryTaskBT[index].giver, m_InventoryTaskBT[index].resourceType);
-	}
-
-	void PutResources(unsigned int index)
-	{
-		m_BuildingManager->DwarfPutsResources(m_InventoryTaskBT[index].receiverType, m_InventoryTaskBT[index].receiver, m_InventoryTaskBT[index].resourceType, m_InventoryTaskBT[index].resourceQuantity);
-	}
+	bool HasInventoryTask(unsigned int index);
 #pragma endregion 
 	
 #pragma region Enter / Exit building
@@ -229,7 +214,7 @@ public:
 	 * \param index of the dwarf
 	 * \return true if has been able to assign a new job
 	 */
-	bool AssignJob(unsigned int index);
+	void AssignJob(unsigned int index);
 #pragma endregion 
 
 #pragma region Time of the day
@@ -250,6 +235,7 @@ private:
 	void BatchPathFindingRequest();
 	void BatchPathFollowing();
 	void BatchPosition();
+	void BatchAssignDwelling();
 
 	void ResizeContainers();
 	int GetIndexForNewEntity();
@@ -270,17 +256,6 @@ private:
 	const size_t m_ContainersExtender = 100'000;
 	std::vector<Entity> m_DwarfsEntities;
 	int m_IndexDwarfsEntities = 0;
-
-	//State management
-	enum State
-	{
-		INVALID,
-		IDLE,
-		WALKING,
-		WAITING_NEW_PATH
-	};
-
-	std::vector<State> m_States;
 
 	//Path management
 	std::vector<std::vector<Vec2f>> m_Paths;
@@ -310,10 +285,19 @@ private:
 	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
-	enum class DwarfActivity : char {
+	enum class DwarfActivity : unsigned char {
 		IDLE,
 		FIND_PATH,
-		FOLLOW_PATH
+		FOLLOW_PATH,
+		ASSIGN_DWELLING,
+		ASSIGN_INVENTORY_TASK,
+		TAKE_RESOURCE,
+		PUT_RESOURCE,
+		ENTER_DWELLING,
+		EXIT_DWELLING,
+		ENTER_WORKING_PLACE,
+		EXIT_WORKING_PLACE,
+		ASSIGN_JOB
 	};
 
 	std::vector<DwarfActivity> m_DwarfActivities;

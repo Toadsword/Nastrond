@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace sfge::ext::behavior_tree
 {
-//#define AI_BT_NODE_NAME
 	class BehaviorTree;
 	class Node;
 
@@ -63,7 +62,8 @@ namespace sfge::ext::behavior_tree
 		ASK_INVENTORY_TASK_LEAF,
 		TAKE_RESOURCE_LEAF,
 		PUT_RESOURCE_LEAF,
-		FIND_PATH_TO_LEAF
+		FIND_PATH_TO_LEAF,
+		HAS_INVENTORY_TASK
 	};
 
 	/**
@@ -110,6 +110,11 @@ namespace sfge::ext::behavior_tree
 	class Node final
 	{
 	public:
+//#define AI_BT_NODE_NAME
+//#define AI_BT_SPECIFIC_ENTITY
+#ifdef AI_BT_SPECIFIC_ENTITY
+		int specificEntity = 5;
+#endif
 		/**
 		 * \brief shared pointer of node
 		 */
@@ -195,6 +200,8 @@ namespace sfge::ext::behavior_tree
 		void WaitNightTimeLeaf(unsigned int index) const;
 
 		void AskInventoryTaskLeaf(unsigned int index) const;
+
+		void HasInventoryTaskLeaf(unsigned int index) const;
 
 		void TakeResourcesLeaf(unsigned int index) const;
 
