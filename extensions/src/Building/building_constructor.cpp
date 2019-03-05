@@ -39,7 +39,7 @@ namespace sfge::ext
 
 		m_Configuration = m_Engine.GetConfig();
 
-		m_TilemapSystem = m_Engine.GetTilemapSystem();
+		m_TilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
 
 		m_TilemapManager = m_TilemapSystem->GetTilemapManager();
 
@@ -92,7 +92,7 @@ namespace sfge::ext
 		const Vec2f TILE_SIZE = Vec2f(64, 32);
 		Vec2f offset = Vec2f(0, 0);
 
-		m_RoadManager->SpawnRoad(m_Tilemap->GetTileTypes(), tilemapSize.x, tilemapSize.y, m_TransformManager->GetComponentPtr(m_Tilemap->GetTileAt(Vec2f(0, 0)))->Position, m_SizeTile, 2);
+		m_RoadManager->SpawnRoad(m_Tilemap->GetTileTypes(), tilemapSize.x, tilemapSize.y, m_Tilemap->GetTilePosition(Vec2f(0, 0)), m_SizeTile, 2);
 
 		for (int y = 0; y < tilemapSize.y; y++)
 		{

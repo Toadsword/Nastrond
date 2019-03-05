@@ -63,6 +63,7 @@ void Graphics2dManager::Init()
 		Log::GetInstance()->Error("[Error] Config is null from Graphics Manager");
 	}
 	m_TextureManager.Init();
+	m_TilemapSystem.Init();
 	m_ShapeManager.Init();
 	m_SpriteManager.Init();
  	m_AnimationManager.Init();
@@ -76,6 +77,7 @@ void Graphics2dManager::Update(float dt)
 		rmt_ScopedCPUSample(Graphics2dUpdate,0)
 		m_Window->clear();
 
+		m_TilemapSystem.Update(dt);
 		m_SpriteManager.Update(dt);
 		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
@@ -87,8 +89,10 @@ void Graphics2dManager::Update(float dt)
 
 void Graphics2dManager::Draw()
 {
+	rmt_ScopedCPUSample(Graphics2dDraw, 0)
 	if(!m_Windowless)
 	{
+		m_TilemapSystem.DrawTilemaps(*m_Window);
 		m_SpriteManager.DrawSprites(*m_Window);
 		m_AnimationManager.DrawAnimations(*m_Window);
 		m_ShapeManager.DrawShapes(*m_Window);
@@ -136,6 +140,7 @@ sf::Vector2f Graphics2dManager::GetPositionWindow()
 	{
 		return sf::Vector2f(m_Window.get()->getPosition()) + sf::Vector2f(WINDOW_SIDES_WIDTH_PIXEL, WINDOW_TOP_HEIGTH_PIXEL);
 	}
+	return sf::Vector2f();
 }
 
 void Graphics2dManager::OnChangeScreenMode()
@@ -187,6 +192,11 @@ CameraManager* Graphics2dManager::GetCameraManager()
 	return &m_CameraManager;
 }
 
+TilemapSystem * Graphics2dManager::GetTilemapSystem()
+{
+	return &m_TilemapSystem;
+}
+
 
 void Graphics2dManager::CheckVersion() const
 {
@@ -202,7 +212,6 @@ void checkVersion()
 
 }
 
-
 void Graphics2dManager::Destroy()
 {
 	Clear();
@@ -214,12 +223,14 @@ void Graphics2dManager::Destroy()
 
 void Graphics2dManager::Clear()
 {
+	m_TilemapSystem.Clear();
 	m_TextureManager.Clear();
 	m_SpriteManager.Reset();
 }
 
 void Graphics2dManager::Collect()
 {
+	m_TilemapSystem.Collect();
 	m_TextureManager.Collect();
 	m_SpriteManager.Collect();
 }

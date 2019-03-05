@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <engine/engine.h>
-#include <engine/tilemap.h>
+#include <graphics/tilemap.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
 #include <fstream>
@@ -45,7 +45,7 @@ TEST(Tilemap, TestLoadTilemap)
 	tilemapJson["reference_path"] = "./data/tilemap/nastrond_tiles.asset";
 	tilemapJson["is_isometric"] = true;
 	tilemapJson["layer"] = 1;
-	tilemapJson["tile_size"] = json::array({509, 254});
+	tilemapJson["tile_size"] = json::array({512, 256});
 	tilemapJson["map_size"] = json::array({10, 10});
 	tilemapJson["map"] = json::array({
 		json::array({1, 1, 1, 1, 1, 1, 1, 1, 1, 1}),

@@ -37,7 +37,6 @@ SystemsContainer::SystemsContainer(Engine &engine) :
 	physicsManager(engine),
 	editor(engine),
 	entityManager(engine),
-	tilemapSystem(engine),
 	rectTransformManager(engine),
 	uiManager(engine)
 {

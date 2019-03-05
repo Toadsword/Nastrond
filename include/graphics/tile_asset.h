@@ -30,15 +30,16 @@ SOFTWARE.
 #ifndef SFGE_TILE_ASSET_H_
 #define SFGE_TILE_ASSET_H_
 
- //tool_engine
 #include <engine/component.h>
 
 namespace sfge
 {
 
 using TextureId = unsigned;
+using TileId = unsigned;
 class TextureManager;
 class SpriteManager;
+class TilemapManager;
 
 using TileTypeId = unsigned;
 const TileTypeId INVALID_TILE_TYPE = 0U;
@@ -78,7 +79,7 @@ public:
 	* \param tileId The tile entity to apply texture or animation
 	* \return true if successful, false otherwise
 	*/
-	bool SetTileTexture(Entity tileId, TileTypeId tileTypeId);
+	bool SetTileTexture(Entity tilemapId, TileId tileId, TileTypeId tileTypeId);
 
 	/**
 	* \brief Get the textureId affiliated to a tiletype
@@ -91,7 +92,7 @@ public:
 	 * \brief Returns all the TileTypeIds.
 	 * \return list of all loaded tile type.
 	 */
-	std::vector<size_t> GetAllTileTypeIds();
+	std::vector<size_t> GetAllTileTypeIds() const;
 	
 	/**
 	 * \brief Add a new tiletype to the list.
@@ -108,6 +109,7 @@ public:
 protected:
 	TextureManager* m_TextureManager;
 	SpriteManager* m_SpriteManager;
+	TilemapManager* m_TilemapManager;
 private:
 	std::vector<TextureId> m_TexturesId = std::vector<TextureId>(INIT_ENTITY_NMB, 0);
 	std::vector<size_t> m_TileTypeId = std::vector<size_t>(INIT_ENTITY_NMB, INVALID_TILE_TYPE);

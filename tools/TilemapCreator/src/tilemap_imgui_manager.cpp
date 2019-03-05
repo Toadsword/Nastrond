@@ -30,6 +30,7 @@ Project : TilemapCreator for SFGE
 
 #include <engine/engine.h>
 #include <graphics/graphics2d.h>
+#include <graphics/tilemap.h>
 #include <tilemap_creator.h>
 
 #include <imgui.h>
@@ -43,11 +44,8 @@ namespace sfge::tools
 	{
 		m_TilemapCreator = engine;
 		m_EntityManager = engine->GetEngine().GetEntityManager();
+		m_Window = engine->GetEngine().GetGraphics2dManager()->GetWindow();
 		m_IsInit = true;
-
-		m_TileEditorId = m_EntityManager->CreateEntity(INVALID_ENTITY);
-		m_EntityManager->GetEntityInfo(m_TileEditorId).name = "EditorTile";
-		m_TileEditor = m_TilemapCreator->GetEngine().GetTilemapSystem()->GetTileManager()->AddComponent(m_TileEditorId);
 	}
 
 	void TilemapImguiManager::Update(float dt)
@@ -84,6 +82,8 @@ namespace sfge::tools
 			DrawMainWindow();
 		}
 		ImGui::End();
+
+		m_Window->draw(m_TileEditor);
 	}
 
 	void TilemapImguiManager::DisplayMenuWindow()
@@ -107,8 +107,7 @@ namespace sfge::tools
 				}
 				if (ImGui::MenuItem("Save current..", "Ctrl+S"))
 				{
-					//m_SaveResult = m_AnimCreator->GetAnimationManager()->ExportToJson(m_AnimCreator->GetTextureManager()->GetAllTextures());
-					//m_OpenModalSave = m_SaveResult != SAVE_SUCCESS;
+					m_TilemapCreator->GetEngine().Save();
 				}
 				ImGui::EndMenu();
 			}
@@ -134,35 +133,11 @@ namespace sfge::tools
 			{
 				Entity newTilemapEntity = m_TilemapCreator->GetEngine().GetEntityManager()->CreateEntity(INVALID_ENTITY);
 				m_TilemapCreator->GetTilemapManager()->AddComponent(newTilemapEntity);
-#ifdef OptiVector
+
 				const Vec2f newTilemapSize = Vec2f(m_SizeNewTilemap[0], m_SizeNewTilemap[1]);
 				const std::vector<TileTypeId> newTiletypeIds = std::vector<TileTypeId>(m_SizeNewTilemap[0] * m_SizeNewTilemap[1], INVALID_TILE_TYPE);
 
-				/*for (unsigned indexX = 0; indexX < newTilemapSize.x; indexX++)
-				{
-					for (unsigned indexY = 0; indexY < newTilemapSize.y; indexY++)
-					{
-						newTiletypeIds[indexX * m_SizeNewTilemap[0] + indexY] = INVALID_TILE_TYPE;
-					}
-				}*/
-
 				m_TilemapCreator->GetTilemapManager()->InitializeMap(newTilemapEntity, newTiletypeIds, newTilemapSize);
-#else
-				std::vector<std::vector<TileTypeId>> newTiletypeIds = std::vector<std::vector<TileTypeId>>{
-					static_cast<unsigned>(m_SizeNewTilemap[0]),
-					std::vector<TileTypeId>(static_cast<unsigned>(m_SizeNewTilemap[1]))
-				};
-
-				for (unsigned indexX = 0; indexX < newTiletypeIds.size(); indexX++)
-				{
-					for (unsigned indexY = 0; indexY < newTiletypeIds[indexX].size(); indexY++)
-					{
-						newTiletypeIds[indexX][indexY] = INVALID_TILE_TYPE;
-					}
-				}
-
-				m_TilemapCreator->GetTilemapManager()->InitializeMap(newTilemapEntity, newTiletypeIds);
-#endif
 				m_FlagDisplayNewTilemap = false;
 			}
 			ImGui::Separator();
@@ -229,30 +204,32 @@ namespace sfge::tools
 		/* Displays the tileEditor on the right position on screen */
 		if(m_SelectedTileType != INVALID_TILE_TYPE && m_SelectedTilemap != INVALID_TILE_TYPE)
 		{
-			m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_TileEditorId, m_SelectedTileType);
+			TextureId currentText = m_TilemapCreator->GetTileTypeManager()->GetTextureFromTileType(m_SelectedTileType);
+			m_TileEditor.setTexture(*m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTextureManager()->GetTexture(currentText));
+			m_TileEditor.setOrigin(sf::Vector2f(m_TileEditor.getLocalBounds().width, m_TileEditor.getLocalBounds().height) / 2.0f);
 			
-			Entity tilePosEntity = m_TilemapCreator->GetTilemapManager()->GetTileEntityFromMouse(m_SelectedTilemap);
-			if(tilePosEntity != INVALID_ENTITY)
+			//m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_SelectedTilemap, m_TileEditorId, m_SelectedTileType);
+			
+			TileId tilePosEntity = m_TilemapCreator->GetTilemapManager()->GetTileEntityFromMouse(m_SelectedTilemap);
+
+			Vec2f tilePos = m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->GetTilePosition(tilePosEntity);
+			m_TileEditor.setPosition(tilePos.x, tilePos.y);
+
+			/*** Displays the coordinates of the cursor and which tile it points.
+
+			ImGui::Separator();
+			ImGui::Text(m_EntityManager->GetEntityInfo(tilePosEntity).name.c_str());
+			int pos[2] = { transform2dManager->GetComponentPtr(tilePosEntity)->Position.x, transform2dManager->GetComponentPtr(tilePosEntity)->Position.y };
+			ImGui::InputInt2("pos tile :", pos);
+
+			int posMouse[2] = { m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().x, m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().y};
+			ImGui::InputInt2("pos mouse :", posMouse);
+			*/
+
+			if(m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().IsButtonDown(sf::Mouse::Left))
 			{
-				Transform2dManager* transform2dManager = m_TilemapCreator->GetEngine().GetTransform2dManager();
-				transform2dManager->GetComponentPtr(m_TileEditorId)->Position = transform2dManager->GetComponentPtr(tilePosEntity)->Position;
-				
-				/*** Displays the coordinates of the cursor and which tile it points.
-
-				ImGui::Separator();
-				ImGui::Text(m_EntityManager->GetEntityInfo(tilePosEntity).name.c_str());
-				int pos[2] = { transform2dManager->GetComponentPtr(tilePosEntity)->Position.x, transform2dManager->GetComponentPtr(tilePosEntity)->Position.y };
-				ImGui::InputInt2("pos tile :", pos);
-
-				int posMouse[2] = { m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().x, m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().y};
-				ImGui::InputInt2("pos mouse :", posMouse);
-				*/
-
-				if(m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().IsButtonDown(sf::Mouse::Left))
-				{
-					m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->SetTileAt(tilePosEntity, m_SelectedTileType);
-					m_TilemapCreator->GetTileTypeManager()->SetTileTexture(tilePosEntity, m_SelectedTileType);
-				}
+				m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->SetTileAt(tilePosEntity, m_SelectedTileType);
+				m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_SelectedTilemap + 1, tilePosEntity, m_SelectedTileType);
 			}
 		}
 	}
@@ -280,7 +257,6 @@ namespace sfge::tools
 
 				if ((aSize[0] != currentSize.x || aSize[1] != currentSize.y) && aSize[0] > 0 && aSize[1] > 0)
 				{
-#ifdef OptiVector
 					std::vector<TileTypeId> oldTileTypes = tilemap->GetTileTypes();
 					const Vec2f oldSize = tilemap->GetTilemapSize();
 
@@ -297,26 +273,6 @@ namespace sfge::tools
 						}
 					}
 					m_TilemapCreator->GetTilemapManager()->InitializeMap(m_SelectedTilemap, newTileTypeIds, Vec2f(aSize[0], aSize[1]));
-#else
-					std::vector<std::vector<TileTypeId>> oldTileTypes = tilemap->GetTileTypes();
-					const Vec2f oldSize = tilemap->GetTilemapSize();
-
-					std::vector<std::vector<TileTypeId>> newTileTypeIds = std::vector<std::vector<TileTypeId>>{
-						static_cast<unsigned>(aSize[0]),
-						std::vector<TileTypeId>(static_cast<unsigned>(aSize[1]))
-					};
-					for (unsigned indexX = 0; indexX < aSize[0]; indexX++)
-					{
-						for (unsigned indexY = 0; indexY < aSize[1]; indexY++)
-						{
-							if (indexX < oldSize.x && indexY < oldSize.y)
-								newTileTypeIds[indexX][indexY] = oldTileTypes[indexX][indexY];
-							else
-								newTileTypeIds[indexX][indexY] = INVALID_TILE_TYPE;
-						}
-					}
-					m_TilemapCreator->GetTilemapManager()->InitializeMap(m_SelectedTilemap, newTileTypeIds);
-#endif
 				}
 			}
 			{
