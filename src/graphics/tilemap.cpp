@@ -44,6 +44,7 @@ namespace sfge
 
 	void Tilemap::Init()
 	{
+
 	}
 
 	void Tilemap::Update()
@@ -78,10 +79,10 @@ namespace sfge
 		
 		for(int indexY = 0; indexY < mapSize.y; indexY++)
 		{
+			j["map"][indexY] = nlohmann::detail::value_t::array;
 			for (int indexX = 0; indexX < mapSize.x; indexX++)
 			{
-				j["map"][indexX] = nlohmann::detail::value_t::array;
-				j["map"][indexX][indexY] = m_TileTypeIds[indexY * mapSize.x + indexX];
+				j["map"][indexY][indexX] = m_TileTypeIds[indexY * mapSize.x + indexX];
 			}
 		}
 		return j;
@@ -132,6 +133,16 @@ namespace sfge
 	std::vector<TileTypeId>& Tilemap::GetTileTypes()
 	{
 		return m_TileTypeIds;
+	}
+
+	TileTypeId Tilemap::GetTileType(TileId tileId)
+	{
+		return m_TileTypeIds[tileId];
+	}
+
+	TileTypeId Tilemap::GetTileType(Vec2f pos)
+	{
+		return m_TileTypeIds[GetTileAt(pos)];
 	}
 
 	std::vector<TileId>& Tilemap::GetTiles()
@@ -311,7 +322,7 @@ namespace sfge
 
 		tilemapInfo.tilemap = &tilemap;
 
-		m_Tilemaps.push_back(entity - 1);
+		m_Tilemaps.push_back(entity);
 		UpdateDrawOrderTilemaps();
 
 		m_EntityManager->AddComponentType(entity, ComponentType::TILEMAP);
@@ -421,7 +432,7 @@ namespace sfge
 		{
 			for (unsigned indexX = 0; indexX < mapSize.x; indexX++)
 			{
-				tiletypeIds[indexY * mapSize.x + indexX] = map[indexX][indexY].get<int>();
+				tiletypeIds[indexY * mapSize.x + indexX] = map[indexY][indexX].get<int>();
 			}
 		}
 		InitializeMap(entity, tiletypeIds, mapSize);
@@ -430,6 +441,7 @@ namespace sfge
 	void TilemapManager::InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds, Vec2f tilemapSize)
 	{
 		auto & tilemap = m_Components[entity - 1];
+
 		EmptyMap(entity);
 
 		if (!tileTypeIds.empty())
@@ -553,6 +565,11 @@ namespace sfge
 				}
 			}
 		}
+	}
+
+	std::vector<Entity> TilemapManager::GetAllTilemaps()
+	{
+		return m_Tilemaps;
 	}
 
 	void TilemapSystem::Init()
