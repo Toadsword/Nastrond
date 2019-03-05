@@ -134,6 +134,26 @@ namespace sfge
 		return m_TileTypeIds;
 	}
 
+	TileTypeId Tilemap::GetTileType(TileId tileId)
+	{
+		return m_TileTypeIds[tileId];
+	}
+
+	TileTypeId Tilemap::GetTileType(Vec2f pos)
+	{
+		return m_TileTypeIds[GetTileAt(pos)];
+	}
+
+	void Tilemap::SetTileType(TileId tileId, TileTypeId tileTypeId)
+	{
+		m_TileTypeIds[tileId] = tileTypeId;
+	}
+
+	void Tilemap::SetTileType(Vec2f pos, TileTypeId tileTypeId)
+	{
+		m_TileTypeIds[GetTileAt(pos)] = tileTypeId;
+	}
+
 	std::vector<TileId>& Tilemap::GetTiles()
 	{
 		return m_Tiles;
@@ -421,7 +441,7 @@ namespace sfge
 		{
 			for (unsigned indexX = 0; indexX < mapSize.x; indexX++)
 			{
-				tiletypeIds[indexY * mapSize.x + indexX] = map[indexX][indexY].get<int>();
+				tiletypeIds[indexY * mapSize.x + indexX] = map[indexY][indexX].get<int>();
 			}
 		}
 		InitializeMap(entity, tiletypeIds, mapSize);
