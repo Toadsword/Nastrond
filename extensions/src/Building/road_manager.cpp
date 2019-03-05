@@ -150,6 +150,33 @@ namespace sfge::ext
 
 
 		int roadBitMask = 0;
+		
+		for (int y = 0; y < LengthY; y++)
+		{
+			for (int x = 0; x < LengthX; x++)
+			{
+				roadBitMask = 0;
+
+				if (tilesTypeVector[y * LengthX + x] != roadType)
+				{
+					SpawnRoad(positionFirstTile + xPos * x + yPos * y, roadBitMask);
+					continue;
+				}
+
+				roadBitMask = 1;
+
+				if (x > 0 && tilesTypeVector[y * LengthX + x - 1] == roadType)
+					roadBitMask += 1 << 1;
+				if (y > 0 && tilesTypeVector[y * LengthX + x - LengthX] == roadType)
+					roadBitMask += 1 << 2;
+				if (y < LengthY - 1 && tilesTypeVector[y * LengthX + x + LengthX] == roadType)
+					roadBitMask += 1 << 3;
+				if (x < LengthX - 1 && tilesTypeVector[y * LengthX + x + 1] == roadType)
+					roadBitMask += 1 << 4;
+
+				SpawnRoad(positionFirstTile + xPos * x + yPos * y, roadBitMask);
+			}
+		}
 
 		for (int i = 0; i < tilesTypeVector.size(); ++i)
 		{
