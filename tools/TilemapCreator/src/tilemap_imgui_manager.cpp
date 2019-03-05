@@ -44,15 +44,8 @@ namespace sfge::tools
 	{
 		m_TilemapCreator = engine;
 		m_EntityManager = engine->GetEngine().GetEntityManager();
+		m_Window = engine->GetEngine().GetGraphics2dManager()->GetWindow();
 		m_IsInit = true;
-
-		if(m_TileEditorId == INVALID_ENTITY)
-		{	
-			m_TileEditorId = m_EntityManager->CreateEntity(INVALID_ENTITY);
-			m_EntityManager->GetEntityInfo(m_TileEditorId).name = "EditorTile";
-			if(!m_TileEditor)
-				m_TileEditor = m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTilemapSystem()->GetTileManager()->AddComponent(m_TileEditorId);
-		}
 	}
 
 	void TilemapImguiManager::Update(float dt)
@@ -89,6 +82,8 @@ namespace sfge::tools
 			DrawMainWindow();
 		}
 		ImGui::End();
+
+		m_Window->draw(m_TileEditor);
 	}
 
 	void TilemapImguiManager::DisplayMenuWindow()
@@ -209,30 +204,32 @@ namespace sfge::tools
 		/* Displays the tileEditor on the right position on screen */
 		if(m_SelectedTileType != INVALID_TILE_TYPE && m_SelectedTilemap != INVALID_TILE_TYPE)
 		{
-			m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_TileEditorId, m_SelectedTileType);
+			TextureId currentText = m_TilemapCreator->GetTileTypeManager()->GetTextureFromTileType(m_SelectedTileType);
+			m_TileEditor.setTexture(*m_TilemapCreator->GetEngine().GetGraphics2dManager()->GetTextureManager()->GetTexture(currentText));
+			m_TileEditor.setOrigin(sf::Vector2f(m_TileEditor.getLocalBounds().width, m_TileEditor.getLocalBounds().height) / 2.0f);
 			
-			Entity tilePosEntity = m_TilemapCreator->GetTilemapManager()->GetTileEntityFromMouse(m_SelectedTilemap);
-			if(tilePosEntity != INVALID_ENTITY)
+			//m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_SelectedTilemap, m_TileEditorId, m_SelectedTileType);
+			
+			TileId tilePosEntity = m_TilemapCreator->GetTilemapManager()->GetTileEntityFromMouse(m_SelectedTilemap);
+
+			Vec2f tilePos = m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->GetTilePosition(tilePosEntity);
+			m_TileEditor.setPosition(tilePos.x, tilePos.y);
+
+			/*** Displays the coordinates of the cursor and which tile it points.
+
+			ImGui::Separator();
+			ImGui::Text(m_EntityManager->GetEntityInfo(tilePosEntity).name.c_str());
+			int pos[2] = { transform2dManager->GetComponentPtr(tilePosEntity)->Position.x, transform2dManager->GetComponentPtr(tilePosEntity)->Position.y };
+			ImGui::InputInt2("pos tile :", pos);
+
+			int posMouse[2] = { m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().x, m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().y};
+			ImGui::InputInt2("pos mouse :", posMouse);
+			*/
+
+			if(m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().IsButtonDown(sf::Mouse::Left))
 			{
-				Transform2dManager* transform2dManager = m_TilemapCreator->GetEngine().GetTransform2dManager();
-				transform2dManager->GetComponentPtr(m_TileEditorId)->Position = transform2dManager->GetComponentPtr(tilePosEntity)->Position;
-				
-				/*** Displays the coordinates of the cursor and which tile it points.
-
-				ImGui::Separator();
-				ImGui::Text(m_EntityManager->GetEntityInfo(tilePosEntity).name.c_str());
-				int pos[2] = { transform2dManager->GetComponentPtr(tilePosEntity)->Position.x, transform2dManager->GetComponentPtr(tilePosEntity)->Position.y };
-				ImGui::InputInt2("pos tile :", pos);
-
-				int posMouse[2] = { m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().x, m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().GetWorldPosition().y};
-				ImGui::InputInt2("pos mouse :", posMouse);
-				*/
-
-				if(m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().IsButtonDown(sf::Mouse::Left))
-				{
-					m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->SetTileAt(tilePosEntity, m_SelectedTileType);
-					m_TilemapCreator->GetTileTypeManager()->SetTileTexture(tilePosEntity, m_SelectedTileType);
-				}
+				m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->SetTileAt(tilePosEntity, m_SelectedTileType);
+				m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_SelectedTilemap + 1, tilePosEntity, m_SelectedTileType);
 			}
 		}
 	}

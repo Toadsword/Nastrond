@@ -32,18 +32,19 @@ SOFTWARE.
 
  //tool_engine
 #include <engine/component.h>
-#include <engine/transform2d.h>
-#include <graphics/tile.h>
 #include <graphics/tile_asset.h>
+#include <sfml/Graphics.hpp>
 
 namespace sfge
 {
 /**
  * \author : Duncan Bourquard
- * \version : 1.1
- * \date : 27.02.2019
+ * \version : 1.2
+ * \date : 04.03.2019
  */
 
+using TileId = unsigned;
+	
 class Tilemap
 {
 public:
@@ -54,14 +55,18 @@ public:
 
 	/**
 	 * \brief Init the tilemap.
-	 * \param tileManager Pointer to the Tilemanager created in the engine.
 	 */
-	void Init(TileManager* tileManager);
+	void Init();
 	
 	/**
 	 * \brief Update the tilemap and all the tiles within.
 	 */
 	void Update();
+
+	/**
+	 * \brief Draw all the tiles on the window
+	 */
+	void Draw(sf::RenderWindow &window);
 
 	/**
 	 * \brief Save the tilemap.
@@ -95,49 +100,51 @@ public:
 	 * \return Vector of TileTypeId
 	 */
 	std::vector<TileTypeId>& GetTileTypes();
+
+	TileTypeId GetTileType(TileId tileId);
+	TileTypeId GetTileType(Vec2f pos);
 	
 	/**
 	 * \brief Get all the tileEntities of the tilemap, at their position
 	 * \return Vector of Entities, poiting to Tile entities of the tilemap
 	 */
-	std::vector<Entity>& GetTiles();
+	std::vector<TileId>& GetTiles();
 
 	/**
-	 * \brief Assign a Tile entity to a position in the tilemap. If the position is out of bounds, does nothing.
+	 * \brief Returns the TileId positionned at specified position
 	 * \param pos Position of the tile.
-	 * \param entity Tile Entity.
+	 * \return TileId wanted
 	 */
-	void AddTile(Vec2f pos, Entity entity);
+	TileId GetTileAt(Vec2f pos);
 
 	/**
-	 * \brief Returns the EntityId positionned at specified position
-	 * \param pos Position of the tile.
-	 * \return Entity wanted
-	 */
-	Entity GetTileAt(Vec2f pos);
-
-	/**
-	 * \brief Returns the EntityId positionned at specified position
-	 * \param tileEntity Entity of the tile.
+	 * \brief Returns the TileId positionned at specified position
+	 * \param tileId TileId of the tile.
 	 * \return Position of the passed tile
 	 */
-	Vec2f GetTileAt(Entity tileEntity);
+	Vec2f GetTileAt(TileId tileId);
 
 	/**
 	 * \brief Set a new tiletype at the specified position
 	 * \param pos Position of the tile.
 	 * \param newTileType
-	 * \return Entity wanted
 	 */
 	void SetTileAt(Vec2f pos, TileTypeId newTileType);
 
 	/**
 	 * \brief Set a new tiletype at the specified position
-	 * \param entity Entity of the tile, contained by the tilemap.
+	 * \param tileId TileId of the tile, contained by the tilemap.
 	 * \param newTileType
-	 * \return Entity wanted
 	 */
-	void SetTileAt(Entity entity, TileTypeId newTileType);
+	void SetTileAt(TileId tileId, TileTypeId newTileType);
+
+	void SetTilePosition(TileId tileId, Vec2f position);
+	void SetTilePosition(Vec2f tilePos, Vec2f position);
+	Vec2f GetTilePosition(TileId tileId);
+	Vec2f GetTilePosition(Vec2f tilePos);
+
+	sf::Sprite* GetSprite(TileId tileId);
+	void SetTexture(TileId tileId, sf::Texture* texture);
 
 	/**
 	 * \brief Resize the limit size of the tilemap
@@ -149,13 +156,23 @@ protected:
 	/**
 	 * \brief Contains all the entities "tile" stored in the tilemap
 	 */
-	std::vector<Entity> m_Tiles;
+	std::vector<TileId> m_Tiles;
 	Vec2f m_TilemapSize = { 0, 0 };
 
 	/**
 	 * \brief Contains all the tiletypeIds of the tilemap
 	 */
 	std::vector<TileTypeId> m_TileTypeIds;
+
+	/**
+	 * \brief Contains all the sprites of the tilemap
+	 */
+	std::vector<Vec2f> m_TilePositions;
+
+	/**
+	 * \brief Contains all the sprites of the tilemap
+	 */
+	std::vector<sf::Sprite> m_TileSprites;
 
 	/**
 	 * \brief Size of a tile in the tilemap in pixel
@@ -166,11 +183,6 @@ protected:
 	 * \brief Layer of the tilemap (Concerns the layer of drawing)
 	 */
 	int m_Layer = 0;
-
-	/**
-	 * \brief Pointer to the TileManager
-	 */
-	TileManager* m_TileManager;
 
 	/**
 	 * \brief Displays the tilemap as an isometric one or not
@@ -194,6 +206,7 @@ public:
 	using SingleComponentManager::SingleComponentManager;
 	void Init() override;
 	void Update(float dt) override;
+	void Draw(sf::RenderWindow &window);
 
 	void Clear();
 	void Collect() override;
@@ -245,9 +258,23 @@ public:
 	 * \param entity Entity containing the tilemap
 	 * \return Entity of the tile
 	 */
-	Entity GetTileEntityFromMouse(Entity entity);
+	TileId GetTileEntityFromMouse(Entity entity);
+
+	/**
+	 * \brief Update the draw order of the tilemaps. Usually called when the layer order is changed.
+	 */
+	void UpdateDrawOrderTilemaps();
+
+	/**
+	 * \brief Returns all the current existing tilemaps.
+	 * \return list of entities containing a tilemap.
+	 */
+	std::vector<Entity> GetAllTilemaps();
 protected:
-	Transform2dManager* m_Transform2dManager = nullptr;
+	std::vector<Entity> m_Tilemaps;
+	std::vector<Entity> m_OrderToDrawTilemaps;
+
+	//	Transform2dManager* m_Transform2dManager = nullptr;
 	TilemapSystem* m_TilemapSystem = nullptr;
 };
 
@@ -279,12 +306,10 @@ public:
 	json Save();
 
 	TilemapManager* GetTilemapManager();
-	TileManager* GetTileManager();
 	TileTypeManager* GetTileTypeManager();
 
 protected:
 	TilemapManager m_TilemapManager { m_Engine };
-	TileManager m_TileManager { m_Engine };
 	TileTypeManager m_TileTypeManager { m_Engine };
 };
 }
