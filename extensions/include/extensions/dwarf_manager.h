@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace sfge::ext
 {
-//#define DEBUG_DRAW_PATH
+#define DEBUG_DRAW_PATH
 //#define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
 
