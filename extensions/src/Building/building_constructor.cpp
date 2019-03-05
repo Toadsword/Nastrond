@@ -98,21 +98,9 @@ namespace sfge::ext
 		{
 			for (int x = 0; x < tilemapSize.x; x++)
 			{
-				
-				/////////////////OLD VERSION/////////////////
-				TileTypeId currentTileId = tileTypes[y * tilemapSize.x + x];
-
-				Vec2f xPos = { m_SizeTile.x / 2.0f, m_SizeTile.y / 2.0f };
-				Vec2f yPos = { -m_SizeTile.x / 2.0f, m_SizeTile.y / 2.0f };
-
+				TileTypeId currentTileId = m_Tilemap->GetTileType(Vec2f(x, y));
 
 				position = m_Tilemap->GetTilePosition(Vec2f(x, y));
-
-
-				/////////////////NEW VERSION/////////////////
-				//TileTypeId currentTileId = m_Tilemap->GetTileAt(Vec2f(x, y));
-
-				//position = m_Tilemap->GetTilePosition(Vec2f(x, y));
 
 				switch (currentTileId)
 				{
