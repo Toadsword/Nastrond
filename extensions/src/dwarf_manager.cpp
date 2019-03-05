@@ -182,31 +182,24 @@ void DwarfManager::AskAssignDwellingToDwarf(const unsigned int index)
 	m_DwarfActivities[index] = DwarfActivity::ASSIGN_DWELLING;
 }
 
-float Sqrt2(float x) {
-	auto i = *reinterpret_cast<int*>(&x);
-	i = 0x5f3759df - (i >> 1);
-	auto r = *reinterpret_cast<float*>(&i);
-	r = r * (1.5f - 0.5f*x*r*r);
-	return r * x;
-}
-
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
 	auto& dwarfPosition = *m_Positions.at(index);
 
-	const auto direction = m_Paths[index].back() - dwarfPosition;
-
-	if (Sqrt2(direction.x*direction.x + direction.y * direction.y) < m_StoppingDistance)
+	if (m_DistanceRemaining[index] < m_StoppingDistance)
 	{
 		m_Paths[index].pop_back();
 
 		if (!m_Paths[index].empty()) {
-			const auto velocity = m_Paths[index].back() - dwarfPosition;
-			m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / Sqrt2(velocity.x*velocity.x + velocity.y * velocity.y);
+			auto velocity = m_Paths[index].back() - dwarfPosition;
+			const auto distance = velocity.GetMagnitude();
+			m_VelocitiesComponents[index] = velocity / distance;
+			m_DistanceRemaining[index] = velocity.GetMagnitude();
 			return false;
 		}
 
 		m_VelocitiesComponents[index] = Vec2f(0, 0);
+		m_DistanceRemaining[index] = 0;
 		return true;
 	}
 	return false;
@@ -220,8 +213,16 @@ bool DwarfManager::HasPath(const unsigned int index)
 void DwarfManager::SetPath(const unsigned int index, std::vector<Vec2f> path)
 {
 	m_Paths[index] = path;
-	m_VelocitiesComponents[index] = path.back() - m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[index])->Position;
-	m_VelocitiesComponents[index] = m_VelocitiesComponents[index].Normalized();
+	auto dir = path.back() - m_Transform2DManager->GetComponentPtr(m_DwarfsEntities[index])->Position;
+	const auto distance = dir.GetMagnitude();
+	if(distance == 0)
+	{
+		m_VelocitiesComponents[index] = Vec2f(0,0);
+	}else{
+		m_VelocitiesComponents[index] = dir/ distance;
+	}
+
+	m_DistanceRemaining[index] = distance;
 }
 
 void DwarfManager::AddFindPathToDestinationBT(const unsigned int index, const Vec2f destination)
@@ -458,6 +459,7 @@ void DwarfManager::ResizeContainers()
 	//Velocities
 	m_VelocitiesComponents.resize(newSize);
 	m_Positions.resize(newSize);
+	m_DistanceRemaining.resize(newSize);
 }
 
 int DwarfManager::GetIndexForNewEntity()
@@ -483,6 +485,7 @@ void DwarfManager::UpdatePositionRange(const int startIndex, const int endIndex,
 	{
 		const auto indexDwarf = m_PathFollowBatch[i];
 		*m_Positions[indexDwarf] += m_VelocitiesComponents[indexDwarf] * vel;
+		m_DistanceRemaining[indexDwarf] -= vel;
 	}
 }
 

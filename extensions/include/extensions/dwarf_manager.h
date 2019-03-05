@@ -262,6 +262,7 @@ private:
 	const float m_StoppingDistance = 10;
 	std::vector<Vec2f> m_DestinationForPathFinding;
 	std::vector<Vec2f> m_VelocitiesComponents;
+	std::vector<float> m_DistanceRemaining;
 
 	std::vector<Vec2f*> m_Positions;
 
