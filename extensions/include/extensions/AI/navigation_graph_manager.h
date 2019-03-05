@@ -50,7 +50,7 @@ struct GraphNode final
 	Vec2f pos;
 };
 
-#define AI_PATH_FINDING_DRAW_NODES
+//#define AI_PATH_FINDING_DRAW_NODES
 //#define AI_PATH_FINDING_DRAW_NODES_NEIGHBORS
 //#define AI_PATH_FINDING_DRAW_DEBUG_NODES
 
