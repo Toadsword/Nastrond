@@ -82,7 +82,7 @@ namespace sfge::tools
 			}
 
 			ImGui::Columns(2);
-			ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() - 250);
+			ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() - 200);
 			//Reset value for node display
 			if (!m_CurrentFilePath.empty())
 			{
@@ -352,6 +352,7 @@ namespace sfge::tools
 		case ext::behavior_tree::NodeType::ASK_INVENTORY_TASK_LEAF:
 		case ext::behavior_tree::NodeType::TAKE_RESOURCE_LEAF:
 		case ext::behavior_tree::NodeType::PUT_RESOURCE_LEAF:
+		case ext::behavior_tree::NodeType::HAS_INVENTORY_TASK:
 			ImGui::Text(nodeName.c_str());
 
 			DisplayDeleteButton(node);
@@ -721,6 +722,13 @@ namespace sfge::tools
 			{
 				m_SelectedNodeToAdd = static_cast<int>(ext::behavior_tree::NodeType::PUT_RESOURCE_LEAF);
 			}
+			if (ImGui::Selectable(
+				ext::behavior_tree::BehaviorTreeUtility::NodeTypeToString(
+					ext::behavior_tree::NodeType::HAS_INVENTORY_TASK).c_str(),
+				m_SelectedNodeToAdd == static_cast<int>(ext::behavior_tree::NodeType::HAS_INVENTORY_TASK)))
+			{
+				m_SelectedNodeToAdd = static_cast<int>(ext::behavior_tree::NodeType::HAS_INVENTORY_TASK);
+			}
 
 			ImGui::TreePop();
 		}
@@ -853,6 +861,9 @@ namespace sfge::tools
 
 				break;
 			case ext::behavior_tree::NodeType::PUT_RESOURCE_LEAF:
+
+				break;
+			case ext::behavior_tree::NodeType::HAS_INVENTORY_TASK:
 
 				break;
 			case ext::behavior_tree::NodeType::FIND_PATH_TO_LEAF:
