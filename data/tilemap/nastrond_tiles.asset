@@ -2,5 +2,9 @@
 	{
 		"id" : 1,
 		"texturePath" : "data/sprites/SP_groundtile_01.png"
-	}
+	},
+		{
+		"id" : 2,
+		"texturePath" : "data/sprites/SP_GroundPath_Straight.png"
+	}	
 ]

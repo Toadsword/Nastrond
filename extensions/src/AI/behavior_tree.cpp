@@ -64,8 +64,7 @@ void BehaviorTree::Update(float dt)
 	if (m_IndexActiveEntity > 0) {
 		UpdateRange(0, m_IndexActiveEntity - 1);
 	}
-	/*}
-	else {
+	/*else {
 		std::vector<std::future<void>> joinFutures(coreNmb);
 		for (auto threadIndex = 0; threadIndex < coreNmb; threadIndex++)
 		{
