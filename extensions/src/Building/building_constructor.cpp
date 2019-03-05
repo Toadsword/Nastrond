@@ -60,6 +60,7 @@ namespace sfge::ext
 			m_SizeTile = m_Tilemap->GetTileSize();
 			SetupTileMap();
 		}
+			std::cout << "Setup Tilema\n";
 
 		m_Init = true;
 		Log::GetInstance()->Msg("Building Constructor initialized");
@@ -87,9 +88,9 @@ namespace sfge::ext
 	{
 		Vec2f tilemapSize = m_Tilemap->GetTilemapSize();
 
-		std::vector<TileTypeId> tileTypes = m_Tilemap->GetTileTypes();
+		std::vector<TileTypeId> &tileTypes = m_Tilemap->GetTileTypes();
 
-		m_RoadManager->SpawnRoad(tileTypes, tilemapSize.x, tilemapSize.y, m_TransformManager->GetComponentPtr(m_Tilemap->GetTileAt(Vec2f(0, 0)))->Position, m_SizeTile, 2);
+		m_RoadManager->SpawnRoad(tileTypes, tilemapSize.x, tilemapSize.y, m_Tilemap->GetTilePosition(Vec2f(0, 0)), m_SizeTile, 2);
 
 		Vec2f position;
 
@@ -97,37 +98,47 @@ namespace sfge::ext
 		{
 			for (int x = 0; x < tilemapSize.x; x++)
 			{
-				TileTypeId currentTileId = tileTypes[y * tilemapSize.y + x];
+				
+				/////////////////OLD VERSION/////////////////
+				TileTypeId currentTileId = tileTypes[y * tilemapSize.x + x];
 
 				Vec2f xPos = { m_SizeTile.x / 2.0f, m_SizeTile.y / 2.0f };
 				Vec2f yPos = { -m_SizeTile.x / 2.0f, m_SizeTile.y / 2.0f };
 
 
-				position = xPos * x + yPos * y;
+				position = m_Tilemap->GetTilePosition(Vec2f(x, y));
 
-				if(currentTileId == BuildingId::WAREHOUSE)
+
+				/////////////////NEW VERSION/////////////////
+				//TileTypeId currentTileId = m_Tilemap->GetTileAt(Vec2f(x, y));
+
+				//position = m_Tilemap->GetTilePosition(Vec2f(x, y));
+
+				switch (currentTileId)
 				{
+				case BuildingId::WAREHOUSE:
 					m_BuildingManager->SpawnBuilding(BuildingType::WAREHOUSE, position);
-				}
-				else if(currentTileId == BuildingId::FORGE)
-				{
+					break;
+
+				case BuildingId::FORGE:
 					m_BuildingManager->SpawnBuilding(BuildingType::FORGE, position);
-				}
-				else if (currentTileId == BuildingId::MINE)
-				{
+					break;
+
+				case BuildingId::MINE:
 					m_BuildingManager->SpawnBuilding(BuildingType::MINE, position);
-				}
-				else if (currentTileId == BuildingId::EXCAVATION_POST)
-				{
+					break;
+
+				case BuildingId::EXCAVATION_POST:
 					m_BuildingManager->SpawnBuilding(BuildingType::EXCAVATION_POST, position);
-				}
-				else if (currentTileId == BuildingId::MUSHROOM_FARM)
-				{
+					break;
+
+				case BuildingId::MUSHROOM_FARM:
 					m_BuildingManager->SpawnBuilding(BuildingType::MUSHROOM_FARM, position);
-				}
-				else if (currentTileId == BuildingId::DWELLING)
-				{
+					break;
+
+				case BuildingId::DWELLING:
 					m_BuildingManager->SpawnBuilding(BuildingType::DWELLING, position);
+					break;
 				}
 
 			}
