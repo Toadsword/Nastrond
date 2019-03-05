@@ -79,10 +79,10 @@ namespace sfge
 		
 		for(int indexY = 0; indexY < mapSize.y; indexY++)
 		{
+			j["map"][indexY] = nlohmann::detail::value_t::array;
 			for (int indexX = 0; indexX < mapSize.x; indexX++)
 			{
-				j["map"][indexX] = nlohmann::detail::value_t::array;
-				j["map"][indexX][indexY] = m_TileTypeIds[indexY * mapSize.x + indexX];
+				j["map"][indexY][indexX] = m_TileTypeIds[indexY * mapSize.x + indexX];
 			}
 		}
 		return j;
