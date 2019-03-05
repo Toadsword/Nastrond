@@ -36,8 +36,6 @@
 #include <engine/engine.h>
 #include <input/input.h>
 
-#define COMPONENT_OPTIMIZATION
-
 namespace sfge
 {
 	Tilemap::Tilemap()
@@ -230,20 +228,8 @@ namespace sfge
 	{
 		(void)dt;
 		rmt_ScopedCPUSample(TilemapUpdate, 0)
-#ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
-		{
 			m_Components[m_ConcernedEntities[i] - 1].Update();
-		}
-#else
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::TILEMAP))
-			{
-				m_Components[i].Update();
-			}
-		}
-#endif
 	}
 
 	void TilemapManager::Clear()

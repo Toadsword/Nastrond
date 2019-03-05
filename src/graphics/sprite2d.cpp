@@ -35,8 +35,6 @@ SOFTWARE.
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#define COMPONENT_OPTIMIZATION
-
 namespace sfge
 {
 
@@ -118,10 +116,6 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 	auto& spriteInfo = GetComponentInfo(entity);
 
 	m_Components[entity - 1] = sprite;
-
-	/*
-	 * Component optimisation addition
-	 */
 	m_ConcernedEntities.push_back(entity);
 
 	spriteInfo.sprite = &sprite;
@@ -135,20 +129,8 @@ void SpriteManager::Update(float dt)
 {
 	(void) dt;
 	rmt_ScopedCPUSample(SpriteUpdate,0)
-#ifdef COMPONENT_OPTIMIZATION
 	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
-	{
 		m_Components[m_ConcernedEntities[i] - 1].Update(m_Transform2dManager->GetComponentPtr(m_ConcernedEntities[i]));
-	}
-#else
-	for(auto i = 0u; i < m_Components.size();i++)
-	{
-		if(m_EntityManager->HasComponent(i+1, ComponentType::SPRITE2D) && m_EntityManager->HasComponent(i + 1, ComponentType::TRANSFORM2D))
-		{
-			m_Components[i].Update(m_Transform2dManager->GetComponentPtr(i + 1));
-		}
-	}
-#endif
 }
 
 void SpriteManager::DrawSprites(sf::RenderWindow &window)

@@ -26,8 +26,6 @@ SOFTWARE.
 #include <imgui.h>
 #include <utility/file_utility.h>
 
-#define COMPONENT_OPTIMIZATION
-
 namespace sfge
 {
 	Text& Text::operator=(const Text&)
@@ -178,9 +176,6 @@ namespace sfge
 		auto& text = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].text = &text;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
-		/*
-		* Component optimisation addition
-		*/
 		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TEXT);
 		return &text;
@@ -201,32 +196,14 @@ namespace sfge
 	void TextManager::Update(float dt)
 	{
 		System::Update(dt);
-#ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
 			m_Components[m_ConcernedEntities[i] - 1].Update(m_RectTransformManager->GetComponentPtr(m_ConcernedEntities[i])->Position);
-#else
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
-			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
-			}
-		}
-#endif
 	}
 
 	void TextManager::DrawTexts(sf::RenderWindow& window)
-	{	
-#ifdef COMPONENT_OPTIMIZATION
+	{
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
 			m_Components[m_ConcernedEntities[i] - 1].Draw(window);
-#else
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT))
-				m_Components[i].Draw(window);
-		}
-#endif
 	}
 
 	void TextManager::OnResize(size_t newSize)

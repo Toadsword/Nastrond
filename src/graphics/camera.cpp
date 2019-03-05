@@ -31,9 +31,7 @@ SOFTWARE.
 #include <engine/transform2d.h>
 
 #include <imgui.h>
-#include <imgui-SFML.h>	
-
-#define COMPONENT_OPTIMIZATION
+#include <imgui-SFML.h>
 
 namespace sfge
 {
@@ -107,22 +105,8 @@ namespace sfge
 	void CameraManager::Update(float dt)
 	{
 		rmt_ScopedCPUSample(CameraUpdate, 0)
-#ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0U; i < m_ConcernedEntities.size(); i++)
 			m_Components[m_ConcernedEntities[i] - 1].Update(dt, (*m_GraphicsManager->GetWindow()));
-		//m_Components[0].Update(dt, (*m_GraphicsManager->GetWindow()));
-#else
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
-			{
-				if (i == currentCamera) 
-				{
-					m_Components[i].Update(dt, (*m_GraphicsManager->GetWindow()));
-				}
-			}
-		}
-#endif
 	}
 
 	void CameraManager::SetCameraCurrent(short newCurrent)

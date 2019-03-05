@@ -27,8 +27,6 @@ SOFTWARE.
 #include <utility/file_utility.h>
 #include <graphics/texture.h>
 
-#define COMPONENT_OPTIMIZATION
-
 namespace sfge
 {
 	Image& Image::operator=(const Image&)
@@ -134,9 +132,6 @@ namespace sfge
 		auto& image = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].image = &image;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
-		/*
-		* Component optimisation addition
-		*/
 		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::IMAGE);
 		return &image;
@@ -175,38 +170,14 @@ namespace sfge
 	void ImageManager::Update(float dt)
 	{
 		System::Update(dt);
-#ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
-		{
 			m_Components[m_ConcernedEntities[i] - 1].Update(m_RectTransformManager->GetComponentPtr(m_ConcernedEntities[i])->Position);
-		}
-#else
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
-			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i + 1)->Position);
-			}
-		}
-#endif
 	}
 
 	void ImageManager::DrawImages(sf::RenderWindow& window)
 	{
-#ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
-		{
 			m_Components[m_ConcernedEntities[i] - 1].Draw(window);
-		}
-#else
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::IMAGE))
-			{
-				m_Components[i].Draw(window);
-			}
-		}
-#endif
 	}
 
 	void ImageManager::OnResize(size_t newSize)

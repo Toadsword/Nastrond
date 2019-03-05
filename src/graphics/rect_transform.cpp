@@ -25,8 +25,6 @@ SOFTWARE.
 #include <graphics/rect_transform.h>
 #include <imgui.h>
 
-#define COMPONENT_OPTIMIZATION
-
 namespace sfge
 {
 	RectTransform& RectTransform::operator=(const RectTransform&)
@@ -164,20 +162,8 @@ namespace sfge
 	{
 		//System::Update(dt);
 		rmt_ScopedCPUSample(RectTransformUpdate, 0)
-#ifdef COMPONENT_OPTIMIZATION
 		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
-		{
 			m_Components[m_ConcernedEntities[i] - 1].Update(m_CameraManager->GetMainCamera());
-		}
-#else
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
-			{
-				m_Components[i].Update(m_CameraManager->GetMainCamera());
-			}
-		}
-#endif
 	}
 
 	void RectTransformManager::OnResize(size_t newSize)
