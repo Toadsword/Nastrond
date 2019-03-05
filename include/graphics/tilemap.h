@@ -35,6 +35,8 @@ SOFTWARE.
 #include <graphics/tile_asset.h>
 #include <sfml/Graphics.hpp>
 
+#define OPTI_VERTEX_ARRAY
+
 namespace sfge
 {
 /**
@@ -56,7 +58,7 @@ public:
 	/**
 	 * \brief Init the tilemap.
 	 */
-	void Init();
+	void Init(TileTypeManager* tileTypeManager);
 	
 	/**
 	 * \brief Update the tilemap and all the tiles within.
@@ -143,14 +145,20 @@ public:
 	Vec2f GetTilePosition(TileId tileId);
 	Vec2f GetTilePosition(Vec2f tilePos);
 
+#ifdef OPTI_VERTEX_ARRAY
+	void AppendToVertexArray(TileId tileId, Vec2f textureSize);
+#else
 	sf::Sprite* GetSprite(TileId tileId);
 	void SetTexture(TileId tileId, sf::Texture* texture);
-
+#endif	
+	
 	/**
 	 * \brief Resize the limit size of the tilemap
 	 * \param newSize New size of the tilemap
 	 */
 	void ResizeTilemap(Vec2f newSize);
+
+	void SetNumTileTypes(size_t newSize);
 
 protected:
 	/**
@@ -169,10 +177,20 @@ protected:
 	 */
 	std::vector<Vec2f> m_TilePositions;
 
+
+#ifdef OPTI_VERTEX_ARRAY
+	/**
+	 * \brief Contains all the vertexArrays of the tilemap
+	 */
+	std::vector<sf::VertexArray> m_TileVertex;
+
+	TileTypeManager* m_TileTypeManager = nullptr;
+#else
 	/**
 	 * \brief Contains all the sprites of the tilemap
 	 */
 	std::vector<sf::Sprite> m_TileSprites;
+#endif
 
 	/**
 	 * \brief Size of a tile in the tilemap in pixel

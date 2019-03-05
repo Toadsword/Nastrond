@@ -42,9 +42,9 @@ namespace sfge
 	{
 	}
 
-	void Tilemap::Init()
+	void Tilemap::Init(TileTypeManager* tileTypeManager)
 	{
-
+		m_TileTypeManager = tileTypeManager;
 	}
 
 	void Tilemap::Update()
@@ -53,10 +53,24 @@ namespace sfge
 
 	void Tilemap::Draw(sf::RenderWindow &window)
 	{
+#ifdef OPTI_VERTEX_ARRAY
+		for(int i = 0; i < m_TileVertex.size(); i++)
+		{
+			sf::Texture* texture = m_TileTypeManager->GetTexturePtrFromTileType(i);
+			if(texture)
+			{
+				sf::RenderStates states;
+				states.texture = texture;
+
+				window.draw(m_TileVertex[i], states);
+			}
+		}
+#else
 		for(auto sprite : m_TileSprites)
 		{
 			window.draw(sprite);
 		}
+#endif
 	}
 
 	json Tilemap::Save()
@@ -182,7 +196,9 @@ namespace sfge
 	void Tilemap::SetTilePosition(TileId tileId, Vec2f position)
 	{
 		m_TilePositions[tileId] = position;
+#ifndef OPTI_VERTEX_ARRAY
 		m_TileSprites[tileId].setPosition(position);
+#endif
 	}
 
 	void Tilemap::SetTilePosition(Vec2f tilePos, Vec2f position)
@@ -200,6 +216,32 @@ namespace sfge
 		return m_TilePositions[tilePos.y * m_TilemapSize.x + tilePos.x];
 	}
 
+#ifdef OPTI_VERTEX_ARRAY
+	void Tilemap::AppendToVertexArray(TileId tileId, Vec2f textureSize)
+	{
+		sf::VertexArray quad = sf::VertexArray(sf::Quads, 4);
+		const Vec2f pos = m_TilePositions[tileId];
+
+		const Vec2f topLeft = Vec2f(pos.x - m_TileSize.x / 2, pos.y);
+		const Vec2f botRight = Vec2f(pos.x + m_TileSize.x / 2, pos.y + m_TileSize.y);
+		// on définit ses quatre coins
+		quad[0].position = sf::Vector2f(topLeft.x, topLeft.y);
+		quad[1].position = sf::Vector2f(botRight.x, topLeft.y);
+		quad[2].position = sf::Vector2f(botRight.x, botRight.y);
+		quad[3].position = sf::Vector2f(topLeft.x, botRight.y);
+
+		// on définit ses quatre coordonnées de texture
+		quad[0].texCoords = sf::Vector2f(0, 0);
+		quad[1].texCoords = sf::Vector2f(textureSize.x, 0);
+		quad[2].texCoords = sf::Vector2f(textureSize.x, textureSize.y);
+		quad[3].texCoords = sf::Vector2f(0, textureSize.y);
+
+		m_TileVertex[m_TileTypeIds[tileId]].append(quad[0]);
+		m_TileVertex[m_TileTypeIds[tileId]].append(quad[1]);
+		m_TileVertex[m_TileTypeIds[tileId]].append(quad[2]);
+		m_TileVertex[m_TileTypeIds[tileId]].append(quad[3]);
+	}
+#else
 	sf::Sprite* Tilemap::GetSprite(TileId tileId)
 	{
 		return &m_TileSprites[tileId];
@@ -211,12 +253,15 @@ namespace sfge
 		m_TileSprites[tileId].setOrigin(sf::Vector2f(m_TileSprites[tileId].getLocalBounds().width, m_TileSprites[tileId].getLocalBounds().height) / 2.0f);
 		m_TileSprites[tileId].setPosition(m_TilePositions[tileId]);
 	}
-
+#endif
 	void Tilemap::ResizeTilemap(Vec2f newSize)
 	{
 		std::vector<TileTypeId> oldTileTypes = m_TileTypeIds;
 		std::vector<Vec2f> oldPosition = m_TilePositions;
+
+#ifndef OPTI_VERTEX_ARRAY
 		std::vector<sf::Sprite> oldSprites = m_TileSprites;
+#endif
 		Vec2f oldSize = GetTilemapSize();
 
 		m_TilemapSize = newSize;
@@ -224,7 +269,9 @@ namespace sfge
 		m_Tiles = std::vector<TileId>(newSize.x * newSize.y, 0);
 		m_TileTypeIds = std::vector<TileTypeId>(newSize.x * newSize.y, INVALID_TILE_TYPE);
 		m_TilePositions = std::vector<Vec2f>(newSize.x * newSize.y, Vec2f());
+#ifndef OPTI_VERTEX_ARRAY
 		m_TileSprites = std::vector<sf::Sprite>(newSize.x * newSize.y, sf::Sprite());
+#endif
 
 		if (newSize.x > 0 && newSize.y > 0)
 		{
@@ -238,9 +285,16 @@ namespace sfge
 			for (unsigned i = 0; i < size; i++)
 				m_TilePositions[i] = oldPosition[i];
 
+#ifndef OPTI_VERTEX_ARRAY
 			for (unsigned i = 0; i < size; i++)
 				m_TileSprites[i] = oldSprites[i];
+#endif
 		}
+	}
+
+	void Tilemap::SetNumTileTypes(size_t newSize)
+	{
+		m_TileVertex = std::vector<sf::VertexArray>(newSize, sf::VertexArray(sf::Quads, 4));
 	}
 
 	void editor::TilemapInfo::DrawOnInspector()
@@ -403,7 +457,7 @@ namespace sfge
 	void TilemapManager::UpdateTile(Entity tilemapEntity, Vec2f pos, TileTypeId tileTypeId)
 	{
 		auto* tilemap = GetComponentPtr(tilemapEntity);
-		m_TilemapSystem->GetTileTypeManager()->SetTileTexture(tilemapEntity, tilemap->GetTileAt(pos), tileTypeId);
+		//m_TilemapSystem->GetTileTypeManager()->SetTileTexture(tilemapEntity, tilemap->GetTileAt(pos), tileTypeId);
 	}
 
 	void TilemapManager::DestroyComponent(Entity entity)
@@ -439,22 +493,42 @@ namespace sfge
 	void TilemapManager::InitializeMap(Entity entity, std::vector<TileTypeId> tileTypeIds, Vec2f tilemapSize)
 	{
 		auto & tilemap = m_Components[entity - 1];
-
+		tilemap.Init(m_TilemapSystem->GetTileTypeManager());
 		EmptyMap(entity);
 
 		if (!tileTypeIds.empty())
 			tilemap.ResizeTilemap(tilemapSize);
 
+#ifndef OPTI_VERTEX_ARRAY
 		//Init Assigns textures to the tilemap
 		for (int i = 0; i < tileTypeIds.size(); i++)
 		{
 			TextureId textId = m_TilemapSystem->GetTileTypeManager()->GetTextureFromTileType(tileTypeIds[i]);
 			tilemap.SetTexture(i, m_Engine.GetGraphics2dManager()->GetTextureManager()->GetTexture(textId));
 		}
-
+#endif
 		SetupTilePosition(entity);
 
 		tilemap.SetTileTypes(tileTypeIds);
+
+#ifdef OPTI_VERTEX_ARRAY
+		//Init vertexArrays
+		size_t numTileTypes = m_TilemapSystem->GetTileTypeManager()->GetNumTileTypes();
+		if(numTileTypes > 0)
+		{
+			tilemap.SetNumTileTypes(numTileTypes);
+
+			//Fill VectexArrays
+			for (int i = 0; i < tileTypeIds.size(); i++)
+			{
+				if (tileTypeIds[i] == INVALID_TILE_TYPE)
+					continue;
+				TextureId textId = m_TilemapSystem->GetTileTypeManager()->GetTextureFromTileType(tileTypeIds[i]);
+				sf::Vector2u textureSize = m_Engine.GetGraphics2dManager()->GetTextureManager()->GetTexture(textId)->getSize();
+				tilemap.AppendToVertexArray(i, Vec2f(textureSize.x, textureSize.y));
+			}
+		}
+#endif
 	}
 
 	void TilemapManager::SetupTilePosition(Entity entity)

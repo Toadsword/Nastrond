@@ -99,6 +99,7 @@ namespace sfge
 		return tiletypeId;
 	}
 
+#ifndef OPTI_VERTEX_ARRAY
 	bool TileTypeManager::SetTileTexture(Entity tilemapId, TileId tileId, TileTypeId tileTypeId)
 	{
 		if (tileTypeId == INVALID_TILE_TYPE || tilemapId == INVALID_ENTITY)
@@ -119,6 +120,7 @@ namespace sfge
 
 		return true;
 	}
+#endif
 
 	TextureId TileTypeManager::GetTextureFromTileType(TileTypeId tileTypeId)
 	{
@@ -128,6 +130,11 @@ namespace sfge
 				return m_TexturesId[index];
 		}
 		return INVALID_TEXTURE;
+	}
+
+	sf::Texture* TileTypeManager::GetTexturePtrFromTileType(TileTypeId tileTypeId)
+	{
+		return m_Engine.GetGraphics2dManager()->GetTextureManager()->GetTexture(GetTextureFromTileType(tileTypeId));
 	}
 
 	std::vector<size_t> TileTypeManager::GetAllTileTypeIds() const
@@ -151,6 +158,11 @@ namespace sfge
 				}
 			}
 		}
+	}
+
+	size_t TileTypeManager::GetNumTileTypes()
+	{
+		return m_Incremental;
 	}
 
 	void TileTypeManager::Clear()

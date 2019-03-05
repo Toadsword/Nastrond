@@ -31,7 +31,7 @@ SOFTWARE.
 #define SFGE_TILE_ASSET_H_
 
 #include <engine/component.h>
-
+#define OPTI_VERTEX_ARRAY
 namespace sfge
 {
 
@@ -73,6 +73,8 @@ public:
 	*/
 	TileTypeId LoadTileType(json& jsonData);
 
+
+#ifndef OPTI_VERTEX_ARRAY
 	/**
 	* \brief Set a texture to the current passed tile.
 	* \param tileTypeId The tiletype id to apply to the tile
@@ -80,6 +82,7 @@ public:
 	* \return true if successful, false otherwise
 	*/
 	bool SetTileTexture(Entity tilemapId, TileId tileId, TileTypeId tileTypeId);
+#endif
 
 	/**
 	* \brief Get the textureId affiliated to a tiletype
@@ -87,6 +90,7 @@ public:
 	* \return the textureId
 	*/
 	TextureId GetTextureFromTileType(TileTypeId tileTypeId);
+	sf::Texture* GetTexturePtrFromTileType(TileTypeId tileTypeId);
 
 	/**
 	 * \brief Returns all the TileTypeIds.
@@ -99,6 +103,8 @@ public:
 	 * \param filename Filename pointing to an image to load.
 	 */
 	void AddNewTileType(std::string filename);
+
+	size_t GetNumTileTypes();
 
 	void Clear() override;
 

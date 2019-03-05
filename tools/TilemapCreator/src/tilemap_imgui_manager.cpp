@@ -228,8 +228,8 @@ namespace sfge::tools
 
 			if(m_TilemapCreator->GetEngine().GetInputManager()->GetMouseManager().IsButtonDown(sf::Mouse::Left))
 			{
-				m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->SetTileAt(tilePosEntity, m_SelectedTileType);
-				m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_SelectedTilemap + 1, tilePosEntity, m_SelectedTileType);
+				//m_TilemapCreator->GetTilemapManager()->GetComponentPtr(m_SelectedTilemap)->SetTileAt(tilePosEntity, m_SelectedTileType);
+				//m_TilemapCreator->GetTileTypeManager()->SetTileTexture(m_SelectedTilemap + 1, tilePosEntity, m_SelectedTileType);
 			}
 		}
 	}
