@@ -242,12 +242,7 @@ namespace sfge::ext
 	{
 		for (unsigned int i = 0; i < m_BuildingIndexCount; i++)
 		{
-			if (m_EntityIndex[i] == INVALID_ENTITY)
-			{
-				continue;
-			}
-
-			if(m_ResourcesInventories[i] >= m_MaxCapacity)
+			if (m_EntityIndex[i] == INVALID_ENTITY || m_ResourcesInventories[i] >= m_MaxCapacity)
 			{
 				continue;
 			}
@@ -262,7 +257,9 @@ namespace sfge::ext
 			m_ProgressionCoolDowns[i] = 0;
 			m_ResourcesInventories[i]++;
 
-			if(m_ResourcesInventories[i] >= m_ReservedExportStackNumber[i] * GetStackSizeByResourceType(m_ResourceTypes[i]) + GetStackSizeByResourceType(m_ResourceTypes[i]))
+			unsigned short stackSize = GetStackSizeByResourceType(m_ResourceTypes[i]) + GetStackSizeByResourceType(m_ResourceTypes[i]);
+
+			if(m_ResourcesInventories[i] >= m_ReservedExportStackNumber[i] * stackSize + stackSize)
 			{
 				m_ReservedExportStackNumber[i]++;
 				m_BuildingManager->RegistrationBuildingToBeEmptied(m_EntityIndex[i], m_BuildingTypes[i], m_ResourceTypes[i]);
