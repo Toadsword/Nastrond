@@ -81,7 +81,7 @@ void DwarfManager::Init()
 
 	m_ThreadPool = &m_Engine.GetThreadPool();
 
-	m_BatchThreads.resize(12);
+	m_BatchThreads.resize(2);
 }
 
 void DwarfManager::InstantiateDwarf(const Vec2f pos)
@@ -192,27 +192,24 @@ float Sqrt2(float x) {
 
 bool DwarfManager::IsDwarfAtDestination(const unsigned int index)
 {
-	if (!m_Paths[index].empty()) {
-		auto& dwarfPosition = *m_Positions.at(index);
+	auto& dwarfPosition = *m_Positions.at(index);
 
-		const auto distance = m_Paths[index].back() - dwarfPosition;
+	const auto direction = m_Paths[index].back() - dwarfPosition;
 
-		if (Sqrt2(distance.x*distance.x + distance.y * distance.y) < m_StoppingDistance)
-		{
-			m_Paths[index].pop_back();
+	if (Sqrt2(direction.x*direction.x + direction.y * direction.y) < m_StoppingDistance)
+	{
+		m_Paths[index].pop_back();
 
-			if (!m_Paths[index].empty()) {
-				const auto velocity = m_Paths[index].back() - dwarfPosition;
-				m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / Sqrt2(velocity.x*velocity.x + velocity.y * velocity.y);
-				return false;
-			}
-
-			m_VelocitiesComponents[index] = Vec2f(0, 0);
-			return true;
+		if (!m_Paths[index].empty()) {
+			const auto velocity = m_Paths[index].back() - dwarfPosition;
+			m_VelocitiesComponents[index] = Vec2f(velocity.x, velocity.y) / Sqrt2(velocity.x*velocity.x + velocity.y * velocity.y);
+			return false;
 		}
-		return false;
+
+		m_VelocitiesComponents[index] = Vec2f(0, 0);
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool DwarfManager::HasPath(const unsigned int index)
@@ -324,31 +321,6 @@ bool DwarfManager::IsNightTime() const
 	return m_DayState == NIGHT;
 }
 
-void DwarfManager::BatchPathFindingRequest()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::FIND_PATH) {
-			m_PathFindingDwarfIndexes[m_PathFindBatchSize] = i;
-			m_PathFindBatchSize++;
-
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
-		}
-	}
-}
-
-void DwarfManager::BatchPathFollowing()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::FOLLOW_PATH) {
-			m_PathFollowBatch[m_PathFollowBatchSize] = i;
-			m_EntitiesActiveInBehaviorTree[i] = false; //TODO enlever quand il y aura un vector unique
-			m_PathFollowBatchSize++;
-		}
-	}
-}
-
 void DwarfManager::BatchPosition()
 {
 	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
@@ -357,105 +329,60 @@ void DwarfManager::BatchPosition()
  	}
 }
 
-void DwarfManager::BatchAssignDwelling()
+void DwarfManager::BatchActivities()
 {
 	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
 	{
-		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_DWELLING) {
-			auto const dwellingEntity = m_BuildingManager->AttributeDwarfToDwelling();
+		switch (m_DwarfActivities[i]) {
+		case DwarfActivity::FIND_PATH:
+			m_PathFindingDwarfIndexes[m_PathFindBatchSize] = i;
+			m_PathFindBatchSize++;
 
-			m_AssociatedDwelling[i] = dwellingEntity;
-		}
-	}
-}
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::FOLLOW_PATH:
+			m_PathFollowBatch[m_PathFollowBatchSize] = i;
+			m_EntitiesActiveInBehaviorTree[i] = false; //TODO enlever quand il y aura un vector unique
+			m_PathFollowBatchSize++;
+			break;
+		case DwarfActivity::ASSIGN_DWELLING:
+			m_AssociatedDwelling[i] = m_BuildingManager->AttributeDwarfToDwelling();
 
-void DwarfManager::BatchAssignInventoryTask()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_INVENTORY_TASK) {
-			const auto inventoryTask = m_BuildingManager->ConveyorLookForTask();
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::ASSIGN_INVENTORY_TASK:
+			m_InventoryTaskBT[i] = m_BuildingManager->ConveyorLookForTask();
 
-			m_InventoryTaskBT[i] = inventoryTask;
-		}
-	}
-}
-
-void DwarfManager::BatchTakeResource()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::TAKE_RESOURCE)
-		{
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::TAKE_RESOURCE:
 			m_BuildingManager->DwarfTakesResources(m_InventoryTaskBT[i].giverType, m_InventoryTaskBT[i].giver,
 				m_InventoryTaskBT[i].resourceType);
-		}
-	}
-}
-
-void DwarfManager::BatchPutResource()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::PUT_RESOURCE)
-		{
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::PUT_RESOURCE:
 			m_BuildingManager->DwarfPutsResources(m_InventoryTaskBT[i].receiverType, m_InventoryTaskBT[i].receiver,
 				m_InventoryTaskBT[i].resourceType,
 				m_InventoryTaskBT[i].resourceQuantity);
-		}
-	}
-}
-
-void DwarfManager::BatchEnterDwelling()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::ENTER_DWELLING)
-		{
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::ENTER_DWELLING:
 			m_BuildingManager->DwarfEnterBuilding(DWELLING, GetDwellingEntity(i));
-		}
-	}
-}
-
-void DwarfManager::BatchExitDwelling()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::EXIT_DWELLING)
-		{
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::EXIT_DWELLING:
 			m_BuildingManager->DwarfExitBuilding(DWELLING, GetDwellingEntity(i));
-		}
-	}
-}
-
-void DwarfManager::BatchEnterWorkingPlace()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::ENTER_WORKING_PLACE)
-		{
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::ENTER_WORKING_PLACE:
 			m_BuildingManager->DwarfEnterBuilding(m_AssociatedWorkingPlaceType[i], m_AssociatedWorkingPlace[i]);
-		}
-	}
-}
-
-void DwarfManager::BatchExitWorkingPlace()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::EXIT_WORKING_PLACE)
-		{
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::EXIT_WORKING_PLACE:
 			m_BuildingManager->DwarfExitBuilding(m_AssociatedWorkingPlaceType[i], m_AssociatedWorkingPlace[i]);
-		}
-	}
-}
-
-void DwarfManager::BatchAssignJob()
-{
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if (m_DwarfActivities[i] == DwarfActivity::ASSIGN_JOB)
-		{
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+			break;
+		case DwarfActivity::ASSIGN_JOB: {
 			char nbJob = 0;
 
 			while (nbJob < m_JobBuildingType.size())
@@ -477,36 +404,22 @@ void DwarfManager::BatchAssignJob()
 
 				nbJob++;
 			}
+			m_DwarfActivities[i] = DwarfActivity::IDLE;
+		}
+										break;
+		default:;
 		}
 	}
 }
 
 void DwarfManager::Batch()
 {
-	m_BatchThreads[0] = m_ThreadPool->push(std::bind(&DwarfManager::BatchAssignJob, this));
-	m_BatchThreads[1] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPathFindingRequest, this));
-	m_BatchThreads[2] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPathFollowing, this));
-	m_BatchThreads[3] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPosition, this));
-	m_BatchThreads[4] = m_ThreadPool->push(std::bind(&DwarfManager::BatchAssignDwelling, this));
-	m_BatchThreads[5] = m_ThreadPool->push(std::bind(&DwarfManager::BatchAssignInventoryTask, this));
-	m_BatchThreads[6] = m_ThreadPool->push(std::bind(&DwarfManager::BatchTakeResource, this));
-	m_BatchThreads[7] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPutResource, this));
-	m_BatchThreads[8] = m_ThreadPool->push(std::bind(&DwarfManager::BatchEnterDwelling, this));
-	m_BatchThreads[9] = m_ThreadPool->push(std::bind(&DwarfManager::BatchExitDwelling, this));
-	m_BatchThreads[10] = m_ThreadPool->push(std::bind(&DwarfManager::BatchEnterWorkingPlace, this));
-	m_BatchThreads[11] = m_ThreadPool->push(std::bind(&DwarfManager::BatchExitWorkingPlace, this));
+	m_BatchThreads[0] = m_ThreadPool->push(std::bind(&DwarfManager::BatchPosition, this));
+	m_BatchThreads[1] = m_ThreadPool->push(std::bind(&DwarfManager::BatchActivities, this));
 
-	for (auto i = 0; i < 12; i++)
+	for (auto i = 0; i < 2; i++)
 	{
 		m_BatchThreads[i].get();
-	}
-
-	for (size_t i = 0; i < m_IndexDwarfsEntities; i++)
-	{
-		if(m_DwarfActivities[i] != DwarfActivity::FOLLOW_PATH)
-		{
-			m_DwarfActivities[i] = DwarfActivity::IDLE;
-		}
 	}
 }
 

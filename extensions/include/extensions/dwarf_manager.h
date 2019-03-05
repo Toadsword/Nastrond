@@ -25,7 +25,6 @@ SOFTWARE.
 #define DWARF_MANAGER_H
 
 #include <ppl.h>
-#include <concurrent_vector.h>
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
@@ -234,18 +233,8 @@ public:
 #pragma endregion 
 
 private:
-	void BatchPathFindingRequest();
-	void BatchPathFollowing();
 	void BatchPosition();
-	void BatchAssignDwelling();
-	void BatchAssignInventoryTask();
-	void BatchTakeResource();
-	void BatchPutResource();
-	void BatchEnterDwelling();
-	void BatchExitDwelling();
-	void BatchEnterWorkingPlace();
-	void BatchExitWorkingPlace();
-	void BatchAssignJob();
+	void BatchActivities();
 	void Batch();
 
 	void ResizeContainers();
@@ -330,7 +319,6 @@ private:
 	unsigned int m_PathFindBatchSize = 0;
 
 	std::vector<int> m_PathFindingDwarfIndexes;
-
 
 	std::vector<int> m_PathFollowBatch;
 	unsigned int m_PathFollowBatchSize = 0;
