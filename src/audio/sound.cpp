@@ -130,6 +130,7 @@ void SoundManager::CreateComponent(json & componentJson, Entity entity)
 
 void SoundManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
 	(void) entity;
 }
 

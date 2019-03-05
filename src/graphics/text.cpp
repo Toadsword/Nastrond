@@ -176,12 +176,14 @@ namespace sfge
 		auto& text = GetComponentRef(entity);
 		m_ComponentsInfo[entity - 1].text = &text;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
+		m_ConcernedEntities.push_back(entity);
 		m_Engine.GetEntityManager()->AddComponentType(entity, ComponentType::TEXT);
 		return &text;
 	}
 
 	void TextManager::DestroyComponent(Entity entity)
 	{
+		RemoveConcernedEntity(entity);
 		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::TEXT);
 	}
 
@@ -194,22 +196,14 @@ namespace sfge
 	void TextManager::Update(float dt)
 	{
 		System::Update(dt);
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT) && m_EntityManager->HasComponent(i + 1, ComponentType::RECTTRANSFORM))
-			{
-				m_Components[i].Update(m_RectTransformManager->GetComponentPtr(i+1)->Position);
-			}
-		}
+		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+			m_Components[m_ConcernedEntities[i] - 1].Update(m_RectTransformManager->GetComponentPtr(m_ConcernedEntities[i])->Position);
 	}
 
 	void TextManager::DrawTexts(sf::RenderWindow& window)
-	{	
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::TEXT))
-				m_Components[i].Draw(window);
-		}
+	{
+		for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+			m_Components[m_ConcernedEntities[i] - 1].Draw(window);
 	}
 
 	void TextManager::OnResize(size_t newSize)
