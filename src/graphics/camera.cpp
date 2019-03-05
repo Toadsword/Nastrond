@@ -31,7 +31,7 @@ SOFTWARE.
 #include <engine/transform2d.h>
 
 #include <imgui.h>
-#include <imgui-SFML.h>	
+#include <imgui-SFML.h>
 
 namespace sfge
 {
@@ -78,7 +78,8 @@ namespace sfge
 
 	Camera* CameraManager::GetMainCamera()
 	{
-		return m_cameras.begin()._Ptr;
+		for(int i = 0; i < m_ConcernedEntities.size(); i++)
+			return &m_Components[m_ConcernedEntities[i] - 1];
 	}
 
 	Camera* CameraManager::AddComponent(Entity entity)
@@ -88,7 +89,7 @@ namespace sfge
 
 		cameraInfo.camera = &camera;
 		m_ComponentsInfo[entity - 1].SetEntity(entity);
-
+		m_ConcernedEntities.push_back(entity);
 		m_EntityManager->AddComponentType(entity, ComponentType::CAMERA);
 		return &camera;
 	}
@@ -104,16 +105,8 @@ namespace sfge
 	void CameraManager::Update(float dt)
 	{
 		rmt_ScopedCPUSample(CameraUpdate, 0)
-		for (auto i = 0u; i < m_Components.size(); i++)
-		{
-			if (m_EntityManager->HasComponent(i + 1, ComponentType::CAMERA))
-			{
-				if (i == currentCamera) 
-				{
-					m_Components[i].Update(dt, (*m_GraphicsManager->GetWindow()));
-				}
-			}
-		}
+		for (auto i = 0U; i < m_ConcernedEntities.size(); i++)
+			m_Components[m_ConcernedEntities[i] - 1].Update(dt, (*m_GraphicsManager->GetWindow()));
 	}
 
 	void CameraManager::SetCameraCurrent(short newCurrent)
@@ -155,7 +148,11 @@ namespace sfge
 
 	void CameraManager::DestroyComponent(Entity entity)
 	{
-		(void)entity;
+		if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::CAMERA))
+		{
+			RemoveConcernedEntity(entity);
+			m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::CAMERA);
+		}
 	}
 
 	void editor::CameraInfo::DrawOnInspector()

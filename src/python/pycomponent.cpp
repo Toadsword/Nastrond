@@ -525,6 +525,7 @@ void PyComponentManager::CreateComponent(json &componentJson, Entity entity)
 
 void PyComponentManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
 	RemovePyComponentsFrom(entity);
 }
 
@@ -546,13 +547,13 @@ void PyComponentManager::InitPyComponents()
 		if(pyComponent != nullptr)
 			pyComponent->Init();
 	}
-
 }
 void PyComponentManager::Destroy()
 {
 	System::Destroy();
 	m_Components.clear();
 	m_ComponentsInfo.clear();
+	m_ConcernedEntities.clear();
 	m_PythonInstances.clear();
 }
 
@@ -571,6 +572,9 @@ json PyComponentManager::Save()
 	return j;
 }
 
+/*
+ * Viré?
+ */
 void PyComponentManager::FixedUpdate()
 {
 	System::FixedUpdate();
@@ -578,9 +582,10 @@ void PyComponentManager::FixedUpdate()
 	rmt_ScopedCPUSample(PyComponentFixedUpdate,0);
 
 	auto config = m_Engine.GetConfig();
-	for(auto* pyComponent:m_Components)
+
+	for (auto* pyComponent : m_Components)
 	{
-		if(pyComponent != nullptr)
+		if (pyComponent != nullptr)
 		{
 			pyComponent->FixedUpdate(config->fixedDeltaTime);
 		}
@@ -590,12 +595,10 @@ void PyComponentManager::Update(float dt)
 {
 	System::Update(dt);
 
-
 	rmt_ScopedCPUSample(PyComponentUpdate,0);
-
-	for(auto* pyComponent:m_Components)
+	for (auto* pyComponent : m_Components)
 	{
-		if(pyComponent != nullptr)
+		if (pyComponent != nullptr)
 		{
 			pyComponent->Update(dt);
 		}
