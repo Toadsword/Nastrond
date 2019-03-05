@@ -125,6 +125,12 @@ TEST(AI, PathfindingTilemap)
 	const auto sceneJsonPtr = sfge::LoadJson("data/behavior_tree/random_path.asset");
 	behaviourTree->SetRootNode(sfge::ext::behavior_tree::BehaviorTreeUtility::LoadNodesFromJson(*sceneJsonPtr, behaviourTree));
 
+	auto dwarfManager = engine.GetPythonEngine()->GetPySystemManager().GetPySystem<sfge::ext::DwarfManager>("DwarfManager");
+	for (auto i = 0; i < 100'000; i++)
+	{
+		dwarfManager->InstantiateDwarf(sfge::Vec2f(0, 0));
+	}
+
 	//Start engine
 	engine.Start();
 }

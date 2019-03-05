@@ -1,1 +1,224 @@
-{"rootNode": [{"name" : "Repeater","limit" : 0,"type" : 4,"childs" : [{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Repeat until fail","type" : 4,"childs" : [{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Succeeder","type" : 4,"childs" : [{"name" : "Selector","type" : 2,"childs" : [{"name" : "Has job","type" : 1},{"name" : "Assign job","type" : 1}]}]},{"name" : "Inverter","type" : 4,"childs" : [{"name" : "Selector","type" : 2,"childs" : [{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Has static job","type" : 1},{"name" : "Find path to","destination" : 2,"type" : 1},{"name" : "Wait for path","type" : 1},{"name" : "Move to","type" : 1},{"name" : "Enter working place","type" : 1},{"name" : "Wait night time","type" : 1},{"name" : "Exit working place","type" : 1}]},{"name" : "Repeat until fail","type" : 4,"childs" : [{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Succeeder","type" : 4,"childs" : [{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Ask inventory task","type" : 1},{"name" : "Find path to","destination" : 3,"type" : 1},{"name" : "Wait for path","type" : 1},{"name" : "Move to","type" : 1},{"name" : "Take resource","type" : 1},{"name" : "Find path to","destination" : 4,"type" : 1},{"name" : "Wait for path","type" : 1},{"name" : "Move to","type" : 1},{"name" : "Put resource","type" : 1}]}]},{"name" : "Inverter","type" : 4,"childs" : [{"name" : "Is night time","type" : 1}]}]}]}]}]},{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Find path to","destination" : 0,"type" : 1},{"name" : "Wait for path","type" : 1},{"name" : "Move to","type" : 1}]}]}]},{"name" : "Selector","type" : 2,"childs" : [{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Selector","type" : 2,"childs" : [{"name" : "Has dwelling","type" : 1},{"name" : "Succeeder","type" : 4,"childs" : [{"name" : "Set dwelling","type" : 1}]}]},{"name" : "Find path to","destination" : 1,"type" : 1},{"name" : "Wait for path","type" : 1},{"name" : "Move to","type" : 1},{"name" : "Enter dwelling","type" : 1},{"name" : "Wait day time","type" : 1},{"name" : "Exit dwelling","type" : 1}]},{"name" : "Repeat until fail","type" : 4,"childs" : [{"name" : "Sequence","type" : 2,"childs" : [{"name" : "Find path to","destination" : 0,"type" : 1},{"name" : "Wait for path","type" : 1},{"name" : "Move to","type" : 1},{"name" : "Is day time","type" : 1}]}]}]}]}]} ]}
+{
+	"rootNode": [{
+			"name": "Repeater",
+			"limit": 0,
+			"type": 4,
+			"childs": [{
+					"name": "Sequence",
+					"type": 2,
+					"childs": [{
+							"name": "Repeat until fail",
+							"type": 4,
+							"childs": [{
+									"name": "Sequence",
+									"type": 2,
+									"childs": [{
+											"name": "Succeeder",
+											"type": 4,
+											"childs": [{
+													"name": "Selector",
+													"type": 2,
+													"childs": [{
+															"name": "Has job",
+															"type": 1
+														}, {
+															"name": "Assign job",
+															"type": 1
+														}
+													]
+												}
+											]
+										}, {
+											"name": "Inverter",
+											"type": 4,
+											"childs": [{
+													"name": "Selector",
+													"type": 2,
+													"childs": [{
+															"name": "Sequence",
+															"type": 2,
+															"childs": [{
+																	"name": "Has static job",
+																	"type": 1
+																}, {
+																	"name": "Find path to",
+																	"destination": 2,
+																	"type": 1
+																}, {
+																	"name": "Wait for path",
+																	"type": 1
+																}, {
+																	"name": "Move to",
+																	"type": 1
+																}, {
+																	"name": "Enter working place",
+																	"type": 1
+																}, {
+																	"name": "Wait night time",
+																	"type": 1
+																}, {
+																	"name": "Exit working place",
+																	"type": 1
+																}
+															]
+														}, {
+															"name": "Repeat until fail",
+															"type": 4,
+															"childs": [{
+																	"name": "Sequence",
+																	"type": 2,
+																	"childs": [{
+																			"name": "Succeeder",
+																			"type": 4,
+																			"childs": [{
+																					"name": "Sequence",
+																					"type": 2,
+																					"childs": [{
+																							"name": "Ask inventory task",
+																							"type": 1
+																						}, {
+																							"name": "Has inventory task",
+																							"type": 1
+																						},{
+																							"name": "Find path to",
+																							"destination": 3,
+																							"type": 1
+																						}, {
+																							"name": "Wait for path",
+																							"type": 1
+																						}, {
+																							"name": "Move to",
+																							"type": 1
+																						}, {
+																							"name": "Take resource",
+																							"type": 1
+																						}, {
+																							"name": "Find path to",
+																							"destination": 4,
+																							"type": 1
+																						}, {
+																							"name": "Wait for path",
+																							"type": 1
+																						}, {
+																							"name": "Move to",
+																							"type": 1
+																						}, {
+																							"name": "Put resource",
+																							"type": 1
+																						}
+																					]
+																				}
+																			]
+																		}, {
+																			"name": "Inverter",
+																			"type": 4,
+																			"childs": [{
+																					"name": "Is night time",
+																					"type": 1
+																				}
+																			]
+																		}
+																	]
+																}
+															]
+														}
+													]
+												}
+											]
+										}, {
+											"name": "Sequence",
+											"type": 2,
+											"childs": [{
+													"name": "Find path to",
+													"destination": 0,
+													"type": 1
+												}, {
+													"name": "Wait for path",
+													"type": 1
+												}, {
+													"name": "Move to",
+													"type": 1
+												}
+											]
+										}
+									]
+								}
+							]
+						}, {
+							"name": "Selector",
+							"type": 2,
+							"childs": [{
+									"name": "Sequence",
+									"type": 2,
+									"childs": [{
+											"name": "Selector",
+											"type": 2,
+											"childs": [{
+													"name": "Has dwelling",
+													"type": 1
+												}, {
+													"name": "Inverter",
+													"type": 4,
+													"childs": [{
+															"name": "Set dwelling",
+															"type": 1
+														}
+													]
+												}, {
+													"name": "Has dwelling",
+													"type": 1
+												}
+											]
+										}, {
+											"name": "Find path to",
+											"destination": 1,
+											"type": 1
+										}, {
+											"name": "Wait for path",
+											"type": 1
+										}, {
+											"name": "Move to",
+											"type": 1
+										}, {
+											"name": "Enter dwelling",
+											"type": 1
+										}, {
+											"name": "Wait day time",
+											"type": 1
+										}, {
+											"name": "Exit dwelling",
+											"type": 1
+										}
+									]
+								}, {
+									"name": "Repeat until fail",
+									"type": 4,
+									"childs": [{
+											"name": "Sequence",
+											"type": 2,
+											"childs": [{
+													"name": "Find path to",
+													"destination": 0,
+													"type": 1
+												}, {
+													"name": "Wait for path",
+													"type": 1
+												}, {
+													"name": "Move to",
+													"type": 1
+												}, {
+													"name": "Is day time",
+													"type": 1
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}
