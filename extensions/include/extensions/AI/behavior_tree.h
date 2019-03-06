@@ -24,7 +24,7 @@ SOFTWARE.
 #ifndef SFGE_EXT_BEHAVIOR_TREE_H
 #define SFGE_EXT_BEHAVIOR_TREE_H
 
-#define AI_DEBUG_COUNT_TIME
+//#define AI_DEBUG_COUNT_TIME
 
 #include <vector>
 #include <memory>
@@ -86,10 +86,7 @@ public:
 
 	std::vector<Node::ptr> currentNode;
 	std::vector<bool> doesFlowGoDown;
-
-	std::vector<char> repeaterCounter;
 	std::vector<bool> hasSucceeded;
-
 	std::vector<bool> sleepingEntity;
 
 	DwarfManager* dwarfManager;
@@ -98,8 +95,6 @@ public:
 	const bool flowGoUp = false;
 
 private:
-	void WakeUpEntitiesRange(const int startIndex, const int endIndex, std::vector<int>& entitiesIndex);
-
 	Node::ptr m_RootNode = nullptr;
 
 	std::vector<Entity>* m_Entities;

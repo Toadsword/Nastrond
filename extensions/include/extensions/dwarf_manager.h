@@ -24,6 +24,8 @@ SOFTWARE.
 #ifndef DWARF_MANAGER_H
 #define DWARF_MANAGER_H
 
+#include <ppl.h>
+
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
 #include <extensions/AI/navigation_graph_manager.h>
@@ -33,11 +35,10 @@ SOFTWARE.
 namespace sfge::ext
 {
 //#define DEBUG_DRAW_PATH
-//#define DEBUG_SPAWN_DWARF
 #define DEBUG_RANDOM_PATH
 
-#define AI_DEBUG_COUNT_TIME
-#define AI_DEBUG_COUNT_TIME_PRECISE
+//#define AI_DEBUG_COUNT_TIME
+//#define AI_DEBUG_COUNT_TIME_PRECISE
 
 /**
  * \author Nicolas Schneider
@@ -232,10 +233,9 @@ public:
 #pragma endregion 
 
 private:
-	void BatchPathFindingRequest();
-	void BatchPathFollowing();
 	void BatchPosition();
-	void BatchAssignDwelling();
+	void BatchActivities();
+	void Batch();
 
 	void ResizeContainers();
 	int GetIndexForNewEntity();
@@ -262,12 +262,16 @@ private:
 	const float m_StoppingDistance = 10;
 	std::vector<Vec2f> m_DestinationForPathFinding;
 	std::vector<Vec2f> m_VelocitiesComponents;
+	std::vector<float> m_DistanceRemaining;
 
 	std::vector<Vec2f*> m_Positions;
 
 	//Forces
 	float m_FixedDeltaTime = 0.0f;
 	const float m_SpeedDwarf = 30;
+
+	//Threads
+	std::vector<std::future<void>> m_BatchThreads;
 
 #ifdef DEBUG_DRAW_PATH
 	std::vector<sf::Color> m_Colors{
@@ -279,10 +283,6 @@ private:
 		sf::Color::Red,
 		sf::Color::Yellow
 	};
-#endif
-
-#ifdef DEBUG_SPAWN_DWARF
-	const size_t m_DwarfToSpawn = 100'000;
 #endif
 
 	enum class DwarfActivity : unsigned char {
@@ -320,7 +320,6 @@ private:
 	unsigned int m_PathFindBatchSize = 0;
 
 	std::vector<int> m_PathFindingDwarfIndexes;
-
 
 	std::vector<int> m_PathFollowBatch;
 	unsigned int m_PathFollowBatchSize = 0;

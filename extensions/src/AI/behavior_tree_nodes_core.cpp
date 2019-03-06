@@ -268,6 +268,7 @@ void Node::SequenceComposite(const unsigned int index) const
 	//if last one returned fail => then it's a fail
 	if (!m_BehaviorTree->hasSucceeded[index])
 	{
+		nodeData->activeChild[index] = 0;
 		m_BehaviorTree->hasSucceeded[index] = false;
 		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		return;
@@ -284,7 +285,7 @@ void Node::SequenceComposite(const unsigned int index) const
 
 	//Go up to parent when all child visited
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
+	nodeData->activeChild[index] = 0;
 	m_BehaviorTree->hasSucceeded[index] = true;
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 }
@@ -316,6 +317,7 @@ void Node::SelectorComposite(const unsigned int index) const
 	//if last one returned success => then it's a success
 	if (m_BehaviorTree->hasSucceeded[index])
 	{
+		nodeData->activeChild[index] = 0;
 		m_BehaviorTree->hasSucceeded[index] = true;
 		m_BehaviorTree->currentNode[index] = m_ParentNode;
 		return;
@@ -332,7 +334,7 @@ void Node::SelectorComposite(const unsigned int index) const
 
 	//Go up to parent when all child visited
 	m_BehaviorTree->currentNode[index] = m_ParentNode;
-
+	nodeData->activeChild[index] = 0;
 	m_BehaviorTree->hasSucceeded[index] = false;
 	m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 }
@@ -356,15 +358,15 @@ void Node::RepeaterDecorator(const unsigned int index) const
 	//If flow goes down => start counter 
 	if (m_BehaviorTree->doesFlowGoDown[index])
 	{
-		m_BehaviorTree->repeaterCounter[index] = 0;
+		nodeData->count[index] = 0;
 	}
 	else
 	{
 		
 		//If limit == 0 => infinity, if m_Counter == m_Limit it's over
-		if (nodeData->limit > 0 && ++m_BehaviorTree->repeaterCounter[index] == nodeData->limit)
+		if (nodeData->limit > 0 && ++nodeData->count[index] == nodeData->limit)
 		{
-			m_BehaviorTree->repeaterCounter[index] = 0;
+			nodeData->count[index] = 0;
 
 			m_BehaviorTree->doesFlowGoDown[index] = m_BehaviorTree->flowGoUp;
 			m_BehaviorTree->currentNode[index] = m_ParentNode;
@@ -964,7 +966,6 @@ void Node::FindPathToLeaf(const unsigned int index) const
 			std::cout << " inventory task giver\n";
 		}
 #endif
-		std::cout << "inventory task giver\n";
 		m_BehaviorTree->dwarfManager->AddInventoryTaskPathToGiver(index);
 		break;
 	case NodeDestination::INVENTORY_TASK_RECEIVER:

@@ -37,14 +37,7 @@ NavigationGraphManager::NavigationGraphManager(Engine& engine) :
 
 NavigationGraphManager::~NavigationGraphManager()
 {
-#ifdef AI_DEBUG_COUNT_TIME
-	std::cout << "[NavigationGraphManager]Update: " << m_TimerMilli / m_TimerCounter << "," << m_TimerMicro /
-		m_TimerCounter << "\n";
-#endif
-#ifdef AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
-	std::cout << "		GetNode: " << m_TmpGetNode_Ms / m_TimerCounter / 1000 << "," << m_TmpGetNode_Mc / m_TimerCounter % 1000<< "\n";
-	std::cout << "		FindPath: " << m_TmpFindPath_Ms / m_TimerCounter / 1000 << "," << m_TmpFindPath_Mc / m_TimerCounter % 1000<< "\n";
-#endif
+
 }
 
 void NavigationGraphManager::Init()
@@ -58,7 +51,7 @@ void NavigationGraphManager::Init()
 
 	auto* tilemapManager = tilemapSystem->GetTilemapManager();
 
-	auto* tilemap = tilemapManager->GetComponentPtr(2); //TODO a changer d�s que Duncan a une meilleur solution
+	auto* tilemap = tilemapManager->GetComponentPtr(2); 
 	m_TileExtends = tilemap->GetTileSize();
 
 	const auto tilemapSize = tilemap->GetTilemapSize();
@@ -132,10 +125,6 @@ void NavigationGraphManager::Init()
 
 void NavigationGraphManager::Update(float dt)
 {
-	//TODO ne pas passer par un nombre fix, mais plutot alouer un temps maximum et faire un test a chaque fois pour savoir s'il reste suffisament de temps
-#ifdef AI_DEBUG_COUNT_TIME
-	auto t1 = std::chrono::high_resolution_clock::now();
-#endif
 	for (size_t i = 0; i < m_MaxPathForOneUpdate; i++)
 	{
 		if (m_WaitingPaths.empty())
@@ -169,18 +158,10 @@ void NavigationGraphManager::Update(float dt)
 
 		const auto path = GetPathFromTo(waitingPath.origin, waitingPath.destination);
 		m_DwarfManager->SetPath(waitingPath.index, path);
-#ifdef  AI_PATH_FINDING_DEBUG_COUNT_TIME_PRECISE
-		m_PathCalculated++;
-#endif
+
 	}
 
-#ifdef AI_DEBUG_COUNT_TIME
-	auto t2 = std::chrono::high_resolution_clock::now();
-	const auto timerDuration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	m_TimerMilli += timerDuration / 1000;
-	m_TimerMicro += timerDuration % 1000;
-	m_TimerCounter++;
-#endif
+
 }
 
 void NavigationGraphManager::FixedUpdate() {}
@@ -212,9 +193,6 @@ void NavigationGraphManager::AskForPath(const unsigned int index, const Vec2f or
 
 void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<std::vector<int>>& map)
 {
-	auto transformManager = m_Engine.GetTransform2dManager();
-	auto* tilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
-
 	std::vector<TileTypeId> tileTypes = tilemap->GetTileTypes();
 	
 	for (auto x = 0; x < map.size(); x++)
@@ -222,15 +200,15 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 		for (auto y = 0; y < map[x].size(); y++)
 		{
 			GraphNode node;
-			//auto tile = tileManager->GetComponentPtr(tilemap->GetTileAt(Vec2f(x, y)));
+			
 			const auto tile = tileTypes[y * map.size() + x];
-			Vec2f offset = Vec2f(0, 0);
-			const Vec2f TILE_SIZE = Vec2f(64, 32);
+			auto offset = Vec2f(0, 0);
+			const auto TILE_SIZE = Vec2f(64, 32);
 			Vec2f xPos = { TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 			Vec2f yPos = { -TILE_SIZE.x / 2.0f, TILE_SIZE.y / 2.0f };
 
 			offset = xPos * x + yPos * y;
-			//if(tilemap->GetTileAt(Vec2f(x, y))
+			
 			if (tile > 2) {
 				node.cost = SOLID_COST;
 			}else
@@ -277,12 +255,7 @@ void NavigationGraphManager::BuildGraphFromArray(Tilemap* tilemap, std::vector<s
 					}
 					else
 					{
-						//TODO v�rifier si la construction est correcte surtout si les voisins sont libres
-						/*if (m_Graph[y * map.size() + (x + j)].cost != SOLID_COST &&
-							m_Graph[(y + i) * map.size() + x].cost != SOLID_COST)
-						{*/
-							node.neighborsIndex.push_back(indexNeighbor);
-						//}
+						node.neighborsIndex.push_back(indexNeighbor);
 					}
 				}
 			}
@@ -336,9 +309,9 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(Vec2f& origin, Vec2f& d
 }
 
 float Sqrt(float x) {
-	int i = *(int*)&x;
+	auto i = *reinterpret_cast<int*>(&x);
 	i = 0x5f3759df - (i >> 1);
-	float r = *(float*)&i;
+	auto r = *reinterpret_cast<float*>(&i);
 	r = r * (1.5f - 0.5f*x*r*r);
 	return r * x;
 }
@@ -353,8 +326,7 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	int nb = 0;
 #endif
 
-	PriorityQueue<unsigned int, float> openNodes;
-	//HeapPriorityQueue openNodes;
+	HeapPriorityQueue openNodes;
 	openNodes.Insert(originIndex, 0);
 
 	m_CameFrom[originIndex] = originIndex;
@@ -368,10 +340,8 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 
 	while (!openNodes.Empty())
 	{
-		/*const auto indexCurrent = openNodes.Min();
-		openNodes.RemoveMin();*/
-
-		const auto indexCurrent = openNodes.Get();
+		const auto indexCurrent = openNodes.Min();
+		openNodes.RemoveMin();
 
 		if (indexCurrent == destinationIndex)
 		{
@@ -414,8 +384,6 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 		}
 	}
 
-	std::vector<GraphNode> path;
-
 	std::vector<Vec2f> pathPos;
 	auto currentNodeIndex = destinationIndex;
 	
@@ -423,10 +391,8 @@ std::vector<Vec2f> NavigationGraphManager::GetPathFromTo(const unsigned int orig
 	{
 		pathPos.push_back(m_Graph[currentNodeIndex].pos);
 
-		path.push_back(m_Graph[currentNodeIndex]);
 		currentNodeIndex = m_CameFrom[currentNodeIndex];
 	}
-	path.push_back(m_Graph[originIndex]);
 	pathPos.push_back(m_Graph[originIndex].pos);
 
 #ifdef AI_PATH_FINDING_DRAW_DEBUG_NODES

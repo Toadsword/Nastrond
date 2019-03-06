@@ -69,6 +69,11 @@ namespace sfge
 	};
 }
 
+/**
+	 * \brief Priority queue order by a priority
+	 * \tparam E item to store
+	 * \author Nicolas Schneider
+	 */
 template <typename E>
 class VectorCompleteTree {
 public:
@@ -100,6 +105,11 @@ public:
 	void Swap(const Position& p, const Position& q) { E e = *q; *q = *p; *p = e; }
 };
 
+
+/**
+ * \brief Priority queue
+ * \author Nicolas Schneider
+ */
 class HeapPriorityQueue
 {
 public:
