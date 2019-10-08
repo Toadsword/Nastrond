@@ -35,23 +35,25 @@ const float Physics2dManager::pixelPerMeter = 100.0f;
 void Physics2dManager::Init()
 {
 	b2Vec2 gravity;
-	if(const auto configPtr = m_Engine.GetConfig().lock())
+	if(const auto configPtr = m_Engine.GetConfig())
 		gravity = configPtr->gravity;
 	m_World = std::make_shared<b2World>(gravity);
 	m_ContactListener = std::make_unique<ContactListener>(m_Engine);
 	m_World->SetContactListener(m_ContactListener.get());
 
 	m_BodyManager.Init();
+	m_ColliderManager.Init();
 }
 
 void Physics2dManager::Update(float dt)
 {
-	
+	(void)dt;
 }
 
 void Physics2dManager::FixedUpdate()
 {
-	const auto config = m_Engine.GetConfig().lock();
+	rmt_ScopedCPUSample(Physics2dManager,0);
+	const auto config = m_Engine.GetConfig();
 	if (config != nullptr and m_World != nullptr)
 	{
 		m_World->Step(config->fixedDeltaTime,
@@ -91,14 +93,14 @@ void Physics2dManager::Collect()
 }
 
 
-Body2dManager& Physics2dManager::GetBodyManager()
+Body2dManager* Physics2dManager::GetBodyManager()
 {
-	return m_BodyManager;
+	return &m_BodyManager;
 }
 
-ColliderManager& Physics2dManager::GetColliderManager()
+ColliderManager* Physics2dManager::GetColliderManager()
 {
-	return m_ColliderManager;
+	return &m_ColliderManager;
 }
 
 
@@ -112,15 +114,15 @@ void ContactListener::BeginContact(b2Contact* contact)
 	{
 		//Trigger
 		
-		pythonEngine.OnTriggerEnter(colliderA->entity, colliderB);
-		pythonEngine.OnTriggerEnter(colliderB->entity, colliderA);
+		pythonEngine->GetPyComponentManager().OnTriggerEnter(colliderA->entity, colliderB);
+		pythonEngine->GetPyComponentManager().OnTriggerEnter(colliderB->entity, colliderA);
 		
 	}
 	else
 	{
 		//Collision
-		pythonEngine.OnCollisionEnter(colliderA->entity, colliderB);
-		pythonEngine.OnCollisionEnter(colliderB->entity, colliderA);
+		pythonEngine->GetPyComponentManager().OnCollisionEnter(colliderA->entity, colliderB);
+		pythonEngine->GetPyComponentManager().OnCollisionEnter(colliderB->entity, colliderA);
 		
 	}
 }
@@ -134,15 +136,15 @@ void ContactListener::EndContact(b2Contact* contact)
 	if (colliderA->fixture->IsSensor() or colliderB->fixture->IsSensor())
 	{
 		//Trigger
-		pythonEngine.OnTriggerExit(colliderA->entity, colliderB);
-		pythonEngine.OnTriggerExit(colliderB->entity, colliderA);
+		pythonEngine->GetPyComponentManager().OnTriggerExit(colliderA->entity, colliderB);
+		pythonEngine->GetPyComponentManager().OnTriggerExit(colliderB->entity, colliderA);
 		
 	}
 	else
 	{
 		//Collision
-		pythonEngine.OnCollisionExit(colliderA->entity, colliderB);
-		pythonEngine.OnCollisionExit(colliderB->entity, colliderA);
+		pythonEngine->GetPyComponentManager().OnCollisionExit(colliderA->entity, colliderB);
+		pythonEngine->GetPyComponentManager().OnCollisionExit(colliderB->entity, colliderA);
 		
 	}
 }
@@ -173,9 +175,13 @@ float meter2pixel(float meter)
 	return meter * Physics2dManager::pixelPerMeter;
 }
 
-sf::Vector2f meter2pixel(b2Vec2 meter)
+b2Vec2 pixel2meter(Vec2f pixel)
 {
-	return sf::Vector2f(meter2pixel(meter.x), meter2pixel(meter.y));
+	return b2Vec2(pixel.x, pixel.y);
+}
+Vec2f meter2pixel(b2Vec2 meter)
+{
+	return Vec2f(meter2pixel(meter.x), meter2pixel(meter.y));
 }
 
 ContactListener::ContactListener(Engine& engine):

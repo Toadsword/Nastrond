@@ -31,31 +31,41 @@ SOFTWARE.
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/System/Time.hpp>
+#include <engine/vector.h>
+#include <engine/engine.h>
+#include <graphics/graphics2d.h>
 
 namespace sfge
 {
 
 struct KeyPressedStatus { bool previousKeyPressed; bool keyPressed; };
 
-class KeyboardManager
+class KeyboardManager : public System
 {
 public:
-	void Update(float dt);
+	using System::System;
+	void Update(float dt) override;
 	bool IsKeyHeld(sf::Keyboard::Key key) const;
 	bool IsKeyDown(sf::Keyboard::Key key) const;
 	bool IsKeyUp(sf::Keyboard::Key key) const;
-
-protected:
-
 
 private:
 	std::array<KeyPressedStatus, sf::Keyboard::Key::KeyCount> keyPressedStatusArray= {};
 };
 
-class MouseManager
+class MouseManager : public System
 {
 public:
-	sf::Vector2i GetLocalPosition(sf::Window& window) const;
+	using System::System;
+	void Update(float dt) override;
+	sf::Vector2f GetLocalPosition() const;
+	sf::Vector2i GetWorldPosition() const;
+	bool IsButtonHeld(sf::Mouse::Button button) const;
+	bool IsButtonDown(sf::Mouse::Button button) const;
+	bool IsButtonUp(sf::Mouse::Button button) const;
+	
+private:
+	std::array<KeyPressedStatus, sf::Mouse::Button::ButtonCount> buttonPressedStatusArray = {};
 };
 /**
 * \brief Handles Input like the Keyboard, the Joystick or the Mouse
@@ -64,7 +74,6 @@ class InputManager : public System
 {
 public:
 	using System::System;
-
 	/**
 	 * \brief Initialize the Input Manager
 	 */
@@ -83,8 +92,8 @@ public:
 	MouseManager& GetMouseManager();
 
 protected:
-	KeyboardManager m_KeyboardManager;
-	MouseManager m_MouseManager;
+	KeyboardManager m_KeyboardManager{m_Engine};
+	MouseManager m_MouseManager{m_Engine};
 };
 
 

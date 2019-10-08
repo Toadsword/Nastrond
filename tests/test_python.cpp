@@ -22,19 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include <engine/engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <python/pycomponent.h>
 #include <utility/json_utility.h>
 #include <graphics/shape2d.h>
 #include <engine/scene.h>
 #include <gtest/gtest.h>
 
-TEST(TestPyComponent, TestPyComponent)
+TEST(Python, TestPyComponent)
 {
 	sfge::Engine engine;
 	engine.Init();
 
-	auto& sceneManager = engine.GetSceneManager();
+	auto* sceneManager = engine.GetSceneManager();
 	json sceneJson;
 	json gameObjectJson = {
 	{"name", "PyGameObject" },
@@ -61,7 +61,7 @@ TEST(TestPyComponent, TestPyComponent)
 	}
 	};
 	sceneJson["entities"] = json::array({gameObjectJson});
-	sceneManager.LoadSceneFromJson(sceneJson);
+	sceneManager->LoadSceneFromJson(sceneJson);
 	
 	engine.Start();
 }

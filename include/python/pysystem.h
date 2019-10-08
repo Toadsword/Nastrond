@@ -25,10 +25,16 @@
 #ifndef SFGE_PYSYSTEM_H
 #define SFGE_PYSYSTEM_H
 
+#include <utility/python_utility.h>
+
 #include <engine/system.h>
+#include <engine/component.h>
 
 namespace sfge
 {
+
+using InstanceId = unsigned;
+using ModuleId = unsigned;
 class PySystem : public System
 {
 public:
@@ -38,6 +44,42 @@ public:
 	void FixedUpdate() override;
 	void Draw() override;
 
+};
+
+class PySystemManager : public System
+{
+public:
+
+	using System::System;
+	void Init() override;
+
+	void Destroy() override;
+
+	InstanceId LoadPySystem(ModuleId moduleId);
+	InstanceId LoadCppExtensionSystem(std::string systemClassName);
+	PySystem* GetPySystemFromInstanceId(InstanceId instanceId);
+
+	PySystem* GetPySystemFromClassName(std::string className);
+
+	template<class T>
+	T* GetPySystem(std::string className) {
+		for (auto i = 0u; i < m_PySystemNames.size(); i++)
+		{
+			if (m_PySystemNames[i] == className)
+			{
+				return m_PythonInstances[i].cast<T*>();
+			}
+		}
+		return nullptr;
+	}
+
+protected:
+	std::vector<PySystem*> m_PySystems = std::vector<PySystem*>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	std::vector<std::string> m_PySystemNames = std::vector<std::string>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	std::vector<py::object> m_PythonInstances = std::vector<py::object>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+	InstanceId m_IncrementalInstanceId = 1U;
+
+	PythonEngine* m_PythonEngine = nullptr;
 };
 }
 #endif

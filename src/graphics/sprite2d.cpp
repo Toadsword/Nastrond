@@ -27,7 +27,7 @@ SOFTWARE.
 #include <graphics/texture.h>
 #include <utility/file_utility.h>
 
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/engine.h>
 #include <engine/config.h>
 #include <engine/transform2d.h>
@@ -38,14 +38,14 @@ SOFTWARE.
 namespace sfge
 {
 
-Sprite::Sprite() :
-	TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+Sprite::Sprite() : Offsetable(sf::Vector2f())
 {
+	is_visible = true;
 }
 
-Sprite::Sprite(Transform2d* transform, sf::Vector2f offset)
-	: TransformRequiredComponent(transform), Offsetable(offset)
+Sprite::Sprite(Transform2d* transform, sf::Vector2f offset) : Offsetable(offset)
 {
+	is_visible = true;
 }
 void Sprite::Draw(sf::RenderWindow& window)
 {
@@ -55,24 +55,30 @@ void Sprite::Draw(sf::RenderWindow& window)
 	
 	window.draw(sprite);
 }
+const sf::Texture* Sprite::GetTexture()
+{
+	return sprite.getTexture();
+}
 void Sprite::SetTexture(sf::Texture* newTexture)
 {
 	sprite.setTexture(*newTexture);
-
 	sprite.setOrigin(sf::Vector2f(sprite.getLocalBounds().width, sprite.getLocalBounds().height) / 2.0f);
 }
 
-
 void Sprite::Init()
 {
+	is_visible = true;
 }
 
-void Sprite::Update()
+void Sprite::Update(Transform2d* transform)
 {
-	sf::Vector2f pos = m_Offset;
-	if(m_Transform != nullptr)
+	auto pos = m_Offset;
+
+	if(transform != nullptr)
 	{
-		pos += m_Transform->Position;
+		pos += transform->Position;
+		sprite.setRotation(transform->EulerAngle);
+		sprite.setScale(transform->Scale.x, transform->Scale.y);
 	}
 	sprite.setPosition(pos);
 }
@@ -82,7 +88,7 @@ void editor::SpriteInfo::DrawOnInspector()
 {
 	ImGui::Separator();
 	ImGui::Text("Sprite");
-	ImGui::LabelText("Texture Path", texturePath.c_str());
+	ImGui::LabelText("Texture Path", "%s", texturePath.c_str());
 	ImGui::InputInt("Texture Id", (int*)&textureId);
 	if(sprite)
 	{
@@ -92,16 +98,16 @@ void editor::SpriteInfo::DrawOnInspector()
 			sprite->GetOffset().y
 		};
 		ImGui::InputFloat2("Offset", offset);
+		ImGui::Checkbox("Is Visible", &sprite->is_visible);
 	}
 }
 
-SpriteManager::SpriteManager(Engine& engine):
-	ComponentManager<Sprite, editor::SpriteInfo>(),
-	System(engine),
-	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager()),
-	m_EntityManager(m_Engine.GetEntityManager())
+
+void SpriteManager::Init()
 {
+	SingleComponentManager::Init();
+	m_GraphicsManager = m_Engine.GetGraphics2dManager();
+	m_Transform2dManager = m_Engine.GetTransform2dManager();
 }
 
 Sprite* SpriteManager::AddComponent(Entity entity)
@@ -109,40 +115,42 @@ Sprite* SpriteManager::AddComponent(Entity entity)
 	auto& sprite = GetComponentRef(entity);
 	auto& spriteInfo = GetComponentInfo(entity);
 
-	sprite.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
+	m_Components[entity - 1] = sprite;
+	m_ConcernedEntities.push_back(entity);
+
 	spriteInfo.sprite = &sprite;
+	spriteInfo.SetEntity(entity);
 
-	m_EntityManager.AddComponentType(entity, ComponentType::SPRITE2D);
+	m_EntityManager->AddComponentType(entity, ComponentType::SPRITE2D);
 	return &sprite;
-}
-
-void SpriteManager::Init()
-{
-	System::Init();
-	m_EntityManager.AddObserver(this);
 }
 
 void SpriteManager::Update(float dt)
 {
-	for(int i = 0; i < m_Components.size();i++)
-	{
-		if(m_EntityManager.HasComponent(i+1, ComponentType::SPRITE2D))
-		{
-			m_Components[i].Update();
-		}
-	}
+	(void) dt;
+	rmt_ScopedCPUSample(SpriteUpdate,0)
+	for (auto i = 0u; i < m_ConcernedEntities.size(); i++)
+		m_Components[m_ConcernedEntities[i] - 1].Update(m_Transform2dManager->GetComponentPtr(m_ConcernedEntities[i]));
 }
 
-
-void SpriteManager::Draw(sf::RenderWindow& window)
+void SpriteManager::DrawSprites(sf::RenderWindow &window)
 {
-	
-	for (int i = 0; i<m_Components.size();i++)
+
+	rmt_ScopedCPUSample(SpriteDraw,0)
+#ifdef COMPONENT_OPTIMIZATION
+	for(auto i = 0U; i < m_ConcernedEntities.size(); i++)
 	{
-		if(m_EntityManager.HasComponent(i + 1, ComponentType::SPRITE2D))
-			m_Components[i].Draw(window);
+		if(m_Components[m_ConcernedEntities[i] - 1].is_visible)
+			m_Components[m_ConcernedEntities[i] - 1].Draw(window);
 	}
-	
+#else
+	for (auto i = 0u; i < m_Components.size();i++)
+	{
+		if(m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
+			if(m_Components[i].is_visible)
+				m_Components[i].Draw(window);
+	}
+#endif
 }
 
 void SpriteManager::Reset()
@@ -150,23 +158,22 @@ void SpriteManager::Reset()
 }
 
 void SpriteManager::Collect()
-{
-	
+{	
 }
 
 void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 {
-	auto & newSprite = m_Components[entity - 1];
-	auto & newSpriteInfo = m_ComponentsInfo[entity - 1];
+	auto* newSprite = AddComponent(entity);
+	//auto & newSpriteInfo = m_ComponentsInfo[entity - 1];
 	if (CheckJsonParameter(componentJson, "path", json::value_t::string))
 	{
 		std::string path = componentJson["path"].get<std::string>();
-		newSpriteInfo.texturePath = path;
+		//newSpriteInfo.texturePath = path;
 		sf::Texture* texture = nullptr;
 		if (FileExists(path))
 		{
-			auto& textureManager = m_GraphicsManager.GetTextureManager();
-			const TextureId textureId = textureManager.LoadTexture(path);
+			auto* textureManager = m_GraphicsManager->GetTextureManager();
+			const TextureId textureId = textureManager->LoadTexture(path);
 			if (textureId != INVALID_TEXTURE)
 			{
 				/*{
@@ -174,10 +181,10 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 					oss << "Loading Sprite with Texture at: " << path << " with texture id: " << textureId;
 					sfge::Log::GetInstance()->Msg(oss.str());
 				}*/
-				texture = textureManager.GetTexture(textureId);
-				newSprite.SetTexture(texture);
-				newSprite.SetTransform(m_Transform2dManager.GetComponentPtr(entity));
-				newSpriteInfo.textureId = textureId;
+				texture = textureManager->GetTexture(textureId);
+				newSprite->SetTexture(texture);
+				//newSpriteInfo.textureId = textureId;
+				//newSpriteInfo.sprite = &newSprite;
 			}
 			else
 			{
@@ -199,18 +206,42 @@ void SpriteManager::CreateComponent(json& componentJson, Entity entity)
 	}
 	if (CheckJsonParameter(componentJson, "layer", json::value_t::number_integer))
 	{
-		newSprite.SetLayer(componentJson["layer"]);
+		newSprite->SetLayer(componentJson["layer"]);
 	}
-
 }
 
 void SpriteManager::DestroyComponent(Entity entity)
 {
+	if (m_Engine.GetEntityManager()->HasComponent(entity, ComponentType::SPRITE2D))
+	{
+		RemoveConcernedEntity(entity);
+		m_Engine.GetEntityManager()->RemoveComponentType(entity, ComponentType::SPRITE2D);
+	}
+}
+
+json SpriteManager::Save()
+{
+	json j;
+	for (auto i = 0u; i < m_ComponentsInfo.size(); i++)
+	{
+		if (m_EntityManager->HasComponent(i + 1, ComponentType::SPRITE2D))
+		{	
+			j[i]["type"] = static_cast<int>(ComponentType::SPRITE2D);
+			j[i]["path"] = m_ComponentsInfo[i].texturePath;
+			j[i]["is_visible"] = m_Components[i].is_visible;
+		}
+	}
+	return j;
 }
 
 void SpriteManager::OnResize(size_t new_size)
 {
 	m_Components.resize(new_size);
 	m_ComponentsInfo.resize(new_size);
+
+	for (size_t i = 0; i < new_size; ++i) {
+		m_ComponentsInfo[i].SetEntity(i + 1);
+		m_ComponentsInfo[i].sprite = &m_Components[i];
+	}
 }
 }

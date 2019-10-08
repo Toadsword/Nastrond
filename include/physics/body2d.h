@@ -34,11 +34,11 @@ SOFTWARE.
 namespace sfge
 {
 
-class Body2d: public TransformRequiredComponent, public Offsetable
+class Body2d: public Offsetable
 {
 public:
 	Body2d();
-	Body2d(Transform2d* transform, sf::Vector2f offset);
+	Body2d(Transform2d *transform, Vec2f offset);
 
 	b2Vec2 GetLinearVelocity();
 	void SetLinearVelocity(b2Vec2 velocity);
@@ -61,14 +61,14 @@ struct Body2dInfo : ComponentInfo
 	Body2d* body = nullptr;
 private:
 	std::deque<b2Vec2> m_Velocities;
-	const int m_VelocitiesMaxSize = 120;
+	const size_t m_VelocitiesMaxSize = 120;
 };
 }
 
-class Body2dManager : public ComponentManager<Body2d, editor::Body2dInfo>, public System, public ResizeObserver
+class Body2dManager : public SingleComponentManager<Body2d, editor::Body2dInfo, ComponentType::BODY2D>
 {
 public:
-	Body2dManager(Engine& engine);
+	using SingleComponentManager::SingleComponentManager;
 	void Init() override;
 	void FixedUpdate() override;
 	Body2d* AddComponent(Entity entity) override;
@@ -78,8 +78,7 @@ public:
 	void OnResize(size_t new_size) override;
 
 private:
-	EntityManager& m_EntityManager;
-	Transform2dManager& m_Transform2dManager;
+	Transform2dManager* m_Transform2dManager;
 	std::weak_ptr<b2World> m_WorldPtr;
 };
 

@@ -31,12 +31,11 @@ SOFTWARE.
 #include <engine/engine.h>
 namespace sfge
 {
-Body2d::Body2d() : TransformRequiredComponent(nullptr), Offsetable(sf::Vector2f())
+Body2d::Body2d() : Offsetable(sf::Vector2f())
 {
 }
 
-Body2d::Body2d(Transform2d * transform, sf::Vector2f offset) : 
-	TransformRequiredComponent(transform), Offsetable(offset)
+Body2d::Body2d(Transform2d *transform, Vec2f offset) : Offsetable(offset)
 {
 	
 }
@@ -64,7 +63,7 @@ void Body2d::ApplyForce(b2Vec2 force)
 
 b2BodyType Body2d::GetType()
 {
-	if(m_Body)
+	if(m_Body != nullptr)
 		return m_Body->GetType();
 	return b2_staticBody;
 }
@@ -91,40 +90,42 @@ void editor::Body2dInfo::DrawOnInspector()
 	const auto b2Body = body->GetBody();
 	ImGui::Separator();
 	ImGui::Text("Body2d");
-	switch (b2Body->GetType())
+	if(b2Body != nullptr)
 	{
-	case b2_staticBody:
-
-		ImGui::LabelText("Type", "Static");
-		break;
-	case b2_dynamicBody:
-		ImGui::LabelText("Type", "Dynamic");
-		break;
-	case b2_kinematicBody:
-		ImGui::LabelText("Type", "Kinematic");
-		break;
-	}
-	float velocity[2] =
-	{
-		meter2pixel(b2Body->GetLinearVelocity().x),
-		meter2pixel(b2Body->GetLinearVelocity().y)
-	};
-	ImGui::InputFloat2("Velocity", velocity);
-	if (ImGui::IsItemHovered())
-	{
-		auto& velocities = m_Velocities;
-		std::vector<float> xValues(velocities.size());
-		std::vector<float> yValues(velocities.size());
-		for (auto vIndex = 0; vIndex < velocities.size(); vIndex++)
+		switch (b2Body->GetType())
 		{
-			xValues[vIndex] = velocities[vIndex].x;
-			yValues[vIndex] = velocities[vIndex].y;
+		case b2_staticBody:
+			ImGui::LabelText("Type", "Static");
+			break;
+		case b2_dynamicBody:
+			ImGui::LabelText("Type", "Dynamic");
+			break;
+		case b2_kinematicBody:
+			ImGui::LabelText("Type", "Kinematic");
+			break;
 		}
-		//Plot last second velocities
-		ImGui::BeginTooltip();
-		ImGui::PlotLines("X", &xValues[0], xValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
-		ImGui::PlotLines("Y", &yValues[0], yValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
-		ImGui::EndTooltip();
+		float velocity[2] =
+		{
+			meter2pixel(b2Body->GetLinearVelocity().x),
+			meter2pixel(b2Body->GetLinearVelocity().y)
+		};
+		ImGui::InputFloat2("Velocity", velocity);
+		if (ImGui::IsItemHovered())
+		{
+			auto& velocities = m_Velocities;
+			std::vector<float> xValues(velocities.size());
+			std::vector<float> yValues(velocities.size());
+			for (auto vIndex = 0u; vIndex < velocities.size(); vIndex++)
+			{
+				xValues[vIndex] = velocities[vIndex].x;
+				yValues[vIndex] = velocities[vIndex].y;
+			}
+			//Plot last second velocities
+			ImGui::BeginTooltip();
+			ImGui::PlotLines("X", &xValues[0], xValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
+			ImGui::PlotLines("Y", &yValues[0], yValues.size(), 0, "", -10.0f, 10.0f, ImVec2(0, 120));
+			ImGui::EndTooltip();
+		}
 	}
 }
 
@@ -143,36 +144,26 @@ std::deque<b2Vec2>& editor::Body2dInfo::GetVelocities()
 }
 
 
-Body2dManager::Body2dManager(Engine& engine):
-	ComponentManager<Body2d, editor::Body2dInfo>(),
-	System(engine),
-	m_EntityManager(m_Engine.GetEntityManager()),
-	m_Transform2dManager(m_Engine.GetTransform2dManager())
-
-{
-}
 
 void Body2dManager::Init()
 {
-
-	m_EntityManager.AddObserver(this);
-	m_Components = std::vector<Body2d>(INIT_ENTITY_NMB, { nullptr, sf::Vector2f() });
-	m_ComponentsInfo = std::vector<editor::Body2dInfo>{ INIT_ENTITY_NMB };
-	m_WorldPtr = m_Engine.GetPhysicsManager().GetWorld();
+	SingleComponentManager::Init();
+	m_Transform2dManager = m_Engine.GetTransform2dManager();
+	m_WorldPtr = m_Engine.GetPhysicsManager()->GetWorld();
 }
 
 void Body2dManager::FixedUpdate()
 {
-	for (int i = 0; i < m_Components.size(); i++)
+	for (auto i = 0u; i < m_Components.size(); i++)
 	{
 		const Entity entity = i + 1;
-		if (m_EntityManager.HasComponent(entity, ComponentType::BODY2D) &&
-			m_EntityManager.HasComponent(entity, ComponentType::TRANSFORM2D))
+		if (m_EntityManager->HasComponent(entity, ComponentType::BODY2D) &&
+			m_EntityManager->HasComponent(entity, ComponentType::TRANSFORM2D))
 		{
-			auto & transform = m_Transform2dManager.GetComponentRef(entity);
+			auto & transform = m_Transform2dManager->GetComponentRef(entity);
 			auto & body2d = GetComponentRef(entity);
 			m_ComponentsInfo[i].AddVelocity(body2d.GetLinearVelocity());
-			transform.Position = meter2pixel(body2d.GetBody()->GetPosition()) - body2d.GetOffset();
+			transform.Position = meter2pixel(body2d.GetBody()->GetPosition()) - static_cast<sf::Vector2f>(body2d.GetOffset());
 		}
 	}
 }
@@ -184,17 +175,20 @@ Body2d* Body2dManager::AddComponent(Entity entity)
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
 
-
-
-		auto* transform = m_Transform2dManager.GetComponentPtr(entity);
+		auto* transform = m_Transform2dManager->GetComponentPtr(entity);
 		const auto pos = transform->Position;
 		bodyDef.position.Set(pixel2meter(pos.x), pixel2meter(pos.y));
 
 		auto* body = world->CreateBody(&bodyDef);
 		m_Components[entity - 1] = Body2d(transform, sf::Vector2f());
 		m_Components[entity - 1].SetBody(body);
-		m_ComponentsInfo[entity - 1].body = &m_Components[entity - 1];
-		m_EntityManager.AddComponentType(entity, ComponentType::BODY2D);
+
+		auto& componentInfo = m_ComponentsInfo[entity-1];
+		componentInfo.body = &m_Components[entity - 1];
+		componentInfo.name = "Body";
+		componentInfo.SetEntity(entity);
+
+		m_EntityManager->AddComponentType(entity, ComponentType::BODY2D);
 		return &m_Components[entity - 1];
 	}
 	return nullptr;
@@ -218,7 +212,7 @@ void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 		const auto offset = GetVectorFromJson(componentJson, "offset");
 
 
-		auto* transform = m_Transform2dManager.GetComponentPtr(entity);
+		auto* transform = m_Transform2dManager->GetComponentPtr(entity);
 		const auto pos = transform->Position + offset;
 		bodyDef.position.Set(pixel2meter(pos.x), pixel2meter(pos.y));
 		
@@ -231,6 +225,8 @@ void Body2dManager::CreateComponent(json& componentJson, Entity entity)
 
 void Body2dManager::DestroyComponent(Entity entity)
 {
+	RemoveConcernedEntity(entity);
+	(void) entity;
 }
 
 void Body2dManager::OnResize(size_t new_size)

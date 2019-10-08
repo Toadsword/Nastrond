@@ -1,8 +1,16 @@
-
+def auto_import():
+    from scripts import *
 
 
 class Vector2f:
     """SFML and default SFGE Vector type when not working on the physic"""
+    def __init__(self):
+        self.x = 0.0
+        self.y = 0.0
+        self.magnitude = 0.0
+
+
+class Vec2f:
     def __init__(self):
         self.x = 0.0
         self.y = 0.0
@@ -24,6 +32,13 @@ class b2Vec2:
         self.y = 0.0
         self.magnitude = 0.0
 
+
+class Sprite:
+    def set_texture(self, texture):
+        pass
+
+    def load_texture(self, texture_name: str):
+        pass
 
 class Timer:
     """Timer used for update loop and """
@@ -73,7 +88,8 @@ class ComponentManager():
         pass
 
 class SpriteManager(System):
-    pass
+    def add_component(self, entity):
+        return Sprite()
 
 
 class TextureManager(System):
@@ -95,18 +111,30 @@ class Transform2dManager(System, ComponentManager):
     pass
 
 
+class PythonEngine(System):
+    def load_pycomponent(self, entity, script_path):
+        pass
+
+
 class EntityManager(System):
 
-    def create_entity(self):
+    def create_entity(self, wanted_entity):
+        pass
+
+    def destroy_entity(self, entity):
         pass
 
     def has_components(self, entity, component):
         pass
 
+class NavigationGraphManager(System):
+    def get_path_from_to(self, vec2f, vecf2):
+        pass
+    def test(self, int):
+        pass
 
 class Body2dManager(System, ComponentManager):
     pass
-
 
 class Physics2dManager(System):
     body2d_manager = None # type: Body2dManager
@@ -123,6 +151,8 @@ class Component:
     Body = 0
     Sound = 0
     Transform2d = 0
+    Button = 0
+    RectTransform = 0
 
     def init(self):
         pass
@@ -154,7 +184,16 @@ class Transform2d():
     def __init__(self):
         self.position = Vector2f()
         self.scale = Vector2f()
-        self.angle = 0.0
+        self.euler_angle = 0.0
+
+
+class RectTransform:
+    def __init__(self):
+        pass
+
+    def contains(self, pos_x, pos_y):
+        pass
+
 
 class Sound:
     def play(self):
@@ -163,6 +202,7 @@ class Sound:
     def stop(self):
         pass
 
+
 class Body2d:
     def __init__(self):
         self.velocity = b2Vec2()
@@ -170,6 +210,7 @@ class Body2d:
 
     def apply_force(self, force:b2Vec2):
         pass
+
 
 class KeyboardManager:
     class Key:
@@ -188,6 +229,30 @@ class KeyboardManager:
         pass
 
 
+class MouseManager:
+    class MouseButton:
+        Left = 0
+        Right = 0
+        Middle = 0
+        ExtraOne = 0
+        ExtraTwo = 0
+
+    def is_button_down(self, mbutton):
+        pass
+
+    def is_button_held(self, mbutton):
+        pass
+
+    def is_button_up(self, mbutton):
+        pass
+
+    def get_local_position(self):
+        pass
+
+    def get_world_position(self):
+        pass
+
+
 class Color:
     Red = 0
     Green = 0
@@ -202,6 +267,12 @@ class Color:
 
 class InputManager:
     keyboard = KeyboardManager()
+    mouse = MouseManager()
+
+
+class Button:
+    def __init__(self):
+        pass
 
 
 engine = Engine()
@@ -212,3 +283,5 @@ entity_manager = EntityManager()
 physics2d_manager = Physics2dManager()
 body2d_manager = Body2dManager()
 graphics2d_manager = Graphics2dManager()
+python_engine = PythonEngine()
+navigation_graph_manager = NavigationGraphManager()

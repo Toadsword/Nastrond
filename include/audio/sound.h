@@ -35,26 +35,17 @@ namespace sfge
 {
 class EntityManager;
 class SoundManager;
-class Sound;
 
 using SoundId = unsigned int;
 const SoundId INVALID_SOUND_ID = 0U;
 
-using SoundBufferId = unsigned;
+using SoundBufferId = unsigned int;
 const SoundBufferId INVALID_SOUND_BUFFER = 0U;
 
 const auto MAX_SOUND_BUFFER_SIZE = 1'000'000ll;
 
-namespace editor
-{
-struct SoundInfo : ComponentInfo, PathEditorComponent
-{
-	void DrawOnInspector() override;
-	SoundBufferId SoundBufferId = INVALID_SOUND_BUFFER;
-	Sound* Sound = nullptr;
-	std::string bufferPath = "";
-};
-}
+
+
 /**
 * \brief Sound class child is a Component
 */
@@ -73,8 +64,11 @@ public:
 	void Play();
 	void Stop();
 
+	Entity GetEntity();
+	void SetEntity(Entity newEntity);
 protected:
 	sf::Sound m_Sound;
+	Entity m_Entity = INVALID_ENTITY;
 };
 
 class SoundBufferManager : public System
@@ -105,25 +99,40 @@ private:
 
 };
 
-class SoundManager : public ComponentManager<Sound, editor::SoundInfo>, System
+namespace editor
+{
+struct SoundInfo : ComponentInfo, PathEditorComponent
+{
+	void DrawOnInspector() override;
+	sfge::SoundBufferId SoundBufferId = sfge::INVALID_SOUND_BUFFER;
+	sfge::Sound* Sound = nullptr;
+	std::string bufferPath = "";
+};
+}
+
+const size_t MAX_SOUND_CHANNELS = 16;
+
+class SoundManager : public BasicComponentManager<Sound, editor::SoundInfo, ComponentType::SOUND>
 {
 public:
 	SoundManager(Engine& engine);
 	~SoundManager();
 
+    void Init() override;
 
 	Sound* AddComponent(Entity entity) override;
+
+	//TODO use similar construction as pycomponent
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
-	
 	void Reset();
+	void Collect() override;
 
-	void Collect();
+	Sound* GetComponentPtr(Entity entity) override;
 
 protected:
-	EntityManager& m_EntityManager;
-	SoundBufferManager& m_SoundBufferManager;
-	std::vector<std::string> m_TexturePaths{ INIT_ENTITY_NMB };
+	int GetFreeComponentIndex() override;
+	SoundBufferManager* m_SoundBufferManager = nullptr;
 };
 }
 #endif

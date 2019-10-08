@@ -43,8 +43,8 @@ namespace sfge::ext
 
 
 //#define WITH_PHYSICS
-#define WITH_VERTEXARRAY
-#define MULTI_THREAD
+//#define WITH_VERTEXARRAY
+//#define MULTI_THREAD
 
 class PlanetSystem : public System
 {
@@ -67,31 +67,31 @@ private:
 	static float Magnitude(sf::Vector2f v);
 	static float Magnitude(b2Vec2 v);
 
-	Transform2dManager& m_Transform2DManager;
-	Body2dManager& m_Body2DManager;
-	TextureManager& m_TextureManager;
-	SpriteManager& m_SpriteManager;
+	Transform2dManager* m_Transform2DManager;
+	Body2dManager* m_Body2DManager;
+	TextureManager* m_TextureManager;
+	SpriteManager* m_SpriteManager;
 
 	float fixedDeltaTime = 0.0f;
 	const float gravityConst = 1000.0f;
 	const float centerMass = 1000.0f;
 	const float planetMass = 1.0f;
-	const int entitiesNmb = 1'000'000;
+	const size_t entitiesNmb = 10'000;
 
 #ifndef WITH_PHYSICS
-	std::vector<sf::Vector2f> m_Velocities{(unsigned long) entitiesNmb};
+	std::vector<Vec2f> m_Velocities{entitiesNmb};
 #endif
 
 	sf::Vector2f screenSize;
 #ifdef WITH_VERTEXARRAY
-	sf::VertexArray m_VertexArray{sf::Quads, static_cast<size_t>(4 * entitiesNmb)};
-	Graphics2dManager& m_Graphics2DManager;
+	sf::VertexArray m_VertexArray{sf::Quads, 4 * entitiesNmb};
+	Graphics2dManager* m_Graphics2DManager;
 	sf::Texture* texture = nullptr;
 	sf::Vector2f textureSize;
 #endif
 #ifdef MULTI_THREAD
 
-	  std::vector<sf::Vector2f> m_Positions{(unsigned long) entitiesNmb};
+	  std::vector<sf::Vector2f> m_Positions{entitiesNmb};
 
 #endif
 

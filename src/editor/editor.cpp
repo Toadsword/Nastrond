@@ -31,22 +31,20 @@ SOFTWARE.
 #include <editor/editor.h>
 #include <engine/globals.h>
 #include <engine/engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 #include <audio/sound.h>
+#include <audio/audio.h>
 #include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
+#include <python/python_engine.h>
+#include <engine/config.h>
+#include <input/input.h>
 
 namespace sfge
 {
 Editor::Editor(Engine& engine):
-	System(engine),
-	m_GraphicsManager(m_Engine.GetGraphics2dManager()),
-	m_SceneManager(m_Engine.GetSceneManager()),
-	m_EntityManager(m_Engine.GetEntityManager()),
-	m_TransformManager(m_Engine.GetTransform2dManager()),
-	m_PhysicsManager(m_Engine.GetPhysicsManager()),
-	m_SoundManager(m_Engine.GetAudioManager().GetSoundManager())
+	System(engine)
 {
 }
 
@@ -55,43 +53,56 @@ Editor::Editor(Engine& engine):
 */
 void Editor::Init()
 {
-	
-	if (m_Enable)
+	m_GraphicsManager = m_Engine.GetGraphics2dManager();
+	m_EntityManager = m_Engine.GetEntityManager();
+	m_Config = m_Engine.GetConfig();
+	m_Enable = m_Config == nullptr || m_Config->editor;
+	m_KeyboardManager = &m_Engine.GetInputManager()->GetKeyboardManager();
+	m_MouseManager = &m_Engine.GetInputManager()->GetMouseManager();
+	m_TilemapSystem = m_Engine.GetGraphics2dManager()->GetTilemapSystem();
+	m_Window = m_GraphicsManager->GetWindow();
+	m_ToolWindow.Init();
+	Log::GetInstance()->Msg("Enabling Editor");
+	if(m_Window)
 	{
-		m_Window = m_GraphicsManager.GetWindow();
-		
-		Log::GetInstance()->Msg("Enabling Editor");
-		if(const auto window = m_Window.lock())
-		{
-			ImGui::SFML::Init(*window, true);
-			m_IsImguiInit = true;
-		}
-		else
-		{
-			Log::GetInstance()->Msg("Could not enable Editor");
-		}
+		ImGui::SFML::Init(*m_Window, true);
 	}
+	else
+	{
+		Log::GetInstance()->Msg("Could not enable Editor");
+	}
+
 }
 void Editor::Update(float dt)
 {
+	if(m_KeyboardManager->IsKeyDown(enablingKey))
+	{
+		m_Enable = !m_Enable;
+		m_Config->editor = m_Enable;
+	}
+
+	if (m_KeyboardManager->IsKeyDown(sf::Keyboard::Key::F1))
+	{
+		m_GraphicsManager->OnChangeScreenMode();
+	}
+
 	if (m_Enable)
 	{
-		const auto windowPtr = m_Window.lock();
-		const auto configPtr = m_Engine.GetConfig().lock();
-		if (windowPtr and configPtr)
+		const auto configPtr = m_Engine.GetConfig();
+		if (m_Window and configPtr)
 		{
-			ImGui::SFML::Update(*windowPtr, sf::seconds(dt));
+			ImGui::SFML::Update(*m_Window, sf::seconds(dt));
 
 			//GameObject window
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Entities");
 			
-			for (int i = 0; i < configPtr->currentEntitiesNmb; i++)
+			for (auto i = 0u; i < configPtr->currentEntitiesNmb; i++)
 			{
-				if(m_EntityManager.GetMask(i+1) != INVALID_ENTITY)
+				if(m_EntityManager->GetMask(i+1) != INVALID_ENTITY)
 				{
-					auto& entityInfo = m_EntityManager.GetEntityInfo(i+1);
+					auto& entityInfo = m_EntityManager->GetEntityInfo(i+1);
 					if(ImGui::Selectable(entityInfo.name.c_str(), selectedEntity-1 == i))
 					{
 						selectedEntity = i + 1;
@@ -104,59 +115,22 @@ void Editor::Update(float dt)
 			ImGui::SetNextWindowPos(ImVec2(configPtr->screenResolution.x - 50.0f, 0), ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowSize(ImVec2(150.0f, configPtr->screenResolution.y), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Inspector");
-			//TODO ADD THE SELECTED ENTITY COMPONENTS ON THE WINDOW
+
 			if(selectedEntity != INVALID_ENTITY)
 			{
-				auto& entityInfo = m_EntityManager.GetEntityInfo(selectedEntity);
+				auto& entityInfo = m_EntityManager->GetEntityInfo(selectedEntity);
 				ImGui::InputText("Name", &entityInfo.name[0u], 15);
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::TRANSFORM2D))
-				{
-					auto& transformInfo = m_TransformManager.GetComponentInfo(selectedEntity);
-					transformInfo.DrawOnInspector();
-				}
 
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::BODY2D))
-				{
-					
-					auto& bodyManager = m_PhysicsManager.GetBodyManager();
-					auto& bodyInfo = bodyManager.GetComponentInfo(selectedEntity);
-					bodyInfo.DrawOnInspector();
-					
-				}
-
-				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SPRITE2D))
-				{
-					
-					auto& spriteManager = m_GraphicsManager.GetSpriteManager();
-					auto& spriteInfo = spriteManager.GetComponentInfo(selectedEntity);
-					spriteInfo.DrawOnInspector();
-
-					
-				}
-				if (m_EntityManager.HasComponent(selectedEntity, ComponentType::SHAPE2D))
-				{
-					auto& shapeManager = m_GraphicsManager.GetShapeManager();
-					auto& shapeInfo = shapeManager.GetComponentInfo (selectedEntity);
-					shapeInfo.DrawOnInspector();
-				}
-
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::SOUND))
-				{
-					auto& soundInfo = m_SoundManager.GetComponentInfo(selectedEntity);
-					soundInfo.DrawOnInspector();
-				}
-				if(m_EntityManager.HasComponent(selectedEntity, ComponentType::PYCOMPONENT))
-				{
-					auto& pythonEngine = m_Engine.GetPythonEngine();
-					for(auto& pyInfo : pythonEngine.GetPyComponentsInfoFromEntity(selectedEntity))
-					{
-						pyInfo.DrawOnInspector();
-					}
-				}
+				for(auto& drawableComponentManager: m_DrawableObservers)
+                {
+				  drawableComponentManager->DrawOnInspector(selectedEntity);
+                }
 
 			}
 			ImGui::End();
 			m_ProfilerWindow.Update();
+			m_ToolWindow.Update(dt);
+			m_ToolWindow.Draw();
 		}
 		
 	}
@@ -177,14 +151,12 @@ void Editor::Draw()
 {
 	if (m_Enable)
 	{
-		if (const auto window = m_Window.lock())
+		if (m_Window)
 		{
-			ImGui::SFML::Render(*window);
+			ImGui::SFML::Render(*m_Window);
 		}
 	}
 }
-
-
 
 /**
 * \brief Finalize and delete everything created in the SceneManager
@@ -208,12 +180,21 @@ void Editor::Clear()
 void Editor::SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo)
 {
 	m_CurrentScene = std::move(sceneInfo);
-	if(auto window = m_Window.lock())
+	if(m_Window)
 	{
 		std::ostringstream oss;
 		oss << "SFGE " << SFGE_VERSION << " - " << m_CurrentScene->name;
-		window->setTitle(oss.str());
+		m_Window->setTitle(oss.str());
+	}
+}
+
+	std::string Editor::GetCurrentSceneName() const
+	{
+		return m_CurrentScene->name;
 	}
 
+	void Editor::AddDrawableObserver(editor::IDrawableManager *observer)
+{
+	m_DrawableObservers.emplace(observer);
 }
 }

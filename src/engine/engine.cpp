@@ -23,49 +23,39 @@ SOFTWARE.
 */
 
 #include <memory>
+#include <iostream>
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
-
 #include <engine/engine.h>
-#include <engine/entity.h>
 #include <engine/globals.h>
-#include <engine/scene.h>
-#include <graphics/graphics2d.h>
-#include <input/input.h>
-#include <python/python_engine.h>
-#include <engine/config.h>
-#include <audio/audio.h>
-#include <editor/editor.h>
-#include <engine/transform2d.h>
-#include <physics/physics2d.h>
-#include <engine/log.h>
 
+#include <utility/log.h>
+#include <utility/file_utility.h>
+#include <engine/systems_container.h>
 
 namespace sfge
 {
 
-/*Engine::Engine()
+Engine::Engine()
 {
-	instance = this;
-	m_EntityManager = std::make_shared<EntityManager>();
-	m_Transform2dManager = std::make_shared<Transform2dManager>();
-	m_Graphics2dManager = std::make_shared<Graphics2dManager>();
-	m_AudioManager = std::make_shared<AudioManager>();
-	m_SceneManager = std::make_shared<SceneManager>();
-	m_InputManager = std::make_shared<InputManager>();
-	m_PythonEngine = std::make_shared<PythonEngine>();
-	m_PhysicsManager = std::make_shared<Physics2dManager>();
-	m_Editor = std::make_shared<Editor>();
-}*/
+	m_SystemsContainer = std::make_unique<SystemsContainer>(*this);
+
+	rmt_CreateGlobalInstance(&rmt);
+}
+Engine::~Engine()
+{
+	m_SystemsContainer = nullptr;
+}
 
 void Engine::Init(std::string configFilename)
 {
 	const auto configJsonPtr = LoadJson(configFilename);
 	if (configJsonPtr)
 		Init(*configJsonPtr);
+
 }
 
 void Engine::Init(json& configJson)
@@ -84,11 +74,11 @@ void Engine::InitModules()
 {
 	if (m_Config == nullptr)
 	{
-		Log::GetInstance()->Error("[Error] Game Engine Configuration");
+		Log::GetInstance()->Error("[Error] Game tool_engine Configuration");
 	}
 	else
 	{
-		Log::GetInstance()->Msg("Game Engine Configuration Successfull");
+		Log::GetInstance()->Msg("Game tool_engine Configuration Successfull");
 	}
     {
         std::ostringstream oss;
@@ -98,17 +88,19 @@ void Engine::InitModules()
     m_ThreadPool.resize(std::thread::hardware_concurrency ()-1);
 
 
+	m_SystemsContainer->entityManager.Init();
+	m_SystemsContainer->transformManager.Init();
+	m_SystemsContainer->rectTransformManager.Init();
+    m_SystemsContainer->graphics2dManager.Init();
+	m_SystemsContainer->uiManager.Init();
+    m_SystemsContainer->audioManager.Init();
+    m_SystemsContainer->sceneManager.Init();
+    m_SystemsContainer->inputManager.Init();
+    m_SystemsContainer->pythonEngine.Init();
+    m_SystemsContainer->physicsManager.Init();
+    m_SystemsContainer->editor.Init();
 
-	m_EntityManager.Init();
-	m_Graphics2dManager.Init();
-	m_AudioManager.Init();
-	m_SceneManager.Init();
-	m_InputManager.Init();
-	m_PythonEngine.Init();
-	m_PhysicsManager.Init();
-	m_Editor.Init();
-
-	m_Window = m_Graphics2dManager.GetWindow();
+	m_Window = m_SystemsContainer->graphics2dManager.GetWindow();
 	running = true;
 }
 
@@ -121,14 +113,19 @@ void Engine::Start()
 	sf::Time previousFixedUpdateTime = globalClock.getElapsedTime();
 	sf::Time deltaFixedUpdateTime = sf::Time();
 	sf::Time dt = sf::Time();
+
+	rmt_BindOpenGL();
 	while (running && m_Window != nullptr)
 	{
+		rmt_ScopedOpenGLSample(SFGE_Frame_GL);
+		rmt_ScopedCPUSample(SFGE_Frame,0)
+
 		bool isFixedUpdateFrame = false;
 		sf::Event event{};
 		while (m_Window != nullptr && 
 			m_Window->pollEvent(event))
 		{
-			m_Editor.ProcessEvent(event);
+            m_SystemsContainer->editor.ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 			{
 				running = false;
@@ -140,30 +137,43 @@ void Engine::Start()
 		{
 			continue;
 		}
-		
-		m_InputManager.Update(dt.asSeconds());
-		sf::Time fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
+
+        m_SystemsContainer->inputManager.Update(dt.asSeconds());
+		auto fixedUpdateTime = globalClock.getElapsedTime() - previousFixedUpdateTime;
 		if (fixedUpdateTime.asSeconds() > m_Config->fixedDeltaTime)
 		{
 			fixedUpdateClock.restart ();
-			m_PhysicsManager.FixedUpdate();
+			m_SystemsContainer->physicsManager.FixedUpdate();
 			previousFixedUpdateTime = globalClock.getElapsedTime();
-			m_PythonEngine.FixedUpdate();
-			m_SceneManager.FixedUpdate();
+			m_SystemsContainer->pythonEngine.FixedUpdate();
+            m_SystemsContainer->sceneManager.FixedUpdate();
 			deltaFixedUpdateTime = fixedUpdateClock.getElapsedTime ();
 			m_FrameData.frameFixedUpdate = deltaFixedUpdateTime;
 			isFixedUpdateFrame = true;
 		}
-		m_PythonEngine.Update(dt.asSeconds());
+        m_SystemsContainer->pythonEngine.Update(dt.asSeconds());
 
-		m_SceneManager.Update(dt.asSeconds());
+        m_SystemsContainer->sceneManager.Update(dt.asSeconds());
 
-		m_Editor.Update(dt.asSeconds());
+
+        m_SystemsContainer->editor.Update(dt.asSeconds());
 		graphicsUpdateClock.restart ();
-		m_Graphics2dManager.Update(dt.asSeconds());
-		m_PythonEngine.Draw();
-		m_Editor.Draw();
-		m_Graphics2dManager.Display();
+        m_SystemsContainer->transformManager.Update(dt.asSeconds());
+
+		m_SystemsContainer->rectTransformManager.Update(dt.asSeconds());
+		m_SystemsContainer->uiManager.Update(dt.asSeconds());
+
+        m_SystemsContainer->graphics2dManager.Update(dt.asSeconds());
+
+		m_SystemsContainer->sceneManager.Draw();
+
+		m_SystemsContainer->uiManager.Draw();
+		m_SystemsContainer->graphics2dManager.Draw();
+		
+        m_SystemsContainer->pythonEngine.Draw();
+        m_SystemsContainer->editor.Draw();
+        m_SystemsContainer->graphics2dManager.Display();
+
 		const sf::Time graphicsDt = graphicsUpdateClock.getElapsedTime ();
 		dt = updateClock.restart();
 		if(isFixedUpdateFrame)
@@ -172,96 +182,231 @@ void Engine::Start()
 			m_FrameData.frameTotalTime = dt;
 		}
 	}
+
+	rmt_UnbindOpenGL();
 	Destroy();
 }
 
 void Engine::Destroy() 
 {
-	m_EntityManager.Destroy();
-	m_Graphics2dManager.Destroy();
-	m_AudioManager.Destroy();
-	m_SceneManager.Destroy();
-	m_InputManager.Destroy();
-	m_Editor.Destroy();
-	m_PhysicsManager.Destroy();
-
-	m_PythonEngine.Destroy();
+	m_SystemsContainer->pythonEngine.Destroy();
+	m_SystemsContainer->entityManager.Destroy();
+	m_SystemsContainer->graphics2dManager.Destroy();
+	m_SystemsContainer->audioManager.Destroy();
+	m_SystemsContainer->sceneManager.Destroy();
+	m_SystemsContainer->inputManager.Destroy();
+	m_SystemsContainer->editor.Destroy();
+	m_SystemsContainer->physicsManager.Destroy();
+	rmt_DestroyGlobalInstance(rmt);
 }
 
 void Engine::Clear() 
 {
-	m_EntityManager.Clear();
-	m_Graphics2dManager.Clear();
-	m_AudioManager.Clear();
-	m_SceneManager.Clear();
-	m_InputManager.Clear();
-	m_PythonEngine.Clear();
-	m_Editor.Clear();
-	m_PhysicsManager.Clear();
+	m_SystemsContainer->entityManager.Clear();
+	m_SystemsContainer->graphics2dManager.Clear();
+	m_SystemsContainer->audioManager.Clear();
+	m_SystemsContainer->sceneManager.Clear();
+	m_SystemsContainer->inputManager.Clear();
+	m_SystemsContainer->pythonEngine.Clear();
+	m_SystemsContainer->editor.Clear();
+	m_SystemsContainer->physicsManager.Clear();
 }
 
 void Engine::Collect() 
 {
+	m_SystemsContainer->entityManager.Collect();
+	m_SystemsContainer->graphics2dManager.Collect();
+	m_SystemsContainer->audioManager.Collect();
+	m_SystemsContainer->sceneManager.Collect();
+	m_SystemsContainer->inputManager.Collect();
+	m_SystemsContainer->pythonEngine.Collect();
+	m_SystemsContainer->editor.Collect();
+	m_SystemsContainer->physicsManager.Collect();
+}
 
-	m_EntityManager.Collect();
-	m_Graphics2dManager.Collect();
-	m_AudioManager.Collect();
-	m_SceneManager.Collect();
-	m_InputManager.Collect();
-	m_PythonEngine.Collect();
-	m_Editor.Collect();
-	m_PhysicsManager.Collect();
+void Engine::Save()
+{
+	json j;
+	j["name"] = m_SystemsContainer->editor.GetCurrentSceneName();
+	j["entities"] = nlohmann::detail::value_t::array;
+
+	//Gathering datas from the managers
+	json transformSave = m_SystemsContainer->transformManager.Save();
+	json spriteSave = m_SystemsContainer->graphics2dManager.GetSpriteManager()->Save();
+	json pyComponentSave = m_SystemsContainer->pythonEngine.GetPyComponentManager().Save();
+	json tilemapSave = m_SystemsContainer->graphics2dManager.GetTilemapSystem()->Save();
+	json cameraSave = m_SystemsContainer->graphics2dManager.GetCameraManager()->Save();
+
+	bool hasAtLeastOneComponent = false;
+	unsigned entityIndex = 1;
+	unsigned componentIndex = 0;
+
+	std::string referencePath = TILEMAP_FOLDER + "coucou.asset";
+	//Save of the tileAsset file
+	if(CheckJsonExists(tilemapSave, "tiletype"))
+	{
+		// Copy all the sprites needed for the tiletypes into the data folder
+		for(int i = 0; i < tilemapSave["tiletype"].size(); i++)
+		{
+			std::string filepath = tilemapSave["tiletype"][i]["texturePath"].get<std::string>();
+
+			char slash = '/';
+			if (!(filepath.find(slash) < filepath.length()))
+				slash = '\\';
+			
+			std::string newPath = SPRITE_FOLDER + filepath.substr(filepath.find_last_of(slash) + 1);
+			if(!FileExists(filepath))
+				CopyFile(filepath, newPath);
+			
+			tilemapSave["tiletype"][i]["texturePath"] = newPath;
+		}
+
+		// File write
+		std::ofstream myfile;
+		myfile.open(referencePath);
+		myfile.flush();
+		myfile << std::setw(4) << tilemapSave["tiletype"] << std::endl;
+		myfile.close();
+	}
+
+	//Save of the scene file
+	//Loop on all the entities
+	for (int i = 1; i < INIT_ENTITY_NMB; i++)
+	{
+		// If a tile is found, we don't want to save it
+		if(m_SystemsContainer->entityManager.HasComponent(i, ComponentType::TILE))
+			continue;
+
+		hasAtLeastOneComponent = false;
+		componentIndex = 0;
+
+		//Transform2d
+		if (CheckJsonExists(transformSave[i - 1], "position"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = transformSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//Sprite
+		if (CheckJsonExists(spriteSave[i - 1], "path"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = spriteSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//Pycomponent
+		if (CheckJsonExists(pyComponentSave[i][0], "script_path"))
+		{
+			for(int iPyComp = 0; iPyComp < pyComponentSave[i].size(); iPyComp++)
+			{
+				j["entities"][entityIndex - 1]["components"][componentIndex] = pyComponentSave[i][iPyComp];
+				componentIndex++;
+			}
+			hasAtLeastOneComponent = true;
+		}
+
+		//Tilemap
+		if (CheckJsonExists(tilemapSave["tilemap"][i - 1], "map"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = tilemapSave["tilemap"][i - 1];
+			j["entities"][entityIndex - 1]["components"][componentIndex]["reference_path"] = referencePath;
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//Camera
+		if (CheckJsonExists(cameraSave[i - 1], "type"))
+		{
+			j["entities"][entityIndex - 1]["components"][componentIndex] = cameraSave[i - 1];
+			hasAtLeastOneComponent = true;
+			componentIndex++;
+		}
+
+		//If we stored something, we can add the name of the entity.
+		if (hasAtLeastOneComponent)
+		{
+			j["entities"][entityIndex - 1]["name"] = m_SystemsContainer->entityManager.GetEntityInfo(i).name;
+			entityIndex++;
+		}
+	}
+
+	int indexMakeUnique = 1;
+	std::string sceneFilename = SCENE_FOLDER + "saved_scene.scene";
+	while(FileExists(sceneFilename))
+	{
+		sceneFilename = SCENE_FOLDER + "saved_scene" + std::to_string(indexMakeUnique) + ".scene";
+		indexMakeUnique++;
+	}
+
+	// File write
+	std::ofstream myfile;
+	myfile.open(sceneFilename);
+	myfile.flush();
+	myfile << std::setw(4) << j << std::endl;
+	myfile.close();
 }
 
 
-std::weak_ptr<Configuration> Engine::GetConfig() const
+Configuration * Engine::GetConfig() const
 {
-	return std::weak_ptr<Configuration>(m_Config);
+	return m_Config.get();
 }
 
-Graphics2dManager& Engine::GetGraphics2dManager() 
+Graphics2dManager* Engine::GetGraphics2dManager()
 {
-	return (m_Graphics2dManager);
+	return m_SystemsContainer?&m_SystemsContainer->graphics2dManager:nullptr;
 }
 
-AudioManager& Engine::GetAudioManager() 
+AudioManager* Engine::GetAudioManager()
 {
-	return (m_AudioManager);
+	return m_SystemsContainer ? &m_SystemsContainer->audioManager : nullptr;
 }
 
-SceneManager& Engine::GetSceneManager() 
+SceneManager* Engine::GetSceneManager() 
 {
-	return (m_SceneManager);
+	return m_SystemsContainer ? &m_SystemsContainer->sceneManager : nullptr;
 }
 
-InputManager& Engine::GetInputManager() 
+InputManager* Engine::GetInputManager() 
 {
-	return (m_InputManager);
+	return m_SystemsContainer ? &m_SystemsContainer->inputManager : nullptr;
 }
 
-PythonEngine& Engine::GetPythonEngine() 
+PythonEngine* Engine::GetPythonEngine() 
 {
-	return (m_PythonEngine);
+	return m_SystemsContainer ? &m_SystemsContainer->pythonEngine : nullptr;
 }
 
-Physics2dManager& Engine::GetPhysicsManager() 
+Physics2dManager* Engine::GetPhysicsManager() 
 {
-	return (m_PhysicsManager);
+	return m_SystemsContainer ? &m_SystemsContainer->physicsManager : nullptr;
 }
 
-EntityManager& Engine::GetEntityManager() 
+EntityManager* Engine::GetEntityManager() 
 {
-	return (m_EntityManager);
+	return m_SystemsContainer ? &m_SystemsContainer->entityManager : nullptr;
 }
 
-Transform2dManager& Engine::GetTransform2dManager() 
+Transform2dManager* Engine::GetTransform2dManager() 
 {
-	return (m_TransformManager);
+	return m_SystemsContainer ? &m_SystemsContainer->transformManager : nullptr;
 }
 
-Editor& Engine::GetEditor() 
+RectTransformManager* Engine::GetRectTransformManager()
 {
-	return (m_Editor);
+	return m_SystemsContainer ? &m_SystemsContainer->rectTransformManager : nullptr;
+}
+
+UIManager* Engine::GetUIManager()
+{
+	return m_SystemsContainer ? &m_SystemsContainer->uiManager : nullptr;
+}
+
+Editor* Engine::GetEditor() 
+{
+	return m_SystemsContainer ? &m_SystemsContainer->editor : nullptr;
 }
 
 ctpl::thread_pool & Engine::GetThreadPool()

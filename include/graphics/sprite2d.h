@@ -29,7 +29,7 @@ SOFTWARE.
 #include <string>
 //Dependencies
 #include <SFML/Graphics.hpp>
-//Engine
+//tool_engine
 #include <engine/component.h>
 #include <engine/transform2d.h>
 #include <editor/editor.h>
@@ -42,7 +42,7 @@ class Graphics2dManager;
 * \brief Sprite component used in the GameObject
 */
 class Sprite:
-	public LayerComponent, public TransformRequiredComponent, public Offsetable
+	public LayerComponent, public Offsetable
 {
 public:
 
@@ -50,11 +50,13 @@ public:
 	Sprite(Transform2d* transform, sf::Vector2f offset);
 
 	void Init();
-	void Update();
+	void Update(Transform2d* transform);
 	void Draw(sf::RenderWindow& window);
+	const sf::Texture* GetTexture();
 	void SetTexture(sf::Texture* newTexture);
 
 
+	bool is_visible;
 
 	
 protected:
@@ -76,15 +78,15 @@ struct SpriteInfo : ComponentInfo
 /**
 * \brief Sprite manager caching all the sprites and rendering them at the end of the frame
 */
-class SpriteManager : public ComponentManager<Sprite, editor::SpriteInfo>, 
-	public LayerComponentManager<Sprite>, public System, public ResizeObserver
+class SpriteManager : public SingleComponentManager<Sprite, editor::SpriteInfo, ComponentType::SPRITE2D>,
+	public LayerComponentManager<Sprite>
 {
 public:
-	SpriteManager(Engine& engine);
-	SpriteManager& operator=(const SpriteManager&) = delete;
+	using SingleComponentManager::SingleComponentManager;
+
 	void Init() override;
 	void Update(float dt) override;
-	void Draw(sf::RenderWindow& window);
+	void DrawSprites(sf::RenderWindow &window);
 
 	void Reset();
 	void Collect() override;
@@ -92,15 +94,13 @@ public:
 	void CreateComponent(json& componentJson, Entity entity) override;
 	void DestroyComponent(Entity entity) override;
 
+	json Save();
+
 	void OnResize(size_t new_size) override;
 protected:
-	Graphics2dManager& m_GraphicsManager;
-	Transform2dManager& m_Transform2dManager;
-	EntityManager& m_EntityManager;
+	Graphics2dManager* m_GraphicsManager = nullptr;
+	Transform2dManager* m_Transform2dManager = nullptr;
 };
-
-
-
 
 }
 #endif // !SFGE_SPRITE

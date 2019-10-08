@@ -23,14 +23,12 @@ class PlanetSystem(System):
             new_entity = entity_manager.create_entity(i+1)
 
             transform = transform2d_manager.add_component(new_entity)  # type: Transform2d
-            transform.position = Vector2f(random.randint(0, self.screen_size.x), random.randint(0, self.screen_size.y))
+            transform.position = Vec2f(random.randint(0, self.screen_size.x), random.randint(0, self.screen_size.y))
 
             body2d = body2d_manager.add_component(new_entity)  # type: Body2d
             body2d.velocity = self.calculate_init_speed(transform)
 
-            texture = texture_manager.load_texture("data/sprites/round.png")
-            sprite = sprite_manager.add_component(new_entity)
-            sprite.set_texture(texture)
+            sprite_manager.create_component(new_entity, "data/sprites/round.png")
 
     def calculate_init_speed(self, transform):
         delta_to_center = self.screen_size / 2.0 - transform.position

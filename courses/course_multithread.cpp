@@ -34,9 +34,10 @@ SOFTWARE.
 #include <imgui.h>
 
 #include <physics/physics2d.h>
+#include <engine/vector.h>
 
 
-#define MULTITHREAD
+//#define MULTITHREAD
 #define OBJ_NMB 5'000
 #define SCREEN_SIZE 800
 #define VELOCITY_ITERATIONS 8
@@ -50,7 +51,7 @@ struct SquareObject
 	{
 
 	}
-	void Init(sf::Vector2f position, sf::Vector2f size, b2World* world)
+	void Init(sfge::Vec2f position, sfge::Vec2f size, b2World* world)
 	{
 		rectangle.setPosition(position);
 		rectangle.setSize(size);

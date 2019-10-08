@@ -26,20 +26,26 @@ SOFTWARE.
 #define SFGE_ENTITY_H
 
 #include <vector>
+#include <set>
+
 #include <engine/system.h>
 #include <editor/editor_info.h>
 #include <engine/globals.h>
-#include <engine/component.h>
 
 namespace sfge
 {
 enum class ComponentType : int;
-template<class T, class TInfo>
-class ComponentManager;
+
 class ResizeObserver
 {
 public:
-	virtual void OnResize(size_t new_size) = 0;
+	virtual void OnResize(size_t newSize) = 0;
+};
+
+class DestroyObserver
+{
+public:
+	virtual void OnDestroy(Entity entity) = 0;
 };
 /**
  * \brief Entity index number, starting from 1U
@@ -67,22 +73,26 @@ public:
 
 	EntityMask GetMask(Entity entity);
 	Entity CreateEntity(Entity wantedEntity);
+	void DestroyEntity(Entity entity);
 	bool HasComponent(Entity entity, ComponentType componentType);
 	void AddComponentType(Entity entity, ComponentType componentType);
 	void RemoveComponentType(Entity entity, ComponentType componentType);
 	editor::EntityInfo& GetEntityInfo(Entity entity);
 
 	void ResizeEntityNmb(size_t newSize);
-	void AddObserver(ResizeObserver* resizeObserver);
+	void AddResizeObserver(ResizeObserver *resizeObserver);
+	void AddDestroyObserver(DestroyObserver *destroyObserver);
 
 private:
-	std::vector<EntityMask> m_MaskArray{ INIT_ENTITY_NMB };
-	std::vector<editor::EntityInfo> m_EntityInfos{ INIT_ENTITY_NMB };
-	std::vector<ResizeObserver*> m_ResizeObsververs;
+	std::vector<EntityMask> m_MaskArray = std::vector<EntityMask>( INIT_ENTITY_NMB );
+	std::vector<editor::EntityInfo> m_EntityInfos = std::vector<editor::EntityInfo>( INIT_ENTITY_NMB );
+	std::set<ResizeObserver*> m_ResizeObservers;
+	std::set<DestroyObserver*> m_DestroyObservers;
 };
+
 /*
 template <>
-void EntityManager::AddObserver(ComponentManager<std::any, std::any>* componentManager)
+void EntityManager::AddResizeObserver(SingleComponentManager<std::any, std::any>* componentManager)
 {
 	m_ResizeObsververs.push_back(componentManager);
 }

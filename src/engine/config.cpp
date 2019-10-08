@@ -26,7 +26,7 @@ SOFTWARE.
 #include <fstream>
 //SFGE includes
 #include <engine/config.h>
-#include <engine/log.h>
+#include <utility/log.h>
 
 
 namespace sfge
@@ -54,11 +54,11 @@ std::unique_ptr<Configuration> Configuration::LoadConfig(std::string configFilen
 }
 std::unique_ptr<Configuration> Configuration::LoadConfig(json& configJson)
 {
-
 	auto newConfig = std::make_unique<Configuration>();
 	newConfig->screenResolution = sf::Vector2i(
 		configJson["screenResolution"]["x"],
 		configJson["screenResolution"]["y"]);
+	newConfig->styleWindow = int(configJson["styleWindow"]);
 	if (CheckJsonExists(configJson, "gravity"))
 	{
 		newConfig->gravity = b2Vec2(

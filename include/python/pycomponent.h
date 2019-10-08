@@ -29,35 +29,44 @@
 #include <memory>
 
 #include <engine/entity.h>
-#include <python/python_engine.h>
 #include <utility/python_utility.h>
 //STL
 #include <engine/component.h>
 
 namespace sfge
 {
+class PyBehavior;
 
+using InstanceId = unsigned;
+using ModuleId = unsigned;
+namespace editor
+{
+struct PyComponentInfo : public ComponentInfo, public PathEditorComponent
+{
+  void DrawOnInspector() override;
+
+  PyBehavior* pyComponent = nullptr;
+};
+}
 struct ColliderData;
 
-class Component : LayerComponent
+class Behavior : public LayerComponent
 {
 public:
-    Component(Engine& engine, Entity entity);
-    ~Component() = default;
+    Behavior(Engine& engine, Entity entity);
+    virtual ~Behavior() = default;
     
     virtual void Init() {};
-    virtual void Update(float dt) {};
-    virtual void FixedUpdate(float fixedDeltaTime) {};
+    virtual void Update(float dt) {(void) dt;};
+    virtual void FixedUpdate(float fixedDeltaTime) {(void)fixedDeltaTime;};
     
-    virtual void OnCollisionEnter(ColliderData* collider) {};
-    virtual void OnTriggerEnter(ColliderData * collider) {};
-    virtual  void OnCollisionExit(ColliderData* collider) {};
-    virtual void OnTriggerExit(ColliderData * collider) {};
-    
+    virtual void OnCollisionEnter(ColliderData* collider) {(void) collider;};
+    virtual void OnTriggerEnter(ColliderData * collider) { (void) collider;};
+    virtual void OnCollisionExit(ColliderData* collider) {(void) collider;};
+    virtual void OnTriggerExit(ColliderData * collider) {(void) collider;};
     
     py::object GetComponent(ComponentType componentType) const;
 	py::object GetPyComponent(py::object type);
-
 
     Entity GetEntity();
     
@@ -72,10 +81,10 @@ protected:
 	/**
  * \brief Python abstraction of Component
  */
-class PyComponent : public Component
+class PyBehavior : public Behavior
 {
 public:
-    using Component::Component; 
+    using Behavior::Behavior;
     void Init() override;
     void Update(float dt)  override;
     void FixedUpdate(float fixedDeltaTime) override;
@@ -86,17 +95,61 @@ public:
     void OnTriggerExit(ColliderData * collider) override;
 };
 
-namespace editor
+class PyComponentManager: public MultipleComponentManager<PyBehavior*, editor::PyComponentInfo, ComponentType::PYCOMPONENT>
 {
-struct PyComponentInfo : NamableEditorComponent, PathEditorComponent, IDrawableInspector
-{
-	void DrawOnInspector() override;
+public:
 
-	PyComponent* pyComponent = nullptr;
+	using MultipleComponentManager::MultipleComponentManager;
+	~PyComponentManager(){};
+	void Init() override;
+	void Update(float dt) override;
+	void FixedUpdate() override;
+
+	void CreateComponent(json& componentJson, Entity entity) override;
+	virtual PyBehavior** AddComponent(Entity entity) override;
+	virtual void DestroyComponent(Entity entity) override;
+	virtual PyBehavior** GetComponentPtr(Entity entity) override;
+
+	void OnTriggerEnter(Entity entity, ColliderData* colliderData);
+	void OnTriggerExit(Entity entity, ColliderData* colliderData);
+	void OnCollisionEnter(Entity entity, ColliderData* colliderData);
+	void OnCollisionExit(Entity entity, ColliderData* colliderData);
+
+	void OnResize(size_t newSize) override;
+
+	void RemovePyComponentsFrom(Entity entity);
+
+	void Destroy() override;
+
+	json Save();
+
+	/**
+	 * \brief Get a python component object
+	 * \param instanceId InstanceId necessary to get back the PyComponent and update it later
+	 * \return pyComponent PyComponent pointer that interacts with the python script
+	 */
+	PyBehavior* GetPyComponentFromInstanceId(InstanceId instanceId);
+
+	py::object GetPyComponentFromType(py::object type, Entity entity);
+
+	InstanceId LoadPyComponent(ModuleId moduleId, Entity entity);
+
+	void InitPyComponents();
+protected:
+	int GetFreeComponentIndex() override;
+	std::vector<py::object> m_PythonInstances = std::vector<py::object>( INIT_ENTITY_NMB * MULTIPLE_COMPONENTS_MULTIPLIER );
+
+	std::list<editor::PyComponentInfo> GetPyComponentsInfoFromEntity(Entity entity);
+
+	InstanceId m_IncrementalInstanceId = 1U;
+
+	PythonEngine* m_PythonEngine = nullptr;
 };
-}
+
 
 }
+
+
 
 
 #endif 

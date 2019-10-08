@@ -32,9 +32,10 @@ SOFTWARE.
 //Externals include
 #include <SFML/System/Vector2.hpp>
 #include <Box2D/Box2D.h>
-//Engine include
+//tool_engine include
 #include <utility/json_utility.h>
 #include <engine/globals.h>
+#include "SFML/Window/WindowStyle.hpp"
 
 namespace sfge
 {
@@ -54,6 +55,7 @@ struct Configuration
 	 * \brief The screen resolution used for the editor
 	 */
 	sf::Vector2i screenResolution = sf::Vector2i(1280, 720);
+	unsigned int styleWindow = sf::Style::Default;
 
 	b2Vec2 gravity = b2Vec2(0.0f, 9.81f);
 	/**
@@ -64,8 +66,7 @@ struct Configuration
 	int velocityIterations = 8;
 	int positionIterations = 2;
 	size_t currentEntitiesNmb = INIT_ENTITY_NMB;
-
-
+	
 	std::string scriptsDirname = "scripts/";
 	std::string dataDirname = "data/";
 	/**
@@ -73,7 +74,6 @@ struct Configuration
 	*/
 	static std::unique_ptr<Configuration> LoadConfig(std::string configFilename);
 	static std::unique_ptr<Configuration> LoadConfig(json& configJson);
-
 };
 }
 #endif // !CONFIG_H

@@ -39,7 +39,10 @@ public:
 
 	virtual ~System() = default;
 	System& operator=(const System&) = delete;
-	explicit System(const System & system);
+	System ( System && ) = default; //move constructor
+	System ( const System & ) = delete; //delete copy constructor
+	//explicit System(const System & system);
+
 	/**
 	* \brief Called to initialize the module
 	*/
@@ -48,7 +51,7 @@ public:
 	* \brief Called every frame to update the module
 	* \param dt The delta time since last frame
 	*/
-	virtual void Update(float dt) {}
+	virtual void Update(float dt) {(void) dt;}
 	/**
 	* \brief Called directly after the physics finished his job
 	*/
@@ -67,6 +70,10 @@ public:
 	* \brief Called after we load a scene
 	*/
 	virtual void Collect() {}
+
+	/**
+	 * \brief Called when the engine saves the game
+	 */
 
 	void SetEnable(bool enable);
 	bool GetEnable() const;

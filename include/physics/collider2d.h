@@ -52,19 +52,23 @@ namespace editor
 {
 struct ColliderInfo : ComponentInfo
 {
+    ColliderData* data;
 	void DrawOnInspector() override;
 };
 }
-class ColliderManager : System
+class ColliderManager : public MultipleComponentManager<ColliderData, editor::ColliderInfo, ComponentType::COLLIDER2D>
 {
 public:
-	ColliderManager(Engine& engine);
-	void CreateComponent(json& componentJson, Entity entity);
-private:
-	Body2dManager& m_BodyManager;
-	EntityManager& m_EntityManager;
-	std::vector<ColliderData> m_ColliderDatas;
-	std::vector<editor::ColliderInfo> m_ColliderInfos;
+	using MultipleComponentManager::MultipleComponentManager;
+	void Init() override;
+	ColliderData* AddComponent(Entity entity) override;
+	void CreateComponent(json& componentJson, Entity entity)override;
+	void DestroyComponent(Entity entity) override;
+  	ColliderData* GetComponentPtr(Entity entity) override;
+protected:
+
+  	int GetFreeComponentIndex() override;
+	Body2dManager* m_BodyManager;
 };
 
 }

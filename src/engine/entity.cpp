@@ -26,6 +26,7 @@ SOFTWARE.
 #include <engine/config.h>
 #include <engine/entity.h>
 #include <engine/globals.h>
+#include <python/python_engine.h>
 
 namespace sfge
 {
@@ -51,12 +52,18 @@ EntityMask EntityManager::GetMask(Entity entity)
 
 Entity EntityManager::CreateEntity(Entity wantedEntity)
 {
+
     if(wantedEntity == INVALID_ENTITY)
     {
         for (Entity entity = 1U; entity <= m_MaskArray.size(); entity++)
         {
             if(m_MaskArray[entity-1] == INVALID_ENTITY)
             {
+				{
+					std::ostringstream oss;
+					oss << "Entity: " << entity;
+					m_EntityInfos[entity - 1].name = oss.str();
+				}
                 return entity;
             }
         }
@@ -76,6 +83,15 @@ Entity EntityManager::CreateEntity(Entity wantedEntity)
 	return INVALID_ENTITY;
 }
 
+void EntityManager::DestroyEntity(Entity entity)
+{
+    for(auto& destroyObserver : m_DestroyObservers)
+	{
+    	destroyObserver->OnDestroy(entity);
+	}
+	m_MaskArray[entity-1] = INVALID_ENTITY;
+}
+
 bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 {
 	return (m_MaskArray[entity - 1] & static_cast<int>(componentType)) == static_cast<int>(componentType);
@@ -83,7 +99,6 @@ bool EntityManager::HasComponent(Entity entity, ComponentType componentType)
 
 void EntityManager::AddComponentType(Entity entity, ComponentType componentType)
 {
-
 	m_MaskArray[entity - 1] = m_MaskArray[entity - 1] | static_cast<int>(componentType);
 }
 
@@ -101,18 +116,23 @@ void EntityManager::ResizeEntityNmb(size_t newSize)
 {
 	m_MaskArray.resize(newSize);
 	m_EntityInfos.resize(newSize);
-	for (auto* resizeObserver : m_ResizeObsververs)
+	for (auto* resizeObserver : m_ResizeObservers)
 	{
 		resizeObserver->OnResize(newSize);
 	}
-	if(const auto config = m_Engine.GetConfig().lock())
+	if(const auto config = m_Engine.GetConfig())
 	{
 		config->currentEntitiesNmb = newSize;
 	}
 }
 
-void EntityManager::AddObserver(ResizeObserver* resizeObserver)
+void EntityManager::AddResizeObserver(ResizeObserver *resizeObserver)
 {
-	m_ResizeObsververs.push_back(resizeObserver);
+	m_ResizeObservers.emplace(resizeObserver);
 }
+void EntityManager::AddDestroyObserver(DestroyObserver *destroyObserver)
+{
+	m_DestroyObservers.emplace(destroyObserver);
+}
+
 }

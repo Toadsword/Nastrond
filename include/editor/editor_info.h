@@ -24,6 +24,13 @@ SOFTWARE.
 #ifndef SFGE_EDITOR_INFO_H
 #define SFGE_EDITOR_INFO_H
 #include <string>
+#include <engine/globals.h>
+
+namespace sfge
+{
+
+enum class ComponentType : int;
+}
 //Editor components
 namespace sfge::editor
 {
@@ -31,10 +38,23 @@ namespace sfge::editor
 struct EntityInfo;
 struct ComponentInfo;
 
+
 class IDrawableInspector
 {
 public:
-	virtual void DrawOnInspector() = 0;
+	virtual ~IDrawableInspector(){};
+    void SetEntity(Entity entity);
+    Entity GetEntity();
+    virtual void DrawOnInspector() = 0;
+protected:
+  	Entity m_Entity;
+
+};
+
+class IDrawableManager
+{
+public:
+  	virtual void DrawOnInspector(Entity entity) = 0;
 };
 
 struct NamableEditorComponent

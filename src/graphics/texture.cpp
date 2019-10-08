@@ -30,7 +30,7 @@ SOFTWARE.
 #include <memory>
 
 #include <graphics/texture.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 #include <engine/engine.h>
 #include <utility/file_utility.h>
@@ -57,7 +57,7 @@ static std::set<std::string> imgExtensionSet
 void TextureManager::Init()
 {
 	System::Init();
-	if(const auto config = m_Engine.GetConfig().lock())
+	if(const auto config = m_Engine.GetConfig())
 	{
 		if(config->devMode)
 		{
@@ -124,7 +124,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 			if (!texture.loadFromFile(filename))
 			{
 				std::ostringstream oss;
-				oss << "[ERROR] Could not load texture file: " << filename;
+				oss << "[ERROR] Could not load texture file: '" << filename << "' : File doesn't exist.";
 				Log::GetInstance()->Error(oss.str());
 				return INVALID_TEXTURE;
 			}
@@ -140,7 +140,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 		if (!texture.loadFromFile(filename))
 		{
 			std::ostringstream oss;
-			oss << "[ERROR] Could not load texture file: " << filename;
+			oss << "[ERROR] Could not load texture file '" << filename << "' : Error while loading.";
 			Log::GetInstance()->Error(oss.str());
 			return INVALID_TEXTURE;
 		}
@@ -154,7 +154,7 @@ TextureId TextureManager::LoadTexture(std::string filename)
 	else
 	{
 		std::ostringstream oss;
-		oss << "[ERROR] Could not load texture file: " << filename;
+		oss << "[ERROR] Could not load texture file: '" << filename << "' : File doesn't exist.";
 		Log::GetInstance()->Error(oss.str());
 	}
 	return INVALID_TEXTURE;
@@ -162,12 +162,20 @@ TextureId TextureManager::LoadTexture(std::string filename)
 
 sf::Texture* TextureManager::GetTexture(TextureId textureId)
 {
+	if (textureId == INVALID_TEXTURE)
+		return &m_Textures[textureId];
 	return &m_Textures[textureId-1];
+}
+
+std::string TextureManager::GetTexturePath(TextureId textureId)
+{
+	if (textureId == INVALID_TEXTURE)
+		return m_TexturePaths[textureId];
+	return m_TexturePaths[textureId - 1];
 }
 
 bool TextureManager::HasValidExtension(std::string filename)
 {
-	const auto folderLastIndex = filename.find_last_of('/');
 	const std::string::size_type filenameExtensionIndex = filename.find_last_of('.');
 	if (filenameExtensionIndex >= filename.size())
 	{

@@ -8584,8 +8584,13 @@ class serializer
                             {
                                 if (codepoint <= 0xFFFF)
                                 {
+#if WIN32
+									_snprintf(string_buffer.data() + bytes, 7, "\\u%04x",
+										static_cast<uint16_t>(codepoint));
+#else
                                     snprintf(string_buffer.data() + bytes, 7, "\\u%04x",
                                                   static_cast<uint16_t>(codepoint));
+#endif
                                     bytes += 6;
                                 }
                                 else

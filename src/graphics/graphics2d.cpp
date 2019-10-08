@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <graphics/graphics2d.h>
 #include <engine/engine.h>
-#include <engine/log.h>
+#include <utility/log.h>
 #include <engine/config.h>
 
 //Dependencies includes
@@ -37,17 +37,20 @@ SOFTWARE.
 
 namespace sfge
 {
-
 void Graphics2dManager::Init()
 {
-	if (const auto configPtr = m_Engine.GetConfig().lock())
+	if (const auto configPtr = m_Engine.GetConfig())
 	{
-
+		m_Windowless = configPtr->windowLess;
 		if (!m_Windowless)
 		{
-			m_Window = std::make_shared<sf::RenderWindow>(
+			if(configPtr->styleWindow == sf::Style::Fullscreen)
+			{
+				configPtr->screenResolution = sf::Vector2i(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().width);
+			}
+			m_Window = std::make_unique<sf::RenderWindow>(
 				sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
-				"SFGE 0.1");
+				"SFGE 0.1", configPtr->styleWindow);
 			if (configPtr->maxFramerate)
 			{
 				m_Window->setFramerateLimit(configPtr->maxFramerate);
@@ -58,30 +61,48 @@ void Graphics2dManager::Init()
 	else
 	{
 		Log::GetInstance()->Error("[Error] Config is null from Graphics Manager");
-		
 	}
 	m_TextureManager.Init();
+	m_TilemapSystem.Init();
 	m_ShapeManager.Init();
 	m_SpriteManager.Init();
-
+ 	m_AnimationManager.Init();
+	m_CameraManager.Init();
 }
 
 void Graphics2dManager::Update(float dt)
 {
 	if (!m_Windowless)
 	{
+		rmt_ScopedCPUSample(Graphics2dUpdate,0)
 		m_Window->clear();
 
+		m_TilemapSystem.Update(dt);
 		m_SpriteManager.Update(dt);
+		m_AnimationManager.Update(dt);
 		m_ShapeManager.Update(dt);
-		m_SpriteManager.Draw(*m_Window);
 
-		m_ShapeManager.Draw(*m_Window);
+		//Refresh View Window
+		m_CameraManager.Update(dt);
+	}
+}
+
+void Graphics2dManager::Draw()
+{
+	rmt_ScopedCPUSample(Graphics2dDraw, 0)
+	if(!m_Windowless)
+	{
+		m_TilemapSystem.DrawTilemaps(*m_Window);
+		m_SpriteManager.DrawSprites(*m_Window);
+		m_AnimationManager.DrawAnimations(*m_Window);
+		m_ShapeManager.DrawShapes(*m_Window);
 	}
 }
 
 void Graphics2dManager::Display()
 {
+
+	rmt_ScopedCPUSample(Graphics2dDisplay,0)
 	if (!m_Windowless)
 	{
 		m_Window->display();
@@ -99,25 +120,83 @@ void Graphics2dManager::DrawLine(sf::Vector2f from, sf::Vector2f to, sf::Color c
 	m_Window->draw(vertices, 2, sf::Lines);
 }
 
-std::shared_ptr<sf::RenderWindow> Graphics2dManager::GetWindow()
+sf::RenderWindow* Graphics2dManager::GetWindow()
 {
-	return m_Window;
+	return m_Window.get();
 }
 
-SpriteManager& Graphics2dManager::GetSpriteManager()
+sf::Vector2f Graphics2dManager::GetSizeWindow()
 {
-	return m_SpriteManager;
+	return sf::Vector2f(m_Window.get()->getSize());
 }
 
-TextureManager& Graphics2dManager::GetTextureManager()
+sf::Vector2f Graphics2dManager::GetPositionWindow()
 {
-	return m_TextureManager;
+	if(m_Engine.GetConfig()->styleWindow == sf::Style::Fullscreen)
+	{
+		return sf::Vector2f(m_Window.get()->getPosition());
+	}
+	if (m_Engine.GetConfig()->styleWindow == sf::Style::Default)
+	{
+		return sf::Vector2f(m_Window.get()->getPosition()) + sf::Vector2f(WINDOW_SIDES_WIDTH_PIXEL, WINDOW_TOP_HEIGTH_PIXEL);
+	}
+	return sf::Vector2f();
 }
 
-ShapeManager& Graphics2dManager::GetShapeManager()
+void Graphics2dManager::OnChangeScreenMode()
 {
-	return m_ShapeManager;
+	if (const auto configPtr = m_Engine.GetConfig())
+	{
+		switch (configPtr->styleWindow) {
+		case sf::Style::Fullscreen:
+			configPtr->screenResolution = sf::Vector2i(WINDOW_DEFAULT_WITDH, WINDOW_DEFAULT_HEIGTH);
+			configPtr->styleWindow = sf::Style::None;
+			break;
+		case sf::Style::None:
+			configPtr->styleWindow = sf::Style::Default;
+			break;
+		case sf::Style::Default:
+			configPtr->styleWindow = sf::Style::Fullscreen;
+			configPtr->screenResolution = sf::Vector2i(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
+			break;
+		}
+
+		m_Window->close();
+		m_Window->create(sf::VideoMode(configPtr->screenResolution.x, configPtr->screenResolution.y),
+			"SFGE 0.1", configPtr->styleWindow);
+	}
 }
+
+SpriteManager* Graphics2dManager::GetSpriteManager()
+{
+	return &m_SpriteManager;
+}
+
+AnimationManager* Graphics2dManager::GetAnimationManager()
+{
+	return &m_AnimationManager;
+}
+
+TextureManager* Graphics2dManager::GetTextureManager()
+{
+	return &m_TextureManager;
+}
+
+ShapeManager* Graphics2dManager::GetShapeManager()
+{
+	return &m_ShapeManager;
+}
+
+CameraManager* Graphics2dManager::GetCameraManager()
+{
+	return &m_CameraManager;
+}
+
+TilemapSystem * Graphics2dManager::GetTilemapSystem()
+{
+	return &m_TilemapSystem;
+}
+
 
 void Graphics2dManager::CheckVersion() const
 {
@@ -133,7 +212,6 @@ void checkVersion()
 
 }
 
-
 void Graphics2dManager::Destroy()
 {
 	Clear();
@@ -145,13 +223,14 @@ void Graphics2dManager::Destroy()
 
 void Graphics2dManager::Clear()
 {
+	m_TilemapSystem.Clear();
 	m_TextureManager.Clear();
 	m_SpriteManager.Reset();
 }
 
 void Graphics2dManager::Collect()
 {
-
+	m_TilemapSystem.Collect();
 	m_TextureManager.Collect();
 	m_SpriteManager.Collect();
 }

@@ -28,13 +28,14 @@ SOFTWARE.
 #include <string>
 #include <SFML/Audio/Music.hpp>
 
-#include <engine/entity.h>
 #include <engine/system.h>
 namespace sfge
 {
 
 using MusicId = unsigned int;
 const MusicId INVALID_MUSIC_ID = 0U;
+
+const size_t MUSIC_INSTANCES_NMB = 1;
 
 class MusicManager
 {

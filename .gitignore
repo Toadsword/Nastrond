@@ -23,3 +23,15 @@
 *.exe
 *.out
 *.app
+
+# Folders
+build
+.idea
+/scripts/tools/_pycache__
+
+# Automatic generated files
+tools_pch.h
+tools_pch.cpp
+
+# python license
+*.pyc

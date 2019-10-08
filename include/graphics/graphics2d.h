@@ -29,10 +29,20 @@ SOFTWARE.
 #include <graphics/shape2d.h>
 #include <graphics/texture.h>
 #include <graphics/sprite2d.h>
+#include <graphics/animation2d.h>
+#include <graphics/camera.h>
+#include <graphics/tilemap.h>
+#include <graphics/button.h>
+#include <graphics/image.h>
+#include <graphics/text.h>
 
 namespace sfge
 {
+	const int WINDOW_TOP_HEIGTH_PIXEL = 38;
+	const int WINDOW_SIDES_WIDTH_PIXEL = 8;
 
+	const int WINDOW_DEFAULT_HEIGTH = 720;
+	const int WINDOW_DEFAULT_WITDH = 1080;
 /**
 * \brief The Graphics Manager
 */
@@ -41,9 +51,6 @@ class Graphics2dManager : public System
 public:
 	using System::System;
 
-  	Graphics2dManager& operator=(const Graphics2dManager&) = delete;
-
-  	Graphics2dManager(Graphics2dManager&& graphics2dManager) = default;
 	/**
 		* \brief Initialize the Graphics Manager
 		*/
@@ -61,6 +68,8 @@ public:
 	*/
 	void Destroy() override;
 
+	void Draw() override;
+
 	void Clear() override;
 	
 	void Collect() override;
@@ -72,10 +81,18 @@ public:
 	* \brief Getter of the window created in GraphicsManager
 	* \return The SFML window
 	*/
-	std::shared_ptr<sf::RenderWindow> GetWindow();
-	ShapeManager& GetShapeManager();
-	SpriteManager& GetSpriteManager();
-	TextureManager& GetTextureManager();
+	sf::RenderWindow* GetWindow();
+	sf::Vector2f GetSizeWindow();
+	sf::Vector2f GetPositionWindow();
+
+	void OnChangeScreenMode();
+
+	AnimationManager* GetAnimationManager();
+	ShapeManager* GetShapeManager();
+	SpriteManager* GetSpriteManager();
+	TextureManager* GetTextureManager();
+	CameraManager* GetCameraManager();
+	TilemapSystem* GetTilemapSystem();
 
 protected:
 	bool m_Windowless = false;
@@ -85,8 +102,11 @@ protected:
 	void CheckVersion() const;
 	TextureManager m_TextureManager{m_Engine};
 	SpriteManager m_SpriteManager{m_Engine};
+	AnimationManager m_AnimationManager{ m_Engine };
 	ShapeManager m_ShapeManager{m_Engine};
-	std::shared_ptr<sf::RenderWindow> m_Window = nullptr;
+	CameraManager m_CameraManager{ m_Engine };
+	TilemapSystem m_TilemapSystem{ m_Engine };
+	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 
 }

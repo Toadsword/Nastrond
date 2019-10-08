@@ -26,6 +26,7 @@ SOFTWARE.
 #define SFGE_EDITOR_H
 
 #include <memory>
+#include <set>
 
 #include <engine/system.h>
 #include <engine/globals.h>
@@ -33,6 +34,7 @@ SOFTWARE.
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <editor/editor_info.h>
 #include <editor/profiler.h>
+#include <editor/tools_manager.h>
 
 namespace sfge
 {
@@ -45,6 +47,10 @@ class EntityManager;
 class SceneManager;
 class Physics2dManager;
 class SoundManager;
+class KeyboardManager;
+class MouseManager;
+class TilemapSystem;
+struct Configuration;
 
 
 
@@ -72,19 +78,30 @@ public:
 	void Clear() override;
 
 	void SetCurrentScene(std::unique_ptr<editor::SceneInfo> sceneInfo);
+	std::string GetCurrentSceneName() const;
+
+	void AddDrawableObserver(editor::IDrawableManager* observer);
 protected:
-	std::weak_ptr<sf::RenderWindow> m_Window;
-	Graphics2dManager& m_GraphicsManager;
-	SceneManager& m_SceneManager;
-	EntityManager& m_EntityManager;
-	Transform2dManager& m_TransformManager;
-	Physics2dManager& m_PhysicsManager;
-	SoundManager& m_SoundManager;
+	sf::RenderWindow* m_Window = nullptr;
+	Graphics2dManager* m_GraphicsManager = nullptr;
+	EntityManager* m_EntityManager = nullptr;
+	Configuration* m_Config = nullptr;
+	KeyboardManager* m_KeyboardManager = nullptr;
+	MouseManager* m_MouseManager = nullptr;
+	TilemapSystem* m_TilemapSystem = nullptr;
 
 	std::unique_ptr<editor::SceneInfo> m_CurrentScene = nullptr;
-	bool m_IsImguiInit = false;
 	editor::ProfilerEditorWindow m_ProfilerWindow{m_Engine};
+	editor::ToolsManager m_ToolWindow{m_Engine};
 	Entity selectedEntity = INVALID_ENTITY;
+
+	std::set<editor::IDrawableManager*> m_DrawableObservers;
+#ifdef WIN32
+
+	const sf::Keyboard::Key enablingKey = static_cast<sf::Keyboard::Key>(52);
+#else
+	const sf::Keyboard::Key enablingKey = static_cast<sf::Keyboard::Key>(54);
+#endif
 };
 
 }

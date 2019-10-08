@@ -30,14 +30,71 @@ SOFTWARE.
 
 #include <extensions/python_extensions.h>
 #include <extensions/planet_system.h>
+#include <extensions/AI/navigation_graph_manager.h>
+#include <extensions/dwarf_manager.h>
+#include <extensions/Building/forge_manager.h>
+#include <extensions/Building/dwelling_manager.h>
+#include <extensions/Building/production_building_manager.h>
+#include <extensions/Building/building_constructor.h>
+#include <extensions/Building/road_manager.h>
+
+#include <tools/tools_pch.h>
+#include <extensions/Building/building_manager.h>
+#include <extensions/AI/behavior_tree.h>
+
+
 namespace sfge::ext
 {
+
+static std::vector<std::function<void(py::module&)>> m_OtherPythonExtensions;
 
 void ExtendPython(py::module& m)
 {
 	py::class_<PlanetSystem, System> planetSystem(m, "PlanetSystem");
 	planetSystem
 		.def(py::init<Engine&>());
+
+	py::class_<DwarfManager, System> dwarfManager(m, "DwarfManager");
+	dwarfManager
+		.def(py::init<Engine&>());
+
+	py::class_<NavigationGraphManager, System> navigationGraphManager(m, "NavigationGraphManager");
+	navigationGraphManager
+		.def(py::init<Engine&>());
+
+	py::class_<ProductionBuildingManager, System> productionBuildingManager(m, "ProductionBuildingManager");
+	productionBuildingManager
+		.def(py::init<Engine&>());
+
+	py::class_<ForgeManager, System> forgeManager(m, "ForgeManager");
+	forgeManager
+		.def(py::init<Engine&>());
+
+	py::class_<DwellingManager, System> dwellingManager(m, "DwellingManager");
+	dwellingManager
+		.def(py::init<Engine&>());
+
+	py::class_<WarehouseManager, System> warehouseManager(m, "WarehouseManager");
+	warehouseManager
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingManager, System> buildingManager(m, "BuildingManager");
+	buildingManager
+		.def(py::init<Engine&>());
+
+	py::class_<behavior_tree::BehaviorTree, System> behaviourTree(m, "BehaviorTree");
+	behaviourTree
+		.def(py::init<Engine&>());
+
+	py::class_<BuildingConstructor, System> buildingConstructor(m, "BuildingConstructor");
+	buildingConstructor
+		.def(py::init<Engine&>());
+
+	py::class_<RoadManager, System> roadManager(m, "RoadManager");
+	roadManager
+		.def(py::init<Engine&>());
+
+	tools::ExtendPythonTools(m);
 }
 
 }

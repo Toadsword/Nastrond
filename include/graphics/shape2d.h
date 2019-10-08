@@ -46,17 +46,17 @@ enum class ShapeType
 	CONVEX,
 };
 
-class Shape : public Offsetable, public TransformRequiredComponent
+class Shape : public Offsetable
 {
 public:
   	Shape();
 	Shape(Transform2d* transform, sf::Vector2f offset);
-  	Shape ( Shape && ) = default;
-  	Shape ( const Shape & ) = delete;
+  	Shape ( Shape && ) = default; //move constructor
+  	Shape ( const Shape & ) = delete; //delete copy constructor
   	virtual ~Shape();
 	void Draw(sf::RenderWindow& window) const;
 	void SetFillColor(sf::Color color) const;
-	void Update(float dt) const;
+	void Update(float dt, Transform2d* transform) const;
 	void SetShape(std::unique_ptr<sf::Shape> shape);
 	sf::Shape* GetShape();
 protected:
@@ -76,16 +76,15 @@ struct ShapeInfo : ComponentInfo
 }
 
 class ShapeManager :
-	public ComponentManager<Shape, editor::ShapeInfo>,
-	public System,
-	public ResizeObserver
+	public SingleComponentManager<Shape, editor::ShapeInfo, ComponentType::SHAPE2D>
 {
 
 public:
-	ShapeManager(Engine& engine);
+	using SingleComponentManager::SingleComponentManager; 
 	ShapeManager(ShapeManager&& shapeManager) = default;
+
 	void Init() override;
-	void Draw(sf::RenderWindow& window);
+	void DrawShapes(sf::RenderWindow &window);
 	void Update(float dt) override;
 	void Clear() override;
 
@@ -95,8 +94,7 @@ public:
 
 	void OnResize(size_t new_size) override;
 protected:
-	Transform2dManager& m_Transform2dManager;
-	EntityManager& m_EntityManager;
+	Transform2dManager* m_Transform2dManager;
 };
 
 
